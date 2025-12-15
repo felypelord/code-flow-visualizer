@@ -1,9 +1,14 @@
+// ... (previous imports)
 import { Lesson } from "./types";
 
-// ==========================================
-// 1. Functions Lesson (All Languages)
-// ==========================================
+// ... (keep previous lessons: functionLesson, objectLesson, classLesson, recursionLesson)
 
+// Need to read the file first to append properly or I can just rewrite the whole file since I have it in context?
+// I have the file in context from the previous turn's write. I will rewrite it to include the new lesson.
+
+// ==========================================
+// 1. Functions Lesson
+// ==========================================
 const functionLesson: Lesson = {
   id: "functions",
   title: "Como funcionam as Funções?",
@@ -126,7 +131,7 @@ class Program {
           line: 9,
           stack: [],
           heap: [],
-          explanation: "Em C#, a execução começa pelo método estático 'Main'. O CLR (Common Language Runtime) carrega o programa."
+          explanation: "Em C#, a execução começa pelo método estático 'Main'. O CLR carrega o programa."
         },
         {
           stepId: 1,
@@ -157,7 +162,7 @@ class Program {
              { id: "Somar", name: "Somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }
           ],
           heap: [],
-          explanation: "Chamamos 'Somar'. Um novo Frame é empilhado. Os valores são copiados (Passagem por Valor)."
+          explanation: "Chamamos 'Somar'. Um novo Frame é empilhado. Os valores são copiados."
         },
         {
           stepId: 5,
@@ -215,7 +220,7 @@ class Program {
           line: 7,
           stack: [],
           heap: [],
-          explanation: "A JVM (Java Virtual Machine) inicia a execução pelo método 'main'."
+          explanation: "A JVM inicia a execução pelo método 'main'."
         },
         {
           stepId: 1,
@@ -315,9 +320,8 @@ int main() {
 };
 
 // ==========================================
-// 2. Objects Lesson (JS/C#/Java - C Skipped for now)
+// 2. Objects Lesson
 // ==========================================
-
 const objectLesson: Lesson = {
   id: "objects",
   title: "Referências e Objetos",
@@ -374,9 +378,8 @@ class Program {
 };
 
 // ==========================================
-// 3. Recursion Lesson (NEW)
+// 3. Recursion Lesson
 // ==========================================
-
 const recursionLesson: Lesson = {
     id: "recursion",
     title: "Recursão (Call Stack)",
@@ -407,9 +410,8 @@ const resultado = fatorial(3);`,
 };
 
 // ==========================================
-// 4. Classes Lesson (JS/C#/Java)
+// 4. Classes Lesson
 // ==========================================
-
 const classLesson: Lesson = {
   id: "classes",
   title: "Classes e Instâncias",
@@ -443,9 +445,50 @@ c1.acelerar();`,
   }
 };
 
+// ==========================================
+// 5. Loops & Arrays Lesson (NEW)
+// ==========================================
+const loopsArraysLesson: Lesson = {
+  id: "loops-arrays",
+  title: "Loops & Arrays",
+  description: "Entenda como arrays são armazenados e como loops os percorrem índice por índice.",
+  difficulty: "Iniciante",
+  variants: {
+    javascript: {
+      code: `const numeros = [10, 20, 30];
+let soma = 0;
+
+for (let i = 0; i < numeros.length; i++) {
+  soma = soma + numeros[i];
+}`,
+      steps: [
+        { stepId: 0, line: 1, stack: [], heap: [], explanation: "Vamos criar um array de números." },
+        { stepId: 1, line: 1, stack: [{ id: "global", name: "Global", variables: [{ name: "numeros", value: "REF:arr1", type: "reference", refId: "arr1", changed: true }], active: true }], heap: [{ id: "arr1", className: "Array", properties: [{ name: "0", value: 10, type: "primitive" }, { name: "1", value: 20, type: "primitive" }, { name: "2", value: 30, type: "primitive" }, { name: "length", value: 3, type: "primitive" }], highlight: true }], explanation: "Array criado na Heap. 'numeros' guarda a referência." },
+        { stepId: 2, line: 2, stack: [{ id: "global", name: "Global", variables: [{ name: "numeros", value: "REF:arr1", type: "reference", refId: "arr1" }, { name: "soma", value: 0, type: "primitive", changed: true }], active: true }], heap: [{ id: "arr1", className: "Array", properties: [{ name: "0", value: 10, type: "primitive" }, { name: "1", value: 20, type: "primitive" }, { name: "2", value: 30, type: "primitive" }, { name: "length", value: 3, type: "primitive" }] }], explanation: "Inicializamos 'soma' com 0." },
+        
+        // Loop Iteration 0
+        { stepId: 3, line: 4, stack: [{ id: "global", name: "Global", variables: [{ name: "numeros", value: "REF:arr1", type: "reference", refId: "arr1" }, { name: "soma", value: 0, type: "primitive" }, { name: "i", value: 0, type: "primitive", changed: true }], active: true }], heap: [{ id: "arr1", className: "Array", properties: [{ name: "0", value: 10, type: "primitive" }, { name: "1", value: 20, type: "primitive" }, { name: "2", value: 30, type: "primitive" }, { name: "length", value: 3, type: "primitive" }] }], explanation: "Início do loop. 'i' é 0. 0 < 3 é verdadeiro." },
+        { stepId: 4, line: 5, stack: [{ id: "global", name: "Global", variables: [{ name: "numeros", value: "REF:arr1", type: "reference", refId: "arr1" }, { name: "soma", value: 10, type: "primitive", changed: true }, { name: "i", value: 0, type: "primitive" }], active: true }], heap: [{ id: "arr1", className: "Array", properties: [{ name: "0", value: 10, type: "primitive", highlight: true }, { name: "1", value: 20, type: "primitive" }, { name: "2", value: 30, type: "primitive" }, { name: "length", value: 3, type: "primitive" }] }], explanation: "Acessamos numeros[0] (10) e somamos. soma = 0 + 10 = 10." },
+        
+        // Loop Iteration 1
+        { stepId: 5, line: 4, stack: [{ id: "global", name: "Global", variables: [{ name: "numeros", value: "REF:arr1", type: "reference", refId: "arr1" }, { name: "soma", value: 10, type: "primitive" }, { name: "i", value: 1, type: "primitive", changed: true }], active: true }], heap: [{ id: "arr1", className: "Array", properties: [{ name: "0", value: 10, type: "primitive" }, { name: "1", value: 20, type: "primitive" }, { name: "2", value: 30, type: "primitive" }, { name: "length", value: 3, type: "primitive" }] }], explanation: "Incrementamos 'i' para 1. 1 < 3 é verdadeiro." },
+        { stepId: 6, line: 5, stack: [{ id: "global", name: "Global", variables: [{ name: "numeros", value: "REF:arr1", type: "reference", refId: "arr1" }, { name: "soma", value: 30, type: "primitive", changed: true }, { name: "i", value: 1, type: "primitive" }], active: true }], heap: [{ id: "arr1", className: "Array", properties: [{ name: "0", value: 10, type: "primitive" }, { name: "1", value: 20, type: "primitive", highlight: true }, { name: "2", value: 30, type: "primitive" }, { name: "length", value: 3, type: "primitive" }] }], explanation: "Acessamos numeros[1] (20). soma = 10 + 20 = 30." },
+        
+        // Loop Iteration 2
+        { stepId: 7, line: 4, stack: [{ id: "global", name: "Global", variables: [{ name: "numeros", value: "REF:arr1", type: "reference", refId: "arr1" }, { name: "soma", value: 30, type: "primitive" }, { name: "i", value: 2, type: "primitive", changed: true }], active: true }], heap: [{ id: "arr1", className: "Array", properties: [{ name: "0", value: 10, type: "primitive" }, { name: "1", value: 20, type: "primitive" }, { name: "2", value: 30, type: "primitive" }, { name: "length", value: 3, type: "primitive" }] }], explanation: "Incrementamos 'i' para 2. 2 < 3 é verdadeiro." },
+        { stepId: 8, line: 5, stack: [{ id: "global", name: "Global", variables: [{ name: "numeros", value: "REF:arr1", type: "reference", refId: "arr1" }, { name: "soma", value: 60, type: "primitive", changed: true }, { name: "i", value: 2, type: "primitive" }], active: true }], heap: [{ id: "arr1", className: "Array", properties: [{ name: "0", value: 10, type: "primitive" }, { name: "1", value: 20, type: "primitive" }, { name: "2", value: 30, type: "primitive", highlight: true }, { name: "length", value: 3, type: "primitive" }] }], explanation: "Acessamos numeros[2] (30). soma = 30 + 30 = 60." },
+        
+        // Loop End
+        { stepId: 9, line: 4, stack: [{ id: "global", name: "Global", variables: [{ name: "numeros", value: "REF:arr1", type: "reference", refId: "arr1" }, { name: "soma", value: 60, type: "primitive" }, { name: "i", value: 3, type: "primitive", changed: true }], active: true }], heap: [{ id: "arr1", className: "Array", properties: [{ name: "0", value: 10, type: "primitive" }, { name: "1", value: 20, type: "primitive" }, { name: "2", value: 30, type: "primitive" }, { name: "length", value: 3, type: "primitive" }] }], explanation: "Incrementamos 'i' para 3. 3 < 3 é FALSO. O loop termina." }
+      ]
+    }
+  }
+};
+
 export const lessons: Record<string, Lesson> = {
   functions: functionLesson,
   objects: objectLesson,
   classes: classLesson,
-  recursion: recursionLesson
+  recursion: recursionLesson,
+  "loops-arrays": loopsArraysLesson
 };

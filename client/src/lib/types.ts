@@ -6,6 +6,7 @@ export interface Variable {
   type: 'primitive' | 'reference';
   refId?: string; // If type is reference, this points to a HeapObject id
   changed?: boolean; // For highlighting changes
+  highlight?: boolean; // For highlighting specific variable (e.g. array index)
 }
 
 export interface StackFrame {

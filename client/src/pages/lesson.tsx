@@ -80,6 +80,94 @@ export default function LessonPage() {
 
   const progress = ((currentStepIndex + 1) / totalSteps) * 100;
 
+  // Render content based on device type
+  const renderContent = () => {
+    if (isMobile) {
+      return (
+        <div className="flex flex-col h-full overflow-y-auto pb-20">
+          <div className="h-[400px] shrink-0 p-2">
+            <CodeEditor code={variant.code} activeLine={currentStep.line} />
+          </div>
+          
+          <div className="p-2 shrink-0">
+             <div className="bg-card/50 border border-white/10 rounded-lg p-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-2">
+                <ChevronRight className="w-3 h-3" /> Explicação
+              </h3>
+              <AnimatePresence mode="wait">
+                <motion.p 
+                  key={`${language}-${currentStepIndex}`}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  className="text-sm leading-relaxed font-light"
+                >
+                  {currentStep.explanation}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 p-2">
+             <div className="h-[300px] bg-[#0d1220]/50 border border-white/5 rounded-lg">
+                <CallStack stack={currentStep.stack} />
+             </div>
+             <div className="h-[300px] bg-[#0d1220]/50 border border-white/5 rounded-lg">
+                <HeapMemory heap={currentStep.heap} />
+             </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <ResizablePanelGroup direction="horizontal">
+        <ResizablePanel defaultSize={40} minSize={30}>
+          <div className="h-full p-4 flex flex-col gap-4">
+            <CodeEditor code={variant.code} activeLine={currentStep.line} />
+            
+            <div className="bg-card/50 border border-white/10 rounded-lg p-4 flex-1 overflow-auto min-h-[100px]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-2">
+                <ChevronRight className="w-3 h-3" /> Explicação
+              </h3>
+              <AnimatePresence mode="wait">
+                <motion.p 
+                  key={`${language}-${currentStepIndex}`}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  className="text-lg leading-relaxed font-light"
+                >
+                  {currentStep.explanation}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+          </div>
+        </ResizablePanel>
+
+        <ResizableHandle withHandle className="bg-white/5" />
+
+        <ResizablePanel defaultSize={60}>
+          <ResizablePanelGroup direction="vertical">
+            <ResizablePanel defaultSize={50} minSize={20}>
+              <div className="h-full p-4 bg-[#0d1220]/50 border-b border-white/5">
+                <CallStack stack={currentStep.stack} />
+              </div>
+            </ResizablePanel>
+
+            <ResizableHandle withHandle className="bg-white/5" />
+
+            <ResizablePanel defaultSize={50} minSize={20}>
+               <div className="h-full p-4 bg-[#0d1220]/50">
+                <HeapMemory heap={currentStep.heap} />
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    );
+  };
+
   return (
     <Layout>
       <div className="h-[calc(100vh-64px)] flex flex-col">
@@ -141,65 +229,13 @@ export default function LessonPage() {
           </div>
         </div>
 
-        {/* Main Content Resizable Panels */}
+        {/* Main Content */}
         <div className="flex-1 overflow-hidden">
-          <ResizablePanelGroup direction={isMobile ? "vertical" : "horizontal"}>
-            
-            {/* Left Panel: Code */}
-            <ResizablePanel defaultSize={isMobile ? 50 : 40} minSize={30}>
-              <div className="h-full p-2 md:p-4 flex flex-col gap-2 md:gap-4">
-                <CodeEditor code={variant.code} activeLine={currentStep.line} />
-                
-                {/* Explanation Box */}
-                <div className="bg-card/50 border border-white/10 rounded-lg p-3 md:p-4 flex-1 overflow-auto min-h-[100px]">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-2">
-                    <ChevronRight className="w-3 h-3" /> Explicação
-                  </h3>
-                  <AnimatePresence mode="wait">
-                    <motion.p 
-                      key={`${language}-${currentStepIndex}`}
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      className="text-sm md:text-lg leading-relaxed font-light"
-                    >
-                      {currentStep.explanation}
-                    </motion.p>
-                  </AnimatePresence>
-                </div>
-              </div>
-            </ResizablePanel>
-
-            <ResizableHandle withHandle className="bg-white/5" />
-
-            {/* Right Panel: Visualization */}
-            <ResizablePanel defaultSize={isMobile ? 50 : 60}>
-              <ResizablePanelGroup direction={isMobile ? "horizontal" : "vertical"}>
-                
-                {/* Stack */}
-                <ResizablePanel defaultSize={50} minSize={20}>
-                  <div className="h-full p-2 md:p-4 bg-[#0d1220]/50 border-r md:border-r-0 md:border-b border-white/5">
-                    <CallStack stack={currentStep.stack} />
-                  </div>
-                </ResizablePanel>
-
-                <ResizableHandle withHandle className="bg-white/5" />
-
-                {/* Heap */}
-                <ResizablePanel defaultSize={50} minSize={20}>
-                   <div className="h-full p-2 md:p-4 bg-[#0d1220]/50">
-                    <HeapMemory heap={currentStep.heap} />
-                  </div>
-                </ResizablePanel>
-
-              </ResizablePanelGroup>
-            </ResizablePanel>
-
-          </ResizablePanelGroup>
+           {renderContent()}
         </div>
         
         {/* Progress Bar */}
-        <div className="h-1 bg-white/5 w-full shrink-0">
+        <div className="h-1 bg-white/5 w-full shrink-0 sticky bottom-0">
           <motion.div 
             className="h-full bg-primary shadow-[0_0_10px_rgba(6,182,212,0.5)]"
             initial={{ width: 0 }}

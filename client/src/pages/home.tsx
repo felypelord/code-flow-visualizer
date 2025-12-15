@@ -71,6 +71,13 @@ export default function Home() {
               color="blue"
             />
             <LessonCard 
+              icon={<Repeat className="w-8 h-8 text-pink-400" />}
+              title="Loops & Arrays"
+              description="Iteração e memória de arrays."
+              href="/lesson/loops-arrays"
+              color="pink"
+            />
+            <LessonCard 
               icon={<Box className="w-8 h-8 text-emerald-400" />}
               title="Objetos & Refs"
               description="Valor vs Referência na Heap."
@@ -104,6 +111,7 @@ function LessonCard({ icon, title, description, href, color }: any) {
     emerald: "hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]",
     amber: "hover:border-amber-500/50 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]",
     purple: "hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]",
+    pink: "hover:border-pink-500/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)]",
   };
 
   return (
