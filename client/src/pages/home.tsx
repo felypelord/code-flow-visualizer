@@ -71,6 +71,13 @@ export default function Home() {
               color="blue"
             />
             <LessonCard 
+              icon={<Box className="w-8 h-8 text-orange-400" />}
+              title="Condicionais"
+              description="Tomada de decisão com If/Else."
+              href="/lesson/conditionals"
+              color="orange"
+            />
+            <LessonCard 
               icon={<Repeat className="w-8 h-8 text-pink-400" />}
               title="Loops & Arrays"
               description="Iteração e memória de arrays."
@@ -112,6 +119,7 @@ function LessonCard({ icon, title, description, href, color }: any) {
     amber: "hover:border-amber-500/50 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]",
     purple: "hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]",
     pink: "hover:border-pink-500/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)]",
+    orange: "hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)]",
   };
 
   return (

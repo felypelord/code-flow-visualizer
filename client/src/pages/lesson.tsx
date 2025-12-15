@@ -85,8 +85,21 @@ export default function LessonPage() {
     if (isMobile) {
       return (
         <div className="flex flex-col h-full overflow-y-auto pb-20">
-          <div className="h-[400px] shrink-0 p-2">
+          <div className="h-[400px] shrink-0 p-2 relative">
             <CodeEditor code={variant.code} activeLine={currentStep.line} />
+            
+             {/* Start Overlay Mobile */}
+            {currentStepIndex === 0 && !isPlaying && (
+              <div className="absolute inset-2 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[1px] rounded-lg pointer-events-auto">
+                <Button 
+                  size="lg" 
+                  onClick={() => setIsPlaying(true)}
+                  className="gap-2 text-lg font-bold shadow-xl scale-110 hover:scale-125 transition-transform bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  <Play className="w-6 h-6 fill-current" /> Começar
+                </Button>
+              </div>
+            )}
           </div>
           
           <div className="p-2 shrink-0">
@@ -125,6 +138,19 @@ export default function LessonPage() {
         <ResizablePanel defaultSize={40} minSize={30}>
           <div className="h-full p-4 flex flex-col gap-4">
             <CodeEditor code={variant.code} activeLine={currentStep.line} />
+            
+            {/* Start Overlay */}
+            {currentStepIndex === 0 && !isPlaying && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[1px] rounded-lg">
+                <Button 
+                  size="lg" 
+                  onClick={() => setIsPlaying(true)}
+                  className="gap-2 text-lg font-bold shadow-xl scale-110 hover:scale-125 transition-transform bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  <Play className="w-6 h-6 fill-current" /> Começar
+                </Button>
+              </div>
+            )}
             
             <div className="bg-card/50 border border-white/10 rounded-lg p-4 flex-1 overflow-auto min-h-[100px]">
               <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-2">
@@ -208,7 +234,15 @@ export default function LessonPage() {
             <Button 
               size="icon" 
               className={isPlaying ? "bg-amber-500 hover:bg-amber-600 h-8 w-8" : "bg-primary hover:bg-primary/90 h-8 w-8"}
-              onClick={() => setIsPlaying(!isPlaying)}
+              title={isPlaying ? "Pausar" : "Executar"}
+              onClick={() => {
+                if (currentStepIndex >= totalSteps - 1) {
+                  setCurrentStepIndex(0);
+                  setIsPlaying(true);
+                } else {
+                  setIsPlaying(!isPlaying);
+                }
+              }}
             >
               {isPlaying ? <Pause className="w-4 h-4 text-black" /> : <Play className="w-4 h-4 text-black ml-0.5" />}
             </Button>

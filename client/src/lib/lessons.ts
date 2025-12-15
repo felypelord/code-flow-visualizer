@@ -1,10 +1,9 @@
-// ... (previous imports)
 import { Lesson } from "./types";
 
-// ... (keep previous lessons: functionLesson, objectLesson, classLesson, recursionLesson)
+// ... (Previous lessons: functions, objects, classes, recursion, loops-arrays)
 
-// Need to read the file first to append properly or I can just rewrite the whole file since I have it in context?
-// I have the file in context from the previous turn's write. I will rewrite it to include the new lesson.
+// I will read the file first to make sure I don't overwrite existing lessons, or I can just append/replace the export.
+// Since I have the full content in my context from previous turns (I wrote it), I can recreate the file with the new lesson added.
 
 // ==========================================
 // 1. Functions Lesson
@@ -446,7 +445,7 @@ c1.acelerar();`,
 };
 
 // ==========================================
-// 5. Loops & Arrays Lesson (NEW)
+// 5. Loops & Arrays Lesson
 // ==========================================
 const loopsArraysLesson: Lesson = {
   id: "loops-arrays",
@@ -485,10 +484,48 @@ for (let i = 0; i < numeros.length; i++) {
   }
 };
 
+// ==========================================
+// 6. Conditionals Lesson (NEW)
+// ==========================================
+const conditionalsLesson: Lesson = {
+  id: "conditionals",
+  title: "Condicionais (If/Else)",
+  description: "Veja como o computador toma decisões e escolhe qual caminho seguir no código.",
+  difficulty: "Iniciante",
+  variants: {
+    javascript: {
+      code: `function verificarIdade(idade) {
+  let status;
+  
+  if (idade >= 18) {
+    status = "Maior de idade";
+  } else {
+    status = "Menor de idade";
+  }
+  
+  return status;
+}
+
+const resultado = verificarIdade(15);`,
+      steps: [
+        { stepId: 0, line: 11, stack: [], heap: [], explanation: "Vamos verificar uma idade." },
+        { stepId: 1, line: 11, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "verificar", name: "verificarIdade(15)", variables: [{ name: "idade", value: 15, type: "primitive" }], active: true }], heap: [], explanation: "Chamamos a função com idade = 15." },
+        { stepId: 2, line: 2, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "verificar", name: "verificarIdade(15)", variables: [{ name: "idade", value: 15, type: "primitive" }, { name: "status", value: undefined, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Variável 'status' é criada, mas ainda indefinida." },
+        { stepId: 3, line: 4, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "verificar", name: "verificarIdade(15)", variables: [{ name: "idade", value: 15, type: "primitive" }, { name: "status", value: undefined, type: "primitive" }], active: true }], heap: [], explanation: "O 'if' verifica: 15 >= 18? FALSO." },
+        { stepId: 4, line: 6, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "verificar", name: "verificarIdade(15)", variables: [{ name: "idade", value: 15, type: "primitive" }, { name: "status", value: undefined, type: "primitive" }], active: true }], heap: [], explanation: "Como foi falso, pulamos para o 'else'." },
+        { stepId: 5, line: 7, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "verificar", name: "verificarIdade(15)", variables: [{ name: "idade", value: 15, type: "primitive" }, { name: "status", value: "Menor de idade", type: "primitive", changed: true }], active: true }], heap: [], explanation: "Executamos o bloco else. status recebe 'Menor de idade'." },
+        { stepId: 6, line: 10, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "verificar", name: "verificarIdade(15)", variables: [{ name: "idade", value: 15, type: "primitive" }, { name: "status", value: "Menor de idade", type: "primitive" }], active: true, isClosing: true }], heap: [], explanation: "Retornamos o valor." },
+        { stepId: 7, line: 11, stack: [{ id: "global", name: "Global", variables: [{ name: "resultado", value: "Menor de idade", type: "primitive", changed: true }], active: true }], heap: [], explanation: "Resultado final armazenado." }
+      ]
+    }
+  }
+};
+
 export const lessons: Record<string, Lesson> = {
   functions: functionLesson,
   objects: objectLesson,
   classes: classLesson,
   recursion: recursionLesson,
-  "loops-arrays": loopsArraysLesson
+  "loops-arrays": loopsArraysLesson,
+  conditionals: conditionalsLesson
 };

@@ -12,6 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { href: "/", label: "Início" },
     { href: "/lesson/functions", label: "Funções" },
+    { href: "/lesson/conditionals", label: "Condicionais" },
     { href: "/lesson/loops-arrays", label: "Loops" },
     { href: "/lesson/objects", label: "Objetos" },
     { href: "/lesson/classes", label: "Classes" },
