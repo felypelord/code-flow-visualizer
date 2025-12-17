@@ -43,6 +43,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   });
 
   const setLanguage = (lang: Language) => {
+    console.log('Changing language to:', lang);
     setLanguageState(lang);
     try {
       localStorage.setItem('app-language', lang);
@@ -51,7 +52,11 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     }
   };
 
-  const t = getTranslation(language);
+  const t = React.useMemo(() => getTranslation(language), [language]);
+
+  React.useEffect(() => {
+    console.log('Language changed to:', language);
+  }, [language]);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
