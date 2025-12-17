@@ -1,11 +1,11 @@
 import Layout from "@/components/layout";
-import { ExercisesView } from "@/components/exercises-simple";
+import { ExercisesViewNew } from "@/components/exercises-new";
 
 export default function ExercisesPage() {
   return (
     <Layout>
       <div className="min-h-screen bg-white dark:bg-gray-950">
-        <ExercisesView />
+        <ExercisesViewNew />
       </div>
     </Layout>
   );
