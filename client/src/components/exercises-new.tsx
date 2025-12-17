@@ -254,7 +254,7 @@ export function ExercisesViewNew() {
     return (
       <ResizablePanelGroup direction="horizontal">
         {/* Painel Esquerdo: Descrição + Editor */}
-        <ResizablePanel defaultSize={45} minSize={30}>
+        <ResizablePanel defaultSize={50} minSize={35}>
           <div className="h-full p-4 flex flex-col gap-4 overflow-y-auto">
             {/* Descrição do Exercício */}
             <Card className="p-4 bg-card/50 border-white/10 flex-shrink-0">
@@ -340,10 +340,10 @@ export function ExercisesViewNew() {
         <ResizableHandle withHandle className="bg-white/5" />
 
         {/* Painel Direito: Stack, Heap, Resultados */}
-        <ResizablePanel defaultSize={55}>
+        <ResizablePanel defaultSize={50}>
           <ResizablePanelGroup direction="vertical">
             {/* Stack */}
-            <ResizablePanel defaultSize={33} minSize={20}>
+            <ResizablePanel defaultSize={30} minSize={15}>
               <div className="h-full p-4 bg-[#0d1220]/50 border-b border-white/5 overflow-auto">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">📚 Call Stack</h4>
                 {executionState.stack.length > 0 ? (
@@ -357,7 +357,7 @@ export function ExercisesViewNew() {
             <ResizableHandle withHandle className="bg-white/5" />
 
             {/* Heap */}
-            <ResizablePanel defaultSize={33} minSize={20}>
+            <ResizablePanel defaultSize={30} minSize={15}>
               <div className="h-full p-4 bg-[#0d1220]/50 border-b border-white/5 overflow-auto">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3">💾 Heap Memory</h4>
                 {executionState.heap.length > 0 ? (
@@ -371,7 +371,7 @@ export function ExercisesViewNew() {
             <ResizableHandle withHandle className="bg-white/5" />
 
             {/* Resultados */}
-            <ResizablePanel defaultSize={34} minSize={20}>
+            <ResizablePanel defaultSize={40} minSize={20}>
               <div className="h-full p-4 bg-[#0d1220]/50 overflow-auto">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-yellow-400 mb-3">📊 Resultados dos Testes</h4>
                 {testResults.length === 0 ? (
@@ -507,6 +507,17 @@ export function ExercisesViewNew() {
             <Play className="w-4 h-4" />
             {executionState.isExecuting ? "Executando..." : "Executar Testes"}
           </Button>
+
+          <div className="w-24 ml-2 hidden md:block">
+            <Slider 
+              value={[3000 - executionSpeed]} 
+              min={100} 
+              max={2900} 
+              step={100} 
+              onValueChange={(v) => setExecutionSpeed(3000 - v[0])} 
+              title="Velocidade de execução"
+            />
+          </div>
         </div>
       </div>
 

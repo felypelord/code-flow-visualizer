@@ -40,37 +40,10 @@ declare module "http" {
 
 // Minimal security headers without extra deps
 app.use((_req, res, next) => {
-  // Prevent framing and clickjacking
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("X-XSS-Protection", "1; mode=block");
-  
-  // Prevent referrer leakage
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  
-  // CORS isolation
-  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
-  
-  // Content Security Policy - block all third-party resources
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self'; " +
-    "script-src 'self' 'nonce-" + (res as any).nonceValue + "'; " +
-    "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; " +
-    "font-src 'self' https://fonts.gstatic.com; " +
-    "img-src 'self' data: https:; " +
-    "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; " +
-    "frame-ancestors 'none'; " +
-    "base-uri 'self'; " +
-    "form-action 'self'"
-  );
-  
-  // Additional hardening
-  res.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
-  res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-  
   next();
 });
 
@@ -231,11 +204,6 @@ app.use((req, res, next) => {
   console.error("[ASYNC IIFE ERROR]", err);
   process.exit(1);
 });
-
-// Keep the process alive
-if (process.env.NODE_ENV === "development") {
-  process.stdin.resume();
-}
 
 // Global process-level error handling to avoid unexpected crashes
 process.on("unhandledRejection", (reason: any) => {
