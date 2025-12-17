@@ -15,15 +15,15 @@ const functionLesson: Lesson = {
   difficulty: "Beginner",
   variants: {
     javascript: {
-      code: `function somar(a, b) {
-  const resultado = a + b;
-  return resultado;
+      code: `function add(a, b) {
+  const result = a + b;
+  return result;
 }
 
 function main() {
   const x = 5;
   const y = 3;
-  const total = somar(x, y);
+  const total = add(x, y);
   console.log(total);
 }
 
@@ -67,30 +67,30 @@ main();`,
           line: 9,
           stack: [
             { id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: undefined, type: "primitive" }], active: false },
-            { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }
+            { id: "add", name: "add(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }
           ],
           heap: [],
-          explanation: "Function 'somar' is called. A NEW frame is pushed to the stack. Values are copied."
+          explanation: "Function 'add' is called. A NEW frame is pushed to the stack. Values are copied."
         },
         {
           stepId: 5,
           line: 2,
           stack: [
             { id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: undefined, type: "primitive" }], active: false },
-            { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive", changed: true }], active: true }
+            { id: "add", name: "add(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "result", value: 8, type: "primitive", changed: true }], active: true }
           ],
           heap: [],
-          explanation: "The calculation is done and stored in the local variable 'resultado'."
+          explanation: "The calculation is done and stored in the local variable 'result'."
         },
         {
           stepId: 6,
           line: 3,
           stack: [
             { id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: undefined, type: "primitive" }], active: false },
-            { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive" }], active: true, isClosing: true }
+            { id: "add", name: "add(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "result", value: 8, type: "primitive" }], active: true, isClosing: true }
           ],
           heap: [],
-          explanation: "The function returns 8. The 'somar' frame will be removed."
+          explanation: "The function returns 8. The 'add' frame will be removed."
         },
         {
           stepId: 7,
@@ -201,15 +201,15 @@ class Program {
     },
     java: {
       code: `public class Main {
-    public static int somar(int a, int b) {
-        int resultado = a + b;
-        return resultado;
+    public static int add(int a, int b) {
+        int result = a + b;
+        return result;
     }
 
     public static void main(String[] args) {
         int x = 5;
         int y = 3;
-        int total = somar(x, y);
+        int total = add(x, y);
         System.out.println(total);
     }
 }`,
@@ -247,27 +247,27 @@ class Program {
            line: 10,
            stack: [
              { id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false },
-             { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }
+             { id: "add", name: "add(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }
            ],
            heap: [],
-           explanation: "Method 'somar' is called. New frame on the stack."
+           explanation: "Method 'add' is called. New frame on the stack."
         },
         {
            stepId: 5,
            line: 3,
            stack: [
              { id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false },
-             { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive", changed: true }], active: true }
+             { id: "add", name: "add(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "result", value: 8, type: "primitive", changed: true }], active: true }
            ],
            heap: [],
-           explanation: "Calculation performed and stored in 'resultado'."
+           explanation: "Calculation performed and stored in 'result'."
         },
         {
            stepId: 6,
            line: 4,
            stack: [
              { id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false },
-             { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive" }], active: true, isClosing: true }
+             { id: "add", name: "add(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "result", value: 8, type: "primitive" }], active: true, isClosing: true }
            ],
            heap: [],
            explanation: "The method returns 8 and the Frame is popped."
@@ -291,15 +291,15 @@ class Program {
     c: {
       code: `#include <stdio.h>
 
-int somar(int a, int b) {
-    int resultado = a + b;
-    return resultado;
+int add(int a, int b) {
+    int result = a + b;
+    return result;
 }
 
 int main() {
     int x = 5;
     int y = 3;
-    int total = somar(x, y);
+    int total = add(x, y);
     printf("%d", total);
     return 0;
 }`,
@@ -308,9 +308,9 @@ int main() {
         { stepId: 1, line: 8, stack: [{ id: "main", name: "main()", variables: [], active: true }], heap: [], explanation: "The Stack Frame for main is allocated." },
         { stepId: 2, line: 9, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Integer 'x' allocated on the stack." },
         { stepId: 3, line: 10, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Integer 'y' allocated on the stack." },
-        { stepId: 4, line: 11, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false }, { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Function 'somar' is called. Arguments passed by copy." },
-        { stepId: 5, line: 4, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false }, { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Local variable 'resultado' allocated in the 'somar' frame." },
-        { stepId: 6, line: 5, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false }, { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive" }], active: true, isClosing: true }], heap: [], explanation: "Function return." },
+        { stepId: 4, line: 11, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false }, { id: "add", name: "add(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Function 'add' is called. Arguments passed by copy." },
+        { stepId: 5, line: 4, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false }, { id: "add", name: "add(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "result", value: 8, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Local variable 'result' allocated in the 'add' frame." },
+        { stepId: 6, line: 5, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false }, { id: "add", name: "add(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "result", value: 8, type: "primitive" }], active: true, isClosing: true }], heap: [], explanation: "Function return." },
         { stepId: 7, line: 11, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 8, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Returned value assigned to 'total' in main." },
         { stepId: 8, line: 12, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 8, type: "primitive" }], active: true }], heap: [], explanation: "printf displays the result." }
       ]
@@ -328,49 +328,49 @@ const objectLesson: Lesson = {
   difficulty: "Intermediate",
   variants: {
     javascript: {
-      code: `function criarUsuario(nome) {
-  const usuario = {
-    nome: nome,
+      code: `function createUser(name) {
+  const user = {
+    name: name,
     admin: false
   };
-  return usuario;
+  return user;
 }
 
-const u1 = criarUsuario("Ana");
+const u1 = createUser("Ana");
 const u2 = u1;
 u2.admin = true;`,
       steps: [
         { stepId: 0, line: 1, stack: [], heap: [], explanation: "Program starts. Objects live in the Heap." },
         { stepId: 1, line: 8, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: true }], heap: [], explanation: "Preparing call to createUser." },
-        { stepId: 2, line: 2, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: false }, { id: "criarUsuario", name: "criarUsuario('Ana')", variables: [{ name: "nome", value: "Ana", type: "primitive" }], active: true }], heap: [], explanation: "We enter the function." },
-        { stepId: 3, line: 5, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: false }, { id: "criarUsuario", name: "criarUsuario('Ana')", variables: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "usuario", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }], highlight: true }], explanation: "Object created in HEAP. Variable on Stack stores the ADDRESS (Reference)." },
-        { stepId: 4, line: 6, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: false }, { id: "criarUsuario", name: "criarUsuario('Ana')", variables: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "usuario", value: "REF:obj1", type: "reference", refId: "obj1" }], active: true, isClosing: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }] }], explanation: "Returns the REFERENCE." },
-        { stepId: 5, line: 8, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }] }], explanation: "'u1' points to the object in the Heap." },
-        { stepId: 6, line: 9, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }, { name: "u2", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }] }], explanation: "'u2 = u1' copies the address. Both point to the SAME object." },
-        { stepId: 7, line: 10, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }, { name: "u2", value: "REF:obj1", type: "reference", refId: "obj1" }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: true, type: "primitive", changed: true }], highlight: true }], explanation: "Modifying 'u2' affects the real object, so 'u1' also sees the change." }
+        { stepId: 2, line: 2, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: false }, { id: "createUser", name: "createUser('Ana')", variables: [{ name: "name", value: "Ana", type: "primitive" }], active: true }], heap: [], explanation: "We enter the function." },
+        { stepId: 3, line: 5, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: false }, { id: "createUser", name: "createUser('Ana')", variables: [{ name: "name", value: "Ana", type: "primitive" }, { name: "user", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "name", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }], highlight: true }], explanation: "Object created in HEAP. Variable on Stack stores the ADDRESS (Reference)." },
+        { stepId: 4, line: 6, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: false }, { id: "createUser", name: "createUser('Ana')", variables: [{ name: "name", value: "Ana", type: "primitive" }, { name: "user", value: "REF:obj1", type: "reference", refId: "obj1" }], active: true, isClosing: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "name", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }] }], explanation: "Returns the REFERENCE." },
+        { stepId: 5, line: 8, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "name", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }] }], explanation: "'u1' points to the object in the Heap." },
+        { stepId: 6, line: 9, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }, { name: "u2", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "name", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }] }], explanation: "'u2 = u1' copies the address. Both point to the SAME object." },
+        { stepId: 7, line: 10, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }, { name: "u2", value: "REF:obj1", type: "reference", refId: "obj1" }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "name", value: "Ana", type: "primitive" }, { name: "admin", value: true, type: "primitive", changed: true }], highlight: true }], explanation: "Modifying 'u2' affects the real object, so 'u1' also sees the change." }
       ]
     },
     csharp: {
-        code: `class Usuario {
-    public string Nome;
+        code: `class User {
+    public string Name;
     public bool Admin;
 }
 
 class Program {
     static void Main() {
-        Usuario u1 = new Usuario();
-        u1.Nome = "Ana";
+        User u1 = new User();
+        u1.Name = "Ana";
         
-        Usuario u2 = u1;
+        User u2 = u1;
         u2.Admin = true;
     }
 }`,
         steps: [
-            { stepId: 0, line: 7, stack: [], heap: [], explanation: "Início. Classes em C# são Reference Types (ficam na Heap)." },
-            { stepId: 1, line: 8, stack: [{ id: "Main", name: "Main()", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Usuario", properties: [{ name: "Nome", value: null, type: "primitive" }, { name: "Admin", value: false, type: "primitive" }], highlight: true }], explanation: "'new Usuario()' aloca memória na Heap. 'u1' na Stack aponta para lá." },
-            { stepId: 2, line: 9, stack: [{ id: "Main", name: "Main()", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }], active: true }], heap: [{ id: "obj1", className: "Usuario", properties: [{ name: "Nome", value: "Ana", type: "primitive", changed: true }, { name: "Admin", value: false, type: "primitive" }], highlight: true }], explanation: "Atribuímos 'Ana' à propriedade Nome do objeto na Heap." },
-            { stepId: 3, line: 11, stack: [{ id: "Main", name: "Main()", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }, { name: "u2", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Usuario", properties: [{ name: "Nome", value: "Ana", type: "primitive" }, { name: "Admin", value: false, type: "primitive" }] }], explanation: "'u2 = u1' copia a referência. Agora temos duas variáveis apontando para o mesmo objeto." },
-            { stepId: 4, line: 12, stack: [{ id: "Main", name: "Main()", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }, { name: "u2", value: "REF:obj1", type: "reference", refId: "obj1" }], active: true }], heap: [{ id: "obj1", className: "Usuario", properties: [{ name: "Nome", value: "Ana", type: "primitive" }, { name: "Admin", value: true, type: "primitive", changed: true }], highlight: true }], explanation: "Alterar u2 altera o objeto compartilhado." }
+            { stepId: 0, line: 7, stack: [], heap: [], explanation: "Start. Classes in C# are Reference Types (stored in Heap)." },
+            { stepId: 1, line: 8, stack: [{ id: "Main", name: "Main()", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "User", properties: [{ name: "Name", value: null, type: "primitive" }, { name: "Admin", value: false, type: "primitive" }], highlight: true }], explanation: "'new User()' allocates memory in Heap. 'u1' in Stack points to it." },
+            { stepId: 2, line: 9, stack: [{ id: "Main", name: "Main()", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }], active: true }], heap: [{ id: "obj1", className: "User", properties: [{ name: "Name", value: "Ana", type: "primitive", changed: true }, { name: "Admin", value: false, type: "primitive" }], highlight: true }], explanation: "We assign 'Ana' to the Name property of the object in Heap." },
+            { stepId: 3, line: 11, stack: [{ id: "Main", name: "Main()", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }, { name: "u2", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "User", properties: [{ name: "Name", value: "Ana", type: "primitive" }, { name: "Admin", value: false, type: "primitive" }] }], explanation: "'u2 = u1' copies the reference. Now we have two variables pointing to the same object." },
+            { stepId: 4, line: 12, stack: [{ id: "Main", name: "Main()", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }, { name: "u2", value: "REF:obj1", type: "reference", refId: "obj1" }], active: true }], heap: [{ id: "obj1", className: "User", properties: [{ name: "Name", value: "Ana", type: "primitive" }, { name: "Admin", value: true, type: "primitive", changed: true }], highlight: true }], explanation: "Modifying u2 changes the shared object." }
         ]
     }
   }
@@ -386,23 +386,23 @@ const recursionLesson: Lesson = {
     difficulty: "Intermediate",
     variants: {
         javascript: {
-            code: `function fatorial(n) {
+            code: `function factorial(n) {
   if (n === 1) return 1;
-  return n * fatorial(n - 1);
+  return n * factorial(n - 1);
 }
 
-const resultado = fatorial(3);`,
+const result = factorial(3);`,
             steps: [
-                { stepId: 0, line: 6, stack: [], heap: [], explanation: "Vamos calcular o fatorial de 3 recursivamente." },
-                { stepId: 1, line: 6, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fat3", name: "fatorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: true }], heap: [], explanation: "Chamada inicial: fatorial(3)." },
-                { stepId: 2, line: 2, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fat3", name: "fatorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: true }], heap: [], explanation: "n é 3, não é 1. Continua." },
-                { stepId: 3, line: 3, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fat3", name: "fatorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: false }, { id: "fat2", name: "fatorial(2)", variables: [{ name: "n", value: 2, type: "primitive" }], active: true }], heap: [], explanation: "PAUSA fatorial(3) para chamar fatorial(2). Empilha novo quadro." },
-                { stepId: 4, line: 2, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fat3", name: "fatorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: false }, { id: "fat2", name: "fatorial(2)", variables: [{ name: "n", value: 2, type: "primitive" }], active: true }], heap: [], explanation: "n é 2. Continua." },
-                { stepId: 5, line: 3, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fat3", name: "fatorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: false }, { id: "fat2", name: "fatorial(2)", variables: [{ name: "n", value: 2, type: "primitive" }], active: false }, { id: "fat1", name: "fatorial(1)", variables: [{ name: "n", value: 1, type: "primitive" }], active: true }], heap: [], explanation: "PAUSA fatorial(2) para chamar fatorial(1). A pilha cresce!" },
-                { stepId: 6, line: 2, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fat3", name: "fatorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: false }, { id: "fat2", name: "fatorial(2)", variables: [{ name: "n", value: 2, type: "primitive" }], active: false }, { id: "fat1", name: "fatorial(1)", variables: [{ name: "n", value: 1, type: "primitive" }], active: true, isClosing: true }], heap: [], explanation: "BASE CASE: n é 1. Retorna 1." },
-                { stepId: 7, line: 3, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fat3", name: "fatorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: false }, { id: "fat2", name: "fatorial(2)", variables: [{ name: "n", value: 2, type: "primitive" }, { name: "return", value: 2, type: "primitive", changed: true }], active: true, isClosing: true }], heap: [], explanation: "Volta para fatorial(2). Calcula 2 * 1 = 2. Retorna 2." },
-                { stepId: 8, line: 3, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fat3", name: "fatorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }, { name: "return", value: 6, type: "primitive", changed: true }], active: true, isClosing: true }], heap: [], explanation: "Volta para fatorial(3). Calcula 3 * 2 = 6. Retorna 6." },
-                { stepId: 9, line: 6, stack: [{ id: "global", name: "Global", variables: [{ name: "resultado", value: 6, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Resultado final 6 armazenado." }
+                { stepId: 0, line: 6, stack: [], heap: [], explanation: "Let's calculate the factorial of 3 recursively." },
+                { stepId: 1, line: 6, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fact3", name: "factorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: true }], heap: [], explanation: "Initial call: factorial(3)." },
+                { stepId: 2, line: 2, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fact3", name: "factorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: true }], heap: [], explanation: "n is 3, not 1. Continue." },
+                { stepId: 3, line: 3, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fact3", name: "factorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: false }, { id: "fact2", name: "factorial(2)", variables: [{ name: "n", value: 2, type: "primitive" }], active: true }], heap: [], explanation: "PAUSE factorial(3) to call factorial(2). Push new frame." },
+                { stepId: 4, line: 2, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fact3", name: "factorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: false }, { id: "fact2", name: "factorial(2)", variables: [{ name: "n", value: 2, type: "primitive" }], active: true }], heap: [], explanation: "n is 2. Continue." },
+                { stepId: 5, line: 3, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fact3", name: "factorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: false }, { id: "fact2", name: "factorial(2)", variables: [{ name: "n", value: 2, type: "primitive" }], active: false }, { id: "fact1", name: "factorial(1)", variables: [{ name: "n", value: 1, type: "primitive" }], active: true }], heap: [], explanation: "PAUSE factorial(2) to call factorial(1). The stack grows!" },
+                { stepId: 6, line: 2, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fact3", name: "factorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: false }, { id: "fact2", name: "factorial(2)", variables: [{ name: "n", value: 2, type: "primitive" }], active: false }, { id: "fact1", name: "factorial(1)", variables: [{ name: "n", value: 1, type: "primitive" }], active: true, isClosing: true }], heap: [], explanation: "BASE CASE: n is 1. Return 1." },
+                { stepId: 7, line: 3, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fact3", name: "factorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }], active: false }, { id: "fact2", name: "factorial(2)", variables: [{ name: "n", value: 2, type: "primitive" }, { name: "return", value: 2, type: "primitive", changed: true }], active: true, isClosing: true }], heap: [], explanation: "Return to factorial(2). Calculate 2 * 1 = 2. Return 2." },
+                { stepId: 8, line: 3, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "fact3", name: "factorial(3)", variables: [{ name: "n", value: 3, type: "primitive" }, { name: "return", value: 6, type: "primitive", changed: true }], active: true, isClosing: true }], heap: [], explanation: "Return to factorial(3). Calculate 3 * 2 = 6. Return 6." },
+                { stepId: 9, line: 6, stack: [{ id: "global", name: "Global", variables: [{ name: "result", value: 6, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Final result 6 stored." }
             ]
         }
     }
