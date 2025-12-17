@@ -37,12 +37,12 @@ export default function Home() {
 
                 <div className="flex flex-wrap gap-4">
                   <Link href="/lesson/functions">
-                    <button className="px-8 py-4 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]">
+                    <button aria-label="Começar agora" className="px-8 py-4 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]">
                       Começar Agora <ArrowRight className="w-5 h-5" />
                     </button>
                   </Link>
                   <Link href="/lesson/objects">
-                    <button className="px-8 py-4 bg-white/5 border border-white/10 text-white font-medium rounded-lg hover:bg-white/10 transition-all backdrop-blur-sm">
+                    <button aria-label="Explorar objetos" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-medium rounded-lg hover:bg-white/10 transition-all backdrop-blur-sm">
                       Explorar Objetos
                     </button>
                   </Link>
@@ -53,8 +53,11 @@ export default function Home() {
 
           {/* Hero Image / Graphic */}
           <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 h-full hidden lg:block pointer-events-none opacity-40 mix-blend-screen mask-image-gradient">
-             <img src={generatedImage} alt="Blueprint visualization" className="w-full h-full object-cover" />
-             <div className="absolute inset-0 bg-gradient-to-l from-background to-transparent" />
+            <picture>
+              <source srcSet={generatedImage.replace('.png', '.webp')} type="image/webp" />
+              <img src={generatedImage} alt="Blueprint visualization" loading="lazy" className="w-full h-full object-cover" />
+            </picture>
+            <div className="absolute inset-0 bg-gradient-to-l from-background to-transparent" />
           </div>
         </section>
 

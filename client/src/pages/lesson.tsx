@@ -13,6 +13,8 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
+import Playground from "@/components/playground";
+import Skeleton from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function LessonPage() {
@@ -25,6 +27,7 @@ export default function LessonPage() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1500);
+  const [view, setView] = useState<"lesson" | "playground">("lesson");
 
   // Get current variant based on language, fallback to javascript if not found
   const variant = lesson?.variants[language] || lesson?.variants['javascript'];
@@ -51,7 +54,9 @@ export default function LessonPage() {
 
   // Reset when lesson or language changes
   useEffect(() => {
-    setCurrentStepIndex(0);
+    // try to restore saved progress for this lesson+language
+    const saved = localStorage.getItem(`progress:${lessonId}:${language}`);
+    setCurrentStepIndex(saved ? parseInt(saved, 10) : 0);
     setIsPlaying(false);
   }, [lessonId, language]);
 
@@ -76,12 +81,31 @@ export default function LessonPage() {
   const handleReset = () => {
     setCurrentStepIndex(0);
     setIsPlaying(false);
+    // clear saved progress
+    localStorage.removeItem(`progress:${lessonId}:${language}`);
   };
+
+  // persist progress
+  useEffect(() => {
+    localStorage.setItem(`progress:${lessonId}:${language}`, String(currentStepIndex));
+    // if logged in, sync to server
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/progress', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ lessonId, language, index: currentStepIndex }) }).catch(() => {});
+    }
+  }, [currentStepIndex, lessonId, language]);
 
   const progress = ((currentStepIndex + 1) / totalSteps) * 100;
 
   // Render content based on device type
   const renderContent = () => {
+    if (view === "playground") {
+      return (
+        <div className="h-full">
+          <Playground variant={variant} />
+        </div>
+      );
+    }
     if (isMobile) {
       return (
         <div className="flex flex-col h-full overflow-y-auto pb-20">
@@ -94,6 +118,7 @@ export default function LessonPage() {
                 <Button 
                   size="lg" 
                   onClick={() => setIsPlaying(true)}
+                  aria-label="Começar reprodução"
                   className="gap-2 text-lg font-bold shadow-xl scale-110 hover:scale-125 transition-transform bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Play className="w-6 h-6 fill-current" /> Começar
@@ -145,6 +170,7 @@ export default function LessonPage() {
                 <Button 
                   size="lg" 
                   onClick={() => setIsPlaying(true)}
+                  aria-label="Começar reprodução"
                   className="gap-2 text-lg font-bold shadow-xl scale-110 hover:scale-125 transition-transform bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Play className="w-6 h-6 fill-current" /> Começar
@@ -157,15 +183,18 @@ export default function LessonPage() {
                 <ChevronRight className="w-3 h-3" /> Explicação
               </h3>
               <AnimatePresence mode="wait">
-                <motion.p 
+                <motion.div 
                   key={`${language}-${currentStepIndex}`}
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -5 }}
-                  className="text-lg leading-relaxed font-light"
                 >
-                  {currentStep.explanation}
-                </motion.p>
+                  {currentStep.explanation ? (
+                    <p className="text-lg leading-relaxed font-light">{currentStep.explanation}</p>
+                  ) : (
+                    <Skeleton className="h-6 w-full rounded-md" />
+                  )}
+                </motion.div>
               </AnimatePresence>
             </div>
           </div>
@@ -224,6 +253,10 @@ export default function LessonPage() {
           </div>
 
           <div className="flex items-center gap-2 w-full md:w-auto justify-center pb-2 md:pb-0">
+            <div className="flex items-center gap-2 mr-2">
+              <button onClick={() => setView('lesson')} className={`px-3 py-1 rounded ${view === 'lesson' ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-muted-foreground'}`}>Lição</button>
+              <button onClick={() => setView('playground')} className={`px-3 py-1 rounded ${view === 'playground' ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-muted-foreground'}`}>Playground</button>
+            </div>
             <Button variant="ghost" size="icon" onClick={handleReset} title="Reiniciar" className="h-8 w-8">
               <RotateCcw className="w-4 h-4" />
             </Button>

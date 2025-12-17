@@ -521,11 +521,93 @@ const resultado = verificarIdade(15);`,
   }
 };
 
+// ==========================================
+// Premium Lessons (Modelos)
+// ==========================================
+const closuresLesson: Lesson = {
+  id: "closures",
+  title: "Closures (Funções e Escopo)",
+  description: "Entenda como funções lembram variáveis do escopo onde foram criadas.",
+  difficulty: "Intermediário",
+  variants: {
+    javascript: {
+      code: `function criarContador() {
+  let cont = 0;
+  return function() {
+    cont = cont + 1;
+    return cont;
+  }
+}
+
+const contador = criarContador();
+contador();
+contador();`,
+      steps: [
+        { stepId: 0, line: 8, stack: [], heap: [], explanation: "Definimos criarContador e criamos o contador." },
+        { stepId: 1, line: 8, stack: [{ id: 'global', name: 'Global', variables: [{ name: 'contador', value: 'REF:fn1', type: 'reference', refId: 'fn1', changed: true }], active: true }], heap: [{ id: 'fn1', className: 'Function', properties: [{ name: '[[Scope]]', value: 'REF:env1' }], highlight: true }], explanation: "A função retornada mantém referência ao ambiente (closure)." },
+        { stepId: 2, line: 9, stack: [{ id: 'global', name: 'Global', variables: [{ name: 'contador', value: 'REF:fn1', type: 'reference', refId: 'fn1' }], active: true }], heap: [{ id: 'env1', className: 'Env', properties: [{ name: 'cont', value: 1, type: 'primitive', changed: true }] }], explanation: "Ao chamar contador(), 'cont' é incrementado e preservado na closure." },
+        { stepId: 3, line: 10, stack: [{ id: 'global', name: 'Global', variables: [{ name: 'contador', value: 'REF:fn1', type: 'reference', refId: 'fn1' }], active: true }], heap: [{ id: 'env1', className: 'Env', properties: [{ name: 'cont', value: 2, type: 'primitive', changed: true }] }], explanation: "Chamar novamente aumenta cont para 2 — o estado foi mantido." }
+      ]
+    }
+  }
+};
+
+const asyncLesson: Lesson = {
+  id: "async-await",
+  title: "Assíncrono: Callbacks, Promises e async/await",
+  description: "Mostra a diferença entre execução síncrona e assíncrona e como o event loop funciona.",
+  difficulty: "Intermediário",
+  variants: {
+    javascript: {
+      code: `console.log('A');
+setTimeout(() => console.log('B'), 0);
+Promise.resolve().then(() => console.log('C'));
+console.log('D');`,
+      steps: [
+        { stepId: 0, line: 1, stack: [], heap: [], explanation: "Execução inicial: log 'A' e agendamento de callbacks." },
+        { stepId: 1, line: 1, stack: [{ id: 'global', name: 'Global', variables: [], active: true }], heap: [], explanation: "Imprime 'A' imediatamente." },
+        { stepId: 2, line: 4, stack: [{ id: 'global', name: 'Global', variables: [], active: true }], heap: [], explanation: "Imprime 'D' em seguida (síncrono)." },
+        { stepId: 3, line: 3, stack: [{ id: 'global', name: 'Global', variables: [], active: false }], heap: [], explanation: "Microtasks (Promises) executam antes dos callbacks de setTimeout: imprime 'C'." },
+        { stepId: 4, line: 2, stack: [], heap: [], explanation: "Por fim, event loop processa macrotasks: setTimeout imprime 'B'. Ordem: A, D, C, B." }
+      ]
+    }
+  }
+};
+
+const debuggingLesson: Lesson = {
+  id: "debugging",
+  title: "Depuração e Console",
+  description: "Como usar logs e breakpoints para entender passo a passo o que acontece no código.",
+  difficulty: "Iniciante",
+  variants: {
+    javascript: {
+      code: `function busca(arr, target) {
+  for (let i = 0; i < arr.length; i++) {
+    console.log('checando', i);
+    if (arr[i] === target) return i;
+  }
+  return -1;
+}
+
+busca([1,2,3,4], 3);`,
+      steps: [
+        { stepId: 0, line: 1, stack: [], heap: [], explanation: "Chamamos busca. O loop itera e imprime cada índice para ajudar a depurar." },
+        { stepId: 1, line: 3, stack: [{ id: 'global', name: 'Global', variables: [] }], heap: [], explanation: "checando 0" },
+        { stepId: 2, line: 3, stack: [{ id: 'global', name: 'Global', variables: [] }], heap: [], explanation: "checando 1" },
+        { stepId: 3, line: 3, stack: [{ id: 'global', name: 'Global', variables: [] }], heap: [], explanation: "checando 2 -> encontramos 3 e retornamos índice 2" }
+      ]
+    }
+  }
+};
+
 export const lessons: Record<string, Lesson> = {
   functions: functionLesson,
   objects: objectLesson,
   classes: classLesson,
   recursion: recursionLesson,
   "loops-arrays": loopsArraysLesson,
-  conditionals: conditionalsLesson
+  conditionals: conditionalsLesson,
+  closures: closuresLesson,
+  "async-await": asyncLesson,
+  debugging: debuggingLesson
 };

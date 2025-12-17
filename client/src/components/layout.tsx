@@ -4,6 +4,7 @@ import { Terminal, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import Auth from "@/components/auth";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -11,6 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { href: "/", label: "Início" },
+    { href: "/exercises", label: "Exercícios", badge: "NEW" },
     { href: "/lesson/functions", label: "Funções" },
     { href: "/lesson/conditionals", label: "Condicionais" },
     { href: "/lesson/loops-arrays", label: "Loops" },
@@ -44,8 +46,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
 
+          <div className="hidden md:flex items-center gap-4">
+            <Auth />
+          </div>
+
           {/* Mobile Nav */}
           <div className="md:hidden">
+            <div className="mr-2">
+              <Auth />
+            </div>
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -95,10 +104,11 @@ function NavLink({ href, active, children }: { href: string; active: boolean; ch
   return (
     <Link href={href}>
       <span className={cn(
-        "cursor-pointer text-sm font-medium transition-colors hover:text-primary",
+        "cursor-pointer text-sm font-medium transition-colors hover:text-primary relative",
         active ? "text-primary border-b-2 border-primary pb-1" : "text-muted-foreground"
       )}>
         {children}
+        {children === "Exercícios" && <span className="absolute -top-2 -right-3 text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full">NEW</span>}
       </span>
     </Link>
   );
