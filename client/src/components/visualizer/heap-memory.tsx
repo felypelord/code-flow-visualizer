@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+﻿import { motion } from "framer-motion";
 import { HeapObject } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -7,7 +7,7 @@ export default function HeapMemory({ heap }: { heap: HeapObject[] }) {
     <div className="flex flex-col h-full">
       <h3 className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3 flex items-center gap-2">
         <div className="w-2 h-2 rounded-full bg-emerald-500" />
-        Heap Memory (Objetos)
+        Heap Memory (Objects)
       </h3>
 
       <div className="flex-1 overflow-auto p-2 bg-[#0d1220] rounded-lg border border-white/5 relative">

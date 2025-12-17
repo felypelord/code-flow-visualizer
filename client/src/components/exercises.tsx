@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import { exercises, type Exercise, type Language } from "@/lib/exercises";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -424,9 +424,9 @@ export function ExercisesView() {
                         <div className="text-xs font-bold text-slate-400 mb-1">#{idx + 1}</div>
                         <div className="font-semibold text-sm line-clamp-2">{ex.title}</div>
                         <div className={`text-xs mt-1 ${
-                          ex.difficulty === "Iniciante"
+                          ex.difficulty === "Beginner"
                             ? "text-green-400"
-                            : ex.difficulty === "Intermediário"
+                            : ex.difficulty === "Intermediate"
                             ? "text-yellow-400"
                             : "text-red-400"
                         }`}>
@@ -464,9 +464,9 @@ export function ExercisesView() {
               </div>
               <div className="flex gap-2 flex-wrap">
                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                  selectedExercise.difficulty === "Iniciante"
+                  selectedExercise.difficulty === "Beginner"
                     ? "bg-green-500/20 text-green-300 border border-green-500/50"
-                    : selectedExercise.difficulty === "Intermediário"
+                    : selectedExercise.difficulty === "Intermediate"
                     ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/50"
                     : "bg-red-500/20 text-red-300 border border-red-500/50"
                 }`}>
@@ -689,10 +689,7 @@ export function ExercisesView() {
                   </Button>
 
                   {showUseSolutionConfirm && (
-                    <div className="w-full flex justify-center mt-2">
-                      <div className="w-[220px] bg-slate-800 border border-slate-700 rounded p-2 shadow-lg z-50">
-                        <p className="text-sm text-slate-200 mb-2">Usar solução?</p>
-                        <div className="flex gap-2">
+                      <div className="flex gap-2 mt-1">
                           <Button
                             onClick={() => {
                               if (currentVariant?.solution) {
@@ -712,15 +709,13 @@ export function ExercisesView() {
                               }
                               setShowUseSolutionConfirm(false);
                             }}
-                            className="flex-1 bg-green-600"
+                              className="bg-green-600 text-xs px-2 py-1 h-8"
                           >
                             Sim
                           </Button>
-                          <Button onClick={() => setShowUseSolutionConfirm(false)} variant="outline" className="flex-1">
+                            <Button onClick={() => setShowUseSolutionConfirm(false)} variant="outline" className="text-xs px-2 py-1 h-8">
                             Não
                           </Button>
-                        </div>
-                      </div>
                     </div>
                   )}
 

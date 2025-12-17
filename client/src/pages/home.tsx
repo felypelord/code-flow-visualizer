@@ -22,28 +22,28 @@ export default function Home() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                   </span>
-                  Suporte para JS, Java, C# e C
+                  Support for JS, Python, Java, C# and C
                 </div>
                 
                 <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/50">
-                  Veja o código <br/>
-                  <span className="text-primary">ganhar vida.</span>
+                  Watch your code <br/>
+                  <span className="text-primary">come to life.</span>
                 </h1>
                 
                 <p className="text-xl text-muted-foreground mb-8 leading-relaxed max-w-2xl">
-                  Pare de imaginar o que acontece "por baixo dos panos". 
-                  Nossa ferramenta visualiza exatamente como a memória, a pilha de chamadas e os objetos funcionam enquanto seu código roda.
+                  Stop imagining what happens "under the hood". 
+                  Our tool visualizes exactly how memory, call stack, and objects work while your code runs.
                 </p>
 
                 <div className="flex flex-wrap gap-4">
                   <Link href="/lesson/functions">
-                    <button aria-label="Começar agora" className="px-8 py-4 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]">
-                      Começar Agora <ArrowRight className="w-5 h-5" />
+                    <button aria-label="Get started" className="px-8 py-4 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]">
+                      Get Started <ArrowRight className="w-5 h-5" />
                     </button>
                   </Link>
                   <Link href="/lesson/objects">
-                    <button aria-label="Explorar objetos" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-medium rounded-lg hover:bg-white/10 transition-all backdrop-blur-sm">
-                      Explorar Objetos
+                    <button aria-label="Explore objects" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-medium rounded-lg hover:bg-white/10 transition-all backdrop-blur-sm">
+                      Explore Objects
                     </button>
                   </Link>
                 </div>
@@ -63,48 +63,48 @@ export default function Home() {
 
         {/* Lessons Grid */}
         <section className="container mx-auto px-4 py-20 border-t border-white/5">
-          <h2 className="text-3xl font-bold mb-12">Módulos de Aprendizado</h2>
+          <h2 className="text-3xl font-bold mb-12">Learning Modules</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <LessonCard 
               icon={<Code className="w-8 h-8 text-blue-400" />}
-              title="Funções & Stack"
-              description="Gerenciamento de chamadas e escopo."
+              title="Functions & Stack"
+              description="Call and scope management."
               href="/lesson/functions"
               color="blue"
             />
             <LessonCard 
               icon={<Box className="w-8 h-8 text-orange-400" />}
-              title="Condicionais"
-              description="Tomada de decisão com If/Else."
+              title="Conditionals"
+              description="Decision making with If/Else."
               href="/lesson/conditionals"
               color="orange"
             />
             <LessonCard 
               icon={<Repeat className="w-8 h-8 text-pink-400" />}
               title="Loops & Arrays"
-              description="Iteração e memória de arrays."
+              description="Iteration and array memory."
               href="/lesson/loops-arrays"
               color="pink"
             />
             <LessonCard 
               icon={<Box className="w-8 h-8 text-emerald-400" />}
-              title="Objetos & Refs"
-              description="Valor vs Referência na Heap."
+              title="Objects & Refs"
+              description="Value vs Reference in Heap."
               href="/lesson/objects"
               color="emerald"
             />
             <LessonCard 
               icon={<Layers className="w-8 h-8 text-amber-400" />}
               title="Classes"
-              description="Instâncias, 'new' e 'this'."
+              description="Instances, 'new' and 'this'."
               href="/lesson/classes"
               color="amber"
             />
             <LessonCard 
               icon={<Repeat className="w-8 h-8 text-purple-400" />}
-              title="Recursão"
-              description="Visualizando o crescimento da pilha."
+              title="Recursion"
+              description="Visualizing stack growth."
               href="/lesson/recursion"
               color="purple"
             />
@@ -137,7 +137,7 @@ function LessonCard({ icon, title, description, href, color }: any) {
         <h3 className="text-lg font-bold mb-2 group-hover:text-white transition-colors">{title}</h3>
         <p className="text-sm text-muted-foreground leading-relaxed flex-1">{description}</p>
         <div className="mt-6 flex items-center text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0">
-          Iniciar <ArrowRight className="w-3 h-3 ml-2" />
+          Start <ArrowRight className="w-3 h-3 ml-2" />
         </div>
       </motion.div>
     </Link>

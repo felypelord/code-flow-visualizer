@@ -544,7 +544,7 @@ contador();
 contador();`,
       steps: [
         { stepId: 0, line: 8, stack: [], heap: [], explanation: "Definimos criarContador e criamos o contador." },
-        { stepId: 1, line: 8, stack: [{ id: 'global', name: 'Global', variables: [{ name: 'contador', value: 'REF:fn1', type: 'reference', refId: 'fn1', changed: true }], active: true }], heap: [{ id: 'fn1', className: 'Function', properties: [{ name: '[[Scope]]', value: 'REF:env1' }], highlight: true }], explanation: "A função retornada mantém referência ao ambiente (closure)." },
+        { stepId: 1, line: 8, stack: [{ id: 'global', name: 'Global', variables: [{ name: 'contador', value: 'REF:fn1', type: 'reference', refId: 'fn1', changed: true }], active: true }], heap: [{ id: 'fn1', className: 'Function', properties: [{ name: '[[Scope]]', value: 'REF:env1', type: 'reference' }], highlight: true }], explanation: "A função retornada mantém referência ao ambiente (closure)." },
         { stepId: 2, line: 9, stack: [{ id: 'global', name: 'Global', variables: [{ name: 'contador', value: 'REF:fn1', type: 'reference', refId: 'fn1' }], active: true }], heap: [{ id: 'env1', className: 'Env', properties: [{ name: 'cont', value: 1, type: 'primitive', changed: true }] }], explanation: "Ao chamar contador(), 'cont' é incrementado e preservado na closure." },
         { stepId: 3, line: 10, stack: [{ id: 'global', name: 'Global', variables: [{ name: 'contador', value: 'REF:fn1', type: 'reference', refId: 'fn1' }], active: true }], heap: [{ id: 'env1', className: 'Env', properties: [{ name: 'cont', value: 2, type: 'primitive', changed: true }] }], explanation: "Chamar novamente aumenta cont para 2 — o estado foi mantido." }
       ]
@@ -567,7 +567,7 @@ console.log('D');`,
         { stepId: 0, line: 1, stack: [], heap: [], explanation: "Execução inicial: log 'A' e agendamento de callbacks." },
         { stepId: 1, line: 1, stack: [{ id: 'global', name: 'Global', variables: [], active: true }], heap: [], explanation: "Imprime 'A' imediatamente." },
         { stepId: 2, line: 4, stack: [{ id: 'global', name: 'Global', variables: [], active: true }], heap: [], explanation: "Imprime 'D' em seguida (síncrono)." },
-        { stepId: 3, line: 3, stack: [{ id: 'global', name: 'Global', variables: [], active: false }], heap: [], explanation: "Microtasks (Promises) executam antes dos callbacks de setTimeout: imprime 'C'." },
+        { stepId: 3, line: 3, stack: [{ id: 'global', name: 'Global', variables: [], active: true }], heap: [], explanation: "Microtasks (Promises) executam antes dos callbacks de setTimeout: imprime 'C'." },
         { stepId: 4, line: 2, stack: [], heap: [], explanation: "Por fim, event loop processa macrotasks: setTimeout imprime 'B'. Ordem: A, D, C, B." }
       ]
     }
@@ -592,9 +592,9 @@ const debuggingLesson: Lesson = {
 busca([1,2,3,4], 3);`,
       steps: [
         { stepId: 0, line: 1, stack: [], heap: [], explanation: "Chamamos busca. O loop itera e imprime cada índice para ajudar a depurar." },
-        { stepId: 1, line: 3, stack: [{ id: 'global', name: 'Global', variables: [] }], heap: [], explanation: "checando 0" },
-        { stepId: 2, line: 3, stack: [{ id: 'global', name: 'Global', variables: [] }], heap: [], explanation: "checando 1" },
-        { stepId: 3, line: 3, stack: [{ id: 'global', name: 'Global', variables: [] }], heap: [], explanation: "checando 2 -> encontramos 3 e retornamos índice 2" }
+        { stepId: 1, line: 3, stack: [{ id: 'global', name: 'Global', variables: [], active: true }], heap: [], explanation: "checando 0" },
+        { stepId: 2, line: 3, stack: [{ id: 'global', name: 'Global', variables: [], active: true }], heap: [], explanation: "checando 1" },
+        { stepId: 3, line: 3, stack: [{ id: 'global', name: 'Global', variables: [], active: true }], heap: [], explanation: "checando 2 -> encontramos 3 e retornamos índice 2" }
       ]
     }
   }

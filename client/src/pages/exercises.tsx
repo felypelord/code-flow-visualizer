@@ -1,5 +1,5 @@
 import Layout from "@/components/layout";
-import { ExercisesView } from "@/components/exercises";
+import { ExercisesView } from "@/components/exercises-simple";
 
 export default function ExercisesPage() {
   return (

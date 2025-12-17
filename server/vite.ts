@@ -21,8 +21,8 @@ export async function setupVite(server: Server, app: Express) {
     customLogger: {
       ...viteLogger,
       error: (msg, options) => {
+        // Log the error but do not exit; let the overlay show and dev server keep running
         viteLogger.error(msg, options);
-        process.exit(1);
       },
     },
     server: serverOptions,

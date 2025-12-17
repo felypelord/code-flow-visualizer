@@ -1,25 +1,30 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Terminal, Menu, X } from "lucide-react";
+import { Terminal, Menu, ChevronDown, GraduationCap, Code, Dumbbell, Crown } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Auth from "@/components/auth";
+import { LanguageSelector } from "@/components/language-selector";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
-  const navItems = [
-    { href: "/", label: "Início" },
-    { href: "/exercises", label: "Exercícios", badge: "NEW" },
-    { href: "/lesson/functions", label: "Funções" },
-    { href: "/lesson/conditionals", label: "Condicionais" },
-    { href: "/lesson/loops-arrays", label: "Loops" },
-    { href: "/lesson/objects", label: "Objetos" },
-    { href: "/lesson/classes", label: "Classes" },
-    { href: "/lesson/recursion", label: "Recursão" },
+  const lessons = [
+    { href: "/lesson/functions", label: "Funções", icon: Code },
+    { href: "/lesson/conditionals", label: "Condicionais", icon: Code },
+    { href: "/lesson/loops-arrays", label: "Loops & Arrays", icon: Code },
+    { href: "/lesson/objects", label: "Objetos", icon: Code },
+    { href: "/lesson/classes", label: "Classes", icon: Code },
+    { href: "/lesson/recursion", label: "Recursão", icon: Code },
+    { href: "/lesson/closures", label: "Closures", icon: Code },
+    { href: "/lesson/async-await", label: "Async/Await", icon: Code },
+    { href: "/lesson/debugging", label: "Depuração", icon: Code },
   ];
+
+  const isLessonActive = lessons.some(lesson => location.includes(lesson.href));
 
   return (
     <div className="min-h-screen flex flex-col font-sans text-foreground">
@@ -32,29 +37,66 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <Terminal className="w-5 h-5 text-primary" />
               </div>
               <span className="font-mono font-bold text-lg tracking-tight">
-                Code<span className="text-primary">Visual</span>
+                Code<span className="text-primary">Flow</span>
               </span>
             </div>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6">
-            {navItems.map((item) => (
-              <NavLink key={item.href} href={item.href} active={location === item.href || (item.href !== "/" && location.includes(item.href))}>
-                {item.label}
-              </NavLink>
-            ))}
+          <nav className="hidden md:flex items-center gap-1">
+            <NavLink href="/" active={location === "/"}>
+              Home
+            </NavLink>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className={cn(
+                  "flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5",
+                  isLessonActive ? "text-primary bg-primary/10" : "text-muted-foreground"
+                )}>
+                  <GraduationCap className="w-4 h-4" />
+                  Aprender
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56 bg-card border-white/10">
+                {lessons.map((lesson) => (
+                  <DropdownMenuItem key={lesson.href} asChild>
+                    <Link href={lesson.href}>
+                      <div className={cn(
+                        "flex items-center gap-3 w-full cursor-pointer py-2",
+                        location.includes(lesson.href) ? "text-primary" : ""
+                      )}>
+                        <lesson.icon className="w-4 h-4" />
+                        {lesson.label}
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <NavLink href="/exercises" active={location.includes("/exercises")}>
+              <Dumbbell className="w-4 h-4" />
+              Exercícios
+            </NavLink>
+
+            <NavLink href="/pro" active={location.includes("/pro")}>
+              <Crown className="w-4 h-4 text-amber-400" />
+              <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">
+                Pro
+              </span>
+            </NavLink>
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
+            <LanguageSelector />
             <Auth />
           </div>
 
           {/* Mobile Nav */}
-          <div className="md:hidden">
-            <div className="mr-2">
-              <Auth />
-            </div>
+          <div className="md:hidden flex items-center gap-2">
+            <LanguageSelector />
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -63,20 +105,54 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] border-l border-white/10 bg-[#0f172a]">
                 <SheetTitle className="sr-only">Menu de Navegação</SheetTitle>
-                <SheetDescription className="sr-only">Navegue pelas lições disponíveis</SheetDescription>
-                <div className="flex flex-col gap-4 mt-8">
-                  {navItems.map((item) => (
-                    <Link key={item.href} href={item.href} onClick={() => setIsOpen(false)}>
+                <SheetDescription className="sr-only">Navegue pelas opções disponíveis</SheetDescription>
+                <div className="flex flex-col gap-2 mt-8">
+                  <Link href="/" onClick={() => setIsOpen(false)}>
+                    <span className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors",
+                      location === "/" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                    )}>
+                      Home
+                    </span>
+                  </Link>
+
+                  <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Aprender
+                  </div>
+                  {lessons.map((lesson) => (
+                    <Link key={lesson.href} href={lesson.href} onClick={() => setIsOpen(false)}>
                       <span className={cn(
-                        "block px-4 py-3 rounded-lg text-lg font-medium transition-colors",
-                        location.includes(item.href) && item.href !== "/" || location === item.href
-                          ? "bg-primary/10 text-primary" 
-                          : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                        "flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                        location.includes(lesson.href) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                       )}>
-                        {item.label}
+                        <lesson.icon className="w-4 h-4" />
+                        {lesson.label}
                       </span>
                     </Link>
                   ))}
+
+                  <Link href="/exercises" onClick={() => setIsOpen(false)}>
+                    <span className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors mt-2",
+                      location.includes("/exercises") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                    )}>
+                      <Dumbbell className="w-4 h-4" />
+                      Exercícios
+                    </span>
+                  </Link>
+
+                  <Link href="/pro" onClick={() => setIsOpen(false)}>
+                    <span className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-bold transition-colors bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:border-amber-500/40">
+                      <Crown className="w-4 h-4 text-amber-400" />
+                      <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                        Pro
+                      </span>
+                    </span>
+                  </Link>
+
+                  <div className="mt-4 pt-4 border-t border-white/10">
+                    <Auth />
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
@@ -104,11 +180,10 @@ function NavLink({ href, active, children }: { href: string; active: boolean; ch
   return (
     <Link href={href}>
       <span className={cn(
-        "cursor-pointer text-sm font-medium transition-colors hover:text-primary relative",
-        active ? "text-primary border-b-2 border-primary pb-1" : "text-muted-foreground"
+        "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5 cursor-pointer",
+        active ? "text-primary bg-primary/10" : "text-muted-foreground"
       )}>
         {children}
-        {children === "Exercícios" && <span className="absolute -top-2 -right-3 text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full">NEW</span>}
       </span>
     </Link>
   );

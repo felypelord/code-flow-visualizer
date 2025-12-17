@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+﻿import React, { useEffect, useState, useRef } from "react";
 import CodeEditor from "@/components/code-editor";
 import CallStack from "@/components/visualizer/call-stack";
 import HeapMemory from "@/components/visualizer/heap-memory";

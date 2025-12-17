@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { exercises, type Exercise, type Language } from "@/lib/exercises";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertCircle, CheckCircle2, Lightbulb, Eye, Code2, Play, RotateCcw } from "lucide-react";
 import CallStack from "@/components/visualizer/call-stack";
@@ -9,6 +10,8 @@ import HeapMemory from "@/components/visualizer/heap-memory";
 import { StackFrame, HeapObject } from "@/lib/types";
 import { getPyodideInstance } from "@/lib/pyodide";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ExerciseProgressState {
   [exerciseId: string]: {
@@ -34,6 +37,8 @@ interface ExecutionState {
 }
 
 export function ExercisesView() {
+  const { toast } = useToast();
+  const { t } = useLanguage();
   const [selectedExercise, setSelectedExercise] = useState<Exercise>(exercises[0]);
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");
   const [code, setCode] = useState<string>("");
@@ -168,6 +173,60 @@ export function ExercisesView() {
     return `⚙️ ${trimmed.substring(0, 60)}${trimmed.length > 60 ? "..." : ""}`;
   };
 
+  // Security: Validate and sanitize code
+  const validateCode = (code: string, language: Language): { valid: boolean; error?: string } => {
+    // Block dangerous patterns
+    const dangerousPatterns = [
+      /eval\s*\(/gi,
+      /Function\s*\(/gi,
+      /setTimeout\s*\(/gi,
+      /setInterval\s*\(/gi,
+      /document\./gi,
+      /window\./gi,
+      /localStorage/gi,
+      /sessionStorage/gi,
+      /fetch\s*\(/gi,
+      /XMLHttpRequest/gi,
+      /import\s+/gi,
+      /require\s*\(/gi,
+      /<script/gi,
+      /innerHTML/gi,
+      /outerHTML/gi,
+    ];
+
+    for (const pattern of dangerousPatterns) {
+      if (pattern.test(code)) {
+        return { 
+          valid: false, 
+          error: `🛑 Código bloqueado por segurança: padrão "${pattern.source}" não permitido. Use apenas lógica de programação simples.` 
+        };
+      }
+    }
+
+    // Check code length
+    if (code.length > 10000) {
+      return { valid: false, error: "Código muito longo. Limite: 10.000 caracteres." };
+    }
+
+    // Check for excessive loops (rough heuristic)
+    const loopCount = (code.match(/\b(for|while)\b/g) || []).length;
+    if (loopCount > 5) {
+      return { valid: false, error: "Muitos loops detectados. Máximo permitido: 5." };
+    }
+
+    return { valid: true };
+  };
+
+  // Security: Execute with timeout
+  const executeWithTimeout = async <T,>(fn: () => Promise<T> | T, timeoutMs: number = 10000): Promise<T> => {
+    return Promise.race([
+      Promise.resolve(fn()),
+      new Promise<T>((_, reject) => 
+        setTimeout(() => reject(new Error("⏱️ Tempo esgotado! Código demorou mais de 10 segundos. Verifique se há loops infinitos.")), timeoutMs)
+      )
+    ]);
+  };
+
   const runTests = () => {
     if (!allowExecution) {
       setPendingExecutionAction("tests");
@@ -182,8 +241,15 @@ export function ExercisesView() {
     }
   };
 
-  const runJavaScriptTests = () => {
+  const runJavaScriptTests = async () => {
     try {
+      // Security: Validate code first
+      const validation = validateCode(code, "javascript");
+      if (!validation.valid) {
+        setTestResults([{ passed: false, name: "🛑 Segurança", error: validation.error! }]);
+        return;
+      }
+
       const functionNameMatch = code.match(/function\s+(\w+)\s*\(/);
       if (!functionNameMatch) {
         setTestResults([{ passed: false, name: "Erro", error: "Nenhuma função encontrada. Use 'function' para declarar sua função." }]);
@@ -192,32 +258,38 @@ export function ExercisesView() {
 
       const functionName = functionNameMatch[1];
       let userFunction: any;
+      
       try {
-        eval(`${code}; userFunction = ${functionName};`);
+        // Execute with timeout protection
+        await executeWithTimeout(() => {
+          eval(`${code}; userFunction = ${functionName};`);
+        }, 5000);
       } catch (e) {
         setTestResults([{ passed: false, name: "Erro de Sintaxe", error: `${(e as any).message}` }]);
         return;
       }
 
-      const results = selectedExercise.tests.map((test) => {
+      const results = [];
+      for (const test of selectedExercise.tests) {
         try {
-          const result = userFunction(...test.input);
+          // Execute each test with timeout
+          const result = await executeWithTimeout(() => userFunction(...test.input), 3000);
           const passed = JSON.stringify(result) === JSON.stringify(test.expected);
-          return {
+          results.push({
             name: test.name,
             passed,
             result,
             expected: test.expected,
             error: null,
-          };
+          });
         } catch (e) {
-          return {
+          results.push({
             name: test.name,
             passed: false,
             error: (e as any).message,
-          };
+          });
         }
-      });
+      }
 
       setTestResults(results);
       const isPassed = results.every((r) => r.passed);
@@ -291,18 +363,193 @@ export function ExercisesView() {
     }
   };
 
+  const executeLineByLinePython = async () => {
+    try {
+      const functionNameMatch = code.match(/def\s+(\w+)\s*\(/);
+      if (!functionNameMatch) {
+        toast({
+          title: "❌ Erro",
+          description: "Nenhuma função encontrada. Use 'def' para declarar sua função em Python.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const functionName = functionNameMatch[1];
+
+      // Load Pyodide
+      let py: any;
+      try {
+        py = await getPyodideInstance();
+      } catch (e) {
+        toast({
+          title: "❌ Erro ao carregar Python",
+          description: "Falha ao carregar o interpretador Python: " + ((e as any).message || String(e)),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const lines = code.split('\n');
+      
+      setExecutionState({
+        isExecuting: true,
+        isPaused: false,
+        currentLineIndex: 0,
+        lines,
+        errorLineIndex: null,
+        errorMessage: null,
+        variables: {},
+        stack: [],
+        heap: [],
+        logs: [],
+      });
+
+      // Simulate line by line with visual feedback
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.trim().length === 0) continue;
+        
+        await new Promise(resolve => setTimeout(resolve, executionSpeed));
+
+        const friendlyLog = `⚙️ ${line.trim().substring(0, 60)}${line.trim().length > 60 ? "..." : ""}`;
+
+        setExecutionState(prev => ({
+          ...prev,
+          currentLineIndex: i + 1,
+          logs: [...prev.logs, friendlyLog],
+        }));
+      }
+
+      // Run tests after execution
+      const results: any[] = [];
+      for (const test of selectedExercise.tests) {
+        try {
+          const inputJSON = JSON.stringify(test.input);
+          const script = `${code}\nimport json\n\ndef __run_test():\n  try:\n    val = ${functionName}(*${inputJSON})\n    return json.dumps({'ok': True, 'result': val})\n  except Exception as e:\n    import traceback\n    return json.dumps({'ok': False, 'error': str(e), 'trace': traceback.format_exc()})\n\n__run_test()`;
+
+          const res = await py.runPythonAsync(script);
+          const resStr = typeof res === 'string' ? res : String(res);
+          const parsed = JSON.parse(resStr);
+
+          if (parsed.ok) {
+            const passed = JSON.stringify(parsed.result) === JSON.stringify(test.expected);
+            results.push({ name: test.name, passed, result: parsed.result, expected: test.expected, error: null });
+          } else {
+            results.push({ name: test.name, passed: false, error: parsed.error || parsed.trace || 'Erro' });
+          }
+        } catch (e) {
+          results.push({ name: test.name, passed: false, error: (e as any).message || String(e) });
+        }
+      }
+
+      setTestResults(results);
+      const isPassed = results.every((r) => r.passed);
+      setAllPassed(isPassed);
+
+      if (isPassed) {
+        saveTestProgress(true, 100);
+      } else {
+        const passedCount = results.filter((r) => r.passed).length;
+        const score = Math.round((passedCount / results.length) * 100);
+        saveTestProgress(false, score);
+      }
+
+      setExecutionState(prev => ({
+        ...prev,
+        isExecuting: false,
+      }));
+
+    } catch (e) {
+      setExecutionState(prev => ({
+        ...prev,
+        isExecuting: false,
+        errorLineIndex: 0,
+        errorMessage: (e as any).message,
+      }));
+      toast({
+        title: "❌ Erro",
+        description: (e as any).message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const executeCompiledLanguage = async () => {
+    const lines = code.split('\n');
+    
+    setExecutionState({
+      isExecuting: true,
+      isPaused: false,
+      currentLineIndex: 0,
+      lines,
+      errorLineIndex: null,
+      errorMessage: null,
+      variables: {},
+      stack: [],
+      heap: [],
+      logs: [],
+    });
+
+    // Visual simulation
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (line.trim().length === 0) continue;
+      
+      await new Promise(resolve => setTimeout(resolve, executionSpeed));
+
+      const friendlyLog = `⚙️ ${line.trim().substring(0, 60)}${line.trim().length > 60 ? "..." : ""}`;
+
+      setExecutionState(prev => ({
+        ...prev,
+        currentLineIndex: i + 1,
+        logs: [...prev.logs, friendlyLog],
+      }));
+    }
+
+    // Run tests
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setExecutionState(prev => ({ ...prev, logs: [...prev.logs, "🧪 Executando testes..."] }));
+    
+    runTests();
+    
+    setTimeout(() => {
+      setExecutionState(prev => ({ ...prev, isExecuting: false }));
+    }, 1000);
+  };
+
   const executeLineByLine = async () => {
     if (!allowExecution) {
       setPendingExecutionAction("line");
       setShowEnableExecutionConfirm(true);
       return;
     }
+    
+    // Python: Execute line by line
     if (selectedLanguage === "python") {
-      setTestResults([{ passed: false, name: "Erro", error: "Python requer execução no servidor. Use JavaScript para testes rápidos no navegador." }]);
-      return;
+      return executeLineByLinePython();
     }
+    
+    // C, C#, Java: Visual simulation + tests
+    if (selectedLanguage === "c" || selectedLanguage === "csharp" || selectedLanguage === "java") {
+      return executeCompiledLanguage();
+    }
+    
+    // JavaScript: Execute line by line (default)
 
     try {
+      // Security: Validate code first
+      const validation = validateCode(code, "javascript");
+      if (!validation.valid) {
+        toast({
+          title: "🛑 Código Bloqueado",
+          description: validation.error!,
+          variant: "destructive",
+        });
+        setTestResults([{ passed: false, name: "🛑 Segurança", error: validation.error! }]);
+        return;
+      }
+
       const functionNameMatch = code.match(/function\s+(\w+)\s*\(/);
       if (!functionNameMatch) {
         setTestResults([{ passed: false, name: "Erro", error: "Nenhuma função encontrada. Use 'function' para declarar sua função." }]);
@@ -470,15 +717,15 @@ export function ExercisesView() {
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3">
                 <Code2 className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
-                <span>Desafios</span>
+                <span>{t.challenges}</span>
               </h1>
-              <p className="text-xs sm:text-base text-slate-300">JavaScript ou Python</p>
+              <p className="text-xs sm:text-base text-slate-300">{t.jsOrPython}</p>
             </div>
             <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg px-3 py-2 sm:px-4 sm:py-3 flex-shrink-0">
-              <p className="text-blue-300 text-xs sm:text-sm font-semibold">Progresso</p>
+              <p className="text-blue-300 text-xs sm:text-sm font-semibold">{t.progress}</p>
               <p className="text-xl sm:text-2xl font-bold text-blue-400">{completedCount}/{exercises.length * availableLanguages.length}</p>
             </div>
           </div>
@@ -495,8 +742,8 @@ export function ExercisesView() {
           {/* Horizontal Exercises Bar */}
           <div className="bg-slate-800/40 rounded p-3">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-white">Exercícios</h3>
-              <div className="text-xs text-slate-300">Clique para selecionar</div>
+              <h3 className="text-sm font-semibold text-white">{t.exercises}</h3>
+              <div className="text-xs text-slate-300">{t.clickToSelect}</div>
             </div>
             <div className="flex gap-3 overflow-x-auto py-2">
               {exercises.map((ex, idx) => {
@@ -518,9 +765,9 @@ export function ExercisesView() {
                         <div className="text-xs font-bold text-slate-400 mb-1">#{idx + 1}</div>
                         <div className="font-semibold text-sm line-clamp-2">{ex.title}</div>
                         <div className={`text-xs mt-1 ${
-                          ex.difficulty === "Iniciante"
+                          ex.difficulty === "Beginner"
                             ? "text-green-400"
-                            : ex.difficulty === "Intermediário"
+                            : ex.difficulty === "Intermediate"
                             ? "text-yellow-400"
                             : "text-red-400"
                         }`}>
@@ -558,9 +805,9 @@ export function ExercisesView() {
               </div>
               <div className="flex gap-2 flex-wrap">
                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                  selectedExercise.difficulty === "Iniciante"
+                  selectedExercise.difficulty === "Beginner"
                     ? "bg-green-500/20 text-green-300 border border-green-500/50"
-                    : selectedExercise.difficulty === "Intermediário"
+                    : selectedExercise.difficulty === "Intermediate"
                     ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/50"
                     : "bg-red-500/20 text-red-300 border border-red-500/50"
                 }`}>
@@ -590,7 +837,7 @@ export function ExercisesView() {
                           : "border-slate-600 text-slate-200 hover:bg-slate-700"
                       }`}
                     >
-                      {lang === "javascript" ? "JS" : "Py"}
+                      {lang === "javascript" ? "JS" : lang === "python" ? "Py" : lang === "c" ? "C" : lang === "csharp" ? "C#" : "Java"}
                     </Button>
                   ))}
                 </div>
@@ -621,21 +868,6 @@ export function ExercisesView() {
               </TabsList>
 
               <TabsContent value="code" className="space-y-4 mt-6">
-                {/* Speed Control - Simple input box above editor */}
-                <div className="flex items-center gap-3 bg-slate-800 p-3 rounded border border-slate-700">
-                  <label className="text-sm font-semibold text-white whitespace-nowrap">Velocidade (ms):</label>
-                  <input
-                    type="number"
-                    min={50}
-                    max={3000}
-                    step={50}
-                    value={executionSpeed}
-                    onChange={(e) => setExecutionSpeed(Math.max(50, Math.min(3000, Number(e.target.value))))}
-                    className="w-28 px-3 py-2 bg-slate-700 text-white rounded border border-slate-600 text-sm font-mono"
-                  />
-                  <span className="text-xs text-slate-400">+ lento = melhor visualização</span>
-                </div>
-
                 {/* Code Editor */}
                 <Card className="p-4 bg-slate-800 border-slate-700">
                   <label className="text-sm font-semibold text-white mb-3 block">Código:</label>
@@ -699,25 +931,62 @@ export function ExercisesView() {
                   )}
                 </AnimatePresence>
 
+                {/* Thin Line Separator */}
+                <div className="h-px bg-slate-600"></div>
+
+                {/* Speed Control - Windows Volume Style */}
+                <div className="flex items-center gap-3 bg-slate-800/50 p-2 rounded">
+                  <span className="text-xs text-slate-300 font-semibold">🔊</span>
+                  <Slider
+                    min={50}
+                    max={2000}
+                    step={50}
+                    value={[executionSpeed]}
+                    onValueChange={([val]) => setExecutionSpeed(val)}
+                    className="flex-1 max-w-xs"
+                    aria-label="Velocidade de execução"
+                  />
+                  <span className="text-xs text-slate-300 font-mono" style={{minWidth: 35, textAlign: 'right'}}>{executionSpeed}ms</span>
+                </div>
+
+                {/* Execute Button - Full Width */}
+                <Button
+                  onClick={executeLineByLine}
+                  disabled={executionState.isExecuting}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-60"
+                >
+                  {executionState.isExecuting ? (
+                    <>
+                      <Play className="w-4 h-4 mr-2 animate-pulse" />
+                      {t.executing}
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4 mr-2" />
+                      {t.execute}
+                    </>
+                  )}
+                </Button>
+
                 {/* Below editor: 3 columns - Variables, Memory, Logs */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {/* Column 1: Variables */}
                   <Card className="p-4 bg-slate-800 border-slate-700 overflow-auto max-h-64">
-                    <h4 className="text-sm font-semibold text-blue-300 mb-3">🔵 Variáveis</h4>
+                    <h4 className="text-sm font-semibold text-blue-300 mb-3">🔵 {t.variables}</h4>
                     <CallStack stack={executionState.stack} />
                   </Card>
 
                   {/* Column 2: Memory */}
                   <Card className="p-4 bg-slate-800 border-slate-700 overflow-auto max-h-64">
-                    <h4 className="text-sm font-semibold text-cyan-300 mb-3">🟢 Memória</h4>
+                    <h4 className="text-sm font-semibold text-cyan-300 mb-3">🟢 {t.memory}</h4>
                     <HeapMemory heap={executionState.heap} />
                   </Card>
 
                   {/* Column 3: What Computer Did */}
                   <Card className="p-4 bg-slate-800 border-slate-700 overflow-auto max-h-64">
-                    <h4 className="text-sm font-semibold text-yellow-300 mb-3">⚙️ Executado</h4>
+                    <h4 className="text-sm font-semibold text-yellow-300 mb-3">⚙️ {t.executed}</h4>
                     {executionState.logs.length === 0 ? (
-                      <p className="text-xs text-slate-400">Execute o código para ver os passos.</p>
+                      <p className="text-xs text-slate-400">{t.executeToSeeSteps}</p>
                     ) : (
                       <div className="space-y-2">
                         {executionState.logs.slice(-8).reverse().map((l, i) => (
@@ -730,25 +999,8 @@ export function ExercisesView() {
                   </Card>
                 </div>
 
-                {/* Action Buttons */}
+                {/* Other Action Buttons */}
                 <div className="flex gap-3 flex-wrap">
-                  <Button
-                    onClick={executeLineByLine}
-                    disabled={executionState.isExecuting}
-                    className="flex-1 min-w-[120px] bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2 rounded-lg transition-all disabled:opacity-60"
-                  >
-                    {executionState.isExecuting ? (
-                      <>
-                        <Play className="w-4 h-4 mr-2 animate-pulse" />
-                        Executando...
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-4 h-4 mr-2" />
-                        Executar
-                      </>
-                    )}
-                  </Button>
                   <Button
                     onClick={() => {
                       if (currentVariant?.solution) {
@@ -762,36 +1014,33 @@ export function ExercisesView() {
                   </Button>
 
                   {showUseSolutionConfirm && (
-                    <div className="absolute left-0 mt-2 w-[220px] bg-slate-800 border border-slate-700 rounded p-2 shadow-lg z-50">
-                      <p className="text-sm text-slate-200 mb-2">Usar solução?</p>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => {
-                            if (currentVariant?.solution) {
-                              setCode(currentVariant.solution);
-                              setExecutionState({
-                                isExecuting: false,
-                                isPaused: false,
-                                currentLineIndex: -1,
-                                lines: [],
-                                errorLineIndex: null,
-                                errorMessage: null,
-                                variables: {},
-                                stack: [],
-                                heap: [],
-                                logs: [],
-                              });
-                            }
-                            setShowUseSolutionConfirm(false);
-                          }}
-                          className="flex-1 bg-green-600"
-                        >
-                          Sim
-                        </Button>
-                        <Button onClick={() => setShowUseSolutionConfirm(false)} variant="outline" className="flex-1">
-                          Não
-                        </Button>
-                      </div>
+                    <div className="flex gap-2 mt-1">
+                      <Button
+                        onClick={() => {
+                          if (currentVariant?.solution) {
+                            setCode(currentVariant.solution);
+                            setExecutionState({
+                              isExecuting: false,
+                              isPaused: false,
+                              currentLineIndex: -1,
+                              lines: [],
+                              errorLineIndex: null,
+                              errorMessage: null,
+                              variables: {},
+                              stack: [],
+                              heap: [],
+                              logs: [],
+                            });
+                          }
+                          setShowUseSolutionConfirm(false);
+                        }}
+                        className="bg-green-600 text-xs px-2 py-1 h-8"
+                      >
+                        Sim
+                      </Button>
+                      <Button onClick={() => setShowUseSolutionConfirm(false)} variant="outline" className="text-xs px-2 py-1 h-8">
+                        Não
+                      </Button>
                     </div>
                   )}
 

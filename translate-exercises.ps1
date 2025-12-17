@@ -1,0 +1,108 @@
+$filePath = "client\src\lib\exercises.ts"
+$content = Get-Content $filePath -Raw -Encoding UTF8
+
+# Translate comments
+$content = $content -replace '// Seu código aqui','// Your code here'
+$content = $content -replace '# Seu código aqui','# Your code here'
+
+# Translate titles
+$content = $content -replace 'Soma de Dois Números','Sum Two Numbers'
+$content = $content -replace 'Encontrar o Maior','Find Maximum'
+$content = $content -replace 'Reverter String','Reverse String'
+$content = $content -replace 'Contar Vogais','Count Vowels'
+$content = $content -replace 'Filtrar Pares','Filter Even Numbers'
+$content = $content -replace 'Fatorial','Factorial'
+$content = $content -replace 'Palíndromo','Palindrome'
+$content = $content -replace 'Contar Ocorrências','Count Occurrences'
+$content = $content -replace 'Somar Array','Sum Array'
+$content = $content -replace 'Quick Sort','Quick Sort'
+$content = $content -replace 'Mesclar Arrays','Merge Arrays'
+$content = $content -replace 'Busca Binária','Binary Search'
+$content = $content -replace 'Anagramas','Anagrams'
+$content = $content -replace 'Substring Mais Longa','Longest Substring'
+$content = $content -replace 'Espiral de Matriz','Matrix Spiral'
+$content = $content -replace 'Parênteses Balanceados','Balanced Parentheses'
+$content = $content -replace 'Achatar Array','Flatten Array'
+$content = $content -replace 'Agrupar Por','Group By'
+$content = $content -replace 'Fibonacci','Fibonacci'
+
+# Translate descriptions
+$content = $content -replace 'Escreva uma função que recebe dois números e retorna a soma deles.','Write a function that takes two numbers and returns their sum.'
+$content = $content -replace 'Escreva uma função que verifica se um número é par ou ímpar.','Write a function that checks if a number is even or odd.'
+$content = $content -replace 'Escreva uma função que encontra o maior número em um array.','Write a function that finds the maximum number in an array.'
+$content = $content -replace 'Escreva uma função que reverte uma string.','Write a function that reverses a string.'
+$content = $content -replace 'Escreva uma função que conta o número de vogais em uma string.','Write a function that counts the number of vowels in a string.'
+$content = $content -replace 'Escreva uma função que filtra apenas os números pares de um array.','Write a function that filters only even numbers from an array.'
+$content = $content -replace 'Escreva uma função que calcula o fatorial de um número.','Write a function that calculates the factorial of a number.'
+$content = $content -replace 'Escreva uma função que verifica se uma string é um palíndromo.','Write a function that checks if a string is a palindrome.'
+$content = $content -replace 'Escreva uma função que conta quantas vezes um elemento aparece em um array.','Write a function that counts how many times an element appears in an array.'
+$content = $content -replace 'Escreva uma função que soma todos os elementos de um array.','Write a function that sums all elements of an array.'
+
+# Translate function names
+$content = $content -replace 'function somar','function sum'
+$content = $content -replace 'def somar','def sum'
+$content = $content -replace 'int somar','int sum'
+$content = $content -replace 'Somar\(','Sum('
+$content = $content -replace 'function verificarParOuImpar','function isEven'
+$content = $content -replace 'def verificar_par_ou_impar','def is_even'
+$content = $content -replace 'function encontrarMaior','function findMax'
+$content = $content -replace 'def encontrar_maior','def find_max'
+$content = $content -replace 'function reverterString','function reverseString'
+$content = $content -replace 'def reverter_string','def reverse_string'
+$content = $content -replace 'function contarVogais','function countVowels'
+$content = $content -replace 'def contar_vogais','def count_vowels'
+$content = $content -replace 'function filtrarPares','function filterEven'
+$content = $content -replace 'def filtrar_pares','def filter_even'
+$content = $content -replace 'function calcularFatorial','function factorial'
+$content = $content -replace 'def calcular_fatorial','def factorial'
+$content = $content -replace 'function ehPalindromo','function isPalindrome'
+$content = $content -replace 'def eh_palindromo','def is_palindrome'
+$content = $content -replace 'function contarOcorrencias','function countOccurrences'
+$content = $content -replace 'def contar_ocorrencias','def count_occurrences'
+$content = $content -replace 'function somarArray','function sumArray'
+$content = $content -replace 'def somar_array','def sum_array'
+
+# Translate test names
+$content = $content -replace 'somar\(','sum('
+$content = $content -replace 'verificarParOuImpar\(','isEven('
+$content = $content -replace 'encontrarMaior\(','findMax('
+$content = $content -replace 'reverterString\(','reverseString('
+$content = $content -replace 'contarVogais\(','countVowels('
+$content = $content -replace 'filtrarPares\(','filterEven('
+$content = $content -replace 'calcularFatorial\(','factorial('
+$content = $content -replace 'ehPalindromo\(','isPalindrome('
+$content = $content -replace 'contarOcorrencias\(','countOccurrences('
+$content = $content -replace 'somarArray\(','sumArray('
+
+# Translate hints
+$content = $content -replace 'Use o operador \+ para somar os parâmetros','Use the + operator to add the parameters'
+$content = $content -replace 'Use o operador módulo \(%\) para obter o resto da divisão','Use the modulo operator (%) to get the remainder'
+$content = $content -replace 'Percorra o array comparando os valores','Loop through the array comparing values'
+$content = $content -replace 'Você pode inverter iterando de trás para frente','You can reverse by iterating backwards'
+$content = $content -replace 'Use um contador e verifique cada caractere','Use a counter and check each character'
+$content = $content -replace 'Use filter para criar um novo array','Use filter to create a new array'
+$content = $content -replace 'Lembre-se que o fatorial de 0 é 1','Remember that factorial of 0 is 1'
+$content = $content -replace 'Compare a string original com sua versão invertida','Compare the original string with its reversed version'
+$content = $content -replace 'Use um contador dentro de um loop','Use a counter inside a loop'
+$content = $content -replace 'Use reduce ou um loop simples','Use reduce or a simple loop'
+$content = $content -replace 'Divida o array e ordene recursivamente','Divide the array and sort recursively'
+$content = $content -replace 'Mescle dois arrays ordenados comparando elementos','Merge two sorted arrays by comparing elements'
+$content = $content -replace 'Compare o elemento do meio e ajuste os limites','Compare the middle element and adjust bounds'
+$content = $content -replace 'Ordene as strings e compare','Sort the strings and compare'
+$content = $content -replace 'Use um Set para rastrear caracteres vistos','Use a Set to track seen characters'
+
+# Translate return values
+$content = $content -replace '"par"','"even"'
+$content = $content -replace '"ímpar"','"odd"'
+$content = $content -replace 'número','number'
+$content = $content -replace 'numero','number'
+$content = $content -replace 'array','array'
+$content = $content -replace 'vogais','vowels'
+$content = $content -replace 'string','str'
+$content = $content -replace 'palavra','word'
+$content = $content -replace 'elemento','element'
+$content = $content -replace 'valor','value'
+
+Set-Content $filePath $content -Encoding UTF8 -NoNewline
+
+Write-Host "Translation completed!" -ForegroundColor Green
