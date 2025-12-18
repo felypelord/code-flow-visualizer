@@ -6,9 +6,6 @@ const forgotPasswordSchema = z.object({
   email: z.string().email(),
 });
 
-const usersTable = "users";
-const passwordResetsTable = "password_resets";
-
 export default async function (req: any, res: any) {
   res.setHeader("Content-Type", "application/json");
 
@@ -49,7 +46,7 @@ export default async function (req: any, res: any) {
     });
 
     // Check if user exists
-    const user = await client`SELECT id FROM ${client.unsafe(usersTable)} WHERE email = ${email} LIMIT 1`;
+    const user = await client`SELECT id FROM users WHERE email = ${email} LIMIT 1`;
     
     if (user.length === 0) {
       // Don't reveal if email exists (security)
@@ -67,7 +64,7 @@ export default async function (req: any, res: any) {
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
 
     await client`
-      INSERT INTO ${client.unsafe(passwordResetsTable)} (email, code, expires_at, attempts) 
+      INSERT INTO password_resets (email, code, expires_at, attempts) 
       VALUES (${email}, ${resetCode}, ${expiresAt}, 0)
       ON CONFLICT (email) DO UPDATE SET code = ${resetCode}, expires_at = ${expiresAt}, attempts = 0
     `;

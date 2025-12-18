@@ -8,9 +8,6 @@ const resetPasswordSchema = z.object({
   newPassword: z.string().min(8),
 });
 
-const usersTable = "users";
-const passwordResetsTable = "password_resets";
-
 export default async function (req: any, res: any) {
   res.setHeader("Content-Type", "application/json");
 
@@ -51,7 +48,7 @@ export default async function (req: any, res: any) {
     });
 
     // Find password reset record
-    const reset = await client`SELECT * FROM ${client.unsafe(passwordResetsTable)} WHERE email = ${email} LIMIT 1`;
+    const reset = await client`SELECT * FROM password_resets WHERE email = ${email} LIMIT 1`;
 
     if (reset.length === 0) {
       res.statusCode = 404;
@@ -89,7 +86,7 @@ export default async function (req: any, res: any) {
 
     // Check code
     if (record.code !== code) {
-      await client`UPDATE ${client.unsafe(passwordResetsTable)} SET attempts = attempts + 1 WHERE email = ${email}`;
+      await client`UPDATE password_resets SET attempts = attempts + 1 WHERE email = ${email}`;
 
       res.statusCode = 400;
       res.end(JSON.stringify({
@@ -103,10 +100,10 @@ export default async function (req: any, res: any) {
     // Code is valid! Hash new password and update user
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     
-    await client`UPDATE ${client.unsafe(usersTable)} SET password = ${hashedPassword} WHERE email = ${email}`;
+    await client`UPDATE users SET password = ${hashedPassword} WHERE email = ${email}`;
 
     // Clean up reset record
-    await client`DELETE FROM ${client.unsafe(passwordResetsTable)} WHERE email = ${email}`;
+    await client`DELETE FROM password_resets WHERE email = ${email}`;
 
     await client.end();
 

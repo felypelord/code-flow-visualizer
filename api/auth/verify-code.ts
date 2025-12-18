@@ -6,9 +6,6 @@ const verifyCodeSchema = z.object({
   code: z.string().min(6).max(6),
 });
 
-const usersTable = "users";
-const emailVerificationsTable = "email_verifications";
-
 export default async function (req: any, res: any) {
   res.setHeader("Content-Type", "application/json");
 
@@ -49,7 +46,7 @@ export default async function (req: any, res: any) {
     });
 
     // Find verification record
-    const verification = await client`SELECT * FROM ${client.unsafe(emailVerificationsTable)} WHERE email = ${email} LIMIT 1`;
+    const verification = await client`SELECT * FROM email_verifications WHERE email = ${email} LIMIT 1`;
 
     if (verification.length === 0) {
       res.statusCode = 404;
@@ -88,7 +85,7 @@ export default async function (req: any, res: any) {
     // Check code
     if (record.code !== code) {
       // Increment attempts
-      await client`UPDATE ${client.unsafe(emailVerificationsTable)} SET attempts = attempts + 1 WHERE email = ${email}`;
+      await client`UPDATE email_verifications SET attempts = attempts + 1 WHERE email = ${email}`;
 
       res.statusCode = 400;
       res.end(JSON.stringify({
@@ -100,10 +97,10 @@ export default async function (req: any, res: any) {
     }
 
     // Code is valid! Mark user as verified
-    await client`UPDATE ${client.unsafe(usersTable)} SET email_verified = true WHERE email = ${email}`;
+    await client`UPDATE users SET email_verified = true WHERE email = ${email}`;
 
     // Clean up verification record
-    await client`DELETE FROM ${client.unsafe(emailVerificationsTable)} WHERE email = ${email}`;
+    await client`DELETE FROM email_verifications WHERE email = ${email}`;
 
     await client.end();
 
