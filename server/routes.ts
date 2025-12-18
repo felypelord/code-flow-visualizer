@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { db } from "./db";
-import { progress, users, webhookEvents, stripeCustomers } from "@shared/schema";
+import { progress, users, webhookEvents, stripeCustomers } from "../shared/schema";
 import { storage } from "./storage";
 import { getStripe, getBaseUrl, STRIPE_PRICE_PRO_MONTHLY, STRIPE_PRICE_PRO_MONTHLY_USD, STRIPE_WEBHOOK_SECRET } from "./stripe";
 import Stripe from "stripe";

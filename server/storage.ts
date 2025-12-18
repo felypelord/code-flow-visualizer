@@ -1,6 +1,6 @@
-import { type User, type InsertUser } from "@shared/schema";
+import { type User, type InsertUser } from "../shared/schema";
 import { db } from "./db";
-import { users, emailVerifications, passwordResets } from "@shared/schema";
+import { users, emailVerifications, passwordResets } from "../shared/schema";
 import { eq } from "drizzle-orm";
 
 // modify the interface with any CRUD methods
