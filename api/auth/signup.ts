@@ -63,61 +63,18 @@ export default async function (req: any, res: any) {
     });
 
     try {
-      // Check if user already exists
-      const existingUsers = await client.query(
-        'SELECT id FROM users WHERE email = $1 LIMIT 1',
-        [email]
-      );
-      
-      if (existingUsers.length > 0) {
-        res.status(409).end(JSON.stringify({
-          ok: false,
-          message: "Email already registered"
-        }));
-        await client.end();
-        return;
-      }
-
-      // Hash password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Create user
-      await client.query(
-        'INSERT INTO users (email, password, first_name, last_name, date_of_birth, country, email_verified) VALUES ($1, $2, $3, $4, $5, $6, false)',
-        [email, hashedPassword, firstName, lastName, new Date(dateOfBirth), country]
-      );
-
-      // Generate verification code
-      const verificationCode = Math.random().toString().slice(2, 8);
-      const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-
-      await client.query(
-        'INSERT INTO email_verifications (email, code, expires_at, attempts) VALUES ($1, $2, $3, 0) ON CONFLICT (email) DO UPDATE SET code = EXCLUDED.code, expires_at = EXCLUDED.expires_at, attempts = 0',
-        [email, verificationCode, expiresAt]
-      );
-
-      // Send verification email via Resend (fire-and-forget)
-      if (process.env.RESEND_API_KEY) {
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@codeflowbr.site";
-        
-        resend.emails.send({
-          from: fromEmail,
-          to: email,
-          subject: "Verify your Code Flow account",
-          html: `<p>Your verification code is: <strong>${verificationCode}</strong></p><p>This code expires in 15 minutes.</p>`,
-        }).catch(err => console.error("[ERROR] Failed to send verification email:", err));
-      }
-
+      // Just return ok for now, test database connection first
       res.status(200).end(JSON.stringify({
         ok: true,
-        message: "User created! Verification code sent to your email",
-        email,
-        firstName,
-        country
+        message: "Signup endpoint is responding",
+        debug: {
+          email,
+          hasDatabase: !!process.env.DATABASE_URL,
+          nodeEnv: process.env.NODE_ENV
+        }
       }));
     } finally {
-      await client.end();
+      // Don't try to connect to DB yet
     }
   } catch (err: any) {
     console.error("[ERROR] /api/auth/signup exception:", err);
