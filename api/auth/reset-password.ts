@@ -1,5 +1,5 @@
 import { z } from "zod";
-import * as bcrypt from "bcryptjs";
+import * as bcrypt from "bcrypt";
 import postgres from "postgres";
 
 const resetPasswordSchema = z.object({
