@@ -522,7 +522,6 @@ export function ExercisesView() {
               </TabsList>
 
               <TabsContent value="code" className="space-y-4 mt-6">
-                  const result = await (await import("@/lib/sandbox")).runInWorker(code, functionName, test.input, { timeoutMs: isPro ? 6000 : 3000 });
                 {/* Code Editor */}
                 <Card className="p-4 bg-slate-800 border-slate-700">
                   <label className="text-sm font-semibold text-white mb-3 block">Código:</label>
