@@ -135,9 +135,19 @@ export default function ProPage() {
           </div>
         )}
 
-        <Suspense fallback={<div className="text-center p-8 text-white">Carregando debugger...</div>}>
-          <ProDebuggerLazy />
-        </Suspense>
+        {user?.isPro ? (
+          <Suspense fallback={<div className="text-center p-8 text-white">Carregando debugger...</div>}>
+            <ProDebuggerLazy />
+          </Suspense>
+        ) : (
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-white">
+              <h2 className="text-2xl font-bold mb-2">Recurso Pro</h2>
+              <p className="text-sm text-gray-200/80 mb-4">Faça o upgrade para desbloquear o Pro Debugger e conteúdos exclusivos.</p>
+              <Button onClick={handleUpgrade}>Ativar Pro</Button>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

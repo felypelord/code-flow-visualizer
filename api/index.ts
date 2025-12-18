@@ -14,7 +14,9 @@ export default async function (_req: any, res: any) {
       },
       pro: {
         createCheckout: "POST /api/pro/create-checkout",
-        confirm: "POST /api/pro/confirm"
+        confirm: "POST /api/pro/confirm",
+        portal: "POST /api/pro/portal",
+        webhook: "POST /api/pro/webhook"
       }
     },
     timestamp: new Date().toISOString()
