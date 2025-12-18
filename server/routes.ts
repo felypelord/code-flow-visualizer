@@ -22,7 +22,7 @@ const EMAIL_SEND_TIMEOUT_MS = Number(process.env.EMAIL_SEND_TIMEOUT_MS || 4000);
 
 // Resend configuration
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "noreply@codeflow.dev";
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "noreply@example.com";
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 // Generate 6-digit verification code
