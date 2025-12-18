@@ -69,7 +69,27 @@ export default function ProPage() {
   };
 
   const handlePortal = async () => {
-    alert("Portal de cobrança ainda não configurado.");
+    if (!user?.email) {
+      alert("Email não encontrado");
+      return;
+    }
+    try {
+      const res = await fetch("/api/pro/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.url) {
+          window.location.href = data.url;
+          return;
+        }
+      }
+      alert("Erro ao abrir portal de cobrança");
+    } catch (err) {
+      alert("Erro na requisição");
+    }
   };
 
   return (

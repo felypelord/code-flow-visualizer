@@ -2,9 +2,13 @@ import { useState, useEffect } from 'react';
 
 interface User {
   id: string;
-  username: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
   isAdmin?: boolean;
   isPro?: boolean;
+  proExpiresAt?: string | null;
+  emailVerified?: boolean;
 }
 
 export function useUser() {
@@ -14,10 +18,14 @@ export function useUser() {
 
   useEffect(() => {
     if (token) {
-      fetch('/api/me', { headers: { Authorization: `Bearer ${token}` } })
+      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
         .then((r) => r.ok ? r.json() : Promise.reject())
         .then((data) => {
-          setUser(data);
+          if (data?.user) {
+            setUser(data.user);
+          } else {
+            setUser(null);
+          }
           setLoading(false);
         })
         .catch(() => { 
