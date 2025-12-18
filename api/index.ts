@@ -11,6 +11,10 @@ export default async function (_req: any, res: any) {
         verifyCode: "POST /api/auth/verify-code",
         forgotPassword: "POST /api/auth/forgot-password",
         resetPassword: "POST /api/auth/reset-password"
+      },
+      pro: {
+        createCheckout: "POST /api/pro/create-checkout",
+        confirm: "POST /api/pro/confirm"
       }
     },
     timestamp: new Date().toISOString()
