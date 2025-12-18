@@ -10,6 +10,8 @@ import HeapMemory from "@/components/visualizer/heap-memory";
 import { StackFrame, HeapObject } from "@/lib/types";
 import { getPyodideInstance } from "@/lib/pyodide";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUser } from "@/hooks/use-user";
+import { checkAndConsumeExecution } from "@/lib/execution-limit";
 
 interface ExerciseProgressState {
   [exerciseId: string]: {
@@ -35,6 +37,7 @@ interface ExecutionState {
 }
 
 export function ExercisesView() {
+  const { user } = useUser();
   const [selectedExercise, setSelectedExercise] = useState<Exercise>(exercises[0]);
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");
   const [code, setCode] = useState<string>("");
@@ -58,6 +61,7 @@ export function ExercisesView() {
   const [showUseSolutionConfirm, setShowUseSolutionConfirm] = useState(false);
   const [showEnableExecutionConfirm, setShowEnableExecutionConfirm] = useState(false);
   const [pendingExecutionAction, setPendingExecutionAction] = useState<"line" | "tests" | null>(null);
+  const isPro = !!user?.isPro;
 
   const [allowExecution, setAllowExecution] = useState<boolean>(() => {
     try {
@@ -176,6 +180,12 @@ export function ExercisesView() {
   };
 
   const runTests = () => {
+    const allowance = checkAndConsumeExecution(user?.id, !!user?.isPro, 5);
+    if (!allowance.allowed) {
+      setTestResults([{ passed: false, name: "Limite diário", error: "Limite de 5 execuções/dia no plano Free. Faça upgrade para Pro para execuções ilimitadas." }]);
+      setAllPassed(false);
+      return;
+    }
     if (!allowExecution) {
       setPendingExecutionAction("tests");
       setShowEnableExecutionConfirm(true);
@@ -189,7 +199,7 @@ export function ExercisesView() {
     }
   };
 
-  const runJavaScriptTests = () => {
+  const runJavaScriptTests = async () => {
     try {
       const functionNameMatch = code.match(/function\s+(\w+)\s*\(/);
       if (!functionNameMatch) {
@@ -198,33 +208,16 @@ export function ExercisesView() {
       }
 
       const functionName = functionNameMatch[1];
-      let userFunction: any;
-      try {
-        eval(`${code}; userFunction = ${functionName};`);
-      } catch (e) {
-        setTestResults([{ passed: false, name: "Erro de Sintaxe", error: `${(e as any).message}` }]);
-        return;
-      }
-
-      const results = selectedExercise.tests.map((test) => {
+      const results: any[] = [];
+      for (const test of selectedExercise.tests) {
         try {
-          const result = userFunction(...test.input);
+          const result = await (await import("@/lib/sandbox")).runInWorker(code, functionName, test.input, { timeoutMs: 3000 });
           const passed = JSON.stringify(result) === JSON.stringify(test.expected);
-          return {
-            name: test.name,
-            passed,
-            result,
-            expected: test.expected,
-            error: null,
-          };
-        } catch (e) {
-          return {
-            name: test.name,
-            passed: false,
-            error: (e as any).message,
-          };
+          results.push({ name: test.name, passed, result, expected: test.expected, error: null });
+        } catch (e: any) {
+          results.push({ name: test.name, passed: false, error: e?.message || String(e) });
         }
-      });
+      }
 
       setTestResults(results);
       const isPassed = results.every((r) => r.passed);
@@ -369,6 +362,9 @@ export function ExercisesView() {
   const attempts = currentProgress?.attempts || 0;
   const completedCount = Object.values(progress).filter((p) => p.completed).length;
   const progressPercentage = Math.round((completedCount / (exercises.length * 2)) * 100);
+  const editorProClass = isPro
+    ? "bg-[#0b1020] text-slate-50 border-violet-500/70 shadow-[0_0_18px_rgba(139,92,246,0.45)] focus:ring-violet-400/70 font-['JetBrains_Mono',SFMono-Regular,Menlo,Monaco,Consolas,monospace]"
+    : "bg-slate-900 text-slate-50 border-slate-600 focus:ring-blue-500";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-3 sm:p-6">
@@ -516,7 +512,6 @@ export function ExercisesView() {
             </div>
 
             {/* Tabs */}
-            <Tabs defaultValue="code" className="w-full">
               <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700">
                 <TabsTrigger value="code" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                   Código
@@ -527,7 +522,7 @@ export function ExercisesView() {
               </TabsList>
 
               <TabsContent value="code" className="space-y-4 mt-6">
-
+                  const result = await (await import("@/lib/sandbox")).runInWorker(code, functionName, test.input, { timeoutMs: isPro ? 6000 : 3000 });
                 {/* Code Editor */}
                 <Card className="p-4 bg-slate-800 border-slate-700">
                   <label className="text-sm font-semibold text-white mb-3 block">Código:</label>
@@ -562,7 +557,7 @@ export function ExercisesView() {
                         }
                       }}
                       disabled={executionState.isExecuting}
-                      className="w-full h-64 md:h-96 p-3 pl-16 font-mono text-sm bg-slate-900 text-slate-50 rounded border border-slate-600 resize-vertical focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full h-64 md:h-96 p-3 pl-16 text-sm rounded border resize-vertical focus:outline-none focus:ring-2 transition-all ${editorProClass}`}
                       placeholder="Escreva seu código aqui..."
                       aria-label={`Editor de código (${selectedLanguage})`}
                       spellCheck="false"
@@ -740,22 +735,26 @@ export function ExercisesView() {
                   </Button>
                   <Button
                     onClick={() => setShowHint(!showHint)}
-                    disabled={!currentVariant?.hint}
+                    disabled={!currentVariant?.hint || !isPro}
                     variant="outline"
                     className="border-slate-600 text-slate-200 hover:bg-slate-700"
                   >
                     <Lightbulb className="w-4 h-4 mr-2" />
-                    Dica
+                    Dica (Pro)
                   </Button>
                   <Button
                     onClick={() => setShowSolution(!showSolution)}
+                    disabled={!currentVariant?.solution || !isPro}
                     variant="outline"
                     className="border-slate-600 text-slate-200 hover:bg-slate-700"
                   >
                     <Eye className="w-4 h-4 mr-2" />
-                    Ver
+                    Solução (Pro)
                   </Button>
                 </div>
+                {!isPro && (
+                  <p className="text-xs text-amber-200 mt-2">Exclusivo Pro: faça upgrade para desbloquear dicas e soluções completas.</p>
+                )}
 
                 {showEnableExecutionConfirm && (
                   <Card className="p-3 bg-slate-800 border-l-4 border-slate-600 mt-4">
@@ -784,14 +783,14 @@ export function ExercisesView() {
                   </Card>
                 )}
 
-                {showHint && currentVariant?.hint && (
+                {showHint && currentVariant?.hint && isPro && (
                   <Card className="p-4 bg-yellow-500/10 border-l-4 border-yellow-500">
                     <p className="text-sm font-semibold text-yellow-300 mb-1">💡 Dica</p>
                     <p className="text-sm text-yellow-200">{currentVariant.hint}</p>
                   </Card>
                 )}
 
-                {showSolution && currentVariant && (
+                {showSolution && currentVariant && isPro && (
                   <Card className="p-4 bg-green-500/10 border-l-4 border-green-500">
                     <p className="text-sm font-semibold text-green-300 mb-3">✓ Solução</p>
                     <pre className="bg-slate-900 p-4 rounded text-xs overflow-x-auto border border-slate-700">

@@ -19,6 +19,22 @@ export function serveStatic(app: Express) {
         // Do not cache HTML to avoid stale shell; cache assets aggressively
         if (filePath.endsWith(".html")) {
           res.setHeader("Cache-Control", "no-cache");
+          if (process.env.NODE_ENV === "production") {
+            res.setHeader(
+              "Content-Security-Policy",
+              [
+                "default-src 'self'",
+                "script-src 'self'",
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+                "img-src 'self' data:",
+                "font-src 'self' https://fonts.gstatic.com",
+                "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com",
+                "object-src 'none'",
+                "base-uri 'self'",
+                "frame-ancestors 'none'",
+              ].join("; "),
+            );
+          }
         }
       },
     }),

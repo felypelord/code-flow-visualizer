@@ -6,6 +6,8 @@ import { serveStatic } from "./static";
 
 const app = express();
 const httpServer = createServer(app);
+// Hide Express fingerprint
+app.disable("x-powered-by");
 
 const REQUEST_TIMEOUT_MS = parseInt(process.env.REQUEST_TIMEOUT_MS || "15000", 10);
 const SLOW_REQUEST_MS = parseInt(process.env.SLOW_REQUEST_MS || "2000", 10);
@@ -44,19 +46,38 @@ app.use((_req, res, next) => {
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("X-XSS-Protection", "1; mode=block");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  if (process.env.NODE_ENV === "production") {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
+  next();
+});
+// Prevent caching of API responses
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api")) {
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+  }
   next();
 });
 
 app.use(compression({ threshold: 1024 }));
 
-app.use(
-  express.json({
-    limit: JSON_LIMIT,
-    verify: (req, _res, buf) => {
-      req.rawBody = buf;
-    },
-  }),
-);
+// Stripe webhook requires raw body, so install a raw parser for that route only
+const stripeWebhookPath = "/api/webhooks/stripe";
+app.use(stripeWebhookPath, express.raw({ type: "application/json", limit: JSON_LIMIT }));
+
+// For all other routes, use JSON parser. Skip JSON parse on webhook path.
+const jsonParser = express.json({
+  limit: JSON_LIMIT,
+  verify: (req: any, _res, buf) => {
+    req.rawBody = buf;
+  },
+});
+app.use((req, res, next) => {
+  if (req.path === stripeWebhookPath) return next();
+  return (jsonParser as any)(req, res, next);
+});
 
 app.use(
   express.urlencoded({
@@ -161,7 +182,8 @@ app.use((req, res, next) => {
   });
 
   // Setup Vite or static files
-  if (process.env.NODE_ENV === "production") {
+  const devStatic = process.env.DEV_STATIC === "true";
+  if (process.env.NODE_ENV === "production" || devStatic) {
     serveStatic(app);
   } else {
     const { setupVite } = await import("./vite");
@@ -186,14 +208,23 @@ app.use((req, res, next) => {
       log(`port ${port} in use, trying ${nextPort}`);
       tryListen(nextPort);
     } else {
-      throw err;
+      try {
+        const msg = (err && err.message) || String(err);
+        log(`httpServer error: ${msg}`);
+      } catch {}
+      // Keep process alive in dev to aid debugging
+      if (process.env.NODE_ENV !== 'production') return;
+      // In production, allow process manager to restart
+      setTimeout(() => process.exit(1), 10);
     }
   });
 
   tryListen(port);
 })().catch(err => {
   console.error("[ASYNC IIFE ERROR]", err?.message || err);
-  process.exit(1);
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  }
 });
 
 setInterval(() => {}, 1000000);
@@ -206,4 +237,12 @@ process.on("unhandledRejection", (reason: any) => {
 process.on("uncaughtException", (err: any) => {
   const msg = err instanceof Error ? err.message : String(err);
   log(`Uncaught exception: ${msg}`);
+});
+
+process.on("beforeExit", (code) => {
+  log(`beforeExit with code ${code}`);
+});
+
+process.on("exit", (code) => {
+  log(`exit with code ${code}`);
 });

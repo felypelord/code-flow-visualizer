@@ -147,6 +147,31 @@ export interface Translations {
   // Compiled languages
   runningTests: string;
   compiledLanguagesRunFullTests: string;
+
+  // Auth
+  signIn: string;
+  createAccount: string;
+  signInDescription: string;
+  createAccountDescription: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  passwordLabel: string;
+  passwordPlaceholder: string;
+  signInButton: string;
+  createAccountButton: string;
+  toggleMode: string;
+  toggleModeLogin: string;
+  emailRequired: string;
+  passwordRequired: string;
+  accountCreatedSuccess: string;
+  loginSuccess: string;
+  invalidEmail: string;
+  passwordTooWeak: string;
+  logOut: string;
+  hello: string;
+  emailHint: string;
+  passwordHint: string;
+  securityNote: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -297,6 +322,31 @@ export const translations: Record<Language, Translations> = {
     // Compiled languages
     runningTests: 'Running tests...',
     compiledLanguagesRunFullTests: 'Compiled languages execute full tests.',
+
+    // Auth
+    signIn: 'Sign In',
+    createAccount: 'Create Account',
+    signInDescription: 'Sign in with your email to access your account',
+    createAccountDescription: 'Create a new account with your email address',
+    emailLabel: 'Email Address',
+    emailPlaceholder: 'your@email.com',
+    passwordLabel: 'Password',
+    passwordPlaceholder: 'At least 10 characters (letters + numbers)',
+    signInButton: 'Sign In',
+    createAccountButton: 'Create Account',
+    toggleMode: "Don't have an account?",
+    toggleModeLogin: 'Already have an account?',
+    emailRequired: 'Please enter a valid email',
+    passwordRequired: 'Password must be at least 10 characters with letters and numbers',
+    accountCreatedSuccess: 'Account created! Signing you in...',
+    loginSuccess: 'Welcome back!',
+    invalidEmail: 'Invalid email address',
+    passwordTooWeak: 'Password too weak',
+    logOut: 'Sign Out',
+    hello: 'Hello',
+    emailHint: 'Use your email address',
+    passwordHint: '10+ chars, mix letters & numbers',
+    securityNote: 'Your data is encrypted. We never share your information.',
   },
   
   'pt-BR': {
@@ -446,6 +496,31 @@ export const translations: Record<Language, Translations> = {
     // Compiled languages
     runningTests: 'Executando testes...',
     compiledLanguagesRunFullTests: 'Linguagens compiladas executam testes completos.',
+
+    // Auth
+    signIn: 'Entrar',
+    createAccount: 'Criar Conta',
+    signInDescription: 'Entre com seu email para acessar sua conta',
+    createAccountDescription: 'Crie uma nova conta com seu endereço de email',
+    emailLabel: 'Endereço de Email',
+    emailPlaceholder: 'seu@email.com',
+    passwordLabel: 'Senha',
+    passwordPlaceholder: 'No mínimo 10 caracteres (letras + números)',
+    signInButton: 'Entrar',
+    createAccountButton: 'Criar Conta',
+    toggleMode: 'Precisa de uma conta?',
+    toggleModeLogin: 'Já tem uma conta?',
+    emailRequired: 'Por favor, digite um email válido',
+    passwordRequired: 'Senha deve ter no mínimo 10 caracteres com letras e números',
+    accountCreatedSuccess: 'Conta criada! Entrando...',
+    loginSuccess: 'Bem-vindo de volta!',
+    invalidEmail: 'Endereço de email inválido',
+    passwordTooWeak: 'Senha fraca',
+    logOut: 'Sair',
+    hello: 'Olá',
+    emailHint: 'Use seu endereço de email',
+    passwordHint: '10+ caracteres, misture letras e números',
+    securityNote: 'Seus dados são criptografados. Nunca compartilhamos suas informações.',
   },
   
   'es': {
@@ -595,6 +670,31 @@ export const translations: Record<Language, Translations> = {
     // Compiled languages
     runningTests: 'Ejecutando pruebas...',
     compiledLanguagesRunFullTests: 'Los lenguajes compilados ejecutan pruebas completas.',
+
+    // Auth
+    signIn: 'Iniciar Sesión',
+    createAccount: 'Crear Cuenta',
+    signInDescription: 'Inicia sesión con tu correo electrónico para acceder a tu cuenta',
+    createAccountDescription: 'Crea una nueva cuenta con tu dirección de correo electrónico',
+    emailLabel: 'Dirección de Correo Electrónico',
+    emailPlaceholder: 'tu@correo.com',
+    passwordLabel: 'Contraseña',
+    passwordPlaceholder: 'Al menos 10 caracteres (letras + números)',
+    signInButton: 'Iniciar Sesión',
+    createAccountButton: 'Crear Cuenta',
+    toggleMode: '¿No tienes cuenta?',
+    toggleModeLogin: '¿Ya tienes cuenta?',
+    emailRequired: 'Por favor, ingresa un correo electrónico válido',
+    passwordRequired: 'La contraseña debe tener al menos 10 caracteres con letras y números',
+    accountCreatedSuccess: '¡Cuenta creada! Iniciando sesión...',
+    loginSuccess: '¡Bienvenido de vuelta!',
+    invalidEmail: 'Dirección de correo electrónico no válida',
+    passwordTooWeak: 'Contraseña débil',
+    logOut: 'Cerrar Sesión',
+    hello: 'Hola',
+    emailHint: 'Usa tu dirección de correo electrónico',
+    passwordHint: '10+ caracteres, mezcla de letras y números',
+    securityNote: 'Tus datos están encriptados. Nunca compartimos tu información.',
   },
   
   'zh': {
@@ -742,6 +842,31 @@ export const translations: Record<Language, Translations> = {
     // Compiled languages
     runningTests: '运行测试...',
     compiledLanguagesRunFullTests: '编译语言执行完整测试。',
+
+    // Auth
+    signIn: '登录',
+    createAccount: '创建账户',
+    signInDescription: '使用你的邮箱登录以访问你的账户',
+    createAccountDescription: '用你的邮箱地址创建一个新账户',
+    emailLabel: '电子邮箱',
+    emailPlaceholder: 'your@email.com',
+    passwordLabel: '密码',
+    passwordPlaceholder: '至少 10 个字符（字母 + 数字）',
+    signInButton: '登录',
+    createAccountButton: '创建账户',
+    toggleMode: '没有账户?',
+    toggleModeLogin: '已有账户?',
+    emailRequired: '请输入有效的电子邮箱',
+    passwordRequired: '密码必须至少 10 个字符，包含字母和数字',
+    accountCreatedSuccess: '账户已创建！正在登录...',
+    loginSuccess: '欢迎回来！',
+    invalidEmail: '无效的电子邮箱地址',
+    passwordTooWeak: '密码过弱',
+    logOut: '登出',
+    hello: '你好',
+    emailHint: '使用你的邮箱地址',
+    passwordHint: '10+ 字符，混合字母和数字',
+    securityNote: '你的数据已加密。我们从不共享你的信息。',
   },
   
   'hi': {
@@ -891,6 +1016,31 @@ export const translations: Record<Language, Translations> = {
     // Compiled languages
     runningTests: 'परीक्षण चल रहे हैं...',
     compiledLanguagesRunFullTests: 'संकलित भाषाएँ पूर्ण परीक्षण निष्पादित करती हैं।',
+
+    // Auth
+    signIn: 'साइन इन करें',
+    createAccount: 'खाता बनाएं',
+    signInDescription: 'अपने खाते तक पहुँचने के लिए अपने ईमेल से साइन इन करें',
+    createAccountDescription: 'अपने ईमेल पते के साथ एक नया खाता बनाएं',
+    emailLabel: 'ईमेल पता',
+    emailPlaceholder: 'आपका@ईमेल.कॉम',
+    passwordLabel: 'पासवर्ड',
+    passwordPlaceholder: 'कम से कम 10 वर्ण (अक्षर + संख्याएं)',
+    signInButton: 'साइन इन करें',
+    createAccountButton: 'खाता बनाएं',
+    toggleMode: 'खाता नहीं है?',
+    toggleModeLogin: 'पहले से खाता है?',
+    emailRequired: 'कृपया एक वैध ईमेल दर्ज करें',
+    passwordRequired: 'पासवर्ड कम से कम 10 वर्ण होना चाहिए जिसमें अक्षर और संख्याएं हों',
+    accountCreatedSuccess: 'खाता बनाया गया! साइन इन किया जा रहा है...',
+    loginSuccess: 'स्वागत है!',
+    invalidEmail: 'अमान्य ईमेल पता',
+    passwordTooWeak: 'कमजोर पासवर्ड',
+    logOut: 'साइन आउट करें',
+    hello: 'नमस्ते',
+    emailHint: 'अपना ईमेल पता उपयोग करें',
+    passwordHint: '10+ वर्ण, अक्षरों और संख्याओं का मिश्रण',
+    securityNote: 'आपका डेटा एन्क्रिप्ट किया गया है। हम कभी भी आपकी जानकारी साझा नहीं करते।',
   },
 };
 

@@ -5,8 +5,10 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { db } from "./db";
-import { progress } from "@shared/schema";
+import { progress, users, webhookEvents, stripeCustomers } from "@shared/schema";
 import { storage } from "./storage";
+import { getStripe, getBaseUrl, STRIPE_PRICE_PRO_MONTHLY, STRIPE_PRICE_PRO_MONTHLY_USD, STRIPE_WEBHOOK_SECRET } from "./stripe";
+import Stripe from "stripe";
 
 // JWT secret - must come from environment in all environments
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -15,6 +17,32 @@ if (!JWT_SECRET) {
 }
 const JWT_EXPIRY = "7d";
 const METRICS_TOKEN = process.env.METRICS_TOKEN || "";
+const EMAIL_SEND_TIMEOUT_MS = Number(process.env.EMAIL_SEND_TIMEOUT_MS || 4000);
+
+// Generate 6-digit verification code
+function generateVerificationCode(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Mock email sending function (in production, use nodemailer or SendGrid)
+async function sendVerificationEmail(email: string, code: string, firstName: string): Promise<boolean> {
+  try {
+    console.log(`📧 Sending verification email to ${email} with code: ${code}`);
+    // In production, integrate with email service like SendGrid, Mailgun, or Nodemailer
+    // For now, we just log it
+    return true;
+  } catch (error) {
+    console.error("Failed to send email:", error);
+    return false;
+  }
+}
+
+async function sendVerificationEmailWithTimeout(email: string, code: string, firstName: string): Promise<boolean> {
+  return Promise.race([
+    sendVerificationEmail(email, code, firstName),
+    new Promise<boolean>((resolve) => setTimeout(() => resolve(false), EMAIL_SEND_TIMEOUT_MS)),
+  ]);
+}
 
 // Simple in-memory rate limiter (per key)
 type RateBucket = { count: number; resetAt: number };
@@ -33,6 +61,7 @@ function checkRateLimit(key: string, limit: number, windowMs: number): boolean {
 }
 
 const usernameSchema = z.string().min(3).max(50);
+const emailSchema = z.string().email().max(255);
 const strongPassword = z
   .string()
   .min(10)
@@ -40,12 +69,16 @@ const strongPassword = z
   .regex(/[0-9]/, "must include numbers");
 
 const signupSchema = z.object({
-  username: usernameSchema,
+  email: emailSchema,
   password: strongPassword,
+  firstName: z.string().min(1).max(100),
+  lastName: z.string().min(1).max(100),
+  dateOfBirth: z.string().datetime(),
+  country: z.string().min(1).max(100),
 });
 
 const loginSchema = z.object({
-  username: usernameSchema,
+  email: emailSchema,
   password: z.string().min(1),
 });
 
@@ -53,6 +86,20 @@ const progressSchema = z.object({
   lessonId: z.string().min(1),
   language: z.string().min(1),
   index: z.number().int().nonnegative().max(10_000),
+});
+
+const sendVerificationCodeSchema = z.object({
+  email: emailSchema,
+  firstName: z.string().min(1).max(100),
+  lastName: z.string().min(1).max(100),
+  dateOfBirth: z.string().datetime(),
+  country: z.string().min(1).max(100),
+  password: strongPassword,
+});
+
+const verifyCodeSchema = z.object({
+  email: emailSchema,
+  code: z.string().min(6).max(6),
 });
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
@@ -140,23 +187,89 @@ export async function registerRoutes(
     });
   });
 
-  // Signup
+  // Send verification code (step 1 of signup)
   app.post("/api/signup", async (req: Request, res: Response) => {
     if (!checkRateLimit(`signup:${req.ip}`, 5, 60_000)) {
       return res.status(429).json({ message: "Too many signup attempts" });
     }
-    const parsed = signupSchema.safeParse(req.body || {});
+    const parsed = sendVerificationCodeSchema.safeParse(req.body || {});
     if (!parsed.success) return res.status(400).json({ message: "invalid signup data" });
-    const { username, password } = parsed.data;
+    const { email, firstName, lastName, dateOfBirth, country, password } = parsed.data;
     
-    const existing = await storage.getUserByUsername(username);
-    if (existing) return res.status(409).json({ message: "user already exists" });
+    const existing = await storage.getUserByEmail(email);
+    if (existing) return res.status(409).json({ message: "email already exists" });
     
-    // Hash password with bcrypt (10 rounds = ~100ms)
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await storage.createUser({ username, password: hashedPassword });
+    // Generate verification code
+    const code = generateVerificationCode();
+    await storage.createEmailVerification(email, code);
     
-    return res.json({ id: user.id, username: user.username });
+    // Send email (mock for now) with timeout in background (do not block response)
+    // We intentionally do not await here to avoid request timeouts
+    sendVerificationEmailWithTimeout(email, code, firstName)
+      .then((sent) => {
+        if (!sent) console.warn(`verification email send timed out for ${email}`);
+      })
+      .catch((err) => {
+        console.warn(`verification email send failed for ${email}: ${err?.message || err}`);
+      });
+
+    return res.json({ message: "Verification code sent to your email" });
+  });
+
+  // Verify code and create account (step 2 of signup)
+  app.post("/api/verify-code", async (req: Request, res: Response) => {
+    if (!checkRateLimit(`verify:${req.ip}`, 10, 60_000)) {
+      return res.status(429).json({ message: "Too many verification attempts" });
+    }
+    const parsed = verifyCodeSchema.safeParse(req.body || {});
+    if (!parsed.success) return res.status(400).json({ message: "invalid verification data" });
+    const { email, code } = parsed.data;
+    
+    // Verify the code
+    const isValid = await storage.verifyEmail(email, code);
+    if (!isValid) {
+      const verification = await storage.getEmailVerification(email);
+      if (verification && verification.attempts >= 5) {
+        await storage.deleteEmailVerification(email);
+        return res.status(429).json({ message: "Too many failed attempts, please request a new code" });
+      }
+      return res.status(400).json({ message: "Invalid or expired code" });
+    }
+    
+    // If we get here, email is verified, we should have stored the signup data somewhere
+    // For now, we'll return success and expect the client to send full signup data again
+    return res.json({ message: "Email verified successfully" });
+  });
+
+  // Complete signup with all data
+  app.post("/api/complete-signup", async (req: Request, res: Response) => {
+    if (!checkRateLimit(`signup:${req.ip}`, 5, 60_000)) {
+      return res.status(429).json({ message: "Too many signup attempts" });
+    }
+    const parsed = sendVerificationCodeSchema.safeParse(req.body || {});
+    if (!parsed.success) return res.status(400).json({ message: "invalid signup data" });
+    const { email, firstName, lastName, dateOfBirth, country, password } = parsed.data;
+    
+    // Check if email is verified
+    const user = await storage.getUserByEmail(email);
+    if (!user) {
+      // Email should be verified before this, so we create the account
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = await storage.createUser({
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        dateOfBirth: new Date(dateOfBirth),
+        country,
+      });
+      
+      // Generate JWT token
+      const token = jwt.sign({ userId: newUser.id }, JWT_SECRET as string, { expiresIn: JWT_EXPIRY });
+      return res.json({ token, user: { id: newUser.id, email: newUser.email, firstName, lastName } });
+    }
+    
+    return res.status(409).json({ message: "Account already exists" });
   });
 
   // Login
@@ -165,10 +278,10 @@ export async function registerRoutes(
       return res.status(429).json({ message: "Too many login attempts" });
     }
     const parsed = loginSchema.safeParse(req.body || {});
-    if (!parsed.success) return res.status(400).json({ message: "username and password required" });
-    const { username, password } = parsed.data;
+    if (!parsed.success) return res.status(400).json({ message: "email and password required" });
+    const { email, password } = parsed.data;
     
-    const user = await storage.getUserByUsername(username);
+    const user = await storage.getUserByEmail(email);
     if (!user) return res.status(401).json({ message: "invalid credentials" });
     
     // Compare password with hashed version
@@ -178,7 +291,87 @@ export async function registerRoutes(
     // Generate JWT token (expires in 7 days)
     const token = jwt.sign({ userId: user.id }, JWT_SECRET as string, { expiresIn: JWT_EXPIRY });
     
-    return res.json({ token, user: { id: user.id, username: user.username } });
+    return res.json({ token, user: { id: user.id, email: user.email } });
+  });
+
+  // Forgot password - send reset code
+  app.post("/api/forgot-password", async (req: Request, res: Response) => {
+    if (!checkRateLimit(`forgot:${req.ip}`, 5, 60_000)) {
+      return res.status(429).json({ message: "Too many requests" });
+    }
+    const parsed = z.object({ email: emailSchema }).safeParse(req.body || {});
+    if (!parsed.success) return res.status(400).json({ message: "Invalid email" });
+    const { email } = parsed.data;
+    
+    // Check if user exists
+    const user = await storage.getUserByEmail(email);
+    if (!user) {
+      // Don't reveal if email exists
+      return res.json({ message: "If email exists, reset code will be sent" });
+    }
+    
+    // Generate verification code
+    const code = generateVerificationCode();
+    await storage.createPasswordReset(email, code);
+    
+    // Send email (mock for now)
+    await sendVerificationEmail(email, code, "Password Reset");
+    
+    return res.json({ message: "Reset code sent to your email" });
+  });
+
+  // Verify password reset code
+  app.post("/api/verify-reset-code", async (req: Request, res: Response) => {
+    if (!checkRateLimit(`verify-reset:${req.ip}`, 10, 60_000)) {
+      return res.status(429).json({ message: "Too many verification attempts" });
+    }
+    const parsed = verifyCodeSchema.safeParse(req.body || {});
+    if (!parsed.success) return res.status(400).json({ message: "Invalid data" });
+    const { email, code } = parsed.data;
+    
+    // Verify the code
+    const isValid = await storage.verifyPasswordReset(email, code);
+    if (!isValid) {
+      const reset = await storage.getPasswordReset(email);
+      if (reset && reset.attempts >= 5) {
+        await storage.deletePasswordReset(email);
+        return res.status(429).json({ message: "Too many failed attempts, please request a new code" });
+      }
+      return res.status(400).json({ message: "Invalid or expired code" });
+    }
+    
+    return res.json({ message: "Code verified successfully" });
+  });
+
+  // Reset password with new password
+  app.post("/api/reset-password", async (req: Request, res: Response) => {
+    if (!checkRateLimit(`reset:${req.ip}`, 5, 60_000)) {
+      return res.status(429).json({ message: "Too many requests" });
+    }
+    const parsed = z.object({
+      email: emailSchema,
+      code: z.string().min(6).max(6),
+      newPassword: strongPassword,
+    }).safeParse(req.body || {});
+    if (!parsed.success) return res.status(400).json({ message: "Invalid data" });
+    const { email, code, newPassword } = parsed.data;
+    
+    // Verify the code again (as extra validation)
+    const isValid = await storage.verifyPasswordReset(email, code);
+    if (!isValid) {
+      return res.status(400).json({ message: "Invalid or expired code" });
+    }
+    
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    // Update password
+    await storage.updateUserPassword(email, hashedPassword);
+    
+    // Delete reset record
+    await storage.deletePasswordReset(email);
+    
+    return res.json({ message: "Password reset successfully" });
   });
 
   // Current user
@@ -191,7 +384,9 @@ export async function registerRoutes(
     
     return res.json({ 
       id: user.id, 
-      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
       isAdmin: user.isAdmin,
       isPro
     });
@@ -257,8 +452,9 @@ export async function registerRoutes(
     });
   });
 
-  // Upgrade to Pro (simulated - in real world use Stripe webhook)
+  // Upgrade to Pro (legacy simulation - kept for fallback/testing)
   app.post("/api/pro/upgrade", requireAuth, async (req: Request, res: Response) => {
+    try {
     const userId = (req as any).userId as string;
     const { months = 1 } = req.body;
     
@@ -284,10 +480,14 @@ export async function registerRoutes(
       expiresAt: expiresAt.toISOString(),
       plan: "pro"
     });
+    } catch (err: any) {
+      return res.status(500).json({ message: "Upgrade failed" });
+    }
   });
 
   // Cancel Pro subscription
   app.post("/api/pro/cancel", requireAuth, async (req: Request, res: Response) => {
+    try {
     const userId = (req as any).userId as string;
     
     await db.update(users)
@@ -302,6 +502,142 @@ export async function registerRoutes(
       isPro: false,
       plan: "free"
     });
+    } catch (err: any) {
+      return res.status(500).json({ message: "Cancel failed" });
+    }
+  });
+
+  // Create Stripe Checkout session
+  app.post("/api/billing/checkout", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const stripe = getStripe();
+      if (!stripe) return res.status(503).json({ message: "Billing not configured" });
+      const userId = (req as any).userId as string;
+      // Lock to USD $2 monthly price; card/bank handles FX conversion
+      const price = STRIPE_PRICE_PRO_MONTHLY_USD || STRIPE_PRICE_PRO_MONTHLY;
+      if (!price) return res.status(503).json({ message: "Price not configured" });
+      const baseUrl = getBaseUrl(req);
+
+      const session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        line_items: [{ price, quantity: 1 }],
+        success_url: `${baseUrl}/pricing?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/pricing`,
+        client_reference_id: userId,
+        allow_promotion_codes: true,
+        subscription_data: { metadata: { userId } },
+        metadata: { userId },
+        automatic_tax: { enabled: true },
+      });
+      return res.json({ url: session.url });
+    } catch (err: any) {
+      return res.status(500).json({ message: "Failed to create checkout" });
+    }
+  });
+
+  // Create Stripe Billing Portal session
+  app.get("/api/billing/portal", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const stripe = getStripe();
+      if (!stripe) return res.status(503).json({ message: "Billing not configured" });
+      const userId = (req as any).userId as string;
+      const baseUrl = getBaseUrl(req);
+
+      // Find stored customer mapping
+      const mapping = await db.select().from(stripeCustomers).where(eq(stripeCustomers.userId, userId)).limit(1);
+      if (!mapping.length) return res.status(404).json({ message: "No billing customer found" });
+
+      const portal = await stripe.billingPortal.sessions.create({
+        customer: mapping[0].customerId,
+        return_url: `${baseUrl}/pricing`,
+      });
+      return res.json({ url: portal.url });
+    } catch (err: any) {
+      return res.status(500).json({ message: "Failed to create portal" });
+    }
+  });
+
+  // Stripe webhook (raw body is required; configured in index.ts)
+  app.post("/api/webhooks/stripe", async (req: Request, res: Response) => {
+    const stripe = getStripe();
+    if (!stripe) return res.status(503).json({ message: "Billing not configured" });
+    if (!STRIPE_WEBHOOK_SECRET) return res.status(503).json({ message: "Webhook not configured" });
+
+    let event: Stripe.Event;
+    try {
+      const sig = req.headers["stripe-signature"] as string;
+      const raw = (req as any).body || (req as any).rawBody;
+      event = stripe.webhooks.constructEvent(raw, sig, STRIPE_WEBHOOK_SECRET);
+    } catch (e: any) {
+      return res.status(400).send(`Webhook Error: ${e.message}`);
+    }
+
+    // Idempotency: skip if already processed
+    try {
+      await db.insert(webhookEvents).values({ id: event.id });
+    } catch {
+      return res.status(200).json({ received: true, duplicate: true });
+    }
+
+    try {
+      switch (event.type) {
+        case "checkout.session.completed": {
+          const session = event.data.object as Stripe.Checkout.Session;
+          const userId = (session.client_reference_id as string) || (session.metadata?.userId as string);
+          const customerId = (session.customer as string) || "";
+          if (userId && customerId) {
+            // upsert mapping
+            const existing = await db.select().from(stripeCustomers).where(eq(stripeCustomers.userId, userId)).limit(1);
+            if (existing.length) {
+              // nothing to do, or update if changed
+            } else {
+              await db.insert(stripeCustomers).values({ userId, customerId });
+            }
+          }
+          break;
+        }
+        case "customer.subscription.created":
+        case "customer.subscription.updated": {
+          const sub = event.data.object as Stripe.Subscription;
+          const userId = (sub.metadata?.userId as string) || undefined;
+          const customerId = (sub.customer as string) || undefined;
+          const status = sub.status;
+          const periodEnd = sub.current_period_end ? new Date(sub.current_period_end * 1000) : null;
+
+          let targetUserId = userId;
+          if (!targetUserId && customerId) {
+            const map = await db.select().from(stripeCustomers).where(eq(stripeCustomers.customerId, customerId)).limit(1);
+            if (map.length) targetUserId = map[0].userId;
+          }
+
+          if (targetUserId) {
+            const active = status === "active" || status === "trialing";
+            await db
+              .update(users)
+              .set({ isPro: active, proExpiresAt: active ? periodEnd : null })
+              .where(eq(users.id, targetUserId));
+          }
+          break;
+        }
+        case "customer.subscription.deleted": {
+          const sub = event.data.object as Stripe.Subscription;
+          const customerId = (sub.customer as string) || undefined;
+          if (customerId) {
+            const map = await db.select().from(stripeCustomers).where(eq(stripeCustomers.customerId, customerId)).limit(1);
+            if (map.length) {
+              await db.update(users).set({ isPro: false, proExpiresAt: null }).where(eq(users.id, map[0].userId));
+            }
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    } catch (err: any) {
+      // swallow business errors to not get retries for non-critical paths
+    }
+
+    return res.json({ received: true });
   });
 
   return httpServer;

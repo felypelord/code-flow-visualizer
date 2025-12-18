@@ -12,6 +12,8 @@ import { getPyodideInstance } from "@/lib/pyodide";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUser } from "@/hooks/use-user";
+import { checkAndConsumeExecution } from "@/lib/execution-limit";
 
 interface ExerciseProgressState {
   [exerciseId: string]: {
@@ -39,6 +41,7 @@ interface ExecutionState {
 export function ExercisesView() {
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { user } = useUser();
   const [selectedExercise, setSelectedExercise] = useState<Exercise>(exercises[0]);
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");
   const [code, setCode] = useState<string>("");
@@ -228,6 +231,12 @@ export function ExercisesView() {
   };
 
   const runTests = () => {
+    const allowance = checkAndConsumeExecution(user?.id, !!user?.isPro, 5);
+    if (!allowance.allowed) {
+      setTestResults([{ passed: false, name: "Limite diário", error: "Limite de 5 execuções/dia no plano Free. Faça upgrade para Pro." }]);
+      setAllPassed(false);
+      return;
+    }
     if (!allowExecution) {
       setPendingExecutionAction("tests");
       setShowEnableExecutionConfirm(true);
@@ -257,37 +266,15 @@ export function ExercisesView() {
       }
 
       const functionName = functionNameMatch[1];
-      let userFunction: any;
-      
-      try {
-        // Execute with timeout protection
-        await executeWithTimeout(() => {
-          eval(`${code}; userFunction = ${functionName};`);
-        }, 5000);
-      } catch (e) {
-        setTestResults([{ passed: false, name: "Erro de Sintaxe", error: `${(e as any).message}` }]);
-        return;
-      }
-
-      const results = [];
+      const results: any[] = [];
+      const jsTimeoutMs = user?.isPro ? 6000 : 3000;
       for (const test of selectedExercise.tests) {
         try {
-          // Execute each test with timeout
-          const result = await executeWithTimeout(() => userFunction(...test.input), 3000);
+          const result = await (await import("@/lib/sandbox")).runInWorker(code, functionName, test.input, { timeoutMs: jsTimeoutMs });
           const passed = JSON.stringify(result) === JSON.stringify(test.expected);
-          results.push({
-            name: test.name,
-            passed,
-            result,
-            expected: test.expected,
-            error: null,
-          });
-        } catch (e) {
-          results.push({
-            name: test.name,
-            passed: false,
-            error: (e as any).message,
-          });
+          results.push({ name: test.name, passed, result, expected: test.expected, error: null });
+        } catch (e: any) {
+          results.push({ name: test.name, passed: false, error: e?.message || String(e) });
         }
       }
 
@@ -559,7 +546,7 @@ export function ExercisesView() {
       const functionName = functionNameMatch[1];
       
       try {
-        eval(code);
+        new Function(code)();
       } catch (e) {
         setTestResults([{ passed: false, name: "Erro de Sintaxe", error: `${(e as any).message}` }]);
         return;
@@ -611,7 +598,7 @@ export function ExercisesView() {
           })()`;
 
           try {
-            const result = eval(executeCode);
+            const result = (new Function(executeCode))();
             Object.assign(variables, result);
           } catch (e) {
             // Variable tracking error, continue
@@ -651,7 +638,10 @@ export function ExercisesView() {
       }
 
       let userFunction: any;
-      eval(`${code}; userFunction = ${functionName};`);
+      {
+        const getFn = new Function(`${code}; return ${functionName};`);
+        userFunction = getFn();
+      }
       
       const results = selectedExercise.tests.map((test) => {
         try {
@@ -1065,22 +1055,26 @@ export function ExercisesView() {
                   </Button>
                   <Button
                     onClick={() => setShowHint(!showHint)}
-                    disabled={!currentVariant?.hint}
+                    disabled={!currentVariant?.hint || !user?.isPro}
                     variant="outline"
                     className="border-slate-600 text-slate-200 hover:bg-slate-700"
                   >
                     <Lightbulb className="w-4 h-4 mr-2" />
-                    Dica
+                    Dica (Pro)
                   </Button>
                   <Button
                     onClick={() => setShowSolution(!showSolution)}
+                    disabled={!currentVariant?.solution || !user?.isPro}
                     variant="outline"
                     className="border-slate-600 text-slate-200 hover:bg-slate-700"
                   >
                     <Eye className="w-4 h-4 mr-2" />
-                    Ver
+                    Solução (Pro)
                   </Button>
                 </div>
+                {!user?.isPro && (
+                  <p className="text-xs text-amber-200 mt-2">Exclusivo Pro: faça upgrade para desbloquear dicas e soluções completas.</p>
+                )}
 
                 {showEnableExecutionConfirm && (
                   <Card className="p-3 bg-slate-800 border-l-4 border-slate-600 mt-4">
@@ -1109,14 +1103,14 @@ export function ExercisesView() {
                   </Card>
                 )}
 
-                {showHint && currentVariant?.hint && (
+                {showHint && currentVariant?.hint && user?.isPro && (
                   <Card className="p-4 bg-yellow-500/10 border-l-4 border-yellow-500">
                     <p className="text-sm font-semibold text-yellow-300 mb-1">💡 Dica</p>
                     <p className="text-sm text-yellow-200">{currentVariant.hint}</p>
                   </Card>
                 )}
 
-                {showSolution && currentVariant && (
+                {showSolution && currentVariant && user?.isPro && (
                   <Card className="p-4 bg-green-500/10 border-l-4 border-green-500">
                     <p className="text-sm font-semibold text-green-300 mb-3">✓ Solução</p>
                     <pre className="bg-slate-900 p-4 rounded text-xs overflow-x-auto border border-slate-700">

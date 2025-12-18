@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import { useLocation } from "wouter";
+import { useEffect, useState } from "react";
 
 const plans = [
   {
@@ -30,9 +31,9 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "R$ 29,90",
-    period: "/mês",
-    description: "Para desenvolvedores sérios",
+    price: "$2",
+    period: "/mês (USD)",
+    description: "Cobra em USD; seu banco converte para BRL ou outras moedas",
     badge: "Popular",
     features: [
       "✓ Tudo do plano Free",
@@ -54,6 +55,20 @@ const plans = [
 export default function PricingPage() {
   const { user, token } = useUser();
   const [, setLocation] = useLocation();
+  const [billingPlan] = useState<"monthly">("monthly");
+  const [secondsLeft, setSecondsLeft] = useState(3600); // 1h urgency banner
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSecondsLeft((s) => (s > 0 ? s - 1 : 0));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const minutes = Math.floor(secondsLeft / 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = (secondsLeft % 60).toString().padStart(2, "0");
 
   const handleUpgrade = async () => {
     if (!token) {
@@ -62,24 +77,50 @@ export default function PricingPage() {
     }
 
     try {
-      const res = await fetch("/api/pro/upgrade", {
+      const res = await fetch("/api/billing/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ months: 1 }),
+        body: JSON.stringify({ plan: billingPlan }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        alert(`✓ Bem-vindo ao Pro!\nExpira em: ${new Date(data.expiresAt).toLocaleDateString("pt-BR")}`);
-        window.location.reload();
-      } else {
-        alert("Erro ao ativar Pro");
+        if (data?.url) {
+          window.location.href = data.url;
+          return;
+        }
       }
+      alert("Erro ao iniciar checkout");
     } catch (err) {
       alert("Erro na requisição");
+    }
+  };
+
+  const handlePortal = async () => {
+    if (!token) {
+      setLocation("/");
+      return;
+    }
+    try {
+      const res = await fetch("/api/billing/portal", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.url) {
+          window.location.href = data.url;
+          return;
+        }
+      }
+      alert("Não foi possível abrir o portal de cobrança");
+    } catch (err) {
+      alert("Erro ao abrir o portal");
     }
   };
 
@@ -92,7 +133,19 @@ export default function PricingPage() {
           <p className="text-xl text-gray-400">
             Escolha o plano perfeito para sua jornada de programação
           </p>
+          <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-200">
+            <span className="font-semibold text-white">Pro: $2/mês</span>
+            <span className="text-gray-300">Cobrança em USD; seu banco converte para BRL/outras moedas.</span>
+          </div>
+
+          <div className="mt-4 inline-flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-red-600/80 to-orange-500/80 border border-red-500/50 text-sm text-white shadow-lg shadow-red-500/30">
+            <span className="font-bold text-base">Oferta relâmpago</span>
+            <span className="text-white/90">Ative o Pro agora por $2/mês e fixe o preço.</span>
+            <span className="px-2 py-1 rounded bg-black/40 font-mono text-sm tracking-wide">{minutes}:{seconds}</span>
+          </div>
         </div>
+
+        {/* Single price: $2 USD/month; card conversion handles FX */}
 
         {/* Pricing Cards */}
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 mb-12">
@@ -105,6 +158,20 @@ export default function PricingPage() {
                   : "border-gray-700 bg-slate-800/40"
               }`}
             >
+              {plan.isPro && (
+                <div className="pointer-events-none absolute -right-12 -top-6 w-48 rotate-45 drop-shadow-xl">
+                  <div
+                    className="bg-gradient-to-r from-red-600 via-orange-500 to-amber-400 text-white text-xs font-bold text-center py-2 border border-white/30"
+                    style={{
+                      clipPath: "polygon(8% 0%, 92% 0%, 100% 50%, 92% 100%, 8% 100%, 0% 50%)",
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    Oferta relâmpago · {minutes}:{seconds}
+                  </div>
+                </div>
+              )}
+
               {plan.badge && (
                 <div className="absolute -top-4 left-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-1 rounded-full text-sm font-bold">
                   {plan.badge}
@@ -115,8 +182,17 @@ export default function PricingPage() {
                 <h2 className="text-3xl font-bold text-white mb-2">{plan.name}</h2>
                 <p className="text-gray-400 text-sm mb-4">{plan.description}</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-bold text-white">{plan.price}</span>
-                  <span className="text-gray-400">{plan.period}</span>
+                  {plan.isPro ? (
+                    <>
+                      <span className="text-4xl font-bold text-white">$2.00</span>
+                      <span className="text-gray-400">/month</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-4xl font-bold text-white">{plan.price}</span>
+                      <span className="text-gray-400">{plan.period}</span>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -143,17 +219,35 @@ export default function PricingPage() {
               </div>
 
               {/* CTA Button */}
-              <Button
-                onClick={() => {
-                  if (plan.isFree) return;
-                  handleUpgrade();
-                }}
-                disabled={plan.isFree || (user?.isPro && plan.isPro)}
-                variant={plan.ctaVariant}
-                className="w-full py-2 font-semibold text-base"
-              >
-                {user?.isPro && plan.isPro ? "✓ Ativo" : plan.cta}
-              </Button>
+              <div className="flex flex-col gap-3">
+                <Button
+                  onClick={() => {
+                    if (plan.isFree) return;
+                    handleUpgrade();
+                  }}
+                  disabled={plan.isFree || (user?.isPro && plan.isPro)}
+                  variant={plan.ctaVariant}
+                  className="w-full py-2 font-semibold text-base"
+                >
+                  {user?.isPro && plan.isPro ? "✓ Ativo" : plan.cta}
+                </Button>
+                {user?.isPro && plan.isPro && (
+                  <Button
+                    onClick={handlePortal}
+                    variant="secondary"
+                    className="w-full py-2 font-semibold text-base"
+                  >
+                    Gerenciar assinatura
+                  </Button>
+                )}
+                {plan.isPro && !user?.isPro && (
+                  <div className="text-xs text-center space-y-1 text-gray-300">
+                    <p>Cobrança em USD ($2/mês). Seu banco converte para BRL/outras moedas.</p>
+                    <p className="text-red-300 font-semibold">Oferta relâmpago: preço fixo por tempo limitado.</p>
+                    <p className="text-amber-200">Tempo restante: {minutes}:{seconds}</p>
+                  </div>
+                )}
+              </div>
             </Card>
           ))}
         </div>
@@ -187,14 +281,14 @@ export default function PricingPage() {
             <div className="bg-slate-800/40 border border-gray-700 rounded-lg p-6">
               <h3 className="text-lg font-bold text-white mb-2">Existe desconto anual?</h3>
               <p className="text-gray-400">
-                Sim! Ao escolher plano anual, você economiza 20% comparado ao pagamento mensal.
+                Não. Mantemos o preço simples: $2/mês em USD, e seu banco faz a conversão para BRL ou outras moedas.
               </p>
             </div>
           </div>
         </div>
 
         {/* CTA Footer */}
-        {!user?.isPro && (
+        {!user?.isPro ? (
           <div className="max-w-4xl mx-auto mt-16 text-center">
             <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-8">
               <h2 className="text-3xl font-bold text-white mb-4">Comece a aprender hoje!</h2>
@@ -208,6 +302,18 @@ export default function PricingPage() {
                 onClick={handleUpgrade}
               >
                 Ativar Pro Agora
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-4xl mx-auto mt-16 text-center">
+            <div className="bg-slate-800/60 border border-gray-700 rounded-lg p-8">
+              <h2 className="text-3xl font-bold text-white mb-4">Você é Pro 🎉</h2>
+              <p className="text-gray-300 mb-6 text-lg">
+                Gerencie sua assinatura, forma de pagamento e faturas no portal.
+              </p>
+              <Button size="lg" className="font-bold text-lg px-8 py-6" onClick={handlePortal}>
+                Gerenciar assinatura
               </Button>
             </div>
           </div>

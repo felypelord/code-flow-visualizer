@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { runInWorker } from "@/lib/sandbox";
 import { exercises, type Exercise, type Language } from "@/lib/exercises";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,6 +14,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUser } from "@/hooks/use-user";
+import { checkAndConsumeExecution } from "@/lib/execution-limit";
 
 interface TestResult {
   name: string;
@@ -35,6 +38,7 @@ export function ExercisesViewNew() {
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { user } = useUser();
   
   // Debug log
   useEffect(() => {
@@ -91,9 +95,16 @@ export function ExercisesViewNew() {
     });
   };
 
-  const runTests = () => {
+  const runTests = async () => {
     if (!code.trim()) {
       toast({ title: `❌ ${t.error}`, description: t.writeCodeFirst, variant: "destructive" });
+      return;
+    }
+
+    const allowance = checkAndConsumeExecution(user?.id, !!user?.isPro, 5);
+    if (!allowance.allowed) {
+      setTestResults([{ name: t.error, passed: false, error: "Limite de 5 execuções/dia no plano Free. Faça upgrade para Pro." }]);
+      setExecutionState(prev => ({ ...prev, isExecuting: false }));
       return;
     }
 
@@ -111,36 +122,18 @@ export function ExercisesViewNew() {
 
       const functionName = functionMatch[1];
       
-      // Evaluate code
-      let userFunction: any;
-      try {
-        eval(`${code}; userFunction = ${functionName};`);
-      } catch (e) {
-        setTestResults([{ name: t.syntaxError, passed: false, error: (e as any).message }]);
-        setExecutionState(prev => ({ ...prev, isExecuting: false, errorMessage: (e as any).message }));
-        return;
-      }
-
-      // Run tests
-      const results: TestResult[] = selectedExercise.tests.map((test) => {
+      // Run tests in sandboxed worker
+      const results: TestResult[] = [];
+      const jsTimeoutMs = user?.isPro ? 6000 : 3000;
+      for (const test of selectedExercise.tests) {
         try {
-          const result = userFunction(...test.input);
+          const result = await runInWorker(code, functionName, test.input, { timeoutMs: jsTimeoutMs });
           const passed = JSON.stringify(result) === JSON.stringify(test.expected);
-          return {
-            name: test.name,
-            passed,
-            result,
-            expected: test.expected,
-            error: null,
-          };
-        } catch (e) {
-          return {
-            name: test.name,
-            passed: false,
-            error: (e as any).message,
-          };
+          results.push({ name: test.name, passed, result, expected: test.expected, error: null });
+        } catch (e: any) {
+          results.push({ name: test.name, passed: false, error: e?.message || String(e) });
         }
-      });
+      }
 
       setTestResults(results);
       
@@ -282,12 +275,14 @@ export function ExercisesViewNew() {
                         variant="outline" 
                         size="sm" 
                         onClick={() => {
+                          if (!user?.isPro) return;
                           setShowHint(!showHint);
                           if (!showHint) setShowSolution(false);
                         }}
+                        disabled={!user?.isPro}
                         className="gap-2"
                       >
-                        <Lightbulb className="w-4 h-4" /> {t.hint}
+                        <Lightbulb className="w-4 h-4" /> {t.hint} (Pro)
                       </Button>
                     )}
                     {currentVariant?.solution && (
@@ -295,18 +290,24 @@ export function ExercisesViewNew() {
                         variant="outline" 
                         size="sm" 
                         onClick={() => {
+                          if (!user?.isPro) return;
                           setShowSolution(!showSolution);
                           if (!showSolution) setShowHint(false);
                         }}
+                        disabled={!user?.isPro}
                         className="gap-2"
                       >
-                        <Eye className="w-4 h-4" /> {t.viewSolution}
+                        <Eye className="w-4 h-4" /> {t.viewSolution} (Pro)
                       </Button>
                     )}
                   </div>
 
+                  {!user?.isPro && (
+                    <p className="text-xs text-amber-200 mt-2">Exclusivo Pro: faça upgrade para desbloquear dicas e soluções completas.</p>
+                  )}
+
                   <AnimatePresence>
-                    {showHint && currentVariant?.hint && (
+                    {showHint && currentVariant?.hint && user?.isPro && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
@@ -316,7 +317,7 @@ export function ExercisesViewNew() {
                         <p className="text-sm text-yellow-200">💡 {currentVariant.hint}</p>
                       </motion.div>
                     )}
-                    {showSolution && currentVariant?.solution && (
+                    {showSolution && currentVariant?.solution && user?.isPro && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}

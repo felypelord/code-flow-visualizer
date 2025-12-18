@@ -8,11 +8,34 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import Auth from "@/components/auth";
 import { LanguageSelector } from "@/components/language-selector";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUser } from "@/hooks/use-user";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { t } = useLanguage();
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { user, token } = useUser();
+  const showPricingBanner = location.includes("/pricing");
+
+  const openPortal = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch("/api/billing/portal", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.url) {
+          window.location.href = data.url;
+          return;
+        }
+      }
+      alert("Não foi possível abrir o portal de cobrança");
+    } catch {
+      alert("Erro ao abrir o portal");
+    }
+  };
 
   const lessons = [
     { href: "/lesson/functions", labelKey: "lessonFunctions", icon: Code },
@@ -86,17 +109,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <NavLink href="/pricing" active={location.includes("/pricing")}>
               <span className="text-sm font-medium">Preços</span>
             </NavLink>
-
-            <NavLink href="/pro" active={location.includes("/pro")}>
-              <Crown className="w-4 h-4 text-amber-400" />
-              <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">
-                Pro
-              </span>
-            </NavLink>
+            {user?.isPro && (
+              <NavLink href="/pro" active={location.includes("/pro")}>
+                <Crown className="w-4 h-4 text-amber-400" />
+                <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">
+                  Pro
+                </span>
+              </NavLink>
+            )}
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
             <LanguageSelector />
+            {user?.isPro && (
+              <Button size="sm" variant="secondary" onClick={openPortal}>
+                Gerenciar assinatura
+              </Button>
+            )}
             <Auth />
           </div>
 
@@ -156,14 +185,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </span>
                   </Link>
 
-                  <Link href="/pro" onClick={() => setIsOpen(false)}>
-                    <span className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-bold transition-colors bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:border-amber-500/40">
-                      <Crown className="w-4 h-4 text-amber-400" />
-                      <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-                        Pro
+                  {user?.isPro && (
+                    <Link href="/pro" onClick={() => setIsOpen(false)}>
+                      <span className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-bold transition-colors bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:border-amber-500/40">
+                        <Crown className="w-4 h-4 text-amber-400" />
+                        <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                          Pro
+                        </span>
                       </span>
-                    </span>
-                  </Link>
+                    </Link>
+                  )}
+
+                  {user?.isPro && (
+                    <div className="mt-4">
+                      <Button className="w-full" variant="secondary" onClick={() => { setIsOpen(false); openPortal(); }}>
+                        Gerenciar assinatura
+                      </Button>
+                    </div>
+                  )}
 
                   <div className="mt-4 pt-4 border-t border-white/10">
                     <Auth />
@@ -173,6 +212,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </Sheet>
           </div>
         </div>
+        {showPricingBanner && (
+          <div className="bg-amber-500/10 border-t border-b border-amber-500/30 text-amber-100 text-sm py-2 px-4 text-center">
+            Pro custa $2/mês (USD); seu banco faz a conversão para BRL/outras moedas.
+          </div>
+        )}
       </header>
 
       <main className="flex-1 relative flex flex-col">
