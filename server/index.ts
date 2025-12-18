@@ -140,7 +140,7 @@ app.use((req, res, next) => {
   try {
     await registerRoutes(httpServer, app);
   } catch (err: any) {
-    console.error("[STARTUP ERROR]", err);
+    console.error("[ERROR] Failed to initialize routes");
     process.exit(1);
   }
 
@@ -152,7 +152,6 @@ app.use((req, res, next) => {
     } catch (_) {
       // ignore write errors
     }
-    // Log the error but do NOT rethrow (rethrow was crashing the server)
     try {
       const details = typeof err === 'object' ? JSON.stringify(err, Object.getOwnPropertyNames(err)) : String(err);
       log(`error ${status}: ${message} :: ${details}`, "express");
@@ -161,9 +160,7 @@ app.use((req, res, next) => {
     }
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // Setup Vite or static files
   if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
@@ -171,20 +168,14 @@ app.use((req, res, next) => {
     await setupVite(httpServer, app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "5000", 10);
-  const listenOptions: any = { port, host: "0.0.0.0" };
+  const listenOptions: any = { port, host: "127.0.0.1" };
   if (process.platform !== "win32") {
-    // reusePort can cause ENOTSUP on Windows; enable only on non-Windows
     listenOptions.reusePort = true;
   }
 
   const tryListen = (p: number) => {
-    const opts = { ...listenOptions, port: p };
-    httpServer.listen(opts, () => {
+    httpServer.listen({ ...listenOptions, port: p }, () => {
       log(`serving on port ${p}`);
     });
   };
@@ -201,25 +192,18 @@ app.use((req, res, next) => {
 
   tryListen(port);
 })().catch(err => {
-  console.error("[ASYNC IIFE ERROR]", err);
+  console.error("[ASYNC IIFE ERROR]", err?.message || err);
   process.exit(1);
 });
 
-// Global process-level error handling to avoid unexpected crashes
+setInterval(() => {}, 1000000);
+
 process.on("unhandledRejection", (reason: any) => {
-  try {
-    const details = typeof reason === 'object' ? JSON.stringify(reason, Object.getOwnPropertyNames(reason)) : String(reason);
-    console.error("[unhandledRejection]", details);
-  } catch {
-    console.error("[unhandledRejection]", reason);
-  }
+  const msg = reason instanceof Error ? reason.message : String(reason);
+  log(`Unhandled rejection: ${msg}`);
 });
 
 process.on("uncaughtException", (err: any) => {
-  try {
-    const details = typeof err === 'object' ? JSON.stringify(err, Object.getOwnPropertyNames(err)) : String(err);
-    console.error("[uncaughtException]", details);
-  } catch {
-    console.error("[uncaughtException]", err);
-  }
+  const msg = err instanceof Error ? err.message : String(err);
+  log(`Uncaught exception: ${msg}`);
 });

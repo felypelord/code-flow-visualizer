@@ -3,8 +3,11 @@ import { Link } from "wouter";
 import { ArrowRight, Code, Box, Layers, Play, Repeat } from "lucide-react";
 import { motion } from "framer-motion";
 import generatedImage from "@assets/generated_images/blueprint_style_programming_visualization_concept.png";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
+  const { t } = useLanguage();
+  
   return (
     <Layout>
       <div className="relative overflow-hidden">
@@ -22,28 +25,27 @@ export default function Home() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                   </span>
-                  Support for JS, Python, Java, C# and C
+                  {t.languageSupport}
                 </div>
                 
                 <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/50">
-                  Watch your code <br/>
-                  <span className="text-primary">come to life.</span>
+                  {t.heroTitle1} <br/>
+                  <span className="text-primary">{t.heroTitle2}</span>
                 </h1>
                 
                 <p className="text-xl text-muted-foreground mb-8 leading-relaxed max-w-2xl">
-                  Stop imagining what happens "under the hood". 
-                  Our tool visualizes exactly how memory, call stack, and objects work while your code runs.
+                  {t.heroSubtitle}
                 </p>
 
                 <div className="flex flex-wrap gap-4">
                   <Link href="/lesson/functions">
                     <button aria-label="Get started" className="px-8 py-4 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]">
-                      Get Started <ArrowRight className="w-5 h-5" />
+                      {t.getStarted} <ArrowRight className="w-5 h-5" />
                     </button>
                   </Link>
                   <Link href="/lesson/objects">
                     <button aria-label="Explore objects" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-medium rounded-lg hover:bg-white/10 transition-all backdrop-blur-sm">
-                      Explore Objects
+                      {t.exploreObjects}
                     </button>
                   </Link>
                 </div>
@@ -63,48 +65,48 @@ export default function Home() {
 
         {/* Lessons Grid */}
         <section className="container mx-auto px-4 py-20 border-t border-white/5">
-          <h2 className="text-3xl font-bold mb-12">Learning Modules</h2>
+          <h2 className="text-3xl font-bold mb-12">{t.learningModules}</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <LessonCard 
               icon={<Code className="w-8 h-8 text-blue-400" />}
-              title="Functions & Stack"
-              description="Call and scope management."
+              title={t.lessonFunctions}
+              description={t.lessonFunctionsDesc}
               href="/lesson/functions"
               color="blue"
             />
             <LessonCard 
               icon={<Box className="w-8 h-8 text-orange-400" />}
-              title="Conditionals"
-              description="Decision making with If/Else."
+              title={t.lessonConditionals}
+              description={t.lessonConditionalsDesc}
               href="/lesson/conditionals"
               color="orange"
             />
             <LessonCard 
               icon={<Repeat className="w-8 h-8 text-pink-400" />}
-              title="Loops & Arrays"
-              description="Iteration and array memory."
+              title={t.lessonLoopsArrays}
+              description={t.lessonLoopsArraysDesc}
               href="/lesson/loops-arrays"
               color="pink"
             />
             <LessonCard 
               icon={<Box className="w-8 h-8 text-emerald-400" />}
-              title="Objects & Refs"
-              description="Value vs Reference in Heap."
+              title={t.lessonObjects}
+              description={t.lessonObjectsDesc}
               href="/lesson/objects"
               color="emerald"
             />
             <LessonCard 
               icon={<Layers className="w-8 h-8 text-amber-400" />}
-              title="Classes"
-              description="Instances, 'new' and 'this'."
+              title={t.lessonClasses}
+              description={t.lessonClassesDesc}
               href="/lesson/classes"
               color="amber"
             />
             <LessonCard 
               icon={<Repeat className="w-8 h-8 text-purple-400" />}
-              title="Recursion"
-              description="Visualizing stack growth."
+              title={t.lessonRecursion}
+              description={t.lessonRecursionDesc}
               href="/lesson/recursion"
               color="purple"
             />

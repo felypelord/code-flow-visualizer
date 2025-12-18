@@ -66,7 +66,7 @@ export default function LessonPage() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-screen">
-          <h1 className="text-2xl text-muted-foreground">Lição não encontrada ou incompleta</h1>
+          <h1 className="text-2xl text-muted-foreground">{t.lessonNotFound}</h1>
         </div>
       </Layout>
     );
@@ -123,7 +123,7 @@ export default function LessonPage() {
                   aria-label="Start playback"
                   className="gap-2 text-lg font-bold shadow-xl scale-110 hover:scale-125 transition-transform bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  <Play className="w-6 h-6 fill-current" /> Start
+                  <Play className="w-6 h-6 fill-current" /> {t.start}
                 </Button>
               </div>
             )}
@@ -132,7 +132,7 @@ export default function LessonPage() {
           <div className="p-2 shrink-0">
              <div className="bg-card/50 border border-white/10 rounded-lg p-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-2">
-                <ChevronRight className="w-3 h-3" /> Explanation
+                <ChevronRight className="w-3 h-3" /> {t.explanation}
               </h3>
               <AnimatePresence mode="wait">
                 <motion.p 
@@ -175,14 +175,14 @@ export default function LessonPage() {
                   aria-label="Start playback"
                   className="gap-2 text-lg font-bold shadow-xl scale-110 hover:scale-125 transition-transform bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  <Play className="w-6 h-6 fill-current" /> Start
+                  <Play className="w-6 h-6 fill-current" /> {t.start}
                 </Button>
               </div>
             )}
             
             <div className="bg-card/50 border border-white/10 rounded-lg p-4 flex-1 overflow-auto min-h-[100px]">
               <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-2">
-                <ChevronRight className="w-3 h-3" /> Explanation
+                <ChevronRight className="w-3 h-3" /> {t.explanation}
               </h3>
               <AnimatePresence mode="wait">
                 <motion.div 
@@ -246,7 +246,7 @@ export default function LessonPage() {
              </Select>
 
              <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-muted-foreground whitespace-nowrap">
-               Step {currentStepIndex + 1}/{totalSteps}
+               {t.step} {currentStepIndex + 1}/{totalSteps}
              </span>
 
              <div className="ml-auto md:ml-0">
@@ -256,10 +256,10 @@ export default function LessonPage() {
 
           <div className="flex items-center gap-2 w-full md:w-auto justify-center pb-2 md:pb-0">
             <div className="flex items-center gap-2 mr-2">
-              <button onClick={() => setView('lesson')} className={`px-3 py-1 rounded ${view === 'lesson' ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-muted-foreground'}`}>Lesson</button>
-              <button onClick={() => setView('playground')} className={`px-3 py-1 rounded ${view === 'playground' ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-muted-foreground'}`}>Playground</button>
+              <button onClick={() => setView('lesson')} className={`px-3 py-1 rounded ${view === 'lesson' ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-muted-foreground'}`}>{t.lesson}</button>
+              <button onClick={() => setView('playground')} className={`px-3 py-1 rounded ${view === 'playground' ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-muted-foreground'}`}>{t.playground}</button>
             </div>
-            <Button variant="ghost" size="icon" onClick={handleReset} title="Reiniciar" className="h-8 w-8">
+            <Button variant="ghost" size="icon" onClick={handleReset} title={t.restart} className="h-8 w-8">
               <RotateCcw className="w-4 h-4" />
             </Button>
             <Button variant="ghost" size="icon" onClick={handlePrev} disabled={currentStepIndex === 0} className="h-8 w-8">
@@ -269,7 +269,7 @@ export default function LessonPage() {
             <Button 
               size="icon" 
               className={isPlaying ? "bg-amber-500 hover:bg-amber-600 h-8 w-8" : "bg-primary hover:bg-primary/90 h-8 w-8"}
-              title={isPlaying ? "Pausar" : "Executar"}
+              title={isPlaying ? t.pause : t.play}
               onClick={() => {
                 if (currentStepIndex >= totalSteps - 1) {
                   setCurrentStepIndex(0);
@@ -318,18 +318,20 @@ export default function LessonPage() {
 }
 
 function HelpDialog() {
+  const { t } = useLanguage();
+  
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" className="text-muted-foreground gap-2">
           <HelpCircle className="w-4 h-4" />
-          <span className="hidden md:inline">Legenda</span>
+          <span className="hidden md:inline">{t.legend}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md bg-[#0f172a] border-white/10">
         <DialogHeader>
-          <DialogTitle>Como usar este visualizador?</DialogTitle>
-          <DialogDescription>Entenda o que cada área representa.</DialogDescription>
+          <DialogTitle>{t.howToUse}</DialogTitle>
+          <DialogDescription>{t.understandAreas}</DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 mt-4">
@@ -338,9 +340,9 @@ function HelpDialog() {
               <Layers className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h4 className="font-bold text-blue-400 text-sm">Call Stack (Pilha)</h4>
+              <h4 className="font-bold text-blue-400 text-sm">{t.callStackTitle}</h4>
               <p className="text-xs text-gray-400 mt-1">
-                Aqui é onde o código "lembra" onde está. Cada função chamada cria um novo bloco aqui. Variáveis simples (números, booleanos) vivem aqui.
+                {t.callStackDesc}
               </p>
             </div>
           </div>
@@ -350,9 +352,9 @@ function HelpDialog() {
               <Box className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h4 className="font-bold text-emerald-400 text-sm">Heap Memory (Memória)</h4>
+              <h4 className="font-bold text-emerald-400 text-sm">{t.heapMemoryTitle}</h4>
               <p className="text-xs text-gray-400 mt-1">
-                Aqui vivem os dados complexos: Objetos, Arrays e Classes. Eles são grandes demais para a Pilha, então ficam aqui e são acessados por "referência" (flechas invisíveis).
+                {t.heapMemoryDesc}
               </p>
             </div>
           </div>
@@ -362,9 +364,9 @@ function HelpDialog() {
               <Play className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h4 className="font-bold text-white text-sm">Controles</h4>
+              <h4 className="font-bold text-white text-sm">{t.controlsTitle}</h4>
               <p className="text-xs text-gray-400 mt-1">
-                Use os botões no topo para Pausar, Avançar ou mudar a Velocidade da animação.
+                {t.controlsDesc}
               </p>
             </div>
           </div>

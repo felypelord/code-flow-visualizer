@@ -28,11 +28,11 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    host: "0.0.0.0",
-    allowedHosts: true,
+    host: "127.0.0.1",
+    allowedHosts: ["localhost", "127.0.0.1", "*.localhost"],
     fs: {
       strict: true,
-      deny: ["**/.*"],
+      deny: ["**/.*", "**/node_modules/**"],
     },
   },
 });

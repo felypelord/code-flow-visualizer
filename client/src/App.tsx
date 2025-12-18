@@ -8,6 +8,8 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import LessonPage from "@/pages/lesson";
 import ExercisesPage from "@/pages/exercises";
+import AdminPage from "@/pages/admin";
+import ProPage from "@/pages/pro";
 
 function Router() {
   return (
@@ -15,6 +17,8 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/lesson/:id" component={LessonPage} />
       <Route path="/exercises" component={ExercisesPage} />
+      <Route path="/pro" component={ProPage} />
+      <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>
   );

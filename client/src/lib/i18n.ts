@@ -9,7 +9,16 @@ export interface Translations {
   learn: string;
   pro: string;
   
+  // Hero section
+  heroTitle1: string;
+  heroTitle2: string;
+  heroSubtitle: string;
+  getStarted: string;
+  exploreObjects: string;
+  languageSupport: string;
+  
   // Lesson names
+  learningModules: string;
   lessonFunctions: string;
   lessonConditionals: string;
   lessonLoopsArrays: string;
@@ -19,6 +28,34 @@ export interface Translations {
   lessonClosures: string;
   lessonAsyncAwait: string;
   lessonDebugging: string;
+  
+  // Lesson descriptions
+  lessonFunctionsDesc: string;
+  lessonConditionalsDesc: string;
+  lessonLoopsArraysDesc: string;
+  lessonObjectsDesc: string;
+  lessonClassesDesc: string;
+  lessonRecursionDesc: string;
+  
+  // Lesson page
+  lessonNotFound: string;
+  step: string;
+  lesson: string;
+  playground: string;
+  restart: string;
+  pause: string;
+  play: string;
+  legend: string;
+  howToUse: string;
+  understandAreas: string;
+  callStackTitle: string;
+  callStackDesc: string;
+  heapMemoryTitle: string;
+  heapMemoryDesc: string;
+  controlsTitle: string;
+  controlsDesc: string;
+  explanation: string;
+  start: string;
   
   // Exercise selection
   exercises: string;
@@ -122,16 +159,53 @@ export const translations: Record<Language, Translations> = {
     learn: 'Learn',
     pro: 'Pro',
     
+    // Hero section
+    heroTitle1: 'Watch your code',
+    heroTitle2: 'come to life.',
+    heroSubtitle: 'Stop imagining what happens "under the hood". Our tool visualizes exactly how memory, call stack, and objects work while your code runs.',
+    getStarted: 'Get Started',
+    exploreObjects: 'Explore Objects',
+    languageSupport: 'Support for JS, Python, Java, C# and C',
+    
     // Lesson names
-    lessonFunctions: 'Functions',
+    learningModules: 'Learning Modules',
+    lessonFunctions: 'Functions & Stack',
     lessonConditionals: 'Conditionals',
     lessonLoopsArrays: 'Loops & Arrays',
-    lessonObjects: 'Objects',
+    lessonObjects: 'Objects & Refs',
     lessonClasses: 'Classes',
     lessonRecursion: 'Recursion',
     lessonClosures: 'Closures',
     lessonAsyncAwait: 'Async/Await',
     lessonDebugging: 'Debugging',
+    
+    // Lesson descriptions
+    lessonFunctionsDesc: 'Call and scope management.',
+    lessonConditionalsDesc: 'Decision making with If/Else.',
+    lessonLoopsArraysDesc: 'Iteration and array memory.',
+    lessonObjectsDesc: 'Value vs Reference in Heap.',
+    lessonClassesDesc: "Instances, 'new' and 'this'.",
+    lessonRecursionDesc: 'Visualizing stack growth.',
+    
+    // Lesson page
+    lessonNotFound: 'Lesson not found or incomplete',
+    step: 'Step',
+    lesson: 'Lesson',
+    playground: 'Playground',
+    restart: 'Restart',
+    pause: 'Pause',
+    play: 'Play',
+    legend: 'Legend',
+    howToUse: 'How to use this visualizer?',
+    understandAreas: 'Understand what each area represents.',
+    callStackTitle: 'Call Stack',
+    callStackDesc: 'This is where code "remembers" where it is. Each called function creates a new block here. Simple variables (numbers, booleans) live here.',
+    heapMemoryTitle: 'Heap Memory',
+    heapMemoryDesc: 'Complex data lives here: Objects, Arrays and Classes. They are too large for the Stack, so they stay here and are accessed by "reference" (invisible arrows).',
+    controlsTitle: 'Controls',
+    controlsDesc: 'Use the buttons at the top to Pause, Skip or change the Speed of the animation.',
+    explanation: 'Explanation',
+    start: 'Start',
     
     // Exercise selection
     exercises: 'Exercises',
@@ -234,16 +308,53 @@ export const translations: Record<Language, Translations> = {
     learn: 'Aprender',
     pro: 'Pro',
     
+    // Hero section
+    heroTitle1: 'Veja seu código',
+    heroTitle2: 'ganhar vida.',
+    heroSubtitle: 'Pare de imaginar o que acontece "por baixo dos panos". Nossa ferramenta visualiza exatamente como memória, pilha de chamadas e objetos funcionam enquanto seu código roda.',
+    getStarted: 'Começar',
+    exploreObjects: 'Explorar Objetos',
+    languageSupport: 'Suporte para JS, Python, Java, C# e C',
+    
     // Lesson names
-    lessonFunctions: 'Funções',
+    learningModules: 'Módulos de Aprendizado',
+    lessonFunctions: 'Funções e Pilha',
     lessonConditionals: 'Condicionais',
-    lessonLoopsArrays: 'Loops & Arrays',
-    lessonObjects: 'Objetos',
+    lessonLoopsArrays: 'Loops e Arrays',
+    lessonObjects: 'Objetos e Refs',
     lessonClasses: 'Classes',
     lessonRecursion: 'Recursão',
     lessonClosures: 'Closures',
     lessonAsyncAwait: 'Async/Await',
     lessonDebugging: 'Depuração',
+    
+    // Lesson descriptions
+    lessonFunctionsDesc: 'Gerenciamento de chamadas e escopo.',
+    lessonConditionalsDesc: 'Tomada de decisão com If/Else.',
+    lessonLoopsArraysDesc: 'Iteração e memória de arrays.',
+    lessonObjectsDesc: 'Valor vs Referência no Heap.',
+    lessonClassesDesc: "Instâncias, 'new' e 'this'.",
+    lessonRecursionDesc: 'Visualizando crescimento da pilha.',
+    
+    // Lesson page
+    lessonNotFound: 'Lição não encontrada ou incompleta',
+    step: 'Passo',
+    lesson: 'Lição',
+    playground: 'Playground',
+    restart: 'Reiniciar',
+    pause: 'Pausar',
+    play: 'Executar',
+    legend: 'Legenda',
+    howToUse: 'Como usar este visualizador?',
+    understandAreas: 'Entenda o que cada área representa.',
+    callStackTitle: 'Call Stack (Pilha)',
+    callStackDesc: 'Aqui é onde o código "lembra" onde está. Cada função chamada cria um novo bloco aqui. Variáveis simples (números, booleanos) vivem aqui.',
+    heapMemoryTitle: 'Heap Memory (Memória)',
+    heapMemoryDesc: 'Aqui vivem os dados complexos: Objetos, Arrays e Classes. Eles são grandes demais para a Pilha, então ficam aqui e são acessados por "referência" (flechas invisíveis).',
+    controlsTitle: 'Controles',
+    controlsDesc: 'Use os botões no topo para Pausar, Avançar ou mudar a Velocidade da animação.',
+    explanation: 'Explicação',
+    start: 'Iniciar',
     
     // Exercise selection
     exercises: 'Exercícios',
@@ -346,16 +457,53 @@ export const translations: Record<Language, Translations> = {
     learn: 'Aprender',
     pro: 'Pro',
     
+    // Hero section
+    heroTitle1: 'Observa tu código',
+    heroTitle2: 'cobrar vida.',
+    heroSubtitle: 'Deja de imaginar qué sucede "bajo el capó". Nuestra herramienta visualiza exactamente cómo funcionan la memoria, la pila de llamadas y los objetos mientras se ejecuta tu código.',
+    getStarted: 'Comenzar',
+    exploreObjects: 'Explorar Objetos',
+    languageSupport: 'Soporte para JS, Python, Java, C# y C',
+    
     // Lesson names
-    lessonFunctions: 'Funciones',
+    learningModules: 'Módulos de Aprendizaje',
+    lessonFunctions: 'Funciones y Pila',
     lessonConditionals: 'Condicionales',
     lessonLoopsArrays: 'Bucles y Arrays',
-    lessonObjects: 'Objetos',
+    lessonObjects: 'Objetos y Refs',
     lessonClasses: 'Clases',
     lessonRecursion: 'Recursión',
     lessonClosures: 'Closures',
     lessonAsyncAwait: 'Async/Await',
     lessonDebugging: 'Depuración',
+    
+    // Lesson descriptions
+    lessonFunctionsDesc: 'Gestión de llamadas y ámbito.',
+    lessonConditionalsDesc: 'Toma de decisiones con If/Else.',
+    lessonLoopsArraysDesc: 'Iteración y memoria de arrays.',
+    lessonObjectsDesc: 'Valor vs Referencia en Heap.',
+    lessonClassesDesc: "Instancias, 'new' y 'this'.",
+    lessonRecursionDesc: 'Visualizando crecimiento de pila.',
+    
+    // Lesson page
+    lessonNotFound: 'Lección no encontrada o incompleta',
+    step: 'Paso',
+    lesson: 'Lección',
+    playground: 'Playground',
+    restart: 'Reiniciar',
+    pause: 'Pausar',
+    play: 'Ejecutar',
+    legend: 'Leyenda',
+    howToUse: '¿Cómo usar este visualizador?',
+    understandAreas: 'Comprende qué representa cada área.',
+    callStackTitle: 'Call Stack (Pila)',
+    callStackDesc: 'Aquí es donde el código "recuerda" dónde está. Cada función llamada crea un nuevo bloque aquí. Variables simples (números, booleanos) viven aquí.',
+    heapMemoryTitle: 'Heap Memory (Memoria)',
+    heapMemoryDesc: 'Aquí viven los datos complejos: Objetos, Arrays y Clases. Son demasiado grandes para la Pila, así que quedan aquí y se acceden por "referencia" (flechas invisibles).',
+    controlsTitle: 'Controles',
+    controlsDesc: 'Usa los botones en la parte superior para Pausar, Saltar o cambiar la Velocidad de la animación.',
+    explanation: 'Explicación',
+    start: 'Iniciar',
     
     // Exercise selection
     exercises: 'Ejercicios',
@@ -458,16 +606,53 @@ export const translations: Record<Language, Translations> = {
     learn: '学习',
     pro: 'Pro',
     
+    // Hero section
+    heroTitle1: '观看你的代码',
+    heroTitle2: '栩栩如生。',
+    heroSubtitle: '停止想象"底层"发生了什么。我们的工具可以精确可视化代码运行时内存、调用栈和对象的工作方式。',
+    getStarted: '开始',
+    exploreObjects: '探索对象',
+    languageSupport: '支持 JS、Python、Java、C# 和 C',
+    
     // Lesson names
-    lessonFunctions: '函数',
+    learningModules: '学习模块',
+    lessonFunctions: '函数和堆栈',
     lessonConditionals: '条件语句',
-    lessonLoopsArrays: '循环与数组',
-    lessonObjects: '对象',
+    lessonLoopsArrays: '循环和数组',
+    lessonObjects: '对象和引用',
     lessonClasses: '类',
     lessonRecursion: '递归',
     lessonClosures: '闭包',
     lessonAsyncAwait: '异步/等待',
     lessonDebugging: '调试',
+    
+    // Lesson descriptions
+    lessonFunctionsDesc: '调用和作用域管理。',
+    lessonConditionalsDesc: '使用If/Else进行决策。',
+    lessonLoopsArraysDesc: '迭代和数组内存。',
+    lessonObjectsDesc: '堆中的值与引用。',
+    lessonClassesDesc: "实例、'new'和'this'。",
+    lessonRecursionDesc: '可视化堆栈增长。',
+    
+    // Lesson page
+    lessonNotFound: '找不到课程或不完整',
+    step: '步骤',
+    lesson: '课程',
+    playground: '游戏场',
+    restart: '重启',
+    pause: '暂停',
+    play: '播放',
+    legend: '图例',
+    howToUse: '如何使用这个可视化工具？',
+    understandAreas: '了解每个区域代表什么。',
+    callStackTitle: '调用栈',
+    callStackDesc: '这是代码"记忆"其位置的地方。每个被调用的函数都会在这里创建一个新块。简单变量（数字、布尔值）住在这里。',
+    heapMemoryTitle: '堆内存',
+    heapMemoryDesc: '复杂数据住在这里：对象、数组和类。它们对于栈来说太大了，所以它们留在这里，并通过"引用"（不可见的箭头）访问。',
+    controlsTitle: '控制',
+    controlsDesc: '使用顶部的按钮暂停、跳过或更改动画速度。',
+    explanation: '解释',
+    start: '开始',
     
     // Exercise selection
     exercises: '练习',
@@ -568,16 +753,53 @@ export const translations: Record<Language, Translations> = {
     learn: 'सीखें',
     pro: 'Pro',
     
+    // Hero section
+    heroTitle1: 'अपने कोड को',
+    heroTitle2: 'जीवंत होते देखें।',
+    heroSubtitle: 'कल्पना करना बंद करें कि "हुड के नीचे" क्या होता है। हमारा टूल दिखाता है कि आपका कोड चलते समय मेमोरी, कॉल स्टैक और ऑब्जेक्ट्स कैसे काम करते हैं।',
+    getStarted: 'शुरू करें',
+    exploreObjects: 'ऑब्जेक्ट्स एक्सप्लोर करें',
+    languageSupport: 'JS, Python, Java, C# और C के लिए समर्थन',
+    
     // Lesson names
-    lessonFunctions: 'फंक्शन',
-    lessonConditionals: 'शर्तें',
-    lessonLoopsArrays: 'लूप और ऐरे',
-    lessonObjects: 'ऑब्जेक्ट',
-    lessonClasses: 'क्लास',
+    learningModules: 'सीखने के मॉड्यूल',
+    lessonFunctions: 'फंक्शन और स्टैक',
+    lessonConditionals: 'कंडीशनल',
+    lessonLoopsArrays: 'लूप्स और ऐरे',
+    lessonObjects: 'ऑब्जेक्ट्स और Refs',
+    lessonClasses: 'क्लासेस',
     lessonRecursion: 'रिकर्शन',
-    lessonClosures: 'क्लोजर',
-    lessonAsyncAwait: 'एसिंक/प्रतीक्षा',
-    lessonDebugging: 'डीबगिंग',
+    lessonClosures: 'क्लोज़र्स',
+    lessonAsyncAwait: 'Async/Await',
+    lessonDebugging: 'डिबगिंग',
+    
+    // Lesson descriptions
+    lessonFunctionsDesc: 'कॉल और स्कोप प्रबंधन।',
+    lessonConditionalsDesc: 'If/Else के साथ निर्णय लेना।',
+    lessonLoopsArraysDesc: 'पुनरावृत्ति और ऐरे मेमोरी।',
+    lessonObjectsDesc: 'हीप में मूल्य बनाम संदर्भ।',
+    lessonClassesDesc: "इंस्टेंस, 'new' और 'this'।",
+    lessonRecursionDesc: 'स्टैक वृद्धि की कल्पना।',
+    
+    // Lesson page
+    lessonNotFound: 'पाठ नहीं मिला या अपूर्ण',
+    step: 'कदम',
+    lesson: 'पाठ',
+    playground: 'प्लेग्राउंड',
+    restart: 'फिर से शुरू करें',
+    pause: 'रोकें',
+    play: 'चलाएं',
+    legend: 'लेजेंड',
+    howToUse: 'इस विज़ुअलाइज़र का उपयोग कैसे करें?',
+    understandAreas: 'समझें कि प्रत्येक क्षेत्र क्या दर्शाता है।',
+    callStackTitle: 'कॉल स्टैक (ढेर)',
+    callStackDesc: 'यह वह जगह है जहां कोड "याद" रखता है कि वह कहां है। प्रत्येक कॉल किए गए फंक्शन यहां एक नया ब्लॉक बनाता है। साधारण चर (संख्याएं, बूलियन) यहां रहते हैं।',
+    heapMemoryTitle: 'हीप मेमोरी',
+    heapMemoryDesc: 'जटिल डेटा यहां रहता है: ऑब्जेक्ट्स, ऐरे और क्लासेस। वे स्टैक के लिए बहुत बड़े हैं, इसलिए वे यहां रहते हैं और "संदर्भ" (अदृश्य तीर) द्वारा एक्सेस किए जाते हैं।',
+    controlsTitle: 'नियंत्रण',
+    controlsDesc: 'एनिमेशन को रोकने, छोड़ने या गति बदलने के लिए शीर्ष पर बटन का उपयोग करें।',
+    explanation: 'व्याख्या',
+    start: 'शुरू करें',
     
     // Exercise selection
     exercises: 'अभ्यास',

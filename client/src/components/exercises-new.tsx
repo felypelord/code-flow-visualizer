@@ -262,10 +262,10 @@ export function ExercisesViewNew() {
     return (
       <ResizablePanelGroup direction="horizontal">
         {/* Painel Esquerdo: Descrição + Editor */}
-        <ResizablePanel defaultSize={50} minSize={35}>
+        <ResizablePanel defaultSize={55} minSize={25}>
           <ResizablePanelGroup direction="vertical">
             {/* Descrição do Exercício */}
-            <ResizablePanel defaultSize={30} minSize={20}>
+            <ResizablePanel defaultSize={25} minSize={15}>
               <div className="h-full p-4 overflow-y-auto">
                 <Card className="p-4 bg-card/50 border-white/10 h-full">
                   <div className="flex items-start justify-between mb-2">
@@ -336,7 +336,7 @@ export function ExercisesViewNew() {
             <ResizableHandle withHandle className="bg-white/10 hover:bg-primary/50 transition-colors" />
 
             {/* Editor de Código */}
-            <ResizablePanel defaultSize={70} minSize={40}>
+            <ResizablePanel defaultSize={75} minSize={25}>
               <div className="h-full p-4 flex flex-col">
                 <Card className="flex-1 flex flex-col p-4 bg-card/50 border-white/10">
                   <h4 className="text-sm font-bold mb-2 flex items-center gap-2 text-slate-50">
@@ -364,10 +364,10 @@ export function ExercisesViewNew() {
         <ResizableHandle withHandle className="bg-white/5" />
 
         {/* Painel Direito: Stack, Heap, Resultados */}
-        <ResizablePanel defaultSize={50}>
+        <ResizablePanel defaultSize={45} minSize={25}>
           <ResizablePanelGroup direction="vertical">
             {/* Stack */}
-            <ResizablePanel defaultSize={30} minSize={15}>
+            <ResizablePanel defaultSize={35} minSize={10}>
               <div className="h-full p-4 bg-[#0d1220]/50 border-b border-white/5 overflow-auto">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">📚 {t.variables}</h4>
                 {executionState.stack.length > 0 ? (
@@ -381,7 +381,7 @@ export function ExercisesViewNew() {
             <ResizableHandle withHandle className="bg-white/5" />
 
             {/* Heap */}
-            <ResizablePanel defaultSize={30} minSize={15}>
+            <ResizablePanel defaultSize={30} minSize={10}>
               <div className="h-full p-4 bg-[#0d1220]/50 border-b border-white/5 overflow-auto">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3">💾 {t.memory}</h4>
                 {executionState.heap.length > 0 ? (
@@ -395,7 +395,7 @@ export function ExercisesViewNew() {
             <ResizableHandle withHandle className="bg-white/5" />
 
             {/* Resultados */}
-            <ResizablePanel defaultSize={40} minSize={20}>
+            <ResizablePanel defaultSize={35} minSize={10}>
               <div className="h-full p-4 bg-[#0d1220]/50 overflow-auto">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-yellow-400 mb-3">📊 {t.tests}</h4>
                 {testResults.length === 0 ? (
@@ -472,7 +472,7 @@ export function ExercisesViewNew() {
   };
 
   return (
-    <div className="h-[calc(100vh-64px)] flex flex-col">
+    <div className="h-[calc(100vh-64px)] min-h-[720px] flex flex-col">
       {/* Toolbar */}
       <div className="h-auto md:h-16 border-b border-white/10 bg-card/30 flex flex-col md:flex-row items-center px-4 py-2 md:py-0 justify-between shrink-0 gap-4">
         <div className="flex flex-wrap items-center gap-3 flex-1 w-full md:w-auto">

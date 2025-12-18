@@ -1,5 +1,5 @@
 # Development startup script
-$env:JWT_SECRET = "dev-secret-12345"
+$env:JWT_SECRET = "dev-secret-change-in-production"
 $env:DATABASE_URL = "postgresql://postgres:felype.BARRETO10@localhost:5432/codeflow"
 $env:NODE_ENV = "development"
 

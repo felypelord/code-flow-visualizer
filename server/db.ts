@@ -4,14 +4,11 @@ import * as schema from "@shared/schema";
 
 const dbUrl = process.env.DATABASE_URL;
 
-if (!dbUrl) {
-  console.warn("⚠ DATABASE_URL not set - DB features will fail");
-  // Fallback to localhost for dev
-  const fallback = "postgresql://postgres:postgres@localhost:5432/codeflow";
-  console.warn(`  Using fallback: ${fallback}`);
+if (!dbUrl && process.env.NODE_ENV !== "development") {
+  throw new Error("DATABASE_URL must be set in production");
 }
 
-const finalUrl = dbUrl || "postgresql://postgres:postgres@localhost:5432/codeflow";
+const finalUrl = dbUrl || "postgresql://postgres:felype.BARRETO10@localhost:5432/codeflow";
 const useSsl = process.env.PGSSL === "true" || process.env.NODE_ENV === "production";
 const client = postgres(finalUrl, useSsl ? { ssl: { rejectUnauthorized: process.env.PGSSL_REJECT_UNAUTHORIZED !== "false" } } : {});
 
