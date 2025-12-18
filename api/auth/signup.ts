@@ -1,5 +1,6 @@
 import { z } from "zod";
 import * as bcrypt from "bcryptjs";
+import postgres from "postgres";
 import { Resend } from "resend";
 
 const emailSchema = z.string().email("Invalid email");
@@ -47,17 +48,81 @@ export default async function (req: any, res: any) {
 
     const { email, firstName, lastName, dateOfBirth, country, password } = parsed.data;
 
-    // Just respond without database for now
-    res.statusCode = 200;
-    res.end(JSON.stringify({
-      ok: true,
-      message: "Signup endpoint is responding",
-      debug: {
-        email,
-        hasDatabase: !!process.env.DATABASE_URL,
-        nodeEnv: process.env.NODE_ENV
+    // Check if DATABASE_URL is set
+    if (!process.env.DATABASE_URL) {
+      res.statusCode = 500;
+      res.end(JSON.stringify({
+        ok: false,
+        error: "DATABASE_URL not configured on this server"
+      }));
+      return;
+    }
+
+    // Initialize database connection
+    const client = postgres(process.env.DATABASE_URL, {
+      ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+    });
+
+    try {
+      // Check if user already exists
+      const existingUsers = await client`
+        SELECT id FROM users WHERE email = ${email} LIMIT 1
+      `;
+      
+      if (existingUsers.length > 0) {
+        res.statusCode = 409;
+        res.end(JSON.stringify({
+          ok: false,
+          message: "Email already registered"
+        }));
+        await client.end();
+        return;
       }
-    }));
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user
+      await client`
+        INSERT INTO users (email, password, first_name, last_name, date_of_birth, country, email_verified) 
+        VALUES (${email}, ${hashedPassword}, ${firstName}, ${lastName}, ${new Date(dateOfBirth)}, ${country}, false)
+      `;
+
+      // Generate verification code
+      const verificationCode = Math.random().toString().slice(2, 8);
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+      await client`
+        INSERT INTO email_verifications (email, code, expires_at, attempts) 
+        VALUES (${email}, ${verificationCode}, ${expiresAt}, 0) 
+        ON CONFLICT (email) 
+        DO UPDATE SET code = ${verificationCode}, expires_at = ${expiresAt}, attempts = 0
+      `;
+
+      // Send verification email via Resend (fire-and-forget)
+      if (process.env.RESEND_API_KEY) {
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@codeflowbr.site";
+        
+        resend.emails.send({
+          from: fromEmail,
+          to: email,
+          subject: "Verify your Code Flow account",
+          html: `<p>Your verification code is: <strong>${verificationCode}</strong></p><p>This code expires in 15 minutes.</p>`,
+        }).catch(err => console.error("[ERROR] Failed to send verification email:", err));
+      }
+
+      res.statusCode = 200;
+      res.end(JSON.stringify({
+        ok: true,
+        message: "User created! Verification code sent to your email",
+        email,
+        firstName,
+        country
+      }));
+    } finally {
+      await client.end();
+    }
   } catch (err: any) {
     console.error("[ERROR] /api/auth/signup exception:", err);
     res.statusCode = 500;
