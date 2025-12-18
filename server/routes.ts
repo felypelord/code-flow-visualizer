@@ -70,6 +70,22 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+function requirePro(req: Request, res: Response, next: NextFunction) {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ message: "Missing Authorization" });
+  const [type, token] = auth.split(" ");
+  if (type !== "Bearer" || !token) return res.status(401).json({ message: "Invalid Authorization" });
+  
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string };
+    (req as any).userId = decoded.userId;
+    // Will check isPro in route handler after fetching user
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -170,7 +186,15 @@ export async function registerRoutes(
     const userId = (req as any).userId as string;
     const user = await storage.getUser(userId);
     if (!user) return res.status(404).json({ message: "not found" });
-    return res.json({ id: user.id, username: user.username });
+    
+    const isPro = user.isPro && (!user.proExpiresAt || new Date(user.proExpiresAt) > new Date());
+    
+    return res.json({ 
+      id: user.id, 
+      username: user.username,
+      isAdmin: user.isAdmin,
+      isPro
+    });
   });
 
   // Save progress
@@ -216,6 +240,68 @@ export async function registerRoutes(
     });
     
     return res.json(map);
+  });
+
+  // Check Pro status
+  app.get("/api/pro/status", requireAuth, async (req: Request, res: Response) => {
+    const userId = (req as any).userId as string;
+    const user = await storage.getUser(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    
+    const isPro = user.isPro && (!user.proExpiresAt || new Date(user.proExpiresAt) > new Date());
+    
+    return res.json({
+      isPro,
+      expiresAt: user.proExpiresAt,
+      plan: isPro ? "pro" : "free"
+    });
+  });
+
+  // Upgrade to Pro (simulated - in real world use Stripe webhook)
+  app.post("/api/pro/upgrade", requireAuth, async (req: Request, res: Response) => {
+    const userId = (req as any).userId as string;
+    const { months = 1 } = req.body;
+    
+    if (!months || months < 1 || months > 36) {
+      return res.status(400).json({ message: "Invalid months (1-36)" });
+    }
+    
+    // Calculate expiration date
+    const expiresAt = new Date();
+    expiresAt.setMonth(expiresAt.getMonth() + months);
+    
+    // Update user
+    await db.update(users)
+      .set({
+        isPro: true,
+        proExpiresAt: expiresAt
+      })
+      .where(eq(users.id, userId));
+    
+    return res.json({
+      success: true,
+      isPro: true,
+      expiresAt: expiresAt.toISOString(),
+      plan: "pro"
+    });
+  });
+
+  // Cancel Pro subscription
+  app.post("/api/pro/cancel", requireAuth, async (req: Request, res: Response) => {
+    const userId = (req as any).userId as string;
+    
+    await db.update(users)
+      .set({
+        isPro: false,
+        proExpiresAt: null
+      })
+      .where(eq(users.id, userId));
+    
+    return res.json({
+      success: true,
+      isPro: false,
+      plan: "free"
+    });
   });
 
   return httpServer;
