@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import Layout from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/use-user";
@@ -12,28 +12,48 @@ export default function ProPage() {
   const { user, token } = useUser();
   const [, setLocation] = useLocation();
   const [secondsLeft, setSecondsLeft] = useState(3600);
+  const [confirming, setConfirming] = useState(false);
+  const [proToken, setProToken] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const urlParams = useMemo(() => new URLSearchParams(window.location.search), []);
 
   useEffect(() => {
     const id = setInterval(() => setSecondsLeft((s) => (s > 0 ? s - 1 : 0)), 1000);
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    const sid = urlParams.get("session_id");
+    if (sid) {
+      setConfirming(true);
+      fetch("/api/pro/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: sid }),
+      })
+        .then(async (r) => {
+          if (!r.ok) throw new Error((await r.json())?.error || "Falha ao confirmar pagamento");
+          return r.json();
+        })
+        .then((data) => {
+          setProToken(data?.proToken || null);
+          setError(null);
+        })
+        .catch((e) => setError(e?.message || "Erro ao confirmar"))
+        .finally(() => setConfirming(false));
+    }
+  }, [urlParams]);
+
   const minutes = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
   const seconds = String(secondsLeft % 60).padStart(2, "0");
 
   const handleUpgrade = async () => {
-    if (!token) {
-      setLocation("/");
-      return;
-    }
     try {
-      const res = await fetch("/api/billing/checkout", {
+      const res = await fetch("/api/pro/create-checkout", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ plan: "monthly" }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: "monthly", currency: "BRL", email: user?.email }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -49,26 +69,7 @@ export default function ProPage() {
   };
 
   const handlePortal = async () => {
-    if (!token) {
-      setLocation("/");
-      return;
-    }
-    try {
-      const res = await fetch("/api/billing/portal", {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.url) {
-          window.location.href = data.url;
-          return;
-        }
-      }
-      alert("Não foi possível abrir o portal de cobrança");
-    } catch (err) {
-      alert("Erro ao abrir o portal");
-    }
+    alert("Portal de cobrança ainda não configurado.");
   };
 
   return (
@@ -106,6 +107,33 @@ export default function ProPage() {
             </div>
           </div>
         </div>
+
+        {error && (
+          <div className="max-w-5xl mx-auto px-4 mb-6">
+            <div className="bg-red-500/15 border border-red-400/40 text-red-200 rounded-xl p-4">
+              {error}
+            </div>
+          </div>
+        )}
+
+        {confirming && (
+          <div className="max-w-5xl mx-auto px-4 mb-6">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-white">Confirmando pagamento...</div>
+          </div>
+        )}
+
+        {proToken && (
+          <div className="max-w-5xl mx-auto px-4 mb-6">
+            <div className="bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 rounded-xl p-4 space-y-2">
+              <div className="font-semibold">Pagamento confirmado!</div>
+              <div className="text-sm">Seu código Pro foi gerado. Use esse código ao criar sua conta:</div>
+              <div className="font-mono text-white bg-black/30 px-3 py-2 rounded">{proToken}</div>
+              <div>
+                <Button onClick={() => navigator.clipboard.writeText(proToken)} size="sm">Copiar código</Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <Suspense fallback={<div className="text-center p-8 text-white">Carregando debugger...</div>}>
           <ProDebuggerLazy />
