@@ -1,5 +1,5 @@
 import { z } from "zod";
-import * as bcrypt from "bcryptjs";
+import bcrypt from "bcryptjs";
 import postgres from "postgres";
 import { Resend } from "resend";
 
