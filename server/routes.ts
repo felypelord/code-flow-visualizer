@@ -9,7 +9,7 @@ import { progress, users, webhookEvents, stripeCustomers } from "@shared/schema"
 import { storage } from "./storage";
 import { getStripe, getBaseUrl, STRIPE_PRICE_PRO_MONTHLY, STRIPE_PRICE_PRO_MONTHLY_USD, STRIPE_WEBHOOK_SECRET } from "./stripe";
 import Stripe from "stripe";
-import sgMail from "@sendgrid/mail";
+import { Resend } from "resend";
 
 // JWT secret - must come from environment in all environments
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -20,50 +20,51 @@ const JWT_EXPIRY = "7d";
 const METRICS_TOKEN = process.env.METRICS_TOKEN || "";
 const EMAIL_SEND_TIMEOUT_MS = Number(process.env.EMAIL_SEND_TIMEOUT_MS || 4000);
 
-// SendGrid configuration
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-const SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || "noreply@codeflow.dev";
-if (SENDGRID_API_KEY) {
-  sgMail.setApiKey(SENDGRID_API_KEY);
-}
+// Resend configuration
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "noreply@codeflow.dev";
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 // Generate 6-digit verification code
 function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// SendGrid email sending function
+// Resend email sending function
 async function sendVerificationEmail(email: string, code: string, firstName: string): Promise<boolean> {
   try {
-    if (!SENDGRID_API_KEY) {
-      console.warn("⚠️  SendGrid API key not configured. Logging code instead.");
+    if (!resend) {
+      console.warn("⚠️  Resend API key not configured. Logging code instead.");
       console.log(`📧 [MOCK] Verification code for ${email}: ${code}`);
       return true;
     }
 
-    const msg = {
+    const { data, error } = await resend.emails.send({
+      from: RESEND_FROM_EMAIL,
       to: email,
-      from: SENDGRID_FROM_EMAIL,
       subject: "Verify your email address",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Welcome, ${firstName}!</h2>
           <p>Thank you for signing up. To verify your email address and complete your registration, please enter the following code:</p>
           <div style="background: #f5f5f5; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-            <h1 style="letter-spacing: 5px; color: #333; margin: 0;">${code}</h1>
+            <h1 style="letter-spacing: 5px; color: #333; margin: 0; font-family: monospace;">${code}</h1>
           </div>
           <p style="color: #666; font-size: 14px;">This code will expire in 15 minutes.</p>
           <p style="color: #999; font-size: 12px;">If you didn't request this verification code, you can safely ignore this email.</p>
         </div>
       `,
-      text: `Your verification code is: ${code}. This code will expire in 15 minutes.`,
-    };
+    });
 
-    await sgMail.send(msg);
+    if (error) {
+      console.error("✗ Failed to send verification email:", error.message);
+      return false;
+    }
+
     console.log(`✓ Verification email sent to ${email}`);
     return true;
   } catch (error) {
-    console.error("✗ Failed to send email:", error instanceof Error ? error.message : error);
+    console.error("✗ Error sending verification email:", error instanceof Error ? error.message : error);
     return false;
   }
 }
@@ -75,38 +76,41 @@ async function sendVerificationEmailWithTimeout(email: string, code: string, fir
   ]);
 }
 
-// SendGrid password reset email
+// Resend password reset email
 async function sendPasswordResetEmail(email: string, code: string): Promise<boolean> {
   try {
-    if (!SENDGRID_API_KEY) {
-      console.warn("⚠️  SendGrid API key not configured. Logging code instead.");
+    if (!resend) {
+      console.warn("⚠️  Resend API key not configured. Logging code instead.");
       console.log(`🔐 [MOCK] Password reset code for ${email}: ${code}`);
       return true;
     }
 
-    const msg = {
+    const { data, error } = await resend.emails.send({
+      from: RESEND_FROM_EMAIL,
       to: email,
-      from: SENDGRID_FROM_EMAIL,
       subject: "Reset your password",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Password Reset Request</h2>
           <p>We received a request to reset the password for your account. To proceed, please enter the following code:</p>
           <div style="background: #f5f5f5; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-            <h1 style="letter-spacing: 5px; color: #333; margin: 0;">${code}</h1>
+            <h1 style="letter-spacing: 5px; color: #333; margin: 0; font-family: monospace;">${code}</h1>
           </div>
           <p style="color: #666; font-size: 14px;">This code will expire in 15 minutes.</p>
           <p style="color: #999; font-size: 12px;">If you didn't request a password reset, you can safely ignore this email.</p>
         </div>
       `,
-      text: `Your password reset code is: ${code}. This code will expire in 15 minutes.`,
-    };
+    });
 
-    await sgMail.send(msg);
+    if (error) {
+      console.error("✗ Failed to send password reset email:", error.message);
+      return false;
+    }
+
     console.log(`✓ Password reset email sent to ${email}`);
     return true;
   } catch (error) {
-    console.error("✗ Failed to send password reset email:", error instanceof Error ? error.message : error);
+    console.error("✗ Error sending password reset email:", error instanceof Error ? error.message : error);
     return false;
   }
 }

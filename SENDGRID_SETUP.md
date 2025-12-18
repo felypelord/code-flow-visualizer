@@ -1,68 +1,67 @@
-# 📧 SendGrid Setup Guide
+# 📧 Resend Email Setup
 
-## Passo 1: Criar conta SendGrid (GRÁTIS)
+## O que é Resend?
 
-1. Acesse: https://signup.sendgrid.com/
-2. Crie uma conta com seu email
-3. Confirme o email
-4. Faça login em https://app.sendgrid.com
+**Resend** é um serviço de email simples, gratuito e seguro:
+- ✓ **100% gratuito** (100 emails/dia)
+- ✓ **Sem verificações complicadas** de domínio
+- ✓ **Seguro** (OAuth, sem senhas expostas)
+- ✓ **Simples** (API minimalista)
+- ✓ **Rápido** (emails em ~1 segundo)
 
-## Passo 2: Gerar API Key
+## Passo 1: Criar conta Resend
 
-1. No dashboard, vá para: **Settings** → **API Keys** (na barra lateral esquerda)
+1. Acesse: https://resend.com
+2. Clique em **Sign Up**
+3. Use seu email (ou GitHub/Google)
+4. Confirme o email
+5. Pronto! ✅
+
+## Passo 2: Gerar API Key (30 segundos)
+
+1. No dashboard, vá para **API Keys** (left sidebar)
 2. Clique em **Create API Key**
-3. Nome da key: `Development` (ou qualquer nome)
-4. Permissões: Selecione **"Restricted Access"** → apenas **Mail Send** ✓
-5. Clique **Create & View**
-6. **COPIE A CHAVE** (você só vê uma vez!)
+3. Nome: `Development`
+4. Clique **Add** → a chave aparece na tela
+5. **COPIE AGORA** (você só vê uma vez!)
 
-## Passo 3: Adicionar ao .env
+Exemplo da chave: `re_1234567890abcdef`
 
-Abra o arquivo `.env` na raiz do projeto e adicione:
+## Passo 3: Adicionar ao `.env`
 
 ```env
-SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-SENDGRID_FROM_EMAIL=seu-email@seudominio.com
+RESEND_API_KEY=re_1234567890abcdef
+RESEND_FROM_EMAIL=noreply@codeflow.dev
 ```
 
-⚠️  **IMPORTANTE**: 
-- A `SENDGRID_FROM_EMAIL` deve ser um email **verificado** no SendGrid
-- Por padrão, use: `noreply@codeflow.dev` (será bloqueado até você adicionar um domínio real)
+⚠️ **NOTA**: Resend usa domínios fictícios automaticamente para desenvolvimento. Quando você colocar um domínio real, é só atualizar `RESEND_FROM_EMAIL`.
 
-## Passo 4: Verificar Email (Importante!)
-
-No SendGrid dashboard, vá para **Sender Authentication**:
-1. Clique em **Single Sender Verification**
-2. Clique **Create New Sender**
-3. Preencha seus dados
-4. Confirme o email que SendGrid enviar
-
-## Passo 5: Reiniciar o servidor
+## Passo 4: Reiniciar servidor
 
 ```bash
-# Parar servidor atual (Ctrl+C na janela do servidor)
-# Depois executar:
+# Para o servidor atual (Ctrl+C)
+# Depois:
 npm run dev:env
 ```
 
-## ✅ Tudo pronto!
+## ✅ Pronto!
 
-Agora quando você fizer signup, os emails serão enviados de verdade! 🎉
+Quando alguém fizer signup, o email chega em segundos! 🚀
 
-### Testando:
+### Testar:
 
 ```bash
-# Enviar código de verificação
 curl -X POST http://localhost:5000/api/signup \
   -H "Content-Type: application/json" \
   -d '{
-    "email":"seu-email@example.com",
+    "email":"seu-email@gmail.com",
     "firstName":"Seu",
     "lastName":"Nome",
     "dateOfBirth":"1990-01-15T00:00:00Z",
     "country":"BR",
-    "password":"SecurePassword123"
+    "password":"SecurePass123"
   }'
 ```
 
-O código de verificação chegará no seu email em segundos! ⚡
+Se a chave estiver certa, o email chega em ~1 segundo! ⚡
+
