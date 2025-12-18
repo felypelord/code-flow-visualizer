@@ -267,37 +267,45 @@ export async function registerRoutes(
 
   // Send verification code (step 1 of signup)
   app.post("/api/signup", async (req: Request, res: Response) => {
-    console.log("[DEBUG] /api/signup called");
-    if (!checkRateLimit(`signup:${req.ip}`, 5, 60_000)) {
-      return res.status(429).json({ message: "Too many signup attempts" });
-    }
-    const parsed = sendVerificationCodeSchema.safeParse(req.body || {});
-    if (!parsed.success) return res.status(400).json({ message: "invalid signup data" });
-    const { email, firstName, lastName, dateOfBirth, country, password } = parsed.data;
-    console.log("[DEBUG] checking if email exists:", email);
-    
-    const existing = await storage.getUserByEmail(email);
-    console.log("[DEBUG] existing user:", existing ? "YES" : "NO");
-    if (existing) return res.status(409).json({ message: "email already exists" });
-    
-    // Generate verification code
-    const code = generateVerificationCode();
-    console.log("[DEBUG] creating email verification for:", email);
-    await storage.createEmailVerification(email, code);
-    console.log("[DEBUG] email verification created, code:", code);
-    
-    // Send email (mock for now) with timeout in background (do not block response)
-    // We intentionally do not await here to avoid request timeouts
-    sendVerificationEmailWithTimeout(email, code, firstName)
-      .then((sent) => {
-        if (!sent) console.warn(`verification email send timed out for ${email}`);
-      })
-      .catch((err) => {
-        console.warn(`verification email send failed for ${email}: ${err?.message || err}`);
-      });
+    try {
+      console.log("[DEBUG] /api/signup called with body:", JSON.stringify(req.body));
+      if (!checkRateLimit(`signup:${req.ip}`, 5, 60_000)) {
+        return res.status(429).json({ message: "Too many signup attempts" });
+      }
+      const parsed = sendVerificationCodeSchema.safeParse(req.body || {});
+      if (!parsed.success) {
+        console.warn("[DEBUG] Schema validation failed:", parsed.error.errors);
+        return res.status(400).json({ message: "invalid signup data", errors: parsed.error.errors });
+      }
+      const { email, firstName, lastName, dateOfBirth, country, password } = parsed.data;
+      console.log("[DEBUG] checking if email exists:", email);
+      
+      const existing = await storage.getUserByEmail(email);
+      console.log("[DEBUG] existing user:", existing ? "YES" : "NO");
+      if (existing) return res.status(409).json({ message: "email already exists" });
+      
+      // Generate verification code
+      const code = generateVerificationCode();
+      console.log("[DEBUG] creating email verification for:", email);
+      await storage.createEmailVerification(email, code);
+      console.log("[DEBUG] email verification created, code:", code);
+      
+      // Send email (mock for now) with timeout in background (do not block response)
+      // We intentionally do not await here to avoid request timeouts
+      sendVerificationEmailWithTimeout(email, code, firstName)
+        .then((sent) => {
+          if (!sent) console.warn(`verification email send timed out for ${email}`);
+        })
+        .catch((err) => {
+          console.warn(`verification email send failed for ${email}: ${err?.message || err}`);
+        });
 
-    console.log("[DEBUG] /api/signup returning success");
-    return res.json({ message: "Verification code sent to your email" });
+      console.log("[DEBUG] /api/signup returning success");
+      return res.json({ message: "Verification code sent to your email" });
+    } catch (err: any) {
+      console.error("[ERROR] /api/signup exception:", err?.message || err, "\nStack:", err?.stack);
+      return res.status(500).json({ message: "Internal server error", error: err?.message || String(err) });
+    }
   });
 
   // Verify code and create account (step 2 of signup)
