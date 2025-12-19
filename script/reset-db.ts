@@ -78,7 +78,8 @@ async function resetDatabase() {
     console.log('✓ Database reset successfully!');
     await sql.end();
   } catch (error) {
-    console.error('✗ Error:', error?.message || error);
+    const err = error as any;
+    console.error('✗ Error:', err?.message || err);
     process.exit(1);
   }
 }

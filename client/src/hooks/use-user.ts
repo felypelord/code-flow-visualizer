@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface User {
   id: string;
@@ -16,13 +16,14 @@ export function useUser() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const refreshUser = useCallback(() => {
     if (token) {
-      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+      fetch('/api/me', { headers: { Authorization: `Bearer ${token}` } })
         .then((r) => r.ok ? r.json() : Promise.reject())
         .then((data) => {
-          if (data?.user) {
-            setUser(data.user);
+          const u = (data && data.user) ? data.user : data;
+          if (u && u.id) {
+            setUser(u);
           } else {
             setUser(null);
           }
@@ -39,5 +40,9 @@ export function useUser() {
     }
   }, [token]);
 
-  return { user, token, loading };
+  useEffect(() => {
+    refreshUser();
+  }, [token, refreshUser]);
+
+  return { user, token, loading, refreshUser };
 }

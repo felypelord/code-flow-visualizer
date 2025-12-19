@@ -512,6 +512,7 @@ export function ExercisesView() {
             </div>
 
             {/* Tabs */}
+            <Tabs defaultValue="code">
               <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700">
                 <TabsTrigger value="code" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                   Código

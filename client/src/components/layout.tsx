@@ -106,24 +106,32 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               {t.exercises}
             </NavLink>
 
-            <NavLink href="/pricing" active={location.includes("/pricing")}>
-              <span className="text-sm font-medium">Preços</span>
-            </NavLink>
-            {user?.isPro && (
-              <NavLink href="/pro" active={location.includes("/pro")}>
-                <Crown className="w-4 h-4 text-amber-400" />
-                <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">
-                  Pro
+            <Link href="/pricing">
+              <span className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold cursor-pointer",
+                location.includes("/pricing")
+                  ? "bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-400/40"
+                  : "text-amber-200 hover:text-amber-300 hover:bg-amber-500/10 border border-transparent"
+              )}>
+                <span className="inline-flex items-center gap-2">
+                  <Crown className="w-4 h-4 text-amber-400" />
+                  <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">{t.pricing}</span>
                 </span>
-              </NavLink>
-            )}
+              </span>
+            </Link>
+            <NavLink href="/pro" active={location.includes("/pro")}>
+              <Crown className="w-4 h-4 text-amber-400" />
+              <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">
+                Pro
+              </span>
+            </NavLink>
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
             <LanguageSelector />
             {user?.isPro && (
               <Button size="sm" variant="secondary" onClick={openPortal}>
-                Gerenciar assinatura
+                {t.manageSubscription}
               </Button>
             )}
             <Auth />
@@ -181,20 +189,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors",
                       location.includes("/pricing") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                     )}>
-                      <span className="text-sm font-medium">Preços</span>
+                      <Crown className="w-4 h-4 text-amber-400" />
+                      <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">{t.pricing}</span>
                     </span>
                   </Link>
 
-                  {user?.isPro && (
-                    <Link href="/pro" onClick={() => setIsOpen(false)}>
-                      <span className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-bold transition-colors bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:border-amber-500/40">
-                        <Crown className="w-4 h-4 text-amber-400" />
-                        <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-                          Pro
-                        </span>
+                  <Link href="/pro" onClick={() => setIsOpen(false)}>
+                    <span className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-bold transition-colors bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:border-amber-500/40">
+                      <Crown className="w-4 h-4 text-amber-400" />
+                      <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                        Pro
                       </span>
-                    </Link>
-                  )}
+                    </span>
+                  </Link>
 
                   {user?.isPro && (
                     <div className="mt-4">

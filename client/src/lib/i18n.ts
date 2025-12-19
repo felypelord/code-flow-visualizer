@@ -8,6 +8,7 @@ export interface Translations {
   home: string;
   learn: string;
   pro: string;
+  pricing: string;
   
   // Hero section
   heroTitle1: string;
@@ -172,6 +173,150 @@ export interface Translations {
   emailHint: string;
   passwordHint: string;
   securityNote: string;
+
+  // Pro features
+  proRequired: string;
+  aiInspectorLimit: string;
+  aiInspectorLimitReached: string;
+  profilerLimit: string;
+  profilerLocked: string;
+  freeAnalysesUsed: string;
+  freeRunsUsed: string;
+  freeLeft: string;
+  upgradeToPro: string;
+  proFeature: string;
+  variableInspectorPro: string;
+  aiCodeInspector: string;
+  intelligentAnalysis: string;
+  aiCodeInspectorTitle: string;
+  aiCodeInspectorDesc: string;
+  yourCode: string;
+  analyzing: string;
+  analyze: string;
+  pasteCodeHere: string;
+  inspectorFeatures: string;
+  optimizationSuggestions: string;
+  potentialIssueWarnings: string;
+  algorithmExplanations: string;
+  bestPracticesTips: string;
+  analysisComplete: string;
+  noSuggestions: string;
+  profilerComplete: string;
+  profilerError: string;
+  average: string;
+  min: string;
+  max: string;
+  profiler: string;
+  executions: string;
+  runProfiler: string;
+  
+  // Pricing & Pro pages
+  pricingPlansTitle: string;
+  pricingPlansSubtitle: string;
+  manageSubscription: string;
+  viewPricing: string;
+  proLearningTitle: string;
+  proLearningSubtitle: string;
+  premiumBadge: string;
+  premiumHeadline: string;
+  premiumDescription: string;
+  proTracksBadge: string;
+  proTracksSubtitle: string;
+  proChallengesBadge: string;
+  proChallengesSubtitle: string;
+  proMiniDemosSubtitle: string;
+  billingTitle: string;
+  billingDescription: string;
+  openBillingPortal: string;
+  downloadReceipts: string;
+  proRoadmap1Title: string;
+  proRoadmap1Eta: string;
+  proRoadmap1Status: string;
+  proRoadmap2Title: string;
+  proRoadmap2Eta: string;
+  proRoadmap2Status: string;
+  proRoadmap3Title: string;
+  proRoadmap3Eta: string;
+  proRoadmap3Status: string;
+  proBenefit1: string;
+  proBenefit2: string;
+  proBenefit3: string;
+  proBenefit4: string;
+  proTrackBeginnerTitle: string;
+  proTrackBeginner1: string;
+  proTrackBeginner2: string;
+  proTrackBeginner3: string;
+  proTrackBeginner4: string;
+  proTrackBeginner5: string;
+  proTrackBeginner6: string;
+  proTrackIntermediateTitle: string;
+  proTrackIntermediate1: string;
+  proTrackIntermediate2: string;
+  proTrackIntermediate3: string;
+  proTrackIntermediate4: string;
+  proTrackIntermediate5: string;
+  proTrackIntermediate6: string;
+  proTrackAdvancedTitle: string;
+  proTrackAdvanced1: string;
+  proTrackAdvanced2: string;
+  proTrackAdvanced3: string;
+  proTrackAdvanced4: string;
+  proTrackAdvanced5: string;
+  proTrackAdvanced6: string;
+  proFeatureDebuggerTitle: string;
+  proFeatureDebuggerDesc: string;
+  proFeatureDebuggerB1: string;
+  proFeatureDebuggerB2: string;
+  proFeatureAnalyzerTitle: string;
+  proFeatureAnalyzerDesc: string;
+  proFeatureAnalyzerB1: string;
+  proFeatureAnalyzerB2: string;
+  proFeatureStructuresTitle: string;
+  proFeatureStructuresDesc: string;
+  proFeatureStructuresB1: string;
+  proFeatureStructuresB2: string;
+  proFeatureAiTitle: string;
+  proFeatureAiDesc: string;
+  proFeatureAiB1: string;
+  proFeatureAiB2: string;
+  proFeatureSnapshotsTitle: string;
+  proFeatureSnapshotsDesc: string;
+  proFeatureSnapshotsB1: string;
+  proFeatureSnapshotsB2: string;
+  proFeatureDbTitle: string;
+  proFeatureDbDesc: string;
+  proFeatureDbB1: string;
+  proFeatureDbB2: string;
+  proMiniDemosBadge: string;
+  proMiniDemosNote: string;
+  proInspectorAnalyze: string;
+  proInspectorPlaceholder: string;
+  proInspectorInvalidJson: string;
+  proDebuggerLoading: string;
+  proDebuggerRequiresBadge: string;
+  proDebuggerRequiresText: string;
+  proPlaygroundTitle: string;
+  proPlaygroundSubtitle: string;
+  proPlaygroundIdea1: string;
+  proPlaygroundIdea2: string;
+  proPlaygroundIdea3: string;
+  proPlaygroundCopy: string;
+  proPlaygroundCopied: string;
+  proPlaygroundCopyFailed: string;
+  proPlaygroundClear: string;
+  proPlaygroundPlaceholder: string;
+  vipSignupTitle: string;
+  vipSignupDesc: string;
+  firstName: string;
+  lastName: string;
+  country: string;
+  dateOfBirth: string;
+  vipContinueToEmail: string;
+  vipCodeSent: string;
+  vipCheckEmail: string;
+  codeSentTo: string;
+  back: string;
+  vipProceedToPayment: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -183,6 +328,7 @@ export const translations: Record<Language, Translations> = {
     home: 'Home',
     learn: 'Learn',
     pro: 'Pro',
+    pricing: 'Pricing',
     
     // Hero section
     heroTitle1: 'Watch your code',
@@ -347,6 +493,150 @@ export const translations: Record<Language, Translations> = {
     emailHint: 'Use your email address',
     passwordHint: '10+ chars, mix letters & numbers',
     securityNote: 'Your data is encrypted. We never share your information.',
+
+    // Pro features
+    proRequired: 'Pro Required',
+    aiInspectorLimit: "You've used your free analysis. Upgrade to Pro for unlimited access.",
+    aiInspectorLimitReached: "You've used your free analysis. Upgrade to Pro for unlimited AI-powered code analysis.",
+    profilerLimit: "You've used your free profiler run. Upgrade to Pro for unlimited access.",
+    profilerLocked: 'Profiler Locked',
+    freeAnalysesUsed: 'free analyses used',
+    freeRunsUsed: 'free runs used',
+    freeLeft: 'free left',
+    upgradeToPro: 'Upgrade to Pro',
+    proFeature: 'Pro Feature',
+    variableInspectorPro: 'Variable Inspector is available for Pro users only.',
+    aiCodeInspector: 'AI Code Inspector',
+    intelligentAnalysis: 'Intelligent Analysis',
+    aiCodeInspectorTitle: 'AI Code Inspector',
+    aiCodeInspectorDesc: 'Automatic analysis with optimization suggestions, warnings, and algorithm explanations.',
+    yourCode: 'Your Code',
+    analyzing: 'Analyzing...',
+    analyze: 'Analyze',
+    pasteCodeHere: 'Paste your Python code here...',
+    inspectorFeatures: 'The Inspector analyzes your code and provides:',
+    optimizationSuggestions: 'Optimization suggestions',
+    potentialIssueWarnings: 'Warnings about potential issues',
+    algorithmExplanations: 'Algorithm explanations',
+    bestPracticesTips: 'Best practices tips',
+    analysisComplete: 'Analysis Complete',
+    noSuggestions: 'No suggestions found. Code looks good!',
+    profilerComplete: 'Profiler Complete',
+    profilerError: 'Profiler Error',
+    average: 'Average',
+    min: 'Min',
+    max: 'Max',
+    profiler: 'Profiler',
+    executions: 'executions',
+    runProfiler: 'Run Profiler',
+    
+    // Pricing & Pro pages
+    pricingPlansTitle: 'Subscription Plans',
+    pricingPlansSubtitle: 'Choose the perfect plan for your coding journey',
+    manageSubscription: 'Manage subscription',
+    viewPricing: 'View Pricing',
+    proLearningTitle: 'Pro Learning Tools',
+    proLearningSubtitle: 'Advanced debugger, AI inspector, and pro exercises to level up fast.',
+    premiumBadge: 'Premium Features',
+    premiumHeadline: 'Professional Tools for Developers',
+    premiumDescription: 'Unlock a complete suite of advanced debugging, performance analysis, and real-time visualization tools.',
+    proTracksBadge: 'Pro Exercises (from beginner to advanced)',
+    proTracksSubtitle: 'Progressive tracks with exclusive challenges.',
+    proChallengesBadge: 'Pro Challenges - Advanced Algorithms',
+    proChallengesSubtitle: 'Exercises with full solutions and an integrated debugger',
+    proMiniDemosSubtitle: 'Quick preview of Pro labs.',
+    billingTitle: 'Billing and payment method',
+    billingDescription: 'Manage invoices, update card, and export receipts directly in the secure portal.',
+    openBillingPortal: 'Open billing portal',
+    downloadReceipts: 'Where do I download receipts?',
+    proRoadmap1Title: 'Profiler with timeline and flamegraph',
+    proRoadmap1Eta: 'Jan/2026',
+    proRoadmap1Status: 'In progress',
+    proRoadmap2Title: 'Conditional breakpoints with variable watch',
+    proRoadmap2Eta: 'Jan/2026',
+    proRoadmap2Status: 'In progress',
+    proRoadmap3Title: 'Inspector for large objects + JSON export',
+    proRoadmap3Eta: 'Feb/2026',
+    proRoadmap3Status: 'Planned',
+    proBenefit1: 'Unlimited debugger runs',
+    proBenefit2: 'Hints and solutions unlocked in exercises',
+    proBenefit3: 'Priority support and voteable roadmap',
+    proBenefit4: 'Continuous Pro updates delivered',
+    proTrackBeginnerTitle: 'Beginner',
+    proTrackBeginner1: 'Hello World with user input',
+    proTrackBeginner2: 'Variables, types, and console.log',
+    proTrackBeginner3: 'Basic conditionals (if/else)',
+    proTrackBeginner4: 'Loops over small arrays',
+    proTrackBeginner5: 'Pure functions and parameters',
+    proTrackBeginner6: 'Simple step-by-step debugging',
+    proTrackIntermediateTitle: 'Intermediate',
+    proTrackIntermediate1: 'Arrays + map/filter/reduce',
+    proTrackIntermediate2: 'Object and JSON manipulation',
+    proTrackIntermediate3: 'Modules and code organization',
+    proTrackIntermediate4: 'Quick tests with asserts',
+    proTrackIntermediate5: 'Promises and async/await',
+    proTrackIntermediate6: 'Profiler: measure 3 implementations',
+    proTrackAdvancedTitle: 'Advanced',
+    proTrackAdvanced1: 'Data structures (stack/queue)',
+    proTrackAdvanced2: 'Optimized search and sorting',
+    proTrackAdvanced3: 'APIs with retry and backoff',
+    proTrackAdvanced4: 'Caching and invalidation',
+    proTrackAdvanced5: 'Debugging async race conditions',
+    proTrackAdvanced6: 'Fake microservice end-to-end',
+    proFeatureDebuggerTitle: 'Pro Debugger',
+    proFeatureDebuggerDesc: 'Advanced visual debugger with breakpoints, watch variables, and detailed stack traces',
+    proFeatureDebuggerB1: 'Step-by-step execution',
+    proFeatureDebuggerB2: 'Variable inspection',
+    proFeatureAnalyzerTitle: 'Performance Analyzer',
+    proFeatureAnalyzerDesc: 'Analyze runtime, memory usage, and optimize your code',
+    proFeatureAnalyzerB1: 'Execution timeline',
+    proFeatureAnalyzerB2: 'Memory usage',
+    proFeatureStructuresTitle: 'Structure Visualization',
+    proFeatureStructuresDesc: 'See arrays and objects in real time with an interactive diagram',
+    proFeatureStructuresB1: 'Complex structures',
+    proFeatureStructuresB2: 'Interactive graphs',
+    proFeatureAiTitle: 'AI Assistant',
+    proFeatureAiDesc: 'Automatic optimization suggestions and error explanations',
+    proFeatureAiB1: 'Automatic analysis',
+    proFeatureAiB2: 'Real-time suggestions',
+    proFeatureSnapshotsTitle: 'Execution Snapshots',
+    proFeatureSnapshotsDesc: 'Capture and share full execution states',
+    proFeatureSnapshotsB1: 'Capture and replay',
+    proFeatureSnapshotsB2: 'Sharing',
+    proFeatureDbTitle: 'Database Inspector',
+    proFeatureDbDesc: 'Inspect queries, view indexes, and optimize performance',
+    proFeatureDbB1: 'Query analysis',
+    proFeatureDbB2: 'Optimizations',
+    proMiniDemosBadge: 'Mini demos',
+    proMiniDemosNote: 'Available in Pro Labs (live demo below).',
+    proInspectorAnalyze: 'Analyze',
+    proInspectorPlaceholder: 'Paste JSON and click Analyze.',
+    proInspectorInvalidJson: 'Invalid JSON',
+    proDebuggerLoading: 'Loading debugger...',
+    proDebuggerRequiresBadge: 'Pro plan required',
+    proDebuggerRequiresText: 'Subscribe to Pro to access the full real-time debugger.',
+    proPlaygroundTitle: 'VIP Playground',
+    proPlaygroundSubtitle: 'Test snippets, sketch solutions, and take notes without touching production code.',
+    proPlaygroundIdea1: 'Warm up with a 5–10 minute kata',
+    proPlaygroundIdea2: 'Design data structures before coding',
+    proPlaygroundIdea3: 'Paste logs and annotate findings',
+    proPlaygroundCopy: 'Copy scratchpad',
+    proPlaygroundCopied: 'Scratchpad copied',
+    proPlaygroundCopyFailed: 'Could not copy scratchpad',
+    proPlaygroundClear: 'Clear scratchpad',
+    proPlaygroundPlaceholder: 'Quick notes, pseudo-code, checklists, or test snippets go here...',
+    vipSignupTitle: 'Create VIP Account (Pro)',
+    vipSignupDesc: 'First verify your email. Then you will complete payment with Stripe.',
+    firstName: 'First name',
+    lastName: 'Last name',
+    country: 'Country',
+    dateOfBirth: 'Date of birth',
+    vipContinueToEmail: 'Proceed to email confirmation',
+    vipCodeSent: 'Code sent',
+    vipCheckEmail: 'Check your email and enter the code to continue.',
+    codeSentTo: 'Code sent to',
+    back: 'Back',
+    vipProceedToPayment: 'Proceed to payment',
   },
   
   'pt-BR': {
@@ -357,6 +647,7 @@ export const translations: Record<Language, Translations> = {
     home: 'Início',
     learn: 'Aprender',
     pro: 'Pro',
+    pricing: 'Preços',
     
     // Hero section
     heroTitle1: 'Veja seu código',
@@ -521,6 +812,150 @@ export const translations: Record<Language, Translations> = {
     emailHint: 'Use seu endereço de email',
     passwordHint: '10+ caracteres, misture letras e números',
     securityNote: 'Seus dados são criptografados. Nunca compartilhamos suas informações.',
+
+    // Pro features
+    proRequired: 'Pro Necessário',
+    aiInspectorLimit: 'Você usou sua análise grátis. Faça upgrade para Pro para acesso ilimitado.',
+    aiInspectorLimitReached: 'Você usou sua análise grátis. Faça upgrade para Pro para análise de código ilimitada com IA.',
+    profilerLimit: 'Você usou sua execução grátis do profiler. Faça upgrade para Pro para acesso ilimitado.',
+    profilerLocked: 'Profiler Bloqueado',
+    freeAnalysesUsed: 'análises grátis usadas',
+    freeRunsUsed: 'execuções grátis usadas',
+    freeLeft: 'grátis restantes',
+    upgradeToPro: 'Fazer Upgrade para Pro',
+    proFeature: 'Recurso Pro',
+    variableInspectorPro: 'Inspetor de Variáveis disponível apenas para usuários Pro.',
+    aiCodeInspector: 'Inspetor de Código IA',
+    intelligentAnalysis: 'Análise Inteligente',
+    aiCodeInspectorTitle: 'Inspetor de Código IA',
+    aiCodeInspectorDesc: 'Análise automática com sugestões de otimização, avisos e explicações de algoritmos.',
+    yourCode: 'Seu Código',
+    analyzing: 'Analisando...',
+    analyze: 'Analisar',
+    pasteCodeHere: 'Cole seu código Python aqui...',
+    inspectorFeatures: 'O Inspector analisa seu código e fornece:',
+    optimizationSuggestions: 'Sugestões de otimização',
+    potentialIssueWarnings: 'Alertas de potenciais problemas',
+    algorithmExplanations: 'Explicações de algoritmos',
+    bestPracticesTips: 'Dicas de boas práticas',
+    analysisComplete: 'Análise Completa',
+    noSuggestions: 'Nenhuma sugestão encontrada. Código parece bom!',
+    profilerComplete: 'Profiler Concluído',
+    profilerError: 'Erro no Profiler',
+    average: 'Média',
+    min: 'Mín',
+    max: 'Máx',
+    profiler: 'Profiler',
+    executions: 'execuções',
+    runProfiler: 'Rodar Profiler',
+    
+    // Pricing & Pro pages
+    pricingPlansTitle: 'Planos de Assinatura',
+    pricingPlansSubtitle: 'Escolha o plano perfeito para sua jornada de programação',
+    manageSubscription: 'Gerenciar assinatura',
+    viewPricing: 'Ver Preços',
+    proLearningTitle: 'Ferramentas Pro de Aprendizado',
+    proLearningSubtitle: 'Debugger avançado, inspector de código e exercícios profissionais.',
+    premiumBadge: 'Recursos Premium',
+    premiumHeadline: 'Ferramentas Profissionais para Desenvolvedores',
+    premiumDescription: 'Desbloqueie um conjunto completo de ferramentas avançadas de depuração, análise de performance e visualização em tempo real.',
+    proTracksBadge: 'Exercícios Pro (do básico ao avançado)',
+    proTracksSubtitle: 'Trilhas progressivas com desafios exclusivos.',
+    proChallengesBadge: 'Desafios Pro - Algoritmos Avançados',
+    proChallengesSubtitle: 'Exercícios com soluções completas e debugger integrado',
+    proMiniDemosSubtitle: 'Visão rápida dos laboratórios Pro.',
+    billingTitle: 'Faturas e método de pagamento',
+    billingDescription: 'Gerencie faturas, atualize cartão e exporte recibos diretamente no portal seguro.',
+    openBillingPortal: 'Abrir portal de cobrança',
+    downloadReceipts: 'Onde baixo recibos?',
+    proRoadmap1Title: 'Profiler com timeline e flamegraph',
+    proRoadmap1Eta: 'Jan/2026',
+    proRoadmap1Status: 'Em construção',
+    proRoadmap2Title: 'Breakpoints condicionais com watch de variáveis',
+    proRoadmap2Eta: 'Jan/2026',
+    proRoadmap2Status: 'Em construção',
+    proRoadmap3Title: 'Inspector para objetos grandes + export JSON',
+    proRoadmap3Eta: 'Fev/2026',
+    proRoadmap3Status: 'Planejado',
+    proBenefit1: 'Execuções ilimitadas no debugger',
+    proBenefit2: 'Dicas e soluções desbloqueadas nos exercícios',
+    proBenefit3: 'Suporte prioritário e roadmap votável',
+    proBenefit4: 'Atualizações Pro entregues continuamente',
+    proTrackBeginnerTitle: 'Iniciante',
+    proTrackBeginner1: 'Hello World com entrada do usuário',
+    proTrackBeginner2: 'Variáveis, tipos e console.log',
+    proTrackBeginner3: 'Condicionais básicas (if/else)',
+    proTrackBeginner4: 'Loops sobre arrays pequenos',
+    proTrackBeginner5: 'Funções puras e parâmetros',
+    proTrackBeginner6: 'Depuração passo a passo simples',
+    proTrackIntermediateTitle: 'Intermediário',
+    proTrackIntermediate1: 'Arrays + map/filter/reduce',
+    proTrackIntermediate2: 'Manipulação de objetos e JSON',
+    proTrackIntermediate3: 'Módulos e organização de código',
+    proTrackIntermediate4: 'Testes rápidos com asserts',
+    proTrackIntermediate5: 'Promises e async/await',
+    proTrackIntermediate6: 'Profiler: medir 3 implementações',
+    proTrackAdvancedTitle: 'Avançado',
+    proTrackAdvanced1: 'Estruturas de dados (pilha/fila)',
+    proTrackAdvanced2: 'Busca e ordenação otimizadas',
+    proTrackAdvanced3: 'APIs com retry e backoff',
+    proTrackAdvanced4: 'Caching + invalidação',
+    proTrackAdvanced5: 'Debug de corrida assíncrona',
+    proTrackAdvanced6: 'Micro-serviço fake end-to-end',
+    proFeatureDebuggerTitle: 'Pro Debugger',
+    proFeatureDebuggerDesc: 'Depurador visual avançado com breakpoints, watch variables e stack traces detalhados',
+    proFeatureDebuggerB1: 'Execução passo a passo',
+    proFeatureDebuggerB2: 'Inspeção de variáveis',
+    proFeatureAnalyzerTitle: 'Performance Analyzer',
+    proFeatureAnalyzerDesc: 'Analise tempo de execução, uso de memória e otimize seu código',
+    proFeatureAnalyzerB1: 'Timeline de execução',
+    proFeatureAnalyzerB2: 'Uso de memória',
+    proFeatureStructuresTitle: 'Visualização de Estruturas',
+    proFeatureStructuresDesc: 'Veja arrays e objetos em tempo real com diagrama interativo',
+    proFeatureStructuresB1: 'Estruturas complexas',
+    proFeatureStructuresB2: 'Gráficos interativos',
+    proFeatureAiTitle: 'IA Assistant',
+    proFeatureAiDesc: 'Sugestões automáticas de otimização e explicações de erros',
+    proFeatureAiB1: 'Análise automática',
+    proFeatureAiB2: 'Sugestões em tempo real',
+    proFeatureSnapshotsTitle: 'Snapshots de Execução',
+    proFeatureSnapshotsDesc: 'Capture e compartilhe estados de execução completos',
+    proFeatureSnapshotsB1: 'Captura e replay',
+    proFeatureSnapshotsB2: 'Compartilhamento',
+    proFeatureDbTitle: 'Database Inspector',
+    proFeatureDbDesc: 'Inspecione queries, visualize índices e otimize performance',
+    proFeatureDbB1: 'Análise de queries',
+    proFeatureDbB2: 'Otimizações',
+    proMiniDemosBadge: 'Mini demos',
+    proMiniDemosNote: 'Disponível no Pro Labs (demo ao vivo abaixo).',
+    proInspectorAnalyze: 'Analisar',
+    proInspectorPlaceholder: 'Cole JSON e clique em Analisar.',
+    proInspectorInvalidJson: 'JSON inválido',
+    proDebuggerLoading: 'Carregando debugger...',
+    proDebuggerRequiresBadge: 'Exige plano Pro',
+    proDebuggerRequiresText: 'Assine o Pro para acessar o debugger completo em tempo real.',
+    proPlaygroundTitle: 'Parquinho VIP',
+    proPlaygroundSubtitle: 'Teste trechos, rascunhe soluções e faça notas sem mexer no código principal.',
+    proPlaygroundIdea1: 'Aqueça com um kata de 5–10 minutos',
+    proPlaygroundIdea2: 'Desenhe estruturas de dados antes de codar',
+    proPlaygroundIdea3: 'Cole logs e anote descobertas',
+    proPlaygroundCopy: 'Copiar rascunho',
+    proPlaygroundCopied: 'Rascunho copiado',
+    proPlaygroundCopyFailed: 'Não foi possível copiar o rascunho',
+    proPlaygroundClear: 'Limpar rascunho',
+    proPlaygroundPlaceholder: 'Notas rápidas, pseudo-código, checklists ou snippets de teste ficam aqui...',
+    vipSignupTitle: 'Criar conta VIP (Pro)',
+    vipSignupDesc: 'Primeiro verificamos seu email. Depois você conclui o pagamento com Stripe.',
+    firstName: 'Nome',
+    lastName: 'Sobrenome',
+    country: 'País',
+    dateOfBirth: 'Data de nascimento',
+    vipContinueToEmail: 'Seguir para confirmação de e-mail',
+    vipCodeSent: 'Código enviado',
+    vipCheckEmail: 'Verifique seu email e digite o código para continuar.',
+    codeSentTo: 'Código enviado para',
+    back: 'Voltar',
+    vipProceedToPayment: 'Seguir para pagamento',
   },
   
   'es': {
@@ -531,6 +966,7 @@ export const translations: Record<Language, Translations> = {
     home: 'Inicio',
     learn: 'Aprender',
     pro: 'Pro',
+    pricing: 'Precios',
     
     // Hero section
     heroTitle1: 'Observa tu código',
@@ -695,6 +1131,150 @@ export const translations: Record<Language, Translations> = {
     emailHint: 'Usa tu dirección de correo electrónico',
     passwordHint: '10+ caracteres, mezcla de letras y números',
     securityNote: 'Tus datos están encriptados. Nunca compartimos tu información.',
+
+    // Pro features (same as English for now)
+    proRequired: 'Pro Requerido',
+    aiInspectorLimit: 'Has usado tu análisis gratuito. Actualiza a Pro para acceso ilimitado.',
+    aiInspectorLimitReached: 'Has usado tu análisis gratuito. Actualiza a Pro para análisis de código ilimitado con IA.',
+    profilerLimit: 'Has usado tu ejecución gratuita del profiler. Actualiza a Pro para acceso ilimitado.',
+    profilerLocked: 'Profiler Bloqueado',
+    freeAnalysesUsed: 'análisis gratuitos usados',
+    freeRunsUsed: 'ejecuciones gratuitas usadas',
+    freeLeft: 'gratis restantes',
+    upgradeToPro: 'Actualizar a Pro',
+    proFeature: 'Característica Pro',
+    variableInspectorPro: 'Inspector de Variables disponible solo para usuarios Pro.',
+    aiCodeInspector: 'Inspector de Código IA',
+    intelligentAnalysis: 'Análisis Inteligente',
+    aiCodeInspectorTitle: 'Inspector de Código IA',
+    aiCodeInspectorDesc: 'Análisis automático con sugerencias de optimización, advertencias y explicaciones de algoritmos.',
+    yourCode: 'Tu Código',
+    analyzing: 'Analizando...',
+    analyze: 'Analizar',
+    pasteCodeHere: 'Pega tu código Python aquí...',
+    inspectorFeatures: 'El Inspector analiza tu código y proporciona:',
+    optimizationSuggestions: 'Sugerencias de optimización',
+    potentialIssueWarnings: 'Advertencias sobre problemas potenciales',
+    algorithmExplanations: 'Explicaciones de algoritmos',
+    bestPracticesTips: 'Consejos de mejores prácticas',
+    analysisComplete: 'Análisis Completo',
+    noSuggestions: '¡No se encontraron sugerencias. El código se ve bien!',
+    profilerComplete: 'Profiler Completo',
+    profilerError: 'Error del Profiler',
+    average: 'Promedio',
+    min: 'Mín',
+    max: 'Máx',
+    profiler: 'Profiler',
+    executions: 'ejecuciones',
+    runProfiler: 'Ejecutar Profiler',
+
+    // Pricing & Pro pages
+    pricingPlansTitle: 'Planes de Suscripción',
+    pricingPlansSubtitle: 'Elige el plan perfecto para tu aprendizaje de programación',
+    manageSubscription: 'Administrar suscripción',
+    viewPricing: 'Ver Precios',
+    proLearningTitle: 'Herramientas Pro de Aprendizaje',
+    proLearningSubtitle: 'Depurador avanzado, inspector de código y ejercicios profesionales.',
+    premiumBadge: 'Funciones Premium',
+    premiumHeadline: 'Herramientas Profesionales para Desarrolladores',
+    premiumDescription: 'Desbloquea un conjunto completo de herramientas avanzadas de depuración, análisis de rendimiento y visualización en tiempo real.',
+    proTracksBadge: 'Ejercicios Pro (de básico a avanzado)',
+    proTracksSubtitle: 'Rutas progresivas con desafíos exclusivos.',
+    proChallengesBadge: 'Desafíos Pro - Algoritmos Avanzados',
+    proChallengesSubtitle: 'Ejercicios con soluciones completas y depurador integrado',
+    proMiniDemosSubtitle: 'Vista rápida de los laboratorios Pro.',
+    billingTitle: 'Facturas y método de pago',
+    billingDescription: 'Gestiona facturas, actualiza tarjeta y exporta recibos directamente en el portal seguro.',
+    openBillingPortal: 'Abrir portal de facturación',
+    downloadReceipts: '¿Dónde descargo los recibos?',
+    proRoadmap1Title: 'Profiler con timeline y flamegraph',
+    proRoadmap1Eta: 'Jan/2026',
+    proRoadmap1Status: 'En progreso',
+    proRoadmap2Title: 'Breakpoints condicionales con watch de variables',
+    proRoadmap2Eta: 'Jan/2026',
+    proRoadmap2Status: 'En progreso',
+    proRoadmap3Title: 'Inspector para objetos grandes + export JSON',
+    proRoadmap3Eta: 'Feb/2026',
+    proRoadmap3Status: 'Planificado',
+    proBenefit1: 'Ejecuciones ilimitadas en el depurador',
+    proBenefit2: 'Pistas y soluciones desbloqueadas en ejercicios',
+    proBenefit3: 'Soporte prioritario y roadmap con votos',
+    proBenefit4: 'Actualizaciones Pro entregadas continuamente',
+    proTrackBeginnerTitle: 'Principiante',
+    proTrackBeginner1: 'Hello World con entrada de usuario',
+    proTrackBeginner2: 'Variables, tipos y console.log',
+    proTrackBeginner3: 'Condicionales básicas (if/else)',
+    proTrackBeginner4: 'Bucles sobre arrays pequeños',
+    proTrackBeginner5: 'Funciones puras y parámetros',
+    proTrackBeginner6: 'Depuración paso a paso simple',
+    proTrackIntermediateTitle: 'Intermedio',
+    proTrackIntermediate1: 'Arrays + map/filter/reduce',
+    proTrackIntermediate2: 'Manipulación de objetos y JSON',
+    proTrackIntermediate3: 'Módulos y organización de código',
+    proTrackIntermediate4: 'Tests rápidos con asserts',
+    proTrackIntermediate5: 'Promises y async/await',
+    proTrackIntermediate6: 'Profiler: medir 3 implementaciones',
+    proTrackAdvancedTitle: 'Avanzado',
+    proTrackAdvanced1: 'Estructuras de datos (pila/cola)',
+    proTrackAdvanced2: 'Búsqueda y ordenación optimizadas',
+    proTrackAdvanced3: 'APIs con retry y backoff',
+    proTrackAdvanced4: 'Caching e invalidación',
+    proTrackAdvanced5: 'Depurar condiciones de carrera async',
+    proTrackAdvanced6: 'Microservicio falso end-to-end',
+    proFeatureDebuggerTitle: 'Pro Debugger',
+    proFeatureDebuggerDesc: 'Depurador visual avanzado con breakpoints, watch variables y stack traces detallados',
+    proFeatureDebuggerB1: 'Ejecución paso a paso',
+    proFeatureDebuggerB2: 'Inspección de variables',
+    proFeatureAnalyzerTitle: 'Performance Analyzer',
+    proFeatureAnalyzerDesc: 'Analiza tiempo de ejecución, uso de memoria y optimiza tu código',
+    proFeatureAnalyzerB1: 'Timeline de ejecución',
+    proFeatureAnalyzerB2: 'Uso de memoria',
+    proFeatureStructuresTitle: 'Visualización de Estructuras',
+    proFeatureStructuresDesc: 'Ve arrays y objetos en tiempo real con un diagrama interactivo',
+    proFeatureStructuresB1: 'Estructuras complejas',
+    proFeatureStructuresB2: 'Gráficos interactivos',
+    proFeatureAiTitle: 'IA Assistant',
+    proFeatureAiDesc: 'Sugerencias automáticas de optimización y explicaciones de errores',
+    proFeatureAiB1: 'Análisis automático',
+    proFeatureAiB2: 'Sugerencias en tiempo real',
+    proFeatureSnapshotsTitle: 'Snapshots de Ejecución',
+    proFeatureSnapshotsDesc: 'Captura y comparte estados de ejecución completos',
+    proFeatureSnapshotsB1: 'Captura y replay',
+    proFeatureSnapshotsB2: 'Compartir',
+    proFeatureDbTitle: 'Database Inspector',
+    proFeatureDbDesc: 'Inspecciona queries, visualiza índices y optimiza performance',
+    proFeatureDbB1: 'Análisis de queries',
+    proFeatureDbB2: 'Optimizaciones',
+    proMiniDemosBadge: 'Mini demos',
+    proMiniDemosNote: 'Disponible en Pro Labs (demo en vivo abajo).',
+    proInspectorAnalyze: 'Analizar',
+    proInspectorPlaceholder: 'Pega JSON y haz clic en Analizar.',
+    proInspectorInvalidJson: 'JSON inválido',
+    proDebuggerLoading: 'Cargando debugger...',
+    proDebuggerRequiresBadge: 'Requiere plan Pro',
+    proDebuggerRequiresText: 'Suscríbete a Pro para acceder al debugger en tiempo real.',
+    proPlaygroundTitle: 'Playground VIP',
+    proPlaygroundSubtitle: 'Prueba fragmentos, bosqueja soluciones y toma notas sin tocar el código principal.',
+    proPlaygroundIdea1: 'Calienta con un kata de 5–10 minutos',
+    proPlaygroundIdea2: 'Diseña estructuras de datos antes de codificar',
+    proPlaygroundIdea3: 'Pega logs y anota hallazgos',
+    proPlaygroundCopy: 'Copiar bloc de notas',
+    proPlaygroundCopied: 'Bloc copiado',
+    proPlaygroundCopyFailed: 'No se pudo copiar el bloc',
+    proPlaygroundClear: 'Limpiar bloc',
+    proPlaygroundPlaceholder: 'Notas rápidas, pseudo-código, checklists o snippets de prueba van aquí...',
+    vipSignupTitle: 'Crear cuenta VIP (Pro)',
+    vipSignupDesc: 'Primero verificamos tu email. Luego completas el pago con Stripe.',
+    firstName: 'Nombre',
+    lastName: 'Apellido',
+    country: 'País',
+    dateOfBirth: 'Fecha de nacimiento',
+    vipContinueToEmail: 'Continuar a confirmación de email',
+    vipCodeSent: 'Código enviado',
+    vipCheckEmail: 'Revisa tu email y escribe el código para continuar.',
+    codeSentTo: 'Código enviado a',
+    back: 'Atrás',
+    vipProceedToPayment: 'Continuar al pago',
   },
   
   'zh': {
@@ -705,6 +1285,7 @@ export const translations: Record<Language, Translations> = {
     home: '首页',
     learn: '学习',
     pro: 'Pro',
+    pricing: '定价',
     
     // Hero section
     heroTitle1: '观看你的代码',
@@ -867,6 +1448,150 @@ export const translations: Record<Language, Translations> = {
     emailHint: '使用你的邮箱地址',
     passwordHint: '10+ 字符，混合字母和数字',
     securityNote: '你的数据已加密。我们从不共享你的信息。',
+
+    // Pro features (English fallback)
+    proRequired: 'Pro Required',
+    aiInspectorLimit: "You've used your free analysis. Upgrade to Pro for unlimited access.",
+    aiInspectorLimitReached: "You've used your free analysis. Upgrade to Pro for unlimited AI-powered code analysis.",
+    profilerLimit: "You've used your free profiler run. Upgrade to Pro for unlimited access.",
+    profilerLocked: 'Profiler Locked',
+    freeAnalysesUsed: 'free analyses used',
+    freeRunsUsed: 'free runs used',
+    freeLeft: 'free left',
+    upgradeToPro: 'Upgrade to Pro',
+    proFeature: 'Pro Feature',
+    variableInspectorPro: 'Variable Inspector is available for Pro users only.',
+    aiCodeInspector: 'AI Code Inspector',
+    intelligentAnalysis: 'Intelligent Analysis',
+    aiCodeInspectorTitle: 'AI Code Inspector',
+    aiCodeInspectorDesc: 'Automatic analysis with optimization suggestions, warnings, and algorithm explanations.',
+    yourCode: 'Your Code',
+    analyzing: 'Analyzing...',
+    analyze: 'Analyze',
+    pasteCodeHere: 'Paste your Python code here...',
+    inspectorFeatures: 'The Inspector analyzes your code and provides:',
+    optimizationSuggestions: 'Optimization suggestions',
+    potentialIssueWarnings: 'Warnings about potential issues',
+    algorithmExplanations: 'Algorithm explanations',
+    bestPracticesTips: 'Best practices tips',
+    analysisComplete: 'Analysis Complete',
+    noSuggestions: 'No suggestions found. Code looks good!',
+    profilerComplete: 'Profiler Complete',
+    profilerError: 'Profiler Error',
+    average: 'Average',
+    min: 'Min',
+    max: 'Max',
+    profiler: 'Profiler',
+    executions: 'executions',
+    runProfiler: 'Run Profiler',
+
+    // Pricing & Pro pages
+    pricingPlansTitle: '订阅计划',
+    pricingPlansSubtitle: '为你的编程之旅选择完美计划',
+    manageSubscription: '管理订阅',
+    viewPricing: '查看定价',
+    proLearningTitle: 'Pro 学习工具',
+    proLearningSubtitle: '高级调试器、代码检查器和专业练习。',
+    premiumBadge: '高级功能',
+    premiumHeadline: '面向开发者的专业工具',
+    premiumDescription: '解锁完整的高级调试、性能分析和实时可视化工具套件。',
+    proTracksBadge: 'Pro 练习（从基础到高级）',
+    proTracksSubtitle: '循序渐进的独家挑战路线。',
+    proChallengesBadge: 'Pro 挑战 - 高级算法',
+    proChallengesSubtitle: '带完整解答与集成调试器的练习',
+    proMiniDemosSubtitle: 'Pro 实验室的快速预览。',
+    billingTitle: '账单和支付方式',
+    billingDescription: '在安全门户中管理账单、更新卡片并导出收据。',
+    openBillingPortal: '打开账单门户',
+    downloadReceipts: '在哪里下载收据？',
+    proRoadmap1Title: '带时间线和火焰图的 Profiler',
+    proRoadmap1Eta: 'Jan/2026',
+    proRoadmap1Status: '开发中',
+    proRoadmap2Title: '条件断点与变量监视',
+    proRoadmap2Eta: 'Jan/2026',
+    proRoadmap2Status: '开发中',
+    proRoadmap3Title: '大对象检查器 + JSON 导出',
+    proRoadmap3Eta: 'Feb/2026',
+    proRoadmap3Status: '计划中',
+    proBenefit1: '无限次调试器运行',
+    proBenefit2: '练习中的提示和解锁的解决方案',
+    proBenefit3: '优先支持和可投票路线图',
+    proBenefit4: '持续交付的 Pro 更新',
+    proTrackBeginnerTitle: '初级',
+    proTrackBeginner1: '包含用户输入的 Hello World',
+    proTrackBeginner2: '变量、类型与 console.log',
+    proTrackBeginner3: '基础条件语句 (if/else)',
+    proTrackBeginner4: '遍历小型数组的循环',
+    proTrackBeginner5: '纯函数与参数',
+    proTrackBeginner6: '简单的逐步调试',
+    proTrackIntermediateTitle: '中级',
+    proTrackIntermediate1: '数组 + map/filter/reduce',
+    proTrackIntermediate2: '对象与 JSON 操作',
+    proTrackIntermediate3: '模块化与代码组织',
+    proTrackIntermediate4: '使用 asserts 的快速测试',
+    proTrackIntermediate5: 'Promises 与 async/await',
+    proTrackIntermediate6: 'Profiler：测量 3 个实现',
+    proTrackAdvancedTitle: '高级',
+    proTrackAdvanced1: '数据结构（栈/队列）',
+    proTrackAdvanced2: '优化的搜索与排序',
+    proTrackAdvanced3: '带重试与退避的 API',
+    proTrackAdvanced4: '缓存与失效',
+    proTrackAdvanced5: '调试异步竞态条件',
+    proTrackAdvanced6: '端到端的假微服务',
+    proFeatureDebuggerTitle: 'Pro 调试器',
+    proFeatureDebuggerDesc: '高级可视化调试器，含断点、变量监视和详细堆栈跟踪',
+    proFeatureDebuggerB1: '逐步执行',
+    proFeatureDebuggerB2: '变量检查',
+    proFeatureAnalyzerTitle: '性能分析器',
+    proFeatureAnalyzerDesc: '分析运行时间、内存使用并优化代码',
+    proFeatureAnalyzerB1: '执行时间线',
+    proFeatureAnalyzerB2: '内存使用',
+    proFeatureStructuresTitle: '结构可视化',
+    proFeatureStructuresDesc: '通过交互式图表实时查看数组和对象',
+    proFeatureStructuresB1: '复杂结构',
+    proFeatureStructuresB2: '交互式图形',
+    proFeatureAiTitle: 'AI 助手',
+    proFeatureAiDesc: '自动优化建议和错误解释',
+    proFeatureAiB1: '自动分析',
+    proFeatureAiB2: '实时建议',
+    proFeatureSnapshotsTitle: '执行快照',
+    proFeatureSnapshotsDesc: '捕获并分享完整的执行状态',
+    proFeatureSnapshotsB1: '捕获与回放',
+    proFeatureSnapshotsB2: '共享',
+    proFeatureDbTitle: '数据库检查器',
+    proFeatureDbDesc: '检查查询、查看索引并优化性能',
+    proFeatureDbB1: '查询分析',
+    proFeatureDbB2: '优化',
+    proMiniDemosBadge: '迷你演示',
+    proMiniDemosNote: '在 Pro Labs 可用（下面有实时演示）。',
+    proInspectorAnalyze: '分析',
+    proInspectorPlaceholder: '粘贴 JSON 并点击分析。',
+    proInspectorInvalidJson: '无效的 JSON',
+    proDebuggerLoading: '正在加载调试器...',
+    proDebuggerRequiresBadge: '需要 Pro 计划',
+    proDebuggerRequiresText: '订阅 Pro 以访问完整的实时调试器。',
+    proPlaygroundTitle: 'VIP 游乐场',
+    proPlaygroundSubtitle: '在不触碰主代码的情况下测试片段、草拟方案并记录笔记。',
+    proPlaygroundIdea1: '用 5–10 分钟的 kata 热身',
+    proPlaygroundIdea2: '编码前先设计数据结构',
+    proPlaygroundIdea3: '粘贴日志并写下发现',
+    proPlaygroundCopy: '复制草稿',
+    proPlaygroundCopied: '草稿已复制',
+    proPlaygroundCopyFailed: '无法复制草稿',
+    proPlaygroundClear: '清空草稿',
+    proPlaygroundPlaceholder: '在这里写快速笔记、伪代码、检查清单或测试片段...',
+    vipSignupTitle: '创建 VIP 账户（Pro）',
+    vipSignupDesc: '首先验证您的电子邮件，然后通过 Stripe 完成付款。',
+    firstName: '名',
+    lastName: '姓',
+    country: '国家',
+    dateOfBirth: '出生日期',
+    vipContinueToEmail: '继续进行电子邮件确认',
+    vipCodeSent: '验证码已发送',
+    vipCheckEmail: '查看您的电子邮件并输入代码以继续。',
+    codeSentTo: '代码已发送至',
+    back: '返回',
+    vipProceedToPayment: '继续付款',
   },
   
   'hi': {
@@ -877,6 +1602,7 @@ export const translations: Record<Language, Translations> = {
     home: 'मुख्य',
     learn: 'सीखें',
     pro: 'Pro',
+    pricing: 'कीमतें',
     
     // Hero section
     heroTitle1: 'अपने कोड को',
@@ -1041,6 +1767,150 @@ export const translations: Record<Language, Translations> = {
     emailHint: 'अपना ईमेल पता उपयोग करें',
     passwordHint: '10+ वर्ण, अक्षरों और संख्याओं का मिश्रण',
     securityNote: 'आपका डेटा एन्क्रिप्ट किया गया है। हम कभी भी आपकी जानकारी साझा नहीं करते।',
+
+    // Pro features (English fallback)
+    proRequired: 'Pro Required',
+    aiInspectorLimit: "You've used your free analysis. Upgrade to Pro for unlimited access.",
+    aiInspectorLimitReached: "You've used your free analysis. Upgrade to Pro for unlimited AI-powered code analysis.",
+    profilerLimit: "You've used your free profiler run. Upgrade to Pro for unlimited access.",
+    profilerLocked: 'Profiler Locked',
+    freeAnalysesUsed: 'free analyses used',
+    freeRunsUsed: 'free runs used',
+    freeLeft: 'free left',
+    upgradeToPro: 'Upgrade to Pro',
+    proFeature: 'Pro Feature',
+    variableInspectorPro: 'Variable Inspector is available for Pro users only.',
+    aiCodeInspector: 'AI Code Inspector',
+    intelligentAnalysis: 'Intelligent Analysis',
+    aiCodeInspectorTitle: 'AI Code Inspector',
+    aiCodeInspectorDesc: 'Automatic analysis with optimization suggestions, warnings, and algorithm explanations.',
+    yourCode: 'Your Code',
+    analyzing: 'Analyzing...',
+    analyze: 'Analyze',
+    pasteCodeHere: 'Paste your Python code here...',
+    inspectorFeatures: 'The Inspector analyzes your code and provides:',
+    optimizationSuggestions: 'Optimization suggestions',
+    potentialIssueWarnings: 'Warnings about potential issues',
+    algorithmExplanations: 'Algorithm explanations',
+    bestPracticesTips: 'Best practices tips',
+    analysisComplete: 'Analysis Complete',
+    noSuggestions: 'No suggestions found. Code looks good!',
+    profilerComplete: 'Profiler Complete',
+    profilerError: 'Profiler Error',
+    average: 'Average',
+    min: 'Min',
+    max: 'Max',
+    profiler: 'Profiler',
+    executions: 'executions',
+    runProfiler: 'Run Profiler',
+
+    // Pricing & Pro pages
+    pricingPlansTitle: 'सदस्यता योजनाएँ',
+    pricingPlansSubtitle: 'अपनी प्रोग्रामिंग यात्रा के लिए सही योजना चुनें',
+    manageSubscription: 'सदस्यता प्रबंधित करें',
+    viewPricing: 'कीमतें देखें',
+    proLearningTitle: 'Pro सीखने के उपकरण',
+    proLearningSubtitle: 'एडवांस्ड डिबगर, कोड इंस्पेक्टर और प्रो अभ्यास।',
+    premiumBadge: 'प्रीमियम फीचर्स',
+    premiumHeadline: 'डेवलपर्स के लिए प्रो उपकरण',
+    premiumDescription: 'उन्नत डिबगिंग, परफॉर्मेंस एनालिसिस और रियल-टाइम विज़ुअलाइज़ेशन का पूरा सेट अनलॉक करें।',
+    proTracksBadge: 'Pro अभ्यास (बेसिक से एडवांस्ड)',
+    proTracksSubtitle: 'क्रमिक ट्रैक्स जिनमें विशेष चुनौतियाँ हैं।',
+    proChallengesBadge: 'Pro चुनौतियाँ - उन्नत एल्गोरिदम',
+    proChallengesSubtitle: 'पूर्ण समाधानों और इंटीग्रेटेड डिबगर वाले अभ्यास',
+    proMiniDemosSubtitle: 'Pro लैब्स का त्वरित पूर्वावलोकन।',
+    billingTitle: 'बिलिंग और भुगतान विधि',
+    billingDescription: 'सुरक्षित पोर्टल में बिलिंग, कार्ड अपडेट, और रसीदें एक्सपोर्ट करें।',
+    openBillingPortal: 'बिलिंग पोर्टल खोलें',
+    downloadReceipts: 'रसीदें कहाँ डाउनलोड करूँ?',
+    proRoadmap1Title: 'टाइमलाइन और फ्लेमग्राफ वाला प्रोफाइलर',
+    proRoadmap1Eta: 'Jan/2026',
+    proRoadmap1Status: 'प्रगति पर',
+    proRoadmap2Title: 'कंडीशनल ब्रेकपॉइंट्स और वैरिएबल वॉच',
+    proRoadmap2Eta: 'Jan/2026',
+    proRoadmap2Status: 'प्रगति पर',
+    proRoadmap3Title: 'बड़े ऑब्जेक्ट्स इंस्पेक्टर + JSON एक्सपोर्ट',
+    proRoadmap3Eta: 'Feb/2026',
+    proRoadmap3Status: 'योजनाबद्ध',
+    proBenefit1: 'अनलिमिटेड डिबगर रन',
+    proBenefit2: 'अभ्यासों में संकेत और समाधान अनलॉक्ड',
+    proBenefit3: 'प्राथमिकता सपोर्ट और वोटेबल रोडमैप',
+    proBenefit4: 'सतत Pro अपडेट्स',
+    proTrackBeginnerTitle: 'बिगिनर',
+    proTrackBeginner1: 'यूजर इनपुट के साथ Hello World',
+    proTrackBeginner2: 'वैरिएबल्स, प्रकार, और console.log',
+    proTrackBeginner3: 'बेसिक कंडीशनल्स (if/else)',
+    proTrackBeginner4: 'छोटे ऐरे पर लूप्स',
+    proTrackBeginner5: 'प्योर फंक्शन्स और पैरामीटर्स',
+    proTrackBeginner6: 'सरल स्टेप-बाय-स्टेप डिबगिंग',
+    proTrackIntermediateTitle: 'इंटरमीडिएट',
+    proTrackIntermediate1: 'ऐरे + map/filter/reduce',
+    proTrackIntermediate2: 'ऑब्जेक्ट और JSON मैनिपुलेशन',
+    proTrackIntermediate3: 'मॉड्यूल्स और कोड संगठन',
+    proTrackIntermediate4: 'असर्ट्स के साथ त्वरित परीक्षण',
+    proTrackIntermediate5: 'Promises और async/await',
+    proTrackIntermediate6: 'Profiler: 3 इम्प्लीमेंटेशन्स मापें',
+    proTrackAdvancedTitle: 'एडवांस्ड',
+    proTrackAdvanced1: 'डेटा स्ट्रक्चर (स्टैक/क्यू)',
+    proTrackAdvanced2: 'ऑप्टिमाइज़्ड सर्च और सॉर्टिंग',
+    proTrackAdvanced3: 'रीट्राय और बैकऑफ वाली APIs',
+    proTrackAdvanced4: 'कैशिंग और इनवैलिडेशन',
+    proTrackAdvanced5: 'असिंक्रोनस रेस कंडीशन डिबग करना',
+    proTrackAdvanced6: 'फेक माइक्रोसर्विस एंड-टू-एंड',
+    proFeatureDebuggerTitle: 'Pro Debugger',
+    proFeatureDebuggerDesc: 'एडवांस्ड विजुअल डिबगर: ब्रेकपॉइंट्स, वॉच वैरिएबल्स, और विस्तृत स्टैक ट्रेसेस',
+    proFeatureDebuggerB1: 'स्टेप-बाय-स्टेप निष्पादन',
+    proFeatureDebuggerB2: 'वैरिएबल इंस्पेक्शन',
+    proFeatureAnalyzerTitle: 'Performance Analyzer',
+    proFeatureAnalyzerDesc: 'रनटाइम, मेमोरी उपयोग विश्लेषित करें और कोड ऑप्टिमाइज़ करें',
+    proFeatureAnalyzerB1: 'निष्पादन टाइमलाइन',
+    proFeatureAnalyzerB2: 'मेमोरी उपयोग',
+    proFeatureStructuresTitle: 'स्ट्रक्चर विज़ुअलाइज़ेशन',
+    proFeatureStructuresDesc: 'इंटरएक्टिव डायग्राम के साथ रियल-टाइम में ऐरे और ऑब्जेक्ट देखें',
+    proFeatureStructuresB1: 'जटिल स्ट्रक्चर',
+    proFeatureStructuresB2: 'इंटरएक्टिव ग्राफ़्स',
+    proFeatureAiTitle: 'AI Assistant',
+    proFeatureAiDesc: 'स्वचालित ऑप्टिमाइजेशन सुझाव और त्रुटि व्याख्याएँ',
+    proFeatureAiB1: 'स्वचालित विश्लेषण',
+    proFeatureAiB2: 'रियल-टाइम सुझाव',
+    proFeatureSnapshotsTitle: 'Execution Snapshots',
+    proFeatureSnapshotsDesc: 'पूर्ण निष्पादन स्थितियों को कैप्चर और साझा करें',
+    proFeatureSnapshotsB1: 'कैप्चर और रिप्ले',
+    proFeatureSnapshotsB2: 'साझा करना',
+    proFeatureDbTitle: 'Database Inspector',
+    proFeatureDbDesc: 'क्वेरी जांचें, इंडेक्स देखें और प्रदर्शन ऑप्टिमाइज़ करें',
+    proFeatureDbB1: 'क्वेरी विश्लेषण',
+    proFeatureDbB2: 'ऑप्टिमाइजेशन',
+    proMiniDemosBadge: 'Mini demos',
+    proMiniDemosNote: 'Pro Labs में उपलब्ध (नीचे लाइव डेमो)।',
+    proInspectorAnalyze: 'विश्लेषण करें',
+    proInspectorPlaceholder: 'JSON पेस्ट करें और विश्लेषण पर क्लिक करें।',
+    proInspectorInvalidJson: 'अमान्य JSON',
+    proDebuggerLoading: 'डिबगर लोड हो रहा है...',
+    proDebuggerRequiresBadge: 'Pro योजना आवश्यक',
+    proDebuggerRequiresText: 'पूर्ण रियल-टाइम डिबगर तक पहुँचने के लिए Pro सब्सक्राइब करें।',
+    proPlaygroundTitle: 'VIP Playground',
+    proPlaygroundSubtitle: 'मुख्य कोड छुए बिना स्निपेट्स टेस्ट करें, समाधान रेखाचित्र बनाएं और नोट्स लें।',
+    proPlaygroundIdea1: '5–10 मिनट का काता करके वार्म-अप करें',
+    proPlaygroundIdea2: 'कोडिंग से पहले डेटा स्ट्रक्चर डिज़ाइन करें',
+    proPlaygroundIdea3: 'लॉग्स पेस्ट करें और निष्कर्ष लिखें',
+    proPlaygroundCopy: 'स्क्रैचपैड कॉपी करें',
+    proPlaygroundCopied: 'स्क्रैचपैड कॉपी हुआ',
+    proPlaygroundCopyFailed: 'स्क्रैचपैड कॉपी नहीं हो सका',
+    proPlaygroundClear: 'स्क्रैचपैड साफ़ करें',
+    proPlaygroundPlaceholder: 'यहाँ त्वरित नोट्स, छद्म-कोड, चेकलिस्ट या टेस्ट स्निपेट लिखें...',
+    vipSignupTitle: 'VIP खाता बनाएं (Pro)',
+    vipSignupDesc: 'पहले हम आपका ईमेल सत्यापित करेंगे। फिर आप Stripe के साथ भुगतान पूरा करेंगे।',
+    firstName: 'नाम',
+    lastName: 'उपनाम',
+    country: 'देश',
+    dateOfBirth: 'जन्म तिथि',
+    vipContinueToEmail: 'ईमेल पुष्टि के लिए आगे बढ़ें',
+    vipCodeSent: 'कोड भेजा गया',
+    vipCheckEmail: 'अपना ईमेल जांचें और जारी रखने के लिए कोड दर्ज करें।',
+    codeSentTo: 'कोड भेजा गया',
+    back: 'वापस',
+    vipProceedToPayment: 'भुगतान के लिए आगे बढ़ें',
   },
 };
 

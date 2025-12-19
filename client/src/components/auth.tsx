@@ -59,6 +59,7 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [proToken, setProToken] = useState('');
   
   // Form 2: Profile data
   const [firstName, setFirstName] = useState('');
@@ -74,6 +75,7 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePassword = (password: string) => password.length >= 10 && /[a-zA-Z]/.test(password) && /[0-9]/.test(password);
@@ -100,6 +102,11 @@ export default function Auth() {
       setOpen(false);
       setEmail('');
       setPassword('');
+      
+      // Gentle page refresh after Pro login to update UI
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {
@@ -143,6 +150,12 @@ export default function Auth() {
         return;
       }
 
+      if (!proToken.trim()) {
+        setError('Cadastro disponível só para clientes Pro. Gere o pagamento e insira o código Pro.');
+        setIsLoading(false);
+        return;
+      }
+
       if (!validatePassword(password)) {
         setError(t.passwordRequired || 'Password must be 10+ chars with letters and numbers');
         setIsLoading(false);
@@ -160,6 +173,7 @@ export default function Auth() {
           dateOfBirth: new Date(dateOfBirth).toISOString(),
           country,
           password,
+          proToken,
         }),
       });
 
@@ -212,6 +226,7 @@ export default function Auth() {
           dateOfBirth: new Date(dateOfBirth).toISOString(),
           country,
           password,
+          proToken,
         }),
       });
 
@@ -227,6 +242,7 @@ export default function Auth() {
       setOpen(false);
       setEmail('');
       setPassword('');
+      setProToken('');
       setFirstName('');
       setLastName('');
       setDateOfBirth('');
@@ -339,12 +355,39 @@ export default function Auth() {
       setEmail('');
       setPassword('');
       setNewPassword('');
+      setProToken('');
       setVerificationCode('');
       setStep('login');
     } catch (err: any) {
       setError(err.message || 'Password reset failed');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const startProCheckout = async () => {
+    setError(null);
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch('/api/pro/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: 'monthly', currency: 'BRL', email: email || undefined }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.url) {
+          window.location.href = data.url;
+          return;
+        }
+      }
+
+      setError('Não foi possível abrir o pagamento Pro. Tente novamente.');
+    } catch (err: any) {
+      setError('Falha ao iniciar o pagamento Pro.');
+    } finally {
+      setCheckoutLoading(false);
     }
   };
 
@@ -484,6 +527,19 @@ export default function Auth() {
             ) : step === 'signup-form' ? (
               // SIGNUP FORM
               <form onSubmit={handleSendVerificationCode} className="space-y-3 mt-6 max-h-[70vh] overflow-y-auto">
+                <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-100 text-xs leading-relaxed">
+                  Cadastro disponível <strong>só para clientes Pro</strong>. Clique em "Pagar Pro" para gerar o código Pro e cole abaixo para criar a conta.
+                </div>
+
+                <Button
+                  type="button"
+                  onClick={startProCheckout}
+                  disabled={checkoutLoading || isLoading}
+                  className="w-full bg-gradient-to-r from-amber-400 to-amber-600 text-black font-semibold"
+                >
+                  {checkoutLoading ? 'Abrindo checkout...' : 'Pagar Pro e gerar código'}
+                </Button>
+
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-slate-200 block">
                     Email
@@ -547,6 +603,19 @@ export default function Auth() {
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-200 block">Código Pro (obtido após o pagamento)</label>
+                  <input
+                    type="text"
+                    value={proToken}
+                    onChange={(e) => setProToken(e.target.value)}
+                    placeholder="Cole aqui o código Pro"
+                    className="w-full px-3 py-2 bg-slate-900 border border-amber-500/50 rounded text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/60 text-sm"
+                    disabled={isLoading}
+                  />
+                  <p className="text-[11px] text-amber-200/80">Só criamos contas com um código Pro válido.</p>
                 </div>
 
                 <div className="space-y-1">

@@ -15,7 +15,7 @@ const client = postgres(finalUrl, {
   connect_timeout: 10,
   idle_timeout: 30,
   max_lifetime: 60 * 30,
-  max_pool_size: 20,
+  max: 20,
 });
 
 // Create drizzle instance

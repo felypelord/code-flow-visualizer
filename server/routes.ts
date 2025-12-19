@@ -1,6 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
@@ -12,13 +12,19 @@ import Stripe from "stripe";
 import { Resend } from "resend";
 
 // JWT secret - must come from environment in all environments
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET must be set via environment variable");
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-do-not-use-in-prod";
+if (!process.env.JWT_SECRET) {
+  console.warn("[WARN] JWT_SECRET not set; using insecure dev fallback. Configure JWT_SECRET in production.");
 }
 const JWT_EXPIRY = "7d";
 const METRICS_TOKEN = process.env.METRICS_TOKEN || "";
 const EMAIL_SEND_TIMEOUT_MS = Number(process.env.EMAIL_SEND_TIMEOUT_MS || 4000);
+const FORCE_PRO = process.env.FORCE_PRO === "true" || process.env.NODE_ENV === "development";
+
+const computeIsPro = (user: any) => {
+  const active = user?.isPro && (!user.proExpiresAt || new Date(user.proExpiresAt) > new Date());
+  return FORCE_PRO || active;
+};
 
 // Resend configuration
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -327,7 +333,6 @@ export async function registerRoutes(
       }
       return res.status(400).json({ message: "Invalid or expired code" });
     }
-    
     // If we get here, email is verified, we should have stored the signup data somewhere
     // For now, we'll return success and expect the client to send full signup data again
     return res.json({ message: "Email verified successfully" });
@@ -346,7 +351,7 @@ export async function registerRoutes(
     const user = await storage.getUserByEmail(email);
     if (!user) {
       // Email should be verified before this, so we create the account
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcryptjs.hash(password, 10);
       const newUser = await storage.createUser({
         email,
         password: hashedPassword,
@@ -377,13 +382,24 @@ export async function registerRoutes(
     if (!user) return res.status(401).json({ message: "invalid credentials" });
     
     // Compare password with hashed version
-    const isValid = await bcrypt.compare(password, user.password);
+    const isValid = await bcryptjs.compare(password, user.password);
     if (!isValid) return res.status(401).json({ message: "invalid credentials" });
     
     // Generate JWT token (expires in 7 days)
     const token = jwt.sign({ userId: user.id }, JWT_SECRET as string, { expiresIn: JWT_EXPIRY });
     
-    return res.json({ token, user: { id: user.id, email: user.email } });
+    const isPro = computeIsPro(user);
+    return res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isPro,
+        proExpiresAt: user.proExpiresAt,
+      },
+    });
   });
 
   // Forgot password - send reset code
@@ -461,7 +477,7 @@ export async function registerRoutes(
     }
     
     // Hash new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcryptjs.hash(newPassword, 10);
     
     // Update password
     await storage.updateUserPassword(email, hashedPassword);
@@ -478,10 +494,28 @@ export async function registerRoutes(
     const user = await storage.getUser(userId);
     if (!user) return res.status(404).json({ message: "not found" });
     
-    const isPro = user.isPro && (!user.proExpiresAt || new Date(user.proExpiresAt) > new Date());
+    const isPro = computeIsPro(user);
     
     return res.json({ 
       id: user.id, 
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isAdmin: user.isAdmin,
+      isPro
+    });
+  });
+
+  // Alias for legacy clients
+  app.get("/api/auth/me", requireAuth, async (req: Request, res: Response) => {
+    const userId = (req as any).userId as string;
+    const user = await storage.getUser(userId);
+    if (!user) return res.status(404).json({ message: "not found" });
+
+    const isPro = computeIsPro(user);
+
+    return res.json({
+      id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,

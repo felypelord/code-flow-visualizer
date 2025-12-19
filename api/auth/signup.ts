@@ -119,10 +119,10 @@ export default async function (req: any, res: any) {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Create user
+      // Create user with Pro access (since they passed pro-gating)
       await client`
-        INSERT INTO users (email, password, first_name, last_name, date_of_birth, country, email_verified) 
-        VALUES (${email}, ${hashedPassword}, ${firstName}, ${lastName}, ${new Date(dateOfBirth)}, ${country}, false)
+        INSERT INTO users (email, password, first_name, last_name, date_of_birth, country, email_verified, is_pro) 
+        VALUES (${email}, ${hashedPassword}, ${firstName}, ${lastName}, ${new Date(dateOfBirth)}, ${country}, false, true)
       `;
 
       // If entitlement exists, mark as used
