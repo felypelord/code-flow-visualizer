@@ -28,6 +28,10 @@ const AICodeInspectorLazy = lazy(() =>
   import("@/components/visualizer/ai-code-inspector").then((m) => ({ default: m.AICodeInspector }))
 );
 
+const VIPPlaygroundLazy = lazy(() =>
+  import("@/components/visualizer/vip-playground").then((m) => ({ default: m.VIPPlayground }))
+);
+
 export default function ProPage() {
   const { user, refreshUser } = useUser();
   const { t } = useLanguage();
@@ -545,6 +549,21 @@ export default function ProPage() {
             }}
           />
         </div>
+
+        {/* VIP Playground - Advanced Execution */}
+        {user?.isPro && (
+          <div id="vip-playground" className="max-w-7xl mx-auto px-4 mb-16">
+            <Suspense
+              fallback={
+                <div className="text-center text-white/60 py-10">
+                  {t.loading || "Loading..."}
+                </div>
+              }
+            >
+              <VIPPlaygroundLazy />
+            </Suspense>
+          </div>
+        )}
 
         {/* IA Code Inspector - Full Feature */}
         <div id="ai-inspector" className="max-w-6xl mx-auto px-4 mb-16">
