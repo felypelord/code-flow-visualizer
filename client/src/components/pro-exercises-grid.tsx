@@ -54,7 +54,7 @@ export function ProExerciseCard({ exercise, onSelect, completed }: ProExerciseCa
     <Card
       className={`relative overflow-hidden transition-all duration-300 ${
         isPro
-          ? "cursor-pointer bg-slate-900/60 border-slate-700 hover:border-slate-500 hover:shadow"
+          ? "cursor-pointer bg-gradient-to-br from-amber-900/20 to-slate-900/60 border-amber-500/30 hover:border-amber-400/50 hover:shadow-[0_0_15px_rgba(251,191,36,0.15)]"
           : "opacity-75 cursor-pointer bg-slate-900/60 border-slate-800"
       }`}
       onClick={handleClick}
@@ -118,7 +118,7 @@ export function ProExerciseCard({ exercise, onSelect, completed }: ProExerciseCa
           <span
             className={`flex items-center gap-1 px-2 py-1 rounded-full ${
               isPro
-                ? "bg-blue-500/15 text-blue-300 border border-blue-400/30"
+                ? "bg-gradient-to-r from-amber-500/30 to-amber-600/30 text-amber-200 border border-amber-400/40 shadow-[0_0_8px_rgba(251,191,36,0.2)]"
                 : "bg-slate-700 text-slate-400 border border-slate-600"
             }`}
           >
@@ -151,7 +151,7 @@ export function ProExerciseCard({ exercise, onSelect, completed }: ProExerciseCa
           }}
           className={`w-full ${
             isPro
-              ? "bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+              ? "bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-semibold shadow-[0_0_15px_rgba(251,191,36,0.4)]"
               : "bg-slate-700 hover:bg-slate-600 text-slate-300"
           }`}
           size="sm"
@@ -196,7 +196,7 @@ export function ProExercisesGrid({
   return (
     <div className="space-y-6">
       {!user?.isPro && (
-        <Card className="p-6 bg-slate-900/60 border border-slate-700">
+        <Card className="p-6 bg-gradient-to-br from-amber-900/20 to-slate-900/60 border border-amber-500/30 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">

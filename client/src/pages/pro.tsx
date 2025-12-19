@@ -540,15 +540,15 @@ export default function ProPage() {
         {/* VIP Playground */}
         <div id="vip-playground" className="max-w-6xl mx-auto px-4 mb-14">
           <div className="grid lg:grid-cols-2 gap-6">
-            <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-6 shadow-sm text-white">
+            <div className="rounded-xl border border-amber-500/40 bg-gradient-to-br from-amber-950/50 via-slate-900/70 to-slate-950/80 p-6 shadow-[0_0_25px_rgba(251,191,36,0.2)] text-white">
               <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-200 text-xs font-semibold">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 border border-amber-400/40 text-amber-100 text-xs font-semibold shadow-[0_0_10px_rgba(251,191,36,0.3)]">
                   <Crown className="w-4 h-4" />
                   {t.proPlaygroundTitle}
                 </div>
-                <h3 className="text-2xl font-bold">{t.proPlaygroundTitle}</h3>
-                <p className="text-sm text-slate-200">{t.proPlaygroundSubtitle}</p>
-                <div className="space-y-2 text-sm text-slate-200">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-amber-200 to-amber-400 bg-clip-text text-transparent">{t.proPlaygroundTitle}</h3>
+                <p className="text-sm text-amber-100/90">{t.proPlaygroundSubtitle}</p>
+                <div className="space-y-2 text-sm text-amber-50/90">
                   <div className="flex items-start gap-2">
                     <Sparkles className="w-4 h-4 text-amber-300 mt-0.5" />
                     <span>{t.proPlaygroundIdea1}</span>
@@ -563,33 +563,33 @@ export default function ProPage() {
                   </div>
                 </div>
                 <div className="flex gap-3 pt-2">
-                  <Button variant="secondary" className="bg-white/10 text-white border border-slate-600" onClick={() => scrollToSection("pro-exercises")}>
+                  <Button variant="secondary" className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white border border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.4)] font-semibold" onClick={() => scrollToSection("pro-exercises")}>
                     {t.start}
                   </Button>
-                  <Button variant="outline" className="border-slate-600 text-slate-100" onClick={() => scrollToSection("pro-labs")}>
+                  <Button variant="outline" className="border-amber-500/60 text-amber-200 hover:bg-amber-500/10" onClick={() => scrollToSection("pro-labs")}>
                     {t.proMiniDemosBadge}
                   </Button>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-6 text-white space-y-3 shadow-sm">
+            <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-slate-900/60 p-6 text-white space-y-3 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Code2 className="w-5 h-5 text-amber-300" />
-                  <span className="font-semibold">{t.proPlaygroundTitle}</span>
+                  <Code2 className="w-5 h-5 text-amber-400" />
+                  <span className="font-semibold text-amber-100">{t.proPlaygroundTitle}</span>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="secondary" className="bg-amber-500/80 text-black font-semibold" onClick={copyScratchpad}>
+                  <Button size="sm" variant="secondary" className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold shadow-[0_0_10px_rgba(251,191,36,0.3)]" onClick={copyScratchpad}>
                     {t.proPlaygroundCopy}
                   </Button>
-                  <Button size="sm" variant="outline" className="border-slate-600 text-slate-100" onClick={clearScratchpad}>
+                  <Button size="sm" variant="outline" className="border-amber-500/50 text-amber-200 hover:bg-amber-500/10" onClick={clearScratchpad}>
                     {t.proPlaygroundClear}
                   </Button>
                 </div>
               </div>
               <textarea
-                className="w-full h-48 rounded-xl bg-slate-950/60 border border-slate-700 text-sm text-slate-100 p-3 font-mono"
+                className="w-full h-48 rounded-xl bg-slate-950/70 border border-amber-500/20 text-sm text-amber-50 p-3 font-mono focus:border-amber-400/40 focus:ring-2 focus:ring-amber-400/20"
                 value={scratchpad}
                 onChange={(e) => setScratchpad(e.target.value)}
                 placeholder={t.proPlaygroundPlaceholder}
@@ -725,21 +725,21 @@ export default function ProPage() {
 
         <div id="pro-labs" className="max-w-6xl mx-auto px-4 mb-16">
           <div className="flex items-center gap-2 mb-6">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-semibold">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 border border-amber-400/50 text-amber-200 text-xs font-semibold shadow-[0_0_10px_rgba(251,191,36,0.25)]">
               <Sparkles className="w-4 h-4" />
               {t.proMiniDemosBadge}
             </span>
-            <p className="text-sm text-gray-400">{t.proMiniDemosNote}</p>
+            <p className="text-sm text-amber-200/70">{t.proMiniDemosNote}</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-3 shadow-sm">
+            <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-slate-900/60 p-4 space-y-3 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
               <div className="flex items-center gap-2 text-white">
                 <BarChart3 className="w-5 h-5 text-amber-400" />
-                <h3 className="text-lg font-semibold">{t.codeProfiler}</h3>
+                <h3 className="text-lg font-semibold text-amber-100">{t.codeProfiler}</h3>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-amber-100">
-                <span className="px-2 py-1 rounded-full bg-amber-500/15 border border-amber-300/50">Como usar</span>
+                <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-400/40">Como usar</span>
                 <span className="text-amber-50/80">1) escolha um exemplo → 2) edite o codigo → 3) rode para ver execucao + timeline</span>
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
@@ -791,7 +791,7 @@ export default function ProPage() {
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button onClick={runProfiler} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
+                  <Button onClick={runProfiler} className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-semibold shadow-[0_0_15px_rgba(251,191,36,0.4)]">
                     {`${t.run} ${t.profiler} x${profilerConfig.runs}`}
                   </Button>
                   {profilerError && <span className="text-sm text-red-300">{profilerError}</span>}
@@ -816,10 +816,10 @@ export default function ProPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-3 shadow-sm">
+            <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-slate-900/60 p-4 space-y-3 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
               <div className="flex items-center gap-2 text-white">
                 <PauseCircle className="w-5 h-5 text-amber-400" />
-                <h3 className="text-lg font-semibold">{t.breakpointManager}</h3>
+                <h3 className="text-lg font-semibold text-amber-100">{t.breakpointManager}</h3>
               </div>
               <div className="space-y-2">
                 {breakpoints.map((bp) => (
@@ -850,13 +850,13 @@ export default function ProPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-3 shadow-sm">
+          <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-slate-900/60 p-4 space-y-3 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
             <div className="flex items-center gap-2 text-white">
               <Database className="w-5 h-5 text-amber-400" />
-              <h3 className="text-lg font-semibold">{t.variableInspector}</h3>
+              <h3 className="text-lg font-semibold text-amber-100">{t.variableInspector}</h3>
             </div>
             <div className="flex flex-wrap gap-2 text-xs text-amber-50 items-center">
-              <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">Guia visual</span>
+              <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-600/30 to-amber-700/30 border border-amber-400/50">Guia visual</span>
               <span className="text-amber-100/80">1) Pick exemplo → 2) Clique em chaves para abrir caminho → 3) Veja como stack referencia o heap</span>
             </div>
             <div className="flex flex-wrap gap-2 text-xs">
@@ -893,7 +893,7 @@ export default function ProPage() {
               placeholder={t.proInspectorPlaceholder}
             />
             <div className="flex items-center gap-2">
-              <Button onClick={parseInspector} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
+              <Button onClick={parseInspector} className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-semibold shadow-[0_0_15px_rgba(251,191,36,0.4)]">
                 {t.proInspectorAnalyze}
               </Button>
               {inspectorError && <span className="text-sm text-red-300">{inspectorError}</span>}

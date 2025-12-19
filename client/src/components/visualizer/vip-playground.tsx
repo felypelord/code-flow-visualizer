@@ -264,7 +264,7 @@ main();`);
   const currentFrame = execution.frames[execution.currentFrame];
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6 space-y-6 bg-slate-900/60 rounded-3xl border border-slate-700 shadow-sm">
+    <div className="w-full max-w-7xl mx-auto p-6 space-y-6 bg-gradient-to-br from-amber-950/40 via-slate-900/70 to-slate-950/80 rounded-3xl border border-amber-500/30 shadow-[0_0_30px_rgba(251,191,36,0.15)]">
       <div className="flex items-center justify-between">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-semibold mb-2">
@@ -341,7 +341,7 @@ main();`);
           <div className="mt-3 flex items-center gap-2">
             <Button
               onClick={executeWithFrames}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+              className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-semibold shadow-[0_0_15px_rgba(251,191,36,0.4)]"
             >
               <Play className="w-4 h-4 mr-2" />
               Execute & Capture
