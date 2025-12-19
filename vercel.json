@@ -2,6 +2,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
   "devCommand": "npm run dev:env",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
   "webhook": {
     "stripe": {
       "url": "https://codeflowbr.site/api/pro/webhook",

@@ -191,13 +191,15 @@ app.use((req, res, next) => {
     await setupVite(httpServer, app);
   }
 
-  const port = parseInt(process.env.PORT || "5000", 10);
-  const listenOptions: any = { port, host: "127.0.0.1" };
+  const basePort = parseInt(process.env.PORT || "5000", 10);
+  let currentPort = basePort;
+  const listenOptions: any = { port: basePort, host: "127.0.0.1" };
   if (process.platform !== "win32") {
     listenOptions.reusePort = true;
   }
 
   const tryListen = (p: number) => {
+    currentPort = p;
     httpServer.listen({ ...listenOptions, port: p }, () => {
       log(`serving on port ${p}`);
     });
@@ -205,8 +207,8 @@ app.use((req, res, next) => {
 
   httpServer.on('error', (err: any) => {
     if (err && err.code === 'EADDRINUSE') {
-      const nextPort = port + 1;
-      log(`port ${port} in use, trying ${nextPort}`);
+      const nextPort = currentPort + 1;
+      log(`port ${currentPort} in use, trying ${nextPort}`);
       tryListen(nextPort);
     } else {
       try {
@@ -220,7 +222,7 @@ app.use((req, res, next) => {
     }
   });
 
-  tryListen(port);
+  tryListen(basePort);
 })().catch(err => {
   console.error("[ASYNC IIFE ERROR]", err?.message || err);
   if (process.env.NODE_ENV === 'production') {
