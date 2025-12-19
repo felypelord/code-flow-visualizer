@@ -458,6 +458,16 @@ export interface Translations {
   backToStart: string;
   noFunctionFoundError: string;
   executionLimitReached: string;
+
+  // Guided paths UI
+  reset: string;
+  practice: string;
+  verify: string;
+  close: string;
+  taskLabel: string;
+  typeYourSolution: string;
+  correct: string;
+  tryAgain: string;
 }
 
 export const translations: Record<Language, Partial<Translations>> = {
@@ -919,6 +929,16 @@ export const translations: Record<Language, Partial<Translations>> = {
     backToStart: 'Back to start',
     noFunctionFoundError: 'No function found',
     executionLimitReached: 'Execution limit reached for Free plan. Upgrade to Pro for unlimited.',
+
+    // Guided paths UI
+    reset: 'Reset',
+    practice: 'Practice',
+    verify: 'Verify',
+    close: 'Close',
+    taskLabel: 'Task',
+    typeYourSolution: 'Type your solution here',
+    correct: 'Correct!',
+    tryAgain: 'Try again',
   },
   
   'pt-BR': {
@@ -1379,6 +1399,16 @@ export const translations: Record<Language, Partial<Translations>> = {
     backToStart: 'Voltar ao início',
     noFunctionFoundError: 'Nenhuma função encontrada',
     executionLimitReached: 'Limite de execuções atingido no plano Free. Faça upgrade para Pro.',
+
+    // Guided paths UI
+    reset: 'Resetar',
+    practice: 'Praticar',
+    verify: 'Verificar',
+    close: 'Fechar',
+    taskLabel: 'Tarefa',
+    typeYourSolution: 'Digite sua solução aqui',
+    correct: 'Correto!',
+    tryAgain: 'Tente novamente',
   },
   
   'es': {
@@ -1839,6 +1869,16 @@ export const translations: Record<Language, Partial<Translations>> = {
     backToStart: 'Volver al inicio',
     noFunctionFoundError: 'No se encontró función',
     executionLimitReached: 'Límite de ejecuciones alcanzado en el plan Free. Actualiza a Pro.',
+
+    // Guided paths UI
+    reset: 'Reiniciar',
+    practice: 'Practicar',
+    verify: 'Verificar',
+    close: 'Cerrar',
+    taskLabel: 'Tarea',
+    typeYourSolution: 'Escribe tu solución aquí',
+    correct: '¡Correcto!',
+    tryAgain: 'Intenta de nuevo',
   },
   
   'zh': {
@@ -2168,6 +2208,16 @@ export const translations: Record<Language, Partial<Translations>> = {
     codeSentTo: '代码已发送至',
     back: '返回',
     vipProceedToPayment: '继续付款',
+
+    // Guided paths UI
+    reset: '重置',
+    practice: '练习',
+    verify: '验证',
+    close: '关闭',
+    taskLabel: '任务',
+    typeYourSolution: '在此输入你的解答',
+    correct: '正确！',
+    tryAgain: '再试一次',
   },
   
   'hi': {
@@ -2499,6 +2549,16 @@ export const translations: Record<Language, Partial<Translations>> = {
     codeSentTo: 'कोड भेजा गया',
     back: 'वापस',
     vipProceedToPayment: 'भुगतान के लिए आगे बढ़ें',
+
+    // Guided paths UI
+    reset: 'रीसेट',
+    practice: 'अभ्यास',
+    verify: 'सत्यापित करें',
+    close: 'बंद करें',
+    taskLabel: 'कार्य',
+    typeYourSolution: 'अपना समाधान यहाँ लिखें',
+    correct: 'सही!',
+    tryAgain: 'फिर से प्रयास करें',
   },
 };
 

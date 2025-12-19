@@ -32,6 +32,10 @@ const VIPPlaygroundLazy = lazy(() =>
   import("@/components/visualizer/vip-playground").then((m) => ({ default: m.VIPPlayground }))
 );
 
+const ProAdvancedFeaturesLazy = lazy(() =>
+  import("@/components/pro-advanced-features").then((m) => ({ default: m.ProAdvancedFeatures }))
+);
+
 export default function ProPage() {
   const { user, refreshUser } = useUser();
   const { t } = useLanguage();
@@ -39,6 +43,12 @@ export default function ProPage() {
   const [profilerCode, setProfilerCode] = useState(
     "function fib(n){ return n<=1 ? n : fib(n-1)+fib(n-2); }\nfunction main(){ return fib(15); }"
   );
+  const profilerExamples = [
+    { id: "fib", label: "Recursao (fib)", code: "function fib(n){ return n<=1 ? n : fib(n-1)+fib(n-2); }\nfunction main(){ return fib(12); }" },
+    { id: "loop", label: "Loop + soma", code: "function main(){ let s=0; for(let i=0;i<5_000;i++){ s+=i; } return s; }" },
+    { id: "async", label: "Promessa rapida", code: "async function work(){ return 42; }\nfunction main(){ return work(); }" },
+    { id: "sort", label: "Sort custom", code: "function main(){ const arr=[5,1,9,2]; return arr.sort((a,b)=>a-b); }" },
+  ];
   const [profilerRuns, setProfilerRuns] = useState<Array<{ run: number; ms: number; result?: any }>>([]);
   const [profilerError, setProfilerError] = useState<string | null>(null);
   const [profilerConfig, setProfilerConfig] = useState<{ runs: number; warmup: number; captureConsole: boolean }>({ runs: 5, warmup: 1, captureConsole: true });
@@ -46,6 +56,8 @@ export default function ProPage() {
     runs: Array<{ run: number; ms: number; result?: any }>;
     events: Array<{ run: number; t: number; type: "log" | "start" | "end" | "result" | "error"; data?: any }>;
   } | null>(null);
+  const [timelinePlaying, setTimelinePlaying] = useState(false);
+  const [timelineIndex, setTimelineIndex] = useState(0);
   const [category, setCategory] = useState<"all" | "algorithms" | "data-structures" | "async" | "performance" | "design-patterns">("all");
   const [sort, setSort] = useState<"relevance" | "difficulty" | "time">("relevance");
   const [difficulty, setDifficulty] = useState<"all" | "beginner" | "intermediate" | "advanced">("all");
@@ -59,6 +71,12 @@ export default function ProPage() {
   const [inspectorInput, setInspectorInput] = useState(
     '{\n  "user": {"name": "Ana", "level": 7},\n  "array": [1,2,3],\n  "flags": {"pro": true, "beta": false}\n}'
   );
+  const inspectorExamples = [
+    { id: "user", label: "Usuario + flags", value: '{\n  "user": {"name": "Ana", "level": 7},\n  "flags": {"pro": true, "beta": false}\n}' },
+    { id: "orders", label: "Pedidos", value: '{"orders":[{"id":1,"total":99.5,"items":["book","pen"]},{"id":2,"total":149,"items":["mouse"]}]}' },
+    { id: "settings", label: "Config", value: '{"settings":{"theme":"dark","langs":["pt","en"]},"featureFlags":{"newUI":true}}' },
+    { id: "graph", label: "Grafo simples", value: '{"graph":{"nodes":["A","B"],"edges":[{"from":"A","to":"B"}]}}' },
+  ];
   const [inspectorParsed, setInspectorParsed] = useState<any>(null);
   const [inspectorError, setInspectorError] = useState<string | null>(null);
   const [inspectorQuery, setInspectorQuery] = useState("");
@@ -144,11 +162,15 @@ export default function ProPage() {
       }
       setProfilerRuns(runs);
       setProfilerTimeline({ runs, events });
+      setTimelineIndex(0);
+      setTimelinePlaying(true);
       setProfilerError(null);
     } catch (e: any) {
       setProfilerError(e?.message || t.profilerError);
       setProfilerRuns([]);
       setProfilerTimeline(null);
+      setTimelinePlaying(false);
+      setTimelineIndex(0);
     }
   };
 
@@ -159,6 +181,22 @@ export default function ProPage() {
   const addBreakpoint = () => {
     const nextId = `bp-${breakpoints.length + 1}`;
     setBreakpoints((prev) => [...prev, { id: nextId, line: 1, condition: "", active: true }]);
+  };
+
+  const getValueAtPath = (obj: any, pathStr: string | null) => {
+    if (!obj || !pathStr) return null;
+    const segments = pathStr.split(".").filter(Boolean);
+    let current: any = obj;
+    for (const seg of segments) {
+      if (seg.startsWith("[")) {
+        const idx = Number(seg.replace(/[^0-9]/g, ""));
+        current = Array.isArray(current) ? current[idx] : undefined;
+      } else {
+        current = current?.[seg];
+      }
+      if (current === undefined || current === null) break;
+    }
+    return current;
   };
 
   const parseInspector = () => {
@@ -222,12 +260,72 @@ export default function ProPage() {
     return <span className="text-gray-300">{String(value)}</span>;
   };
 
+  const renderCodePreview = () => {
+    const formatted = inspectorParsed ? JSON.stringify(inspectorParsed, null, 2) : inspectorInput;
+    const lines = formatted.split("\n");
+    const pathSegments = selectedPath ? selectedPath.replace(/\[|\]/g, "").split(".").filter(Boolean) : [];
+    return (
+      <div className="bg-slate-950/60 border border-amber-400/15 rounded-lg overflow-hidden">
+        <div className="px-3 py-2 text-[11px] text-amber-100 border-b border-amber-400/20 bg-amber-500/10 flex items-center justify-between">
+          <span>Mapa do codigo (destaca chave, valor e resultado)</span>
+          {selectedPath && <span className="font-mono text-amber-300">{selectedPath}</span>}
+        </div>
+        <div className="max-h-64 overflow-auto font-mono text-xs text-amber-50/90">
+          {lines.map((line, idx) => {
+            const matchesQuery = inspectorQuery && line.toLowerCase().includes(inspectorQuery.toLowerCase());
+            const matchesPath = pathSegments.some((seg) => seg && line.includes(seg));
+            const isHighlight = Boolean(matchesQuery || matchesPath);
+            return (
+              <div
+                key={`code-line-${idx}`}
+                className={`flex items-start gap-2 px-3 py-0.5 ${isHighlight ? "bg-amber-500/25 text-amber-50 border-l-2 border-amber-300 shadow-[inset_0_0_0_1px_rgba(251,191,36,0.35)]" : "border-l-2 border-transparent text-slate-200"}`}
+              >
+                <span className="w-10 text-right text-[10px] text-amber-400/70 select-none">{idx + 1}</span>
+                <span className="whitespace-pre">{line || " "}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const selectedValue = inspectorParsed && selectedPath ? getValueAtPath(inspectorParsed, selectedPath) : null;
+  const selectedValuePreview =
+    selectedValue !== null && selectedValue !== undefined ? JSON.stringify(selectedValue, null, 2) : null;
+  const valueKind = selectedValue === null
+    ? "null"
+    : selectedValue === undefined
+      ? "undefined"
+      : Array.isArray(selectedValue)
+        ? "array"
+        : typeof selectedValue;
+  const objectKeysCount =
+    selectedValue && typeof selectedValue === "object" && !Array.isArray(selectedValue) ? Object.keys(selectedValue).length : null;
+  const arrayLength = Array.isArray(selectedValue) ? selectedValue.length : null;
+
   const renderTimeline = () => {
     if (!profilerTimeline) return null;
     const maxMs = Math.max(...profilerTimeline.runs.map((r) => r.ms), 1);
+    const currentEvent = profilerTimeline.events[timelineIndex] || null;
     return (
       <div className="mt-3 space-y-2">
-        <div className="text-xs text-gray-300">{t.proFeatureAnalyzerB1 || "Execution timeline"}</div>
+        <div className="flex items-center gap-3">
+          <div className="text-xs text-gray-300 flex-1">{t.proFeatureAnalyzerB1 || "Execution timeline"}</div>
+          <div className="flex items-center gap-2 text-xs text-amber-200">
+            <Button size="sm" variant="outline" className="border-amber-400/40 text-amber-100" onClick={() => setTimelinePlaying((p) => !p)} disabled={!profilerTimeline?.events.length}>
+              {timelinePlaying ? t.pause || "Pause" : t.play || "Play"}
+            </Button>
+            <input
+              type="range"
+              min={0}
+              max={Math.max(0, (profilerTimeline?.events.length || 1) - 1)}
+              value={timelineIndex}
+              onChange={(e) => setTimelineIndex(Number(e.target.value))}
+              className="w-32"
+            />
+          </div>
+        </div>
         <div className="space-y-2">
           {profilerTimeline.runs.map((r) => (
             <div key={`run-${r.run}`} className="flex items-center gap-3">
@@ -245,14 +343,43 @@ export default function ProPage() {
         </div>
         <div className="mt-3 bg-black/20 border border-amber-400/20 rounded p-2 max-h-40 overflow-y-auto">
           {profilerTimeline.events.map((e, idx) => (
-            <div key={`evt-${idx}`} className="text-xs text-gray-200">
-              <span className="text-gray-400">[{e.t}ms]</span> <span className="text-amber-300">Run {e.run}</span> → {e.type}
+            <div key={`evt-${idx}`} className={`text-xs ${idx === timelineIndex ? "text-amber-200 font-semibold" : "text-gray-200"}`}>
+              <span className={idx === timelineIndex ? "text-amber-400" : "text-gray-400"}>[{e.t}ms]</span> <span className="text-amber-300">Run {e.run}</span> → {e.type}
               {e.data !== undefined && <span className="text-gray-300">: {typeof e.data === "string" ? e.data : JSON.stringify(e.data)}</span>}
             </div>
           ))}
+          {currentEvent && (
+            <div className="mt-2 text-[11px] text-amber-200 bg-amber-500/10 border border-amber-400/30 rounded p-2">
+              <div className="font-semibold">Evento atual</div>
+              <div>Run {currentEvent.run} • {currentEvent.type} • {currentEvent.t}ms</div>
+              {currentEvent.data !== undefined && <div className="text-amber-100/80">Dados: {typeof currentEvent.data === "string" ? currentEvent.data : JSON.stringify(currentEvent.data)}</div>}
+            </div>
+          )}
         </div>
       </div>
     );
+  };
+
+  const applyInspectorExample = (id: string) => {
+    const ex = inspectorExamples.find((e) => e.id === id);
+    if (ex) {
+      setInspectorInput(ex.value);
+      setSelectedPath(null);
+      setInspectorParsed(null);
+      setInspectorError(null);
+    }
+  };
+
+  const applyProfilerExample = (id: string) => {
+    const ex = profilerExamples.find((e) => e.id === id);
+    if (ex) {
+      setProfilerCode(ex.code);
+      setProfilerRuns([]);
+      setProfilerTimeline(null);
+      setTimelineIndex(0);
+      setTimelinePlaying(false);
+      setProfilerError(null);
+    }
   };
 
   // Finalize VIP signup after returning from Stripe Checkout
@@ -319,9 +446,25 @@ export default function ProPage() {
     })();
   }, [refreshUser]);
 
+  useEffect(() => {
+    if (!timelinePlaying || !profilerTimeline?.events?.length) return;
+    const total = profilerTimeline.events.length;
+    const id = setInterval(() => {
+      setTimelineIndex((idx) => {
+        const next = idx + 1;
+        if (next >= total) {
+          setTimelinePlaying(false);
+          return Math.max(0, total - 1);
+        }
+        return next;
+      });
+    }, 800);
+    return () => clearInterval(id);
+  }, [timelinePlaying, profilerTimeline]);
+
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 py-12">
+      <div className="min-h-screen bg-slate-950 py-12">
         {/* Header (Learning-only) */}
         <div className="max-w-5xl mx-auto px-4 mb-10">
           <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-amber-500/20">
@@ -345,7 +488,7 @@ export default function ProPage() {
         {/* VIP workspace shortcuts */}
         <div className="max-w-6xl mx-auto px-4 mb-14">
           <div className="grid md:grid-cols-3 gap-4">
-            <Card className="p-5 bg-white/5 border-white/10 text-white">
+            <Card className="p-5 bg-slate-900/60 border border-slate-700 rounded-xl text-white">
               <div className="flex items-center gap-2 mb-2">
                 <Crown className="w-4 h-4 text-amber-300" />
                 <span className="text-sm font-semibold text-amber-200">{t.proChallengesBadge}</span>
@@ -361,7 +504,7 @@ export default function ProPage() {
               </Button>
             </Card>
 
-            <Card className="p-5 bg-white/5 border-white/10 text-white">
+            <Card className="p-5 bg-slate-900/60 border border-slate-700 rounded-xl text-white">
               <div className="flex items-center gap-2 mb-2">
                 <Database className="w-4 h-4 text-amber-300" />
                 <span className="text-sm font-semibold text-amber-200">{t.aiCodeInspectorTitle}</span>
@@ -377,7 +520,7 @@ export default function ProPage() {
               </Button>
             </Card>
 
-            <Card className="p-5 bg-white/5 border-white/10 text-white">
+            <Card className="p-5 bg-slate-900/60 border border-slate-700 rounded-xl text-white">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-4 h-4 text-amber-300" />
                 <span className="text-sm font-semibold text-amber-200">{t.proFeatureDebuggerTitle}</span>
@@ -397,17 +540,15 @@ export default function ProPage() {
         {/* VIP Playground */}
         <div id="vip-playground" className="max-w-6xl mx-auto px-4 mb-14">
           <div className="grid lg:grid-cols-2 gap-6">
-            <div className="relative overflow-hidden rounded-2xl border border-amber-400/25 bg-gradient-to-br from-amber-900/40 via-slate-900 to-slate-950 p-6">
-              <div className="absolute -top-10 -left-10 w-32 h-32 bg-amber-400/10 blur-3xl" />
-              <div className="absolute -bottom-12 -right-6 w-32 h-32 bg-purple-500/10 blur-3xl" />
-              <div className="relative z-10 space-y-3 text-white">
+            <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-6 shadow-sm text-white">
+              <div className="space-y-3">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-200 text-xs font-semibold">
                   <Crown className="w-4 h-4" />
                   {t.proPlaygroundTitle}
                 </div>
                 <h3 className="text-2xl font-bold">{t.proPlaygroundTitle}</h3>
-                <p className="text-sm text-amber-100/90">{t.proPlaygroundSubtitle}</p>
-                <div className="space-y-2 text-sm text-amber-50/90">
+                <p className="text-sm text-slate-200">{t.proPlaygroundSubtitle}</p>
+                <div className="space-y-2 text-sm text-slate-200">
                   <div className="flex items-start gap-2">
                     <Sparkles className="w-4 h-4 text-amber-300 mt-0.5" />
                     <span>{t.proPlaygroundIdea1}</span>
@@ -422,17 +563,17 @@ export default function ProPage() {
                   </div>
                 </div>
                 <div className="flex gap-3 pt-2">
-                  <Button variant="secondary" className="bg-white/10 text-white border border-amber-300/40" onClick={() => scrollToSection("pro-exercises")}>
+                  <Button variant="secondary" className="bg-white/10 text-white border border-slate-600" onClick={() => scrollToSection("pro-exercises")}>
                     {t.start}
                   </Button>
-                  <Button variant="outline" className="border-amber-400/50 text-amber-100" onClick={() => scrollToSection("pro-labs")}>
+                  <Button variant="outline" className="border-slate-600 text-slate-100" onClick={() => scrollToSection("pro-labs")}>
                     {t.proMiniDemosBadge}
                   </Button>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-amber-400/25 bg-black/40 backdrop-blur-sm p-6 text-white space-y-3">
+            <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-6 text-white space-y-3 shadow-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Code2 className="w-5 h-5 text-amber-300" />
@@ -442,18 +583,18 @@ export default function ProPage() {
                   <Button size="sm" variant="secondary" className="bg-amber-500/80 text-black font-semibold" onClick={copyScratchpad}>
                     {t.proPlaygroundCopy}
                   </Button>
-                  <Button size="sm" variant="outline" className="border-amber-300/60 text-amber-100" onClick={clearScratchpad}>
+                  <Button size="sm" variant="outline" className="border-slate-600 text-slate-100" onClick={clearScratchpad}>
                     {t.proPlaygroundClear}
                   </Button>
                 </div>
               </div>
               <textarea
-                className="w-full h-48 rounded-xl bg-slate-950/60 border border-amber-400/25 text-sm text-amber-50 p-3 font-mono"
+                className="w-full h-48 rounded-xl bg-slate-950/60 border border-slate-700 text-sm text-slate-100 p-3 font-mono"
                 value={scratchpad}
                 onChange={(e) => setScratchpad(e.target.value)}
                 placeholder={t.proPlaygroundPlaceholder}
               />
-              <p className="text-xs text-amber-100/80">{t.proPlaygroundPlaceholder}</p>
+              <p className="text-xs text-slate-300">{t.proPlaygroundPlaceholder}</p>
             </div>
           </div>
         </div>
@@ -555,9 +696,7 @@ export default function ProPage() {
           <div id="vip-playground" className="max-w-7xl mx-auto px-4 mb-16">
             <Suspense
               fallback={
-                <div className="text-center text-white/60 py-10">
-                  {t.loading || "Loading..."}
-                </div>
+                <div className="text-center text-white/60 py-10">Loading...</div>
               }
             >
               <VIPPlaygroundLazy />
@@ -578,6 +717,12 @@ export default function ProPage() {
           </Suspense>
         </div>
 
+        <div id="pro-advanced" className="max-w-6xl mx-auto px-4 mb-16">
+          <Suspense fallback={<div className="text-center text-white/60 py-10">Carregando...</div>}>
+            <ProAdvancedFeaturesLazy />
+          </Suspense>
+        </div>
+
         <div id="pro-labs" className="max-w-6xl mx-auto px-4 mb-16">
           <div className="flex items-center gap-2 mb-6">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-semibold">
@@ -588,13 +733,28 @@ export default function ProPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <div className="rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 p-4 space-y-3">
+            <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-3 shadow-sm">
               <div className="flex items-center gap-2 text-white">
                 <BarChart3 className="w-5 h-5 text-amber-400" />
                 <h3 className="text-lg font-semibold">{t.codeProfiler}</h3>
               </div>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-amber-100">
+                <span className="px-2 py-1 rounded-full bg-amber-500/15 border border-amber-300/50">Como usar</span>
+                <span className="text-amber-50/80">1) escolha um exemplo → 2) edite o codigo → 3) rode para ver execucao + timeline</span>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs">
+                {profilerExamples.map((ex) => (
+                  <button
+                    key={ex.id}
+                    onClick={() => applyProfilerExample(ex.id)}
+                    className="px-3 py-1 rounded-full border border-amber-300/40 text-amber-100 bg-black/30 hover:bg-amber-500/10"
+                  >
+                    {ex.label}
+                  </button>
+                ))}
+              </div>
               <textarea
-                className="w-full h-32 rounded-lg bg-black/40 border border-amber-400/20 text-sm text-white p-3 font-mono"
+                className="w-full h-32 rounded-lg bg-black/40 border border-slate-700 text-sm text-white p-3 font-mono"
                 value={profilerCode}
                 onChange={(e) => setProfilerCode(e.target.value)}
               />
@@ -605,7 +765,7 @@ export default function ProPage() {
                     <select
                       value={profilerConfig.runs}
                       onChange={(e) => setProfilerConfig((c) => ({ ...c, runs: parseInt(e.target.value, 10) }))}
-                      className="px-2 py-1 rounded bg-black/40 border border-amber-400/20"
+                      className="px-2 py-1 rounded bg-black/40 border border-slate-700"
                     >
                       {[3,5,10,20].map((n) => <option key={n} value={n}>{n}</option>)}
                     </select>
@@ -615,7 +775,7 @@ export default function ProPage() {
                     <select
                       value={profilerConfig.warmup}
                       onChange={(e) => setProfilerConfig((c) => ({ ...c, warmup: parseInt(e.target.value, 10) }))}
-                      className="px-2 py-1 rounded bg-black/40 border border-amber-400/20"
+                      className="px-2 py-1 rounded bg-black/40 border border-slate-700"
                     >
                       {[0,1,2,5].map((n) => <option key={n} value={n}>{n}</option>)}
                     </select>
@@ -625,7 +785,7 @@ export default function ProPage() {
                       type="checkbox"
                       checked={profilerConfig.captureConsole}
                       onChange={(e) => setProfilerConfig((c) => ({ ...c, captureConsole: e.target.checked }))}
-                      className="accent-amber-400"
+                      className="accent-blue-400"
                     />
                     <span className="inline-flex items-center gap-1"><Activity className="w-3 h-3" /> capture console</span>
                   </label>
@@ -638,37 +798,43 @@ export default function ProPage() {
                 </div>
               </div>
               {profilerRuns.length > 0 && (
-                <div className="bg-black/30 border border-amber-400/10 rounded-lg p-3 text-sm text-gray-200 space-y-1">
+                <div className="bg-black/30 border border-slate-700 rounded-lg p-3 text-sm text-gray-200 space-y-1">
                   {profilerRuns.map((r) => (
                     <div key={r.run} className="flex items-center justify-between">
                       <span className="text-gray-400">{t.run} {r.run}</span>
-                      <span className="font-semibold text-amber-300">{r.ms} ms</span>
+                      <span className="font-semibold text-blue-300">{r.ms} ms</span>
                     </div>
                   ))}
                 </div>
               )}
               {renderTimeline()}
+              <div className="bg-slate-800/80 border border-slate-700 rounded-lg p-3 text-xs text-slate-200 space-y-1">
+                <div className="font-semibold text-slate-100">O que observar</div>
+                <div>• Logs aparecem na timeline quando capture console está ligado.</div>
+                <div>• Cada run gera eventos: start → log(s) → result → end.</div>
+                <div>• Use o slider para posicionar no evento e ler dados.</div>
+              </div>
             </div>
 
-            <div className="rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 p-4 space-y-3">
+            <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-3 shadow-sm">
               <div className="flex items-center gap-2 text-white">
                 <PauseCircle className="w-5 h-5 text-amber-400" />
                 <h3 className="text-lg font-semibold">{t.breakpointManager}</h3>
               </div>
               <div className="space-y-2">
                 {breakpoints.map((bp) => (
-                  <div key={bp.id} className="flex items-center gap-2 text-sm text-gray-200 bg-black/30 border border-amber-400/10 rounded-lg p-2">
+                  <div key={bp.id} className="flex items-center gap-2 text-sm text-gray-200 bg-black/30 border border-slate-700 rounded-lg p-2">
                     <label className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         checked={bp.active}
                         onChange={() => toggleBreakpoint(bp.id)}
-                        className="accent-amber-400"
+                        className="accent-blue-400"
                       />
-                      <span className="text-amber-200 font-semibold">L{bp.line}</span>
+                      <span className="text-slate-200 font-semibold">L{bp.line}</span>
                     </label>
                     <input
-                      className="flex-1 bg-transparent border border-amber-400/20 rounded px-2 py-1 text-xs text-gray-200"
+                      className="flex-1 bg-transparent border border-slate-700 rounded px-2 py-1 text-xs text-gray-200"
                       value={bp.condition || ""}
                       onChange={(e) =>
                         setBreakpoints((prev) => prev.map((b) => (b.id === bp.id ? { ...b, condition: e.target.value } : b)))
@@ -678,22 +844,37 @@ export default function ProPage() {
                   </div>
                 ))}
               </div>
-              <Button onClick={addBreakpoint} variant="outline" className="border-amber-400/40 text-amber-200">
+              <Button onClick={addBreakpoint} variant="outline" className="border-slate-600 text-slate-200">
                 {t.addBreakpoint}
               </Button>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 p-4 space-y-3">
+          <div className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-3 shadow-sm">
             <div className="flex items-center gap-2 text-white">
               <Database className="w-5 h-5 text-amber-400" />
               <h3 className="text-lg font-semibold">{t.variableInspector}</h3>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs text-amber-50 items-center">
+              <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">Guia visual</span>
+              <span className="text-amber-100/80">1) Pick exemplo → 2) Clique em chaves para abrir caminho → 3) Veja como stack referencia o heap</span>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs">
+              {inspectorExamples.map((ex) => (
+                <button
+                  key={ex.id}
+                  onClick={() => applyInspectorExample(ex.id)}
+                  className="px-3 py-1 rounded-full border border-slate-600 text-slate-100 bg-black/30 hover:bg-slate-800/60"
+                >
+                  {ex.label}
+                </button>
+              ))}
             </div>
             <div className="flex items-center gap-2 py-1">
               <div className="flex items-center gap-2 flex-1">
                 <Search className="w-4 h-4 text-amber-300" />
                 <input
-                  className="w-full rounded bg-black/40 border border-amber-400/20 text-sm text-white px-2 py-1"
+                  className="w-full rounded bg-black/40 border border-slate-700 text-sm text-white px-2 py-1"
                   value={inspectorQuery}
                   onChange={(e) => setInspectorQuery(e.target.value)}
                   placeholder="Search keys/values"
@@ -706,7 +887,7 @@ export default function ProPage() {
               )}
             </div>
             <textarea
-              className="w-full h-32 rounded-lg bg-black/40 border border-amber-400/20 text-sm text-white p-3 font-mono"
+              className="w-full h-32 rounded-lg bg-black/40 border border-slate-700 text-sm text-white p-3 font-mono"
               value={inspectorInput}
               onChange={(e) => setInspectorInput(e.target.value)}
               placeholder={t.proInspectorPlaceholder}
@@ -717,11 +898,39 @@ export default function ProPage() {
               </Button>
               {inspectorError && <span className="text-sm text-red-300">{inspectorError}</span>}
             </div>
-            <div className="bg-black/30 border border-amber-400/10 rounded-lg p-3 min-h-[120px] text-sm text-gray-200">
+            <div className="bg-black/30 border border-slate-700 rounded-lg p-3 min-h-[120px] text-sm text-gray-200">
               {inspectorParsed ? renderObject(inspectorParsed, 0, []) : <span className="text-gray-500">{t.proInspectorPlaceholder}</span>}
             </div>
+            {inspectorInput && (
+              <div className="grid md:grid-cols-2 gap-3">
+                <div className="bg-black/25 border border-slate-700 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center justify-between text-xs text-amber-200">
+                    <span>Resultado em foco</span>
+                    <span className="font-mono text-amber-300">{selectedPath || "selecione na arvore"}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-[11px] text-amber-50">
+                    <span className="px-2 py-1 rounded-full bg-amber-600/25 border border-amber-300/60 shadow-[0_0_0_1px_rgba(251,191,36,0.35)]">{valueKind}</span>
+                    {arrayLength !== null && <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">len: {arrayLength}</span>}
+                    {objectKeysCount !== null && (
+                      <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">keys: {objectKeysCount}</span>
+                    )}
+                    <span className="px-2 py-1 rounded-full bg-emerald-600/25 border border-emerald-300/60 text-emerald-50">stack aponta, heap guarda</span>
+                  </div>
+                  <pre className="bg-slate-950/70 border border-slate-700 rounded text-xs text-slate-200 p-2 max-h-40 overflow-auto">
+                    {selectedValuePreview || "Selecione um trecho na arvore para ver o valor renderizado"}
+                  </pre>
+                  <div className="text-[11px] text-slate-200 space-y-1 bg-slate-800/80 border border-slate-700 rounded p-2">
+                    <div className="font-semibold text-slate-100">Como ler</div>
+                    <div>• Primitivos vivem na stack, objetos/arrays ficam no heap.</div>
+                    <div>• O caminho selecionado navega chaves e indices: stack guarda a referencia, heap guarda o dado.</div>
+                    <div>• Mutar um objeto altera o heap; reatribuir muda a referencia na stack.</div>
+                  </div>
+                </div>
+                {renderCodePreview()}
+              </div>
+            )}
             {selectedPath && inspectorParsed && (
-              <div className="bg-black/20 border border-amber-400/20 rounded p-3">
+              <div className="bg-black/20 border border-slate-700 rounded p-3">
                 <div className="text-xs text-gray-300 mb-2">How the interpreter sees this path:</div>
                 <ul className="text-xs text-gray-200 space-y-1">
                   <li>• The program resolves the path step-by-step (object keys and array indexes).</li>

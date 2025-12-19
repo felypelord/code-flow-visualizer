@@ -54,8 +54,8 @@ export function ProExerciseCard({ exercise, onSelect, completed }: ProExerciseCa
     <Card
       className={`relative overflow-hidden transition-all duration-300 ${
         isPro
-          ? "hover:border-amber-400/50 hover:shadow-lg hover:shadow-amber-500/10 cursor-pointer bg-gradient-to-br from-slate-900 to-amber-950/20 border-amber-400/20"
-          : "opacity-75 cursor-pointer bg-gradient-to-br from-slate-900 to-slate-950 border-slate-700"
+          ? "cursor-pointer bg-slate-900/60 border-slate-700 hover:border-slate-500 hover:shadow"
+          : "opacity-75 cursor-pointer bg-slate-900/60 border-slate-800"
       }`}
       onClick={handleClick}
     >
@@ -151,7 +151,7 @@ export function ProExerciseCard({ exercise, onSelect, completed }: ProExerciseCa
           }}
           className={`w-full ${
             isPro
-              ? "bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-black font-semibold"
+              ? "bg-blue-600 hover:bg-blue-700 text-white font-semibold"
               : "bg-slate-700 hover:bg-slate-600 text-slate-300"
           }`}
           size="sm"
@@ -187,7 +187,7 @@ export function ProExercisesGrid({
 
   if (exercises.length === 0) {
     return (
-      <Card className="p-8 text-center bg-gradient-to-br from-slate-900 to-slate-950 border-slate-700">
+      <Card className="p-8 text-center bg-slate-900/60 border border-slate-700">
         <p className="text-slate-400">{t.proNoExercisesFound}</p>
       </Card>
     );
@@ -196,18 +196,18 @@ export function ProExercisesGrid({
   return (
     <div className="space-y-6">
       {!user?.isPro && (
-        <Card className="p-6 bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-orange-500/15 border-amber-400/30">
+        <Card className="p-6 bg-slate-900/60 border border-slate-700">
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <Crown className="w-5 h-5 text-amber-300" />
                 <h3 className="font-bold text-white text-lg">{t.proExercisesLockedTitle}</h3>
               </div>
-              <p className="text-amber-100/90 text-sm">{t.proExercisesLockedDesc}</p>
+              <p className="text-slate-300 text-sm">{t.proExercisesLockedDesc}</p>
             </div>
             <Button
               onClick={() => setLocation("/pro")}
-              className="bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-black font-semibold"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
             >
               {t.activateProNow}
             </Button>

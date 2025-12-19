@@ -181,6 +181,85 @@ export function ExercisesView() {
     return `⚙️ ${trimmed.substring(0, 60)}${trimmed.length > 60 ? "..." : ""}`;
   };
 
+  const safeEvalExpression = (expr: string, state: Record<string, any>) => {
+    try {
+      // Evaluate in a narrowed context to avoid leaking global scope
+      return new Function(
+        "state",
+        "Math",
+        "JSON",
+        "Array",
+        "Object",
+        `"use strict"; with(state){ return (${expr}); }`
+      )({ ...state }, Math, JSON, Array, Object);
+    } catch {
+      return undefined;
+    }
+  };
+
+  const buildStackAndHeap = (vars: Record<string, any>): { stack: StackFrame[]; heap: HeapObject[] } => {
+    const variables: StackFrame["variables"] = Object.entries(vars).map(([name, value]) => {
+      const isRef = value && typeof value === "object";
+      return {
+        name,
+        value: isRef ? JSON.stringify(value) : value,
+        type: isRef ? "reference" : "primitive",
+        changed: true,
+      };
+    });
+
+    const heap: HeapObject[] = Object.entries(vars)
+      .filter(([, value]) => value && typeof value === "object")
+      .map(([name, value], idx) => ({
+        id: `${name}-${idx}`,
+        className: Array.isArray(value) ? "Array" : "Object",
+        properties: Object.entries(value as any).map(([k, v]) => ({
+          name: k,
+          value: typeof v === "object" ? JSON.stringify(v) : (v as any),
+          type: typeof v === "object" ? "reference" : "primitive",
+        })),
+      }));
+
+    return {
+      stack: [
+        {
+          id: "global",
+          name: "global",
+          variables,
+          active: true,
+        },
+      ],
+      heap,
+    };
+  };
+
+  const processLine = (line: string, prevVars: Record<string, any>) => {
+    const updatedVars = { ...prevVars };
+    let log = generateFriendlyLog(line, prevVars, updatedVars);
+
+    const assignMatch = line.match(/(?:const|let|var)?\s*([\w$]+)\s*=\s*(.*)/);
+    if (assignMatch) {
+      const [, varName, rhsRaw] = assignMatch;
+      const rhs = rhsRaw.replace(/;\s*$/, "");
+      const val = safeEvalExpression(rhs, updatedVars);
+      updatedVars[varName] = val;
+      log = `🔧 ${varName} = ${JSON.stringify(val)}`;
+    }
+
+    const pushMatch = line.match(/([\w$]+)\.push\((.*)\)/);
+    if (pushMatch) {
+      const [, arrName, rhsRaw] = pushMatch;
+      const rhs = rhsRaw.replace(/;\s*$/, "");
+      const val = safeEvalExpression(rhs, updatedVars);
+      if (!Array.isArray(updatedVars[arrName])) updatedVars[arrName] = [];
+      (updatedVars[arrName] as any[]).push(val);
+      log = `📦 push em ${arrName}: ${JSON.stringify(val)}`;
+    }
+
+    const { stack, heap } = buildStackAndHeap(updatedVars);
+    return { updatedVars, stack, heap, log };
+  };
+
   const runTests = () => {
     const allowance = checkAndConsumeExecution(user?.id, !!user?.isPro, 5);
     if (!allowance.allowed) {
@@ -310,8 +389,18 @@ export function ExercisesView() {
       }
       await new Promise(resolve => setTimeout(resolve, executionSpeedRef.current));
       try {
-        // Simulação simplificada: só avança linha
-        setExecutionState(prev => ({ ...prev, currentLineIndex: prev.currentLineIndex + 1 }));
+        setExecutionState(prev => {
+          const { updatedVars, stack, heap, log } = processLine(line, prev.variables);
+          const logs = log ? [...prev.logs, log].slice(-50) : prev.logs;
+          return {
+            ...prev,
+            currentLineIndex: prev.currentLineIndex + 1,
+            variables: updatedVars,
+            stack,
+            heap,
+            logs,
+          };
+        });
       } catch (e) {
         setExecutionState(prev => ({ ...prev, isExecuting: false, errorLineIndex: currentLineIndex, errorMessage: (e as any).message }));
       }
@@ -350,6 +439,9 @@ export function ExercisesView() {
       lines,
       errorLineIndex: null,
       errorMessage: null,
+      variables: {},
+      stack: [],
+      heap: [],
       logs: [],
     }));
   };
@@ -393,13 +485,14 @@ export function ExercisesView() {
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
+          <div className="my-6 h-px bg-gradient-to-r from-transparent via-slate-600/50 to-transparent" />
         </div>
 
         <div className="space-y-6">
           {/* Horizontal Exercises Bar */}
-          <div className="bg-slate-800/40 rounded p-3">
+          <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-white">Exercícios</h3>
+              <h3 className="text-sm font-semibold text-white tracking-wide">Exercícios</h3>
               <div className="text-xs text-slate-300">Clique para selecionar</div>
             </div>
             <div className="flex gap-3 overflow-x-auto py-2">
@@ -411,10 +504,10 @@ export function ExercisesView() {
                   <button
                     key={ex.id}
                     onClick={() => setSelectedExercise(ex)}
-                    className={`flex-shrink-0 min-w-[150px] sm:min-w-[200px] text-left p-2 sm:p-3 rounded-lg transition-all duration-200 ${
+                    className={`flex-shrink-0 min-w-[160px] sm:min-w-[220px] text-left p-3 sm:p-4 rounded-lg transition-all duration-200 ${
                       isSelected
-                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/50"
-                        : "bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white"
+                        ? "bg-blue-600/90 text-white shadow-lg shadow-blue-600/40 ring-1 ring-blue-300/30"
+                        : "bg-slate-700/80 text-slate-300 hover:bg-slate-600 hover:text-white"
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -444,14 +537,14 @@ export function ExercisesView() {
           {/* Main Content */}
           <div className="space-y-6">
             {/* Exercise Title Card */}
-            <Card className="p-6 bg-slate-800 border-slate-700">
+            <Card className="p-6 bg-slate-900/60 border-slate-700 rounded-xl shadow-sm">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-white mb-2">{selectedExercise.title}</h1>
-                  <p className="text-slate-300 text-lg">{selectedExercise.description}</p>
+                  <h1 className="text-3xl font-bold text-white mb-2 leading-tight">{selectedExercise.title}</h1>
+                  <p className="text-slate-300 text-base md:text-lg">{selectedExercise.description}</p>
                 </div>
                 {isCompleted && (
-                  <div className="text-right bg-green-500/20 border border-green-500/50 rounded-lg px-4 py-3">
+                  <div className="text-right bg-green-500/15 border border-green-500/40 rounded-lg px-4 py-3">
                     <div className="flex items-center gap-2 text-green-400 font-semibold">
                       <CheckCircle2 className="w-5 h-5" />
                       Completo!
@@ -463,15 +556,15 @@ export function ExercisesView() {
               <div className="flex gap-2 flex-wrap">
                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
                   selectedExercise.difficulty === "Beginner"
-                    ? "bg-green-500/20 text-green-300 border border-green-500/50"
+                    ? "bg-green-500/15 text-green-300 border border-green-500/40"
                     : selectedExercise.difficulty === "Intermediate"
-                    ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/50"
-                    : "bg-red-500/20 text-red-300 border border-red-500/50"
+                    ? "bg-yellow-500/15 text-yellow-300 border border-yellow-500/40"
+                    : "bg-red-500/15 text-red-300 border border-red-500/40"
                 }`}>
                   {selectedExercise.difficulty}
                 </span>
                 {score > 0 && score < 100 && (
-                  <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm font-semibold border border-purple-500/50">
+                  <span className="px-3 py-1 bg-purple-500/15 text-purple-300 rounded-full text-sm font-semibold border border-purple-500/40">
                     Score: {score}%
                   </span>
                 )}
@@ -479,8 +572,8 @@ export function ExercisesView() {
             </Card>
 
             {/* Language & Security Controls - Simple */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Card className="flex-1 p-4 bg-slate-800 border-slate-700">
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+              <Card className="flex-1 p-4 bg-slate-900/60 border-slate-700 rounded-xl">
                 <label className="text-sm font-semibold text-white mb-3 block">Linguagem:</label>
                 <div className="flex gap-2">
                   {availableLanguages.map((lang) => (
@@ -491,7 +584,7 @@ export function ExercisesView() {
                       className={`flex-1 ${
                         selectedLanguage === lang
                           ? "bg-blue-600 hover:bg-blue-700 text-white"
-                          : "border-slate-600 text-slate-200 hover:bg-slate-700"
+                          : "border-slate-600 text-slate-200 hover:bg-slate-800"
                       }`}
                     >
                       {lang === "javascript" ? "JS" : "Py"}
@@ -500,7 +593,7 @@ export function ExercisesView() {
                 </div>
               </Card>
 
-              <Card className="flex-1 p-4 bg-slate-800 border-slate-700">
+              <Card className="flex-1 p-4 bg-slate-900/60 border-slate-700 rounded-xl">
                 <label className="flex items-center gap-2 text-sm text-slate-200">
                   <input
                     type="checkbox"
@@ -515,7 +608,7 @@ export function ExercisesView() {
 
             {/* Tabs */}
             <Tabs defaultValue="code">
-              <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700">
+              <TabsList className="grid w-full grid-cols-2 bg-slate-900/70 border border-slate-700 rounded-lg shadow-sm">
                 <TabsTrigger value="code" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                   Código
                 </TabsTrigger>
@@ -526,18 +619,21 @@ export function ExercisesView() {
 
               <TabsContent value="code" className="space-y-4 mt-6">
                 {/* Code Editor */}
-                <Card className="p-4 bg-slate-800 border-slate-700">
-                  <label className="text-sm font-semibold text-white mb-3 block">Código:</label>
+                <Card className="p-4 bg-slate-900/60 border-slate-700 rounded-xl">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="text-sm font-semibold text-white block">Editor de código</label>
+                    <span className="text-[11px] text-slate-300">Ctrl/⌘ + Enter roda testes</span>
+                  </div>
                   <div className="relative flex-1 overflow-hidden">
-                    <div className="absolute left-0 top-0 bottom-0 w-12 bg-slate-900 border-r border-slate-600 flex flex-col overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-12 bg-slate-950/80 border-r border-slate-700 flex flex-col overflow-hidden">
                       {executionState.lines.map((_, idx) => (
                         <motion.div
                           key={idx}
                           className={`px-3 py-1 text-xs text-center font-mono leading-6 transition-all ${
                             idx === executionState.currentLineIndex - 1
-                              ? "bg-green-600 text-white font-bold"
+                              ? "bg-green-600/90 text-white font-bold"
                               : idx === executionState.errorLineIndex
-                              ? "bg-red-600 text-white font-bold"
+                              ? "bg-red-600/90 text-white font-bold"
                               : "text-slate-500"
                           }`}
                           initial={{ opacity: 0 }}
@@ -559,14 +655,14 @@ export function ExercisesView() {
                         }
                       }}
                       disabled={executionState.isExecuting}
-                      className={`w-full h-64 md:h-96 p-3 pl-16 text-sm rounded border resize-vertical focus:outline-none focus:ring-2 transition-all ${editorProClass}`}
+                      className={`w-full h-72 md:h-[420px] lg:h-[520px] p-3 pl-16 text-sm rounded border resize-vertical focus:outline-none focus:ring-2 transition-all font-mono ${editorProClass}`}
                       placeholder="Escreva seu código aqui..."
                       aria-label={`Editor de código (${selectedLanguage})`}
                       spellCheck="false"
                     />
                   </div>
                   {/* Barra de controles igual ao playground */}
-                  <div className="flex items-center gap-2 mt-4 p-2 bg-slate-700 rounded justify-center">
+                  <div className="flex items-center gap-2 mt-4 p-2 bg-slate-800/80 border border-slate-700 rounded-lg justify-center divide-x divide-slate-700">
                     <Button variant="ghost" size="icon" onClick={() => {
                       setExecutionState((prev) => ({ ...prev, currentLineIndex: 0, errorLineIndex: null, errorMessage: null }));
                     }} aria-label={t.backToStart}>
@@ -587,7 +683,7 @@ export function ExercisesView() {
                     }} aria-label={t.nextStep}>
                       <SkipForward className="w-4 h-4" />
                     </Button>
-                    <div className="flex items-center ml-4">
+                    <div className="flex items-center ml-4 pl-4">
                       <Slider
                         min={10}
                         max={500}
@@ -597,7 +693,7 @@ export function ExercisesView() {
                         className="w-28"
                         aria-label="Velocidade de execução"
                       />
-                      <span className="text-xs text-slate-300 ml-2" style={{minWidth: 40, textAlign: 'right'}}>{executionSpeed} ms</span>
+                      <span className="text-xs text-slate-300 ml-2" style={{minWidth: 48, textAlign: 'right'}}>{executionSpeed} ms</span>
                     </div>
                   </div>
                 </Card>
@@ -623,38 +719,46 @@ export function ExercisesView() {
                   )}
                 </AnimatePresence>
 
+                {/* Legend above visualizers */}
+                <div className="flex items-center gap-3 text-[11px] text-slate-300">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-500/10 border border-blue-400/30">🔵 Variáveis (stack)</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-400/30">🟢 Memória (heap)</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-yellow-500/10 border border-yellow-400/30">⚙️ Executado (logs)</span>
+                </div>
+
                 {/* Below editor: 3 columns - Variables, Memory, Logs */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:divide-x divide-slate-700 rounded-xl border border-slate-700 overflow-hidden bg-slate-900/50">
                   {/* Column 1: Variables */}
-                  <Card className="p-4 bg-slate-800 border-slate-700 overflow-auto max-h-64 flex flex-col">
-                    <h4 className="text-sm font-semibold text-blue-300 mb-3">🔵 Variáveis</h4>
+                  <div className="p-4 overflow-auto max-h-64 flex flex-col">
+                    <h4 className="text-sm font-semibold text-blue-300 mb-3 tracking-wide">🔵 Variáveis</h4>
                     <CallStack stack={executionState.stack} />
-                  </Card>
+                  </div>
 
                   {/* Column 2: Memory */}
-                  <Card className="p-4 bg-slate-800 border-slate-700 overflow-auto max-h-64">
-                    <h4 className="text-sm font-semibold text-cyan-300 mb-3">🟢 Memória</h4>
+                  <div className="p-4 overflow-auto max-h-64">
+                    <h4 className="text-sm font-semibold text-cyan-300 mb-3 tracking-wide">🟢 Memória</h4>
                     <HeapMemory heap={executionState.heap} />
-                  </Card>
+                  </div>
 
                   {/* Column 3: What Computer Did */}
-                  <Card className="p-4 bg-slate-800 border-slate-700 overflow-auto max-h-64">
-                    <h4 className="text-sm font-semibold text-yellow-300 mb-3">⚙️ Executado</h4>
+                  <div className="p-4 overflow-auto max-h-64">
+                    <h4 className="text-sm font-semibold text-yellow-300 mb-3 tracking-wide">⚙️ Executado</h4>
                     {executionState.logs.length === 0 ? (
                       <p className="text-xs text-slate-400">Execute o código para ver os passos.</p>
                     ) : (
                       <div className="space-y-2">
                         {executionState.logs.slice(-8).reverse().map((l, i) => (
-                          <div key={i} className="text-xs text-slate-200 bg-black/20 p-2 rounded">
+                          <div key={i} className="text-xs text-slate-200 bg-black/30 border border-slate-700/60 p-2 rounded">
                             {l}
                           </div>
                         ))}
                       </div>
                     )}
-                  </Card>
+                  </div>
                 </div>
 
                 {/* Action Buttons */}
+                <div className="my-4 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
                 <div className="flex gap-3 flex-wrap">
                   <Button
                     onClick={startLineByLine}
@@ -804,7 +908,7 @@ export function ExercisesView() {
 
               <TabsContent value="tests" className="space-y-4 mt-6">
                 {testResults.length === 0 ? (
-                  <Card className="p-12 bg-slate-800 border-slate-700 text-center">
+                  <Card className="p-12 bg-slate-900/60 border-slate-700 rounded-xl text-center">
                     <p className="text-slate-400 text-lg">Execute para ver resultados</p>
                   </Card>
                 ) : (
@@ -812,7 +916,7 @@ export function ExercisesView() {
                     {testResults.map((result, idx) => (
                       <Card
                         key={idx}
-                        className={`p-4 border-2 ${
+                        className={`p-4 rounded-xl border-2 ${
                           result.passed
                             ? "bg-green-500/10 border-green-500"
                             : "bg-red-500/10 border-red-500"

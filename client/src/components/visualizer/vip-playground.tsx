@@ -264,7 +264,7 @@ main();`);
   const currentFrame = execution.frames[execution.currentFrame];
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6 space-y-6 bg-gradient-to-br from-slate-950 via-indigo-950/30 to-slate-900 rounded-3xl border border-indigo-400/20 shadow-2xl">
+    <div className="w-full max-w-7xl mx-auto p-6 space-y-6 bg-slate-900/60 rounded-3xl border border-slate-700 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-semibold mb-2">
@@ -284,7 +284,7 @@ main();`);
             variant="outline"
             size="sm"
             onClick={() => setShowMemory(!showMemory)}
-            className="border-indigo-400/40"
+            className="border-slate-700"
           >
             {showMemory ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
             <span className="ml-2">Memory</span>
@@ -293,7 +293,7 @@ main();`);
             variant="outline"
             size="sm"
             onClick={() => setCompareMode(!compareMode)}
-            className="border-indigo-400/40"
+            className="border-slate-700"
           >
             <GitCompare className="w-4 h-4" />
             <span className="ml-2">Compare</span>
@@ -303,7 +303,7 @@ main();`);
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Code Editor */}
-        <Card className="p-4 bg-gradient-to-b from-indigo-900/30 to-slate-900 border border-indigo-400/30">
+        <Card className="p-4 bg-slate-900/60 border border-slate-700 rounded-xl shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <Code2 className="w-5 h-5 text-indigo-400" />
@@ -333,7 +333,7 @@ main();`);
           <textarea
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            className="w-full h-96 p-3 rounded-lg font-mono text-sm bg-black/60 text-indigo-50 border border-indigo-500/30 focus:outline-none focus:ring-2 focus:ring-indigo-400/60"
+            className="w-full h-96 p-3 rounded-lg font-mono text-sm bg-black/60 text-slate-100 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400/60"
             placeholder="Write your JavaScript code here..."
             spellCheck={false}
           />
@@ -341,7 +341,7 @@ main();`);
           <div className="mt-3 flex items-center gap-2">
             <Button
               onClick={executeWithFrames}
-              className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-semibold"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
             >
               <Play className="w-4 h-4 mr-2" />
               Execute & Capture
@@ -350,7 +350,7 @@ main();`);
               onClick={playExecution}
               variant="outline"
               disabled={execution.frames.length === 0 || execution.isRunning}
-              className="border-indigo-400/40"
+              className="border-slate-700"
             >
               <Play className="w-4 h-4" />
             </Button>
@@ -358,7 +358,7 @@ main();`);
               onClick={pauseExecution}
               variant="outline"
               disabled={!execution.isRunning}
-              className="border-indigo-400/40"
+              className="border-slate-700"
             >
               <Pause className="w-4 h-4" />
             </Button>
@@ -366,7 +366,7 @@ main();`);
               onClick={resetExecution}
               variant="outline"
               disabled={execution.frames.length === 0}
-              className="border-indigo-400/40"
+              className="border-slate-700"
             >
               <RotateCcw className="w-4 h-4" />
             </Button>
@@ -389,7 +389,7 @@ main();`);
 
         {/* Comparison Code (if compare mode) */}
         {compareMode && (
-          <Card className="p-4 bg-gradient-to-b from-purple-900/30 to-slate-900 border border-purple-400/30">
+          <Card className="p-4 bg-slate-900/60 border border-slate-700 rounded-xl shadow-sm">
             <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
               <Code2 className="w-5 h-5 text-purple-400" />
               Code B (Comparison)
@@ -397,7 +397,7 @@ main();`);
             <textarea
               value={comparisonCode}
               onChange={(e) => setComparisonCode(e.target.value)}
-              className="w-full h-96 p-3 rounded-lg font-mono text-sm bg-black/60 text-purple-50 border border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-400/60"
+              className="w-full h-96 p-3 rounded-lg font-mono text-sm bg-black/60 text-slate-100 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400/60"
               placeholder="Paste alternative implementation to compare..."
               spellCheck={false}
             />
@@ -406,7 +406,7 @@ main();`);
 
         {/* Execution Visualization */}
         {!compareMode && (
-          <Card className="p-4 bg-gradient-to-b from-slate-900 to-indigo-950/20 border border-indigo-400/30">
+          <Card className="p-4 bg-slate-900/60 border border-slate-700 rounded-xl shadow-sm">
             <Tabs defaultValue="output" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="output">
@@ -451,27 +451,27 @@ main();`);
                     ref={canvasRef}
                     width={600}
                     height={200}
-                    className="w-full rounded-lg bg-black/40 border border-indigo-400/20"
+                    className="w-full rounded-lg bg-black/40 border border-slate-700"
                   />
                   {currentFrame && (
                     <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div className="bg-black/40 rounded p-3 border border-indigo-400/20">
+                      <div className="bg-black/40 rounded p-3 border border-slate-700">
                         <div className="text-xs text-gray-400 mb-1">Current Line</div>
                         <div className="text-lg font-bold text-indigo-300">{currentFrame.line}</div>
                       </div>
-                      <div className="bg-black/40 rounded p-3 border border-indigo-400/20">
+                      <div className="bg-black/40 rounded p-3 border border-slate-700">
                         <div className="text-xs text-gray-400 mb-1">Timestamp</div>
                         <div className="text-lg font-bold text-indigo-300">
                           {currentFrame.timestamp.toFixed(2)}ms
                         </div>
                       </div>
-                      <div className="bg-black/40 rounded p-3 border border-indigo-400/20">
+                      <div className="bg-black/40 rounded p-3 border border-slate-700">
                         <div className="text-xs text-gray-400 mb-1">Memory Usage</div>
                         <div className="text-lg font-bold text-purple-300">
                           {currentFrame.memory.toFixed(0)} KB
                         </div>
                       </div>
-                      <div className="bg-black/40 rounded p-3 border border-indigo-400/20">
+                      <div className="bg-black/40 rounded p-3 border border-slate-700">
                         <div className="text-xs text-gray-400 mb-1">CPU Time</div>
                         <div className="text-lg font-bold text-amber-300">
                           {currentFrame.cpuTime.toFixed(2)}ms
@@ -490,7 +490,7 @@ main();`);
                       {currentFrame.stack.map((fn, idx) => (
                         <div
                           key={`stack-${idx}`}
-                          className="bg-indigo-500/10 border border-indigo-400/30 rounded px-3 py-2 text-sm"
+                          className="bg-indigo-500/10 border border-slate-700 rounded px-3 py-2 text-sm"
                         >
                           {fn}
                         </div>
@@ -502,7 +502,7 @@ main();`);
                         Object.entries(currentFrame.heap).map(([key, val]) => (
                           <div
                             key={`heap-${key}`}
-                            className="bg-purple-500/10 border border-purple-400/30 rounded px-3 py-2 text-sm"
+                            className="bg-purple-500/10 border border-slate-700 rounded px-3 py-2 text-sm"
                           >
                             <span className="text-purple-300">{key}</span>:{" "}
                             <span className="text-gray-300">{JSON.stringify(val)}</span>
@@ -558,7 +558,7 @@ main();`);
       </div>
 
       {/* Educational Tips */}
-      <Card className="p-4 bg-indigo-500/10 border-indigo-400/30">
+      <Card className="p-4 bg-slate-800/80 border border-slate-700 rounded-xl">
         <div className="text-xs text-indigo-100 space-y-2">
           <div className="font-semibold mb-2 flex items-center gap-2">
             <Zap className="w-4 h-4 text-amber-400" />

@@ -349,7 +349,7 @@ output = output_buffer.getvalue().split('\\n')
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-6 space-y-6 bg-gradient-to-br from-slate-950 via-amber-950/20 to-slate-900 rounded-3xl border border-amber-400/20 shadow-2xl shadow-amber-500/10">
+    <div className="w-full max-w-6xl mx-auto p-6 space-y-6 bg-slate-900/60 rounded-3xl border border-slate-700 shadow-sm">
       <div className="flex flex-col gap-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-200 text-xs font-semibold w-fit">
           <Sparkles className="w-4 h-4" /> Pro Debugger - Passo a passo + Snapshots
@@ -359,11 +359,11 @@ output = output_buffer.getvalue().split('\\n')
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <Card className="p-4 bg-gradient-to-b from-amber-900/30 to-slate-900 border border-amber-400/30 shadow-lg shadow-amber-500/10 xl:col-span-1">
+        <Card className="p-4 bg-slate-900/60 border border-slate-700 rounded-xl shadow-sm xl:col-span-1">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-white">Codigo</h2>
             <div className="flex gap-2">
-              <Button size="sm" className="bg-gradient-to-r from-amber-400 to-amber-600 text-black" onClick={executeWithDebug} disabled={debugState.isRunning}>
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={executeWithDebug} disabled={debugState.isRunning}>
                 <Play className="w-4 h-4" /> Executar
               </Button>
               <Button size="sm" variant="outline" onClick={() => setDebugState((prev) => ({ ...prev, currentFrame: 0, frames: [], output: [], error: null }))}>
@@ -375,15 +375,15 @@ output = output_buffer.getvalue().split('\\n')
           <textarea
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            className="w-full h-72 p-3 border rounded-lg font-mono text-sm bg-black/60 text-amber-50 border-amber-500/30 focus:outline-none focus:ring-2 focus:ring-amber-400/60"
+            className="w-full h-72 p-3 border rounded-lg font-mono text-sm bg-black/60 text-slate-100 border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400/60"
             placeholder="Escreva seu codigo Python aqui..."
           />
 
           <div className="grid sm:grid-cols-2 gap-3 mt-4">
-            <Card className="p-3 bg-black/30 border-amber-400/20">
+            <Card className="p-3 bg-black/30 border border-slate-700">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-amber-200 flex items-center gap-2"><Flag className="w-4 h-4" /> Breakpoints</span>
-                <Button size="sm" variant="outline" className="border-amber-400/40 text-amber-200" onClick={handleAddBreakpoint}>+ linha</Button>
+                <span className="text-sm font-semibold text-slate-200 flex items-center gap-2"><Flag className="w-4 h-4" /> Breakpoints</span>
+                <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={handleAddBreakpoint}>+ linha</Button>
               </div>
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {breakpoints.map((bp, idx) => (
@@ -396,7 +396,7 @@ output = output_buffer.getvalue().split('\\n')
                         next[idx] = { ...bp, line: Number(e.target.value) };
                         setBreakpoints(next);
                       }}
-                      className="w-16 bg-black/50 border border-amber-500/30 rounded px-2 py-1 text-amber-100"
+                      className="w-16 bg-black/50 border border-slate-700 rounded px-2 py-1 text-slate-200"
                     />
                     <input
                       type="text"
@@ -407,18 +407,18 @@ output = output_buffer.getvalue().split('\\n')
                         next[idx] = { ...bp, condition: e.target.value };
                         setBreakpoints(next);
                       }}
-                      className="flex-1 bg-black/50 border border-amber-500/30 rounded px-2 py-1 text-amber-100"
+                      className="flex-1 bg-black/50 border border-slate-700 rounded px-2 py-1 text-slate-200"
                     />
                   </div>
                 ))}
-                {breakpoints.length === 0 && <div className="text-amber-100/70 text-xs">Nenhum breakpoint.</div>}
+                {breakpoints.length === 0 && <div className="text-slate-300 text-xs">Nenhum breakpoint.</div>}
               </div>
             </Card>
 
-            <Card className="p-3 bg-black/30 border-amber-400/20">
+            <Card className="p-3 bg-black/30 border border-slate-700">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-amber-200 flex items-center gap-2"><Sparkles className="w-4 h-4" /> Watch</span>
-                <Button size="sm" variant="outline" className="border-amber-400/40 text-amber-200" onClick={() => setWatchList((prev) => [...prev, "novaVar"])}>+ var</Button>
+                <span className="text-sm font-semibold text-slate-200 flex items-center gap-2"><Sparkles className="w-4 h-4" /> Watch</span>
+                <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={() => setWatchList((prev) => [...prev, "novaVar"])}>+ var</Button>
               </div>
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {watchList.map((w, idx) => (
@@ -430,31 +430,31 @@ output = output_buffer.getvalue().split('\\n')
                         next[idx] = e.target.value;
                         setWatchList(next);
                       }}
-                      className="flex-1 bg-black/50 border border-amber-500/30 rounded px-2 py-1 text-amber-100"
+                      className="flex-1 bg-black/50 border border-slate-700 rounded px-2 py-1 text-slate-200"
                     />
                     <span className="text-amber-300 font-mono">{currentFrame ? String(currentFrame.locals?.[w] ?? "-") : "-"}</span>
                   </div>
                 ))}
-                {watchList.length === 0 && <div className="text-amber-100/70 text-xs">Sem watch.</div>}
+                {watchList.length === 0 && <div className="text-slate-300 text-xs">Sem watch.</div>}
               </div>
             </Card>
           </div>
         </Card>
 
-        <Card className="p-4 bg-gradient-to-b from-slate-900 to-amber-950/20 border border-amber-400/30 shadow-lg shadow-amber-500/10 xl:col-span-2">
+        <Card className="p-4 bg-slate-900/60 border border-slate-700 rounded-xl shadow-sm xl:col-span-2">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-3">
             <div className="space-y-1">
               <h2 className="text-lg font-semibold text-white">Estado da Execucao</h2>
               <p className="text-xs text-amber-100/80">Navegue por passos, stack e output; exporte snapshot.</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button size="sm" variant="outline" className="border-amber-400/50 text-amber-200" onClick={handleExport}><Download className="w-4 h-4" /> Exportar JSON</Button>
-              <Button size="sm" variant="outline" className="border-amber-400/50 text-amber-200" onClick={handleCopy}><Copy className="w-4 h-4" /> Copiar snapshot</Button>
+              <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={handleExport}><Download className="w-4 h-4" /> Exportar JSON</Button>
+              <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={handleCopy}><Copy className="w-4 h-4" /> Copiar snapshot</Button>
             </div>
           </div>
 
           <Tabs defaultValue="variables" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-black/30 border border-amber-400/20">
+            <TabsList className="grid w-full grid-cols-4 bg-black/30 border border-slate-700">
               <TabsTrigger value="variables">Variaveis</TabsTrigger>
               <TabsTrigger value="stack">Stack</TabsTrigger>
               <TabsTrigger value="output">Output</TabsTrigger>
@@ -464,7 +464,7 @@ output = output_buffer.getvalue().split('\\n')
             <TabsContent value="variables" className="space-y-2 mt-3 relative">
               {!isPro && (
                 <div className="absolute inset-0 bg-black/70 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center">
-                  <Card className="p-6 bg-gradient-to-br from-amber-900/90 to-slate-900/90 border-2 border-amber-400/50 shadow-xl max-w-sm text-center">
+                  <Card className="p-6 bg-slate-900/90 border border-slate-700 shadow-xl max-w-sm text-center">
                     <Lock className="w-12 h-12 text-amber-400 mx-auto mb-3" />
                     <h4 className="text-xl font-bold text-white mb-2">{t.proFeature || "Pro Feature"}</h4>
                     <p className="text-amber-100/80 text-sm mb-4">
@@ -472,7 +472,7 @@ output = output_buffer.getvalue().split('\\n')
                     </p>
                     <Button
                       size="sm"
-                      className="bg-gradient-to-r from-amber-400 to-amber-600 text-black font-semibold"
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
                       onClick={() => setLocation("/pro")}
                     >
                       <Crown className="w-4 h-4 mr-2" />
@@ -482,29 +482,29 @@ output = output_buffer.getvalue().split('\\n')
                 </div>
               )}
               {currentFrame ? (
-                <div className="space-y-3 bg-black/40 p-4 rounded-lg border border-amber-400/15">
-                  <div className="flex items-center justify-between text-sm text-amber-100">
+                <div className="space-y-3 bg-black/40 p-4 rounded-lg border border-slate-700">
+                  <div className="flex items-center justify-between text-sm text-slate-200">
                     <span>📍 Linha {currentFrame.line} em <span className="font-mono">{currentFrame.function}()</span></span>
                     <span className="text-xs text-amber-200/80">Passo {debugState.currentFrame + 1} / {debugState.frames.length}</span>
                   </div>
                   <div className="grid md:grid-cols-2 gap-2">
                     {Object.entries(currentFrame.locals || {}).map(([key, value]) => (
-                      <div key={key} className="text-sm font-mono flex justify-between bg-slate-900/80 p-2 rounded border border-amber-500/20 text-amber-100">
-                        <span className="font-semibold text-amber-300">{key}</span>
-                        <span className="text-amber-50 truncate">{String(value)}</span>
+                      <div key={key} className="text-sm font-mono flex justify-between bg-slate-900/80 p-2 rounded border border-slate-700 text-slate-200">
+                        <span className="font-semibold text-blue-300">{key}</span>
+                        <span className="text-slate-100 truncate">{String(value)}</span>
                       </div>
                     ))}
                   </div>
                   {Object.keys(currentFrame.locals || {}).length === 0 && (
-                    <p className="text-sm text-amber-100/70">Sem variaveis locais</p>
+                    <p className="text-sm text-slate-300">Sem variaveis locais</p>
                   )}
 
-                  <div className="bg-amber-500/10 border border-amber-400/30 rounded-lg p-3">
-                    <div className="text-xs uppercase tracking-wide text-amber-200 mb-2">Watch</div>
+                  <div className="bg-slate-800/80 border border-slate-700 rounded-lg p-3">
+                    <div className="text-xs uppercase tracking-wide text-slate-200 mb-2">Watch</div>
                     <div className="grid sm:grid-cols-2 gap-2">
                       {currentWatches.map((w) => (
-                        <div key={w.name} className="flex items-center justify-between text-sm font-mono bg-black/40 border border-amber-400/20 rounded px-2 py-1 text-amber-100">
-                          <span className="text-amber-300">{w.name}</span>
+                        <div key={w.name} className="flex items-center justify-between text-sm font-mono bg-black/40 border border-slate-700 rounded px-2 py-1 text-slate-200">
+                          <span className="text-blue-300">{w.name}</span>
                           <span>{w.value}</span>
                         </div>
                       ))}
@@ -512,12 +512,12 @@ output = output_buffer.getvalue().split('\\n')
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-amber-100/70">Execute o codigo para ver variaveis</p>
+                <p className="text-sm text-slate-300">Execute o codigo para ver variaveis</p>
               )}
             </TabsContent>
 
             <TabsContent value="stack" className="mt-3">
-              <div className="bg-black/40 border border-amber-400/15 rounded-lg p-3 grid md:grid-cols-2 gap-4">
+              <div className="bg-black/40 border border-slate-700 rounded-lg p-3 grid md:grid-cols-2 gap-4">
                 <div>
                   <div className="text-sm text-amber-100 mb-2">Timeline de passos</div>
                   <div className="max-h-64 overflow-y-auto space-y-1">
@@ -525,31 +525,31 @@ output = output_buffer.getvalue().split('\\n')
                       <button
                         key={idx}
                         onClick={() => setDebugState((prev) => ({ ...prev, currentFrame: idx }))}
-                        className={`w-full text-left text-xs p-2 rounded font-mono transition ${idx === debugState.currentFrame ? "bg-amber-500 text-black" : "bg-slate-900/80 border border-amber-500/20 text-amber-100 hover:bg-amber-500/10"}`}
+                        className={`w-full text-left text-xs p-2 rounded font-mono transition ${idx === debugState.currentFrame ? "bg-blue-600 text-white" : "bg-slate-900/80 border border-slate-700 text-slate-200 hover:bg-slate-800"}`}
                       >
                         L{frame.line} {frame.function}()
-                        {frame.stack && frame.stack.length > 0 && <span className="ml-2 text-amber-200/80">[{frame.stack.join(" » ")}]</span>}
+                        {frame.stack && frame.stack.length > 0 && <span className="ml-2 text-slate-300">[{frame.stack.join(" » ")}]</span>}
                       </button>
                     ))}
-                    {debugState.frames.length === 0 && <div className="text-xs text-amber-100/70">Sem passos.</div>}
+                    {debugState.frames.length === 0 && <div className="text-xs text-slate-300">Sem passos.</div>}
                   </div>
                 </div>
-                <div className="border-l border-amber-400/20 pl-3">
+                <div className="border-l border-slate-700 pl-3">
                   <CallStack stack={callStackData} />
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="output" className="mt-3">
-              <div className="bg-black/40 border border-amber-400/15 rounded-lg p-3 font-mono text-sm h-48 overflow-y-auto">
+              <div className="bg-black/40 border border-slate-700 rounded-lg p-3 font-mono text-sm h-48 overflow-y-auto">
                 {debugState.output && debugState.output.length > 0 ? (
-                  <div className="space-y-1 text-amber-100">
+                  <div className="space-y-1 text-slate-200">
                     {debugState.output.map((line, idx) => (
                       <div key={idx}>{line}</div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-amber-100/70">{debugState.frames.length > 0 ? "Nenhum output" : "Execute para ver output"}</p>
+                  <p className="text-slate-300">{debugState.frames.length > 0 ? "Nenhum output" : "Execute para ver output"}</p>
                 )}
                 {debugState.error && (
                   <div className="text-red-400 mt-2 font-semibold">❌ {debugState.error}</div>
@@ -558,7 +558,7 @@ output = output_buffer.getvalue().split('\\n')
             </TabsContent>
 
             <TabsContent value="heap" className="mt-3">
-              <div className="bg-black/40 border border-amber-400/15 rounded-lg p-3">
+              <div className="bg-black/40 border border-slate-700 rounded-lg p-3">
                 <HeapMemory heap={(currentFrame?.heap || []).map((obj, idx) => ({
                   id: obj.id,
                   className: obj.className,
@@ -589,7 +589,7 @@ output = output_buffer.getvalue().split('\\n')
             </Button>
           </div>
 
-          <div className="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-400/30 relative">
+          <div className="mt-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700 relative">
             {!isPro && profilerUsageCount >= 1 && (
               <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center">
                 <div className="text-center">
@@ -600,21 +600,21 @@ output = output_buffer.getvalue().split('\\n')
               </div>
             )}
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2 text-amber-100">
+              <div className="flex items-center gap-2 text-slate-200">
                 <Clock3 className="w-4 h-4" /> {t.profiler || "Profiler"} (5 {t.executions || "executions"})
-                {!isPro && <span className="ml-2 px-2 py-0.5 bg-amber-500/20 text-amber-300 text-xs rounded">({1 - profilerUsageCount} {t.freeLeft || "free left"})</span>}
+                {!isPro && <span className="ml-2 px-2 py-0.5 bg-blue-500/20 text-blue-200 text-xs rounded">({1 - profilerUsageCount} {t.freeLeft || "free left"})</span>}
               </div>
               <div className="flex gap-2">
                 <Button 
                   size="sm" 
-                  className="bg-gradient-to-r from-amber-400 to-amber-600 text-black" 
+                  className="bg-blue-600 hover:bg-blue-700 text-white" 
                   onClick={handleRunProfiler}
                   disabled={!isPro && profilerUsageCount >= 1}
                 >
                   {t.runProfiler || "Run Profiler"}
                 </Button>
                 {profilerRuns.length > 0 && (
-                  <Button size="sm" variant="outline" className="border-amber-400/50 text-amber-200" onClick={() => {
+                  <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={() => {
                     setProfilerRuns([]);
                     localStorage.removeItem('pro-debugger-profiler');
                   }}>{t.clear || "Clear"}</Button>
@@ -629,40 +629,40 @@ output = output_buffer.getvalue().split('\\n')
                     const height = (ms / maxVal) * 60;
                     return (
                       <div key={idx} className="flex flex-col items-center flex-1 gap-1">
-                        <div className="text-amber-100 text-[10px] font-mono">{ms}ms</div>
+                        <div className="text-slate-200 text-[10px] font-mono">{ms}ms</div>
                         <div 
-                          className="w-full bg-gradient-to-t from-amber-400 to-amber-600 rounded-t transition-all duration-300" 
+                          className="w-full bg-gradient-to-t from-blue-400 to-blue-600 rounded-t transition-all duration-300" 
                           style={{ height: `${height}px` }} 
                           title={`Execucao ${idx + 1}: ${ms}ms`}
                         />
-                        <div className="text-amber-200/60 text-[10px]">#{idx + 1}</div>
+                        <div className="text-slate-300 text-[10px]">#{idx + 1}</div>
                       </div>
                     );
                   })}
                 </div>
                 <div className="grid grid-cols-3 gap-3 text-xs">
-                  <div className="bg-black/30 p-2 rounded border border-amber-400/20">
-                    <div className="text-amber-200/80 mb-1">Media</div>
-                    <div className="text-amber-100 font-mono font-semibold">
+                  <div className="bg-black/30 p-2 rounded border border-slate-700">
+                    <div className="text-slate-300 mb-1">Media</div>
+                    <div className="text-slate-200 font-mono font-semibold">
                       {(profilerRuns.reduce((a, b) => a + b, 0) / profilerRuns.length).toFixed(2)} ms
                     </div>
                   </div>
-                  <div className="bg-black/30 p-2 rounded border border-green-400/20">
-                    <div className="text-green-200/80 mb-1">Minimo</div>
-                    <div className="text-green-100 font-mono font-semibold">
+                  <div className="bg-black/30 p-2 rounded border border-slate-700">
+                    <div className="text-slate-300 mb-1">Minimo</div>
+                    <div className="text-slate-200 font-mono font-semibold">
                       {Math.min(...profilerRuns).toFixed(2)} ms
                     </div>
                   </div>
-                  <div className="bg-black/30 p-2 rounded border border-red-400/20">
-                    <div className="text-red-200/80 mb-1">Maximo</div>
-                    <div className="text-red-100 font-mono font-semibold">
+                  <div className="bg-black/30 p-2 rounded border border-slate-700">
+                    <div className="text-slate-300 mb-1">Maximo</div>
+                    <div className="text-slate-200 font-mono font-semibold">
                       {Math.max(...profilerRuns).toFixed(2)} ms
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="text-center text-amber-100/50 text-sm py-4">
+              <div className="text-center text-slate-300 text-sm py-4">
                 Execute o profiler para ver estatisticas de performance
               </div>
             )}
