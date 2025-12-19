@@ -34,6 +34,10 @@ export default function ProPage() {
   );
   const [profilerRuns, setProfilerRuns] = useState<Array<{ run: number; ms: number; result?: any }>>([]);
   const [profilerError, setProfilerError] = useState<string | null>(null);
+  const [category, setCategory] = useState<"all" | "algorithms" | "data-structures" | "async" | "performance" | "design-patterns">("all");
+  const [sort, setSort] = useState<"relevance" | "difficulty" | "time">("relevance");
+  const [difficulty, setDifficulty] = useState<"all" | "beginner" | "intermediate" | "advanced">("all");
+  const [query, setQuery] = useState("");
 
   const [breakpoints, setBreakpoints] = useState<Array<{ id: string; line: number; condition?: string; active: boolean }>>([
     { id: "bp-1", line: 12, condition: "i === 5", active: true },
@@ -361,8 +365,79 @@ export default function ProPage() {
             </div>
           </div>
 
+          {/* Category filter */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {[
+              { id: "all", label: t.proCategoryAll },
+              { id: "algorithms", label: t.proCategoryAlgorithms },
+              { id: "data-structures", label: t.proCategoryDataStructures },
+              { id: "async", label: t.proCategoryAsync },
+              { id: "performance", label: t.proCategoryPerformance },
+              { id: "design-patterns", label: t.proCategoryDesignPatterns },
+            ].map((c: any) => (
+              <button
+                key={c.id}
+                onClick={() => setCategory(c.id)}
+                className={`text-xs px-3 py-1.5 rounded-full border transition ${
+                  (category === c.id)
+                    ? "bg-amber-500/20 text-amber-200 border-amber-400/40"
+                    : "bg-slate-900/60 text-slate-300 border-slate-700 hover:bg-slate-800"
+                }`}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Difficulty + search */}
+          <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
+            <div className="flex flex-wrap gap-2">
+              {[{id:"all",label:t.proCategoryAll},{id:"beginner",label:t.beginner},{id:"intermediate",label:t.intermediate},{id:"advanced",label:t.advanced}].map((d:any)=> (
+                <button
+                  key={d.id}
+                  onClick={() => setDifficulty(d.id)}
+                  className={`text-xs px-3 py-1.5 rounded-full border transition ${
+                    (difficulty === d.id)
+                      ? "bg-purple-500/20 text-purple-200 border-purple-400/40"
+                      : "bg-slate-900/60 text-slate-300 border-slate-700 hover:bg-slate-800"
+                  }`}
+                >{d.label}</button>
+              ))}
+            </div>
+            <div className="flex-1 flex items-center gap-2">
+              <input
+                value={query}
+                onChange={(e)=> setQuery(e.target.value)}
+                placeholder={t.proSearchPlaceholder}
+                className="w-full md:max-w-sm text-sm px-3 py-2 rounded-lg bg-slate-950/60 border border-slate-700 text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+              />
+              <select
+                onChange={(e)=> setSort(e.target.value as any)}
+                className="text-sm px-3 py-2 rounded-lg bg-slate-950/60 border border-slate-700 text-slate-200 focus:outline-none"
+              >
+                <option value="relevance">Sort: Recommended</option>
+                <option value="difficulty">Sort: Difficulty</option>
+                <option value="time">Sort: Time</option>
+              </select>
+            </div>
+          </div>
+
           <ProExercisesGrid
-            exercises={getAllProExercises()}
+            exercises={getAllProExercises()
+              .filter(ex => (category === "all") ? true : ex.category === category)
+              .filter(ex => (difficulty === "all") ? true : ex.difficulty.toLowerCase() === difficulty)
+              .filter(ex => !query.trim() ? true : (ex.title + " " + ex.description).toLowerCase().includes(query.trim().toLowerCase()))
+              .sort((a, b) => {
+                if (sort === "difficulty") {
+                  const w = { Beginner: 1, Intermediate: 2, Advanced: 3 } as const;
+                  return w[a.difficulty] - w[b.difficulty];
+                }
+                if (sort === "time") {
+                  const parse = (s: string) => { const m = s.match(/\d+/); return m ? parseInt(m[0], 10) : 0; };
+                  return parse(a.estimatedTime) - parse(b.estimatedTime);
+                }
+                return 0;
+              })}
             completedIds={[]}
             onSelectExercise={(ex) => {
               toast({ title: `${t.proFeature}: ${ex.title}`, description: t.proChallengesSubtitle });

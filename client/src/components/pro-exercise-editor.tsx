@@ -109,7 +109,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
 
   const executeCode = async () => {
     if (!code.trim()) {
-      toast({ title: "⚠️", description: "Escreva algum código primeiro", variant: "destructive" });
+      toast({ title: "⚠️", description: t.writeCodeFirst, variant: "destructive" });
       return;
     }
 
@@ -152,7 +152,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
         executeLineByLineJavaScript();
       }
     } catch (err: any) {
-      toast({ title: "❌ Erro", description: err.message || "Erro na execução", variant: "destructive" });
+      toast({ title: `❌ ${t.error}`, description: String(err?.message || err), variant: "destructive" });
     } finally {
       setExecuting(false);
     }
@@ -162,11 +162,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
     try {
       const functionNameMatch = code.match(/def\s+(\w+)\s*\(/);
       if (!functionNameMatch) {
-        toast({
-          title: "❌ Erro",
-          description: "Nenhuma função encontrada. Use 'def' para declarar sua função em Python.",
-          variant: "destructive",
-        });
+        toast({ title: `❌ ${t.syntaxError}`, description: t.useDefKeyword, variant: "destructive" });
         return;
       }
 
@@ -175,11 +171,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
       try {
         py = await getPyodideInstance();
       } catch (e) {
-        toast({
-          title: "❌ Erro ao carregar Python",
-          description: "Falha ao carregar o interpretador Python",
-          variant: "destructive",
-        });
+        toast({ title: `❌ ${t.pythonLoadError}`, description: t.failedToLoadPython, variant: "destructive" });
         return;
       }
 
@@ -227,7 +219,8 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
       }
 
       setTestResults(results);
-      setOutput(`✓ ${results.filter(r => r.passed).length}/${results.length} testes passaram`);
+      const passed = results.filter(r => r.passed).length;
+      setOutput(passed === results.length ? t.allTestsPassed : t.someTestsFailed);
 
       const newAttempt: AttemptHistory = {
         id: Date.now().toString(),
@@ -288,7 +281,8 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
       }
 
       setTestResults(results);
-      setOutput(`✓ ${results.filter(r => r.passed).length}/${results.length} testes passaram`);
+      const passed = results.filter(r => r.passed).length;
+      setOutput(passed === results.length ? t.allTestsPassed : t.someTestsFailed);
 
       const newAttempt: AttemptHistory = {
         id: Date.now().toString(),
@@ -396,7 +390,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 className="w-full h-96 p-4 bg-black/60 text-purple-50 border border-purple-500/30 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-purple-400/60"
-                placeholder="Escreva seu código aqui..."
+                placeholder={t.writeCodeFirst}
               />
             </Card>
 
@@ -408,18 +402,18 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                 className="bg-gradient-to-r from-purple-400 to-purple-600 text-black font-semibold hover:from-purple-500 hover:to-purple-700"
               >
                 <Play className="w-4 h-4 mr-2" />
-                {executing ? "Executando..." : "Executar Código"}
+                {executing ? t.executing : t.execute}
               </Button>
               <Button onClick={resetCode} variant="outline">
                 <RotateCcw className="w-4 h-4 mr-2" />
-                Resetar
+                {t.clear}
               </Button>
               <Button
                 onClick={() => setShowSolution(!showSolution)}
                 variant="outline"
               >
                 <Eye className="w-4 h-4 mr-2" />
-                {showSolution ? "Ocultar" : "Ver"} Solução
+                {t.viewSolution}
               </Button>
               <Button
                 onClick={getAiHint}
@@ -427,7 +421,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                 variant="outline"
               >
                 <Lightbulb className="w-4 h-4 mr-2" />
-                {aiHintLoading ? "Carregando..." : "Dica IA"}
+                {t.hint}
               </Button>
             </div>
 
@@ -436,7 +430,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
               <Card className="p-4 bg-gradient-to-b from-amber-900/20 to-slate-900 border border-amber-400/30">
                 <div className="flex items-center gap-2 mb-3">
                   <Check className="w-5 h-5 text-amber-400" />
-                  <h3 className="font-semibold text-amber-100">Solução Oficial</h3>
+                  <h3 className="font-semibold text-amber-100">{t.solutionTitle}</h3>
                 </div>
                 <pre className="bg-black/60 p-3 rounded border border-amber-500/20 text-amber-50 text-sm overflow-x-auto font-mono">
                   {exercise.solution?.[language] || exercise.solution?.javascript}
@@ -452,9 +446,9 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
           <div className="space-y-4">
             <Tabs defaultValue="tests" className="w-full">
               <TabsList className="grid w-full grid-cols-3 bg-black/30 border border-purple-400/20">
-                <TabsTrigger value="tests">Testes</TabsTrigger>
-                <TabsTrigger value="stats">Stats</TabsTrigger>
-                <TabsTrigger value="history">Histórico</TabsTrigger>
+                <TabsTrigger value="tests">{t.tests}</TabsTrigger>
+                <TabsTrigger value="stats">{t.statsTab || 'Stats'}</TabsTrigger>
+                <TabsTrigger value="history">{t.historyTab || 'History'}</TabsTrigger>
               </TabsList>
 
               {/* Tests Tab */}
@@ -462,7 +456,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                 {testResults.length === 0 ? (
                   <Card className="p-6 bg-black/40 border border-purple-400/20 text-center">
                     <p className="text-purple-200/70 text-sm">
-                      Execute o código para ver os resultados dos testes
+                      {t.runToSeeResults}
                     </p>
                   </Card>
                 ) : (
@@ -497,13 +491,13 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                           {!test.passed && (
                             <div className="text-xs text-gray-200 mt-2 space-y-1">
                               <p>
-                                <strong>Esperado:</strong>{" "}
+                                <strong>{t.expectedLabel || t.expected}:</strong>{" "}
                                 <code className="bg-black/40 px-1 rounded">
                                   {test.expected}
                                 </code>
                               </p>
                               <p>
-                                <strong>Recebido:</strong>{" "}
+                                <strong>{t.receivedLabel || t.received}:</strong>{" "}
                                 <code className="bg-black/40 px-1 rounded">
                                   {test.received}
                                 </code>
@@ -524,7 +518,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                     <Card className="p-4 bg-gradient-to-br from-purple-900/40 to-slate-900 border border-purple-400/30">
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-purple-200">Taxa de Sucesso</span>
+                          <span className="text-purple-200">{t.statsSuccessRate || 'Success Rate'}</span>
                           <span className="text-2xl font-bold text-purple-400">
                             {stats.percentage}%
                           </span>
@@ -536,24 +530,20 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                           />
                         </div>
                         <p className="text-sm text-purple-200/70">
-                          {stats.passed} de {stats.total} testes passaram
+                          {stats.passed}/{stats.total} {t.tests}
                         </p>
                       </div>
                     </Card>
 
                     <Card className="p-4 bg-black/30 border border-purple-400/20 space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-purple-200">
-                          Tempo Médio
-                        </span>
+                        <span className="text-sm text-purple-200">{t.avgTime || 'Average Time'}</span>
                         <span className="font-mono text-purple-100">
                           {stats.avgTime}ms
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-purple-200">
-                          Tentativas
-                        </span>
+                        <span className="text-sm text-purple-200">{t.attemptsLabel || 'Attempts'}</span>
                         <span className="font-semibold text-purple-400">
                           {attempts.length}
                         </span>
@@ -564,18 +554,14 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                       <Card className="p-4 bg-gradient-to-br from-green-900/40 to-emerald-900/40 border border-green-400/30">
                         <div className="flex items-center gap-2 text-green-100">
                           <Award className="w-5 h-5" />
-                          <span className="font-semibold">
-                            🎉 Parabéns! Desafio Completo!
-                          </span>
+                          <span className="font-semibold">{t.congratsCompleted || '🎉 Congrats! Challenge Completed!'}</span>
                         </div>
                       </Card>
                     )}
                   </>
                 ) : (
                   <Card className="p-6 bg-black/40 border border-purple-400/20 text-center">
-                    <p className="text-purple-200/70 text-sm">
-                      Sem estatísticas ainda
-                    </p>
+                    <p className="text-purple-200/70 text-sm">{t.noStatsYet || 'No statistics yet'}</p>
                   </Card>
                 )}
               </TabsContent>
@@ -584,9 +570,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
               <TabsContent value="history" className="space-y-2 mt-3 max-h-80 overflow-y-auto">
                 {attempts.length === 0 ? (
                   <Card className="p-6 bg-black/40 border border-purple-400/20 text-center">
-                    <p className="text-purple-200/70 text-sm">
-                      Nenhuma tentativa ainda
-                    </p>
+                    <p className="text-purple-200/70 text-sm">{t.noAttemptsYet || 'No attempts yet'}</p>
                   </Card>
                 ) : (
                   attempts.map((attempt) => (
@@ -607,11 +591,10 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                           )}
                           <div>
                             <p className="text-sm font-semibold text-white">
-                              {attempt.timestamp.toLocaleTimeString("pt-BR")}
+                              {attempt.timestamp.toLocaleTimeString()}
                             </p>
                             <p className="text-xs text-gray-300">
-                              {attempt.language} • {attempt.passedCount}/
-                              {attempt.testsCount} testes
+                              {attempt.language} • {attempt.passedCount}/{attempt.testsCount} {t.tests}
                             </p>
                           </div>
                         </div>
@@ -629,10 +612,10 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Zap className="w-5 h-5 text-green-400" />
-                    <h3 className="font-semibold text-green-100">Execução em Tempo Real</h3>
+                    <h3 className="font-semibold text-green-100">{t.realTimeExecution || 'Real-time Execution'}</h3>
                   </div>
                   <div className="text-xs text-green-200/70">
-                    Linha: {executionState.currentLineIndex + 1}/{executionState.lines.length}
+                    {(t.lineLabel || 'Line')}: {executionState.currentLineIndex + 1}/{executionState.lines.length}
                   </div>
                 </div>
                 
@@ -646,7 +629,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                 </div>
 
                 {executionState.logs.length === 0 && (
-                  <p className="text-xs text-green-200/50 italic">Aguardando execução...</p>
+                  <p className="text-xs text-green-200/50 italic">{t.waitingExecution || 'Waiting for execution...'}</p>
                 )}
               </Card>
             )}
@@ -654,7 +637,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
             {/* Output */}
             {output && (
               <Card className="p-3 bg-black/60 border border-purple-400/20">
-                <p className="text-xs text-purple-200/70 mb-2">📤 Output:</p>
+                <p className="text-xs text-purple-200/70 mb-2">📤 {t.outputLabel || 'Output'}:</p>
                 <pre className="text-xs text-purple-100 font-mono overflow-x-auto">
                   {output}
                 </pre>
@@ -669,7 +652,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
             <div>
               <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-purple-400" />
-                Descrição
+                {t.descriptionLabel || 'Description'}
               </h3>
               <p className="text-purple-100/80 text-sm leading-relaxed">
                 {exercise.description}
@@ -678,14 +661,14 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
             <div>
               <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-purple-400" />
-                Complexidade
+                {t.complexityLabel || 'Complexity'}
               </h3>
               <div className="space-y-1 text-sm text-purple-100/80">
                 <p>
-                  <strong>Tempo:</strong> O({exercise.complexity?.time || "n"})
+                  <strong>{t.timeComplexity || 'Time'}:</strong> O({exercise.complexity?.time || "n"})
                 </p>
                 <p>
-                  <strong>Espaço:</strong> O({exercise.complexity?.space || "1"})
+                  <strong>{t.spaceComplexity || 'Space'}:</strong> O({exercise.complexity?.space || "1"})
                 </p>
               </div>
             </div>

@@ -96,6 +96,24 @@ export interface Translations {
   error: string;
   writeCodeFirst: string;
   nextExercise: string;
+  statsTab?: string;
+  historyTab?: string;
+  statsSuccessRate?: string;
+  avgTime?: string;
+  attemptsLabel?: string;
+  noStatsYet?: string;
+  congratsCompleted?: string;
+  realTimeExecution?: string;
+  lineLabel?: string;
+  waitingExecution?: string;
+  outputLabel?: string;
+  descriptionLabel?: string;
+  complexityLabel?: string;
+  timeComplexity?: string;
+  spaceComplexity?: string;
+  expectedLabel?: string;
+  receivedLabel?: string;
+  noAttemptsYet?: string;
   
   // Hints and solutions
   hintTitle: string;
@@ -225,6 +243,18 @@ export interface Translations {
   proChallengesBadge: string;
   proChallengesSubtitle: string;
   proMiniDemosSubtitle: string;
+  proCategoryAll: string;
+  proCategoryAlgorithms: string;
+  proCategoryDataStructures: string;
+  proCategoryAsync: string;
+  proCategoryPerformance: string;
+  proCategoryDesignPatterns: string;
+  proSearchPlaceholder: string;
+  proSolveChallenge: string;
+  proUnlockWithPro: string;
+  proNoExercisesFound: string;
+  proExercisesLockedTitle: string;
+  proExercisesLockedDesc: string;
   billingTitle: string;
   billingDescription: string;
   openBillingPortal: string;
@@ -430,7 +460,7 @@ export interface Translations {
   executionLimitReached: string;
 }
 
-export const translations: Record<Language, Translations> = {
+export const translations: Record<Language, Partial<Translations>> = {
   'en': {
     // Header
     challenges: 'Challenges',
@@ -527,6 +557,24 @@ export const translations: Record<Language, Translations> = {
     error: 'Error',
     writeCodeFirst: 'Write your code first!',
     nextExercise: 'Next',
+    statsTab: 'Stats',
+    historyTab: 'History',
+    statsSuccessRate: 'Success Rate',
+    avgTime: 'Average Time',
+    attemptsLabel: 'Attempts',
+    noStatsYet: 'No statistics yet',
+    congratsCompleted: '🎉 Congrats! Challenge Completed!',
+    realTimeExecution: 'Real-time Execution',
+    lineLabel: 'Line',
+    waitingExecution: 'Waiting for execution...',
+    outputLabel: 'Output',
+    descriptionLabel: 'Description',
+    complexityLabel: 'Complexity',
+    timeComplexity: 'Time',
+    spaceComplexity: 'Space',
+    expectedLabel: 'Expected',
+    receivedLabel: 'Received',
+    noAttemptsYet: 'No attempts yet',
     
     // Hints and solutions
     hintTitle: 'Hint',
@@ -656,6 +704,18 @@ export const translations: Record<Language, Translations> = {
     proChallengesBadge: 'Pro Challenges - Advanced Algorithms',
     proChallengesSubtitle: 'Exercises with full solutions and an integrated debugger',
     proMiniDemosSubtitle: 'Quick preview of Pro labs.',
+    proCategoryAll: 'All',
+    proCategoryAlgorithms: 'Algorithms',
+    proCategoryDataStructures: 'Data Structures',
+    proCategoryAsync: 'Async',
+    proCategoryPerformance: 'Performance',
+    proCategoryDesignPatterns: 'Design Patterns',
+    proSearchPlaceholder: 'Search exercises...',
+    proSolveChallenge: 'Solve challenge',
+    proUnlockWithPro: 'Unlock with Pro',
+    proNoExercisesFound: 'No Pro exercises found in this category.',
+    proExercisesLockedTitle: 'Pro Exercises Locked',
+    proExercisesLockedDesc: 'Unlock advanced challenges with hints, full solutions, and visual debugger support. Just $2/month.',
     billingTitle: 'Billing and payment method',
     billingDescription: 'Manage invoices, update card, and export receipts directly in the secure portal.',
     openBillingPortal: 'Open billing portal',
@@ -957,6 +1017,24 @@ export const translations: Record<Language, Translations> = {
     error: 'Erro',
     writeCodeFirst: 'Escreva seu código primeiro!',
     nextExercise: 'Próximo',
+    statsTab: 'Estatísticas',
+    historyTab: 'Histórico',
+    statsSuccessRate: 'Taxa de Sucesso',
+    avgTime: 'Tempo Médio',
+    attemptsLabel: 'Tentativas',
+    noStatsYet: 'Sem estatísticas ainda',
+    congratsCompleted: '🎉 Parabéns! Desafio Completo!',
+    realTimeExecution: 'Execução em Tempo Real',
+    lineLabel: 'Linha',
+    waitingExecution: 'Aguardando execução...',
+    outputLabel: 'Output',
+    descriptionLabel: 'Descrição',
+    complexityLabel: 'Complexidade',
+    timeComplexity: 'Tempo',
+    spaceComplexity: 'Espaço',
+    expectedLabel: 'Esperado',
+    receivedLabel: 'Recebido',
+    noAttemptsYet: 'Nenhuma tentativa ainda',
     
     // Hints and solutions
     hintTitle: 'Dica',
@@ -1086,6 +1164,18 @@ export const translations: Record<Language, Translations> = {
     proChallengesBadge: 'Desafios Pro - Algoritmos Avançados',
     proChallengesSubtitle: 'Exercícios com soluções completas e debugger integrado',
     proMiniDemosSubtitle: 'Visão rápida dos laboratórios Pro.',
+    proCategoryAll: 'Todos',
+    proCategoryAlgorithms: 'Algoritmos',
+    proCategoryDataStructures: 'Estruturas de Dados',
+    proCategoryAsync: 'Assíncrono',
+    proCategoryPerformance: 'Desempenho',
+    proCategoryDesignPatterns: 'Padrões de Projeto',
+    proSearchPlaceholder: 'Buscar exercícios...',
+    proSolveChallenge: 'Resolver desafio',
+    proUnlockWithPro: 'Desbloquear com Pro',
+    proNoExercisesFound: 'Nenhum exercício Pro encontrado nesta categoria.',
+    proExercisesLockedTitle: 'Exercícios Pro Bloqueados',
+    proExercisesLockedDesc: 'Desbloqueie desafios avançados com dicas, soluções completas e debugger visual. Apenas $2/mês.',
     billingTitle: 'Faturas e método de pagamento',
     billingDescription: 'Gerencie faturas, atualize cartão e exporte recibos diretamente no portal seguro.',
     openBillingPortal: 'Abrir portal de cobrança',
@@ -1387,6 +1477,24 @@ export const translations: Record<Language, Translations> = {
     error: 'Error',
     writeCodeFirst: '¡Escribe tu código primero!',
     nextExercise: 'Siguiente',
+    statsTab: 'Estadísticas',
+    historyTab: 'Historial',
+    statsSuccessRate: 'Tasa de éxito',
+    avgTime: 'Tiempo promedio',
+    attemptsLabel: 'Intentos',
+    noStatsYet: 'Aún no hay estadísticas',
+    congratsCompleted: '🎉 ¡Felicidades! ¡Desafío completado!',
+    realTimeExecution: 'Ejecución en tiempo real',
+    lineLabel: 'Línea',
+    waitingExecution: 'Esperando ejecución...',
+    outputLabel: 'Salida',
+    descriptionLabel: 'Descripción',
+    complexityLabel: 'Complejidad',
+    timeComplexity: 'Tiempo',
+    spaceComplexity: 'Espacio',
+    expectedLabel: 'Esperado',
+    receivedLabel: 'Recibido',
+    noAttemptsYet: 'Aún no hay intentos',
     
     // Hints and solutions
     hintTitle: 'Pista',
@@ -1516,6 +1624,18 @@ export const translations: Record<Language, Translations> = {
     proChallengesBadge: 'Desafíos Pro - Algoritmos Avanzados',
     proChallengesSubtitle: 'Ejercicios con soluciones completas y depurador integrado',
     proMiniDemosSubtitle: 'Vista rápida de los laboratorios Pro.',
+    proCategoryAll: 'Todos',
+    proCategoryAlgorithms: 'Algoritmos',
+    proCategoryDataStructures: 'Estructuras de Datos',
+    proCategoryAsync: 'Asíncrono',
+    proCategoryPerformance: 'Rendimiento',
+    proCategoryDesignPatterns: 'Patrones de Diseño',
+    proSearchPlaceholder: 'Buscar ejercicios...',
+    proSolveChallenge: 'Resolver desafío',
+    proUnlockWithPro: 'Desbloquear con Pro',
+    proNoExercisesFound: 'No se encontraron ejercicios Pro en esta categoría.',
+    proExercisesLockedTitle: 'Ejercicios Pro Bloqueados',
+    proExercisesLockedDesc: 'Desbloquea desafíos avanzados con pistas, soluciones completas y depurador visual. Solo $2/mes.',
     billingTitle: 'Facturas y método de pago',
     billingDescription: 'Gestiona facturas, actualiza tarjeta y exporta recibos directamente en el portal seguro.',
     openBillingPortal: 'Abrir portal de facturación',
@@ -1944,6 +2064,18 @@ export const translations: Record<Language, Translations> = {
     proChallengesBadge: 'Pro 挑战 - 高级算法',
     proChallengesSubtitle: '带完整解答与集成调试器的练习',
     proMiniDemosSubtitle: 'Pro 实验室的快速预览。',
+    proCategoryAll: '全部',
+    proCategoryAlgorithms: '算法',
+    proCategoryDataStructures: '数据结构',
+    proCategoryAsync: '异步',
+    proCategoryPerformance: '性能',
+    proCategoryDesignPatterns: '设计模式',
+    proSearchPlaceholder: '搜索练习...',
+    proSolveChallenge: '开始挑战',
+    proUnlockWithPro: '用 Pro 解锁',
+    proNoExercisesFound: '该分类下没有 Pro 练习。',
+    proExercisesLockedTitle: 'Pro 练习已锁定',
+    proExercisesLockedDesc: '解锁高级挑战，包含提示、完整解答和可视化调试器。仅 $2/月。',
     billingTitle: '账单和支付方式',
     billingDescription: '在安全门户中管理账单、更新卡片并导出收据。',
     openBillingPortal: '打开账单门户',
@@ -2263,6 +2395,18 @@ export const translations: Record<Language, Translations> = {
     proChallengesBadge: 'Pro चुनौतियाँ - उन्नत एल्गोरिदम',
     proChallengesSubtitle: 'पूर्ण समाधानों और इंटीग्रेटेड डिबगर वाले अभ्यास',
     proMiniDemosSubtitle: 'Pro लैब्स का त्वरित पूर्वावलोकन।',
+    proCategoryAll: 'सभी',
+    proCategoryAlgorithms: 'एल्गोरिदम',
+    proCategoryDataStructures: 'डेटा संरचनाएँ',
+    proCategoryAsync: 'असिंक्रोनस',
+    proCategoryPerformance: 'प्रदर्शन',
+    proCategoryDesignPatterns: 'डिज़ाइन पैटर्न',
+    proSearchPlaceholder: 'अभ्यास खोजें...',
+    proSolveChallenge: 'चैलेंज हल करें',
+    proUnlockWithPro: 'Pro से अनलॉक करें',
+    proNoExercisesFound: 'इस श्रेणी में कोई Pro अभ्यास नहीं मिला।',
+    proExercisesLockedTitle: 'Pro अभ्यास लॉक हैं',
+    proExercisesLockedDesc: 'एडवांस्ड चुनौतियाँ अनलॉक करें: संकेत, पूर्ण समाधान और विज़ुअल डिबगर के साथ। सिर्फ $2/माह।',
     billingTitle: 'बिलिंग और भुगतान विधि',
     billingDescription: 'सुरक्षित पोर्टल में बिलिंग, कार्ड अपडेट, और रसीदें एक्सपोर्ट करें।',
     openBillingPortal: 'बिलिंग पोर्टल खोलें',
@@ -2359,7 +2503,9 @@ export const translations: Record<Language, Translations> = {
 };
 
 export const getTranslation = (lang: Language): Translations => {
-  return translations[lang] || translations['en'];
+  const base = translations['en'] as Translations;
+  const override = translations[lang] || {};
+  return { ...base, ...override } as Translations;
 };
 
 export const getLanguageName = (lang: Language): string => {
