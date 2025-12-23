@@ -1,103 +1,11 @@
-﻿import { Lesson } from "./types";
+﻿import { exercises as exercisesNew } from "./exercises-new";
 
-// ==========================================
-// EXERCISES/TASKS SYSTEM WITH MULTI-LANGUAGE SUPPORT
-// ==========================================
+export const exercises = exercisesNew;
+export default exercisesNew;
+import { exercises as exercisesNew } from "./exercises-new";
 
-export type Language = "javascript" | "python" | "c" | "csharp" | "java";
-
-export interface LanguageVariant {
-  language: Language;
-  initialCode: string;
-  solution: string;
-  hint?: string;
-}
-
-export interface Exercise {
-  id: string;
-  title: string;
-  description: string;
-  difficulty: "Beginner" | "Intermediate" | "Advanced";
-  variants: {
-    javascript?: LanguageVariant;
-    python?: LanguageVariant;
-    c?: LanguageVariant;
-    csharp?: LanguageVariant;
-    java?: LanguageVariant;
-  };
-  tests: {
-    name: string;
-    input: any[];
-    expected: any;
-  }[];
-}
-
-// ==========================================
-// 20 EXERCISES WITH MULTI-LANGUAGE SUPPORT
-// ==========================================
-
-export const exercises: Exercise[] = [
-  {
-    id: "sum-two-numbers",
-    title: "Sum Two Numbers",
-    description: "Write a function that takes two numbers and returns their sum.",
-    difficulty: "Beginner",
-    variants: {
-      javascript: {
-        language: "javascript",
-        initialCode: `function sum(a, b) {\n  // Your code here\n  \n}`,
-        solution: `function sum(a, b) {\n  return a + b;\n}`,
-        hint: "Use the + operator to add the parameters",
-      },
-      python: {
-        language: "python",
-        initialCode: `def sum(a, b):\n    # Your code here\n    pass`,
-        solution: `def sum(a, b):\n    return a + b`,
-        hint: "Use the + operator to add the parameters",
-      },
-      c: {
-        language: "c",
-        initialCode: `#include <stdio.h>\n\nint sum(int a, int b) {\n  // Your code here\n  \n}\n\nint main() {\n  return 0;\n}`,
-        solution: `#include <stdio.h>\n\nint sum(int a, int b) {\n  return a + b;\n}\n\nint main() {\n  return 0;\n}`,
-        hint: "Use the + operator to add the parameters",
-      },
-      csharp: {
-        language: "csharp",
-        initialCode: `public class Program {\n  public static int sum(int a, int b) {\n    // Your code here\n    \n  }\n}`,
-        solution: `public class Program {\n  public static int sum(int a, int b) {\n    return a + b;\n  }\n}`,
-        hint: "Use the + operator to add the parameters",
-      },
-      java: {
-        language: "java",
-        initialCode: `public class Program {\n  public static int sum(int a, int b) {\n    // Your code here\n    \n  }\n}`,
-        solution: `public class Program {\n  public static int sum(int a, int b) {\n    return a + b;\n  }\n}`,
-        hint: "Use the + operator to add the parameters",
-      },
-    },
-    tests: [
-      { name: "Sum(2, 3)", input: [2, 3], expected: 5 },
-      { name: "Sum(10, 5)", input: [10, 5], expected: 15 },
-      { name: "Sum(-5, 5)", input: [-5, 5], expected: 0 },
-    ],
-  },
-  {
-    id: "even-or-odd",
-    title: "Even or Odd",
-    description: "Write a function that checks if a number is even or odd.",
-    difficulty: "Beginner",
-    variants: {
-      javascript: {
-        language: "javascript",
-        initialCode: `function isEven(number) {\n  // Your code here\n  \n}`,
-        solution: `function isEven(number) {\n  return number % 2 === 0 ? "even" : "odd";\n}`,
-        hint: "Use the modulo operator (%) to get the remainder",
-      },
-      python: {
-        language: "python",
-        initialCode: `def is_even(number):\n    # Your code here\n    pass`,
-        solution: `def is_even(number):\n    return "even" if number % 2 == 0 else "odd"`,
-        hint: "Use the modulo operator (%) to get the remainder",
-      },
+export const exercises = exercisesNew;
+export default exercisesNew;
       c: {
         language: "c",
         initialCode: `#include <stdio.h>\n\nchar* isEven(int number) {\n  // Your code here\n  \n}`,
@@ -354,8 +262,8 @@ export const exercises: Exercise[] = [
       },
       c: {
         language: "c",
-        initialCode: `#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nbool isPalindrome(char* word) {\n  // Your code here\n  \n}\n\nint main() {\n  printf("%s", isPalindrome("arara") ? "true" : "false");\n  return 0;\n}`,
-        solution: `#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nbool isPalindrome(char* word) {\n  int len = strlen(word);\n  for (int i = 0; i < len / 2; i++) {\n    if (word[i] != word[len - 1 - i]) return false;\n  }\n  return true;\n}\n\nint main() {\n  printf("%s", isPalindrome("arara") ? "true" : "false");\n  return 0;\n}`,
+        initialCode: `#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nbool isPalindrome(char* word) {\n  // Your code here\n  \n}\n\nint main() {\n  printf("%s", isPalindrome("racecar") ? "true" : "false");\n  return 0;\n}`,
+        solution: `#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nbool isPalindrome(char* word) {\n  int len = strlen(word);\n  for (int i = 0; i < len / 2; i++) {\n    if (word[i] != word[len - 1 - i]) return false;\n  }\n  return true;\n}\n\nint main() {\n  printf("%s", isPalindrome("racecar") ? "true" : "false");\n  return 0;\n}`,
         hint: "Use two pointers to compare characters",
       },
       csharp: {
@@ -372,7 +280,7 @@ export const exercises: Exercise[] = [
       },
     },
     tests: [
-      { name: "isPalindrome('arara')", input: ["arara"], expected: true },
+      { name: "isPalindrome('racecar')", input: ["racecar"], expected: true },
       { name: "isPalindrome('hello')", input: ["hello"], expected: false },
       { name: "isPalindrome('aba')", input: ["aba"], expected: true },
     ],
@@ -762,37 +670,37 @@ export const exercises: Exercise[] = [
     variants: {
       javascript: {
         language: "javascript",
-        initialCode: `function achatar(a) {\n  // Your code here\n  \n}`,
-        solution: `function achatar(a) {\n  return a.reduce((flat, item) => flat.concat(array.isarray(item) ? achatar(item) : item), []);\n}`,
+        initialCode: `function flatten(a) {\n  // Your code here\n  \n}`,
+        solution: `function flatten(a) {\n  return a.reduce((flat, item) => flat.concat(Array.isArray(item) ? flatten(item) : item), []);\n}`,
         hint: "Use recursion and reduce",
       },
       python: {
         language: "python",
-        initialCode: `def achatar(a):\n    # Your code here\n    pass`,
-        solution: `def achatar(a):\n    result = []\n    for item in a:\n        if isinstance(item, list):\n            result.extend(achatar(item))\n        else:\n            result.append(item)\n    return result`,
-        hint: "Use recursion e isinstance()",
+        initialCode: `def flatten(a):\n    # Your code here\n    pass`,
+        solution: `def flatten(a):\n    result = []\n    for item in a:\n        if isinstance(item, list):\n            result.extend(flatten(item))\n        else:\n            result.append(item)\n    return result`,
+        hint: "Use recursion and isinstance()",
       },
       c: {
         language: "c",
-        initialCode: `#include <stdio.h>\n\nvoid achatar(int* array, int size, int* result, int* resultSize) {\n  // Your code here\n  *resultSize = 0;\n}\n\nint main() {\n  return 0;\n}`,
-        solution: `#include <stdio.h>\n\nvoid achatar(int* array, int size, int* result, int* resultSize) {\n  *resultSize = 0;\n  for (int i = 0; i < size; i++) {\n    result[(*resultSize)++] = array[i];\n  }\n}\n\nint main() {\n  return 0;\n}`,
+        initialCode: `#include <stdio.h>\n\nvoid flatten(int* array, int size, int* result, int* resultSize) {\n  // Your code here\n  *resultSize = 0;\n}\n\nint main() {\n  return 0;\n}`,
+        solution: `#include <stdio.h>\n\nvoid flatten(int* array, int size, int* result, int* resultSize) {\n  *resultSize = 0;\n  for (int i = 0; i < size; i++) {\n    result[(*resultSize)++] = array[i];\n  }\n}\n\nint main() {\n  return 0;\n}`,
         hint: "Use a loop to copy elements",
       },
       csharp: {
         language: "csharp",
-        initialCode: `using System;\nusing System.Collections.Generic;\n\npublic class Program {\n  static List<int> Achatar(object a) {\n    // Your code here\n    return new List<int>();\n  }\n  \n  static void Main() {\n  }\n}`,
-        solution: `using System;\nusing System.Collections.Generic;\n\npublic class Program {\n  static List<int> Achatar(object a) {\n    List<int> result = new List<int>();\n    if (a is int) {\n      result.Add((int)a);\n    } else if (a is List<object>) {\n      foreach (var item in (List<object>)a) {\n        result.AddRange(Achatar(item));\n      }\n    }\n    return result;\n  }\n  \n  static void Main() {\n  }\n}`,
-        hint: "Use recursion e type checking",
+        initialCode: `using System;\nusing System.Collections.Generic;\n\npublic class Program {\n  static List<int> Flatten(object a) {\n    // Your code here\n    return new List<int>();\n  }\n  \n  static void Main() {\n  }\n}`,
+        solution: `using System;\nusing System.Collections.Generic;\n\npublic class Program {\n  static List<int> Flatten(object a) {\n    List<int> result = new List<int>();\n    if (a is int) {\n      result.Add((int)a);\n    } else if (a is List<object>) {\n      foreach (var item in (List<object>)a) {\n        result.AddRange(Flatten(item));\n      }\n    }\n    return result;\n  }\n  \n  static void Main() {\n  }\n}`,
+        hint: "Use recursion and type checking",
       },
       java: {
         language: "java",
-        initialCode: `import java.util.*;\n\npublic class Program {\n  static List<Integer> achatar(Object a) {\n    // Your code here\n    return new arrayList<>();\n  }\n  \n  public static void main(string[] args) {\n  }\n}`,
-        solution: `import java.util.*;\n\npublic class Program {\n  static List<Integer> achatar(Object a) {\n    List<Integer> result = new arrayList<>();\n    if (a instanceof Integer) {\n      result.add((Integer)a);\n    } else if (a instanceof List) {\n      for (Object item : (List<?>) a) {\n        result.addAll(achatar(item));\n      }\n    }\n    return result;\n  }\n  \n  public static void main(string[] args) {\n  }\n}`,
-        hint: "Use recursion e instanceof",
+        initialCode: `import java.util.*;\n\npublic class Program {\n  static List<Integer> flatten(Object a) {\n    // Your code here\n    return new ArrayList<>();\n  }\n  \n  public static void main(String[] args) {\n  }\n}`,
+        solution: `import java.util.*;\n\npublic class Program {\n  static List<Integer> flatten(Object a) {\n    List<Integer> result = new ArrayList<>();\n    if (a instanceof Integer) {\n      result.add((Integer)a);\n    } else if (a instanceof List) {\n      for (Object item : (List<?>) a) {\n        result.addAll(flatten(item));\n      }\n    }\n    return result;\n  }\n  \n  public static void main(String[] args) {\n  }\n}`,
+        hint: "Use recursion and instanceof",
       },
     },
     tests: [
-      { name: "achatar([1,[2,3,[4,5]]])", input: [[1, [2, 3, [4, 5]]]], expected: [1, 2, 3, 4, 5] },
+      { name: "flatten([1,[2,3,[4,5]]])", input: [[1, [2, 3, [4, 5]]]], expected: [1, 2, 3, 4, 5] },
     ],
   },
   {

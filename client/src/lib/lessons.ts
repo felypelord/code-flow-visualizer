@@ -418,27 +418,27 @@ const classLesson: Lesson = {
   difficulty: "Advanced",
   variants: {
       javascript: {
-          code: `class Carro {
-  constructor(modelo) {
-    this.modelo = modelo;
-    this.velocidade = 0;
+          code: `class Car {
+  constructor(model) {
+    this.model = model;
+    this.speed = 0;
   }
   
-  acelerar() {
-    this.velocidade += 10;
+  accelerate() {
+    this.speed += 10;
   }
 }
 
-const c1 = new Carro("Fusca");
-c1.acelerar();`,
+const c1 = new Car("Beetle");
+c1.accelerate();`,
           steps: [
             { stepId: 0, line: 11, stack: [], heap: [], explanation: "We define the class. Let's instantiate with 'new'." },
-            { stepId: 1, line: 2, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "constructor", name: "Carro.constructor", variables: [{ name: "modelo", value: "Fusca", type: "primitive" }, { name: "this", value: "REF:car1", type: "reference", refId: "car1", changed: true }], active: true }], heap: [{ id: "car1", className: "Carro", properties: [], highlight: true }], explanation: "'new' creates an empty object on the Heap and assigns it to 'this'." },
-            { stepId: 2, line: 3, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "constructor", name: "Carro.constructor", variables: [{ name: "modelo", value: "Fusca", type: "primitive" }, { name: "this", value: "REF:car1", type: "reference", refId: "car1" }], active: true }], heap: [{ id: "car1", className: "Carro", properties: [{ name: "modelo", value: "Fusca", type: "primitive", changed: true }], highlight: true }], explanation: "Sets 'this.modelo'." },
-            { stepId: 3, line: 4, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "constructor", name: "Carro.constructor", variables: [{ name: "modelo", value: "Fusca", type: "primitive" }, { name: "this", value: "REF:car1", type: "reference", refId: "car1" }], active: true }], heap: [{ id: "car1", className: "Carro", properties: [{ name: "modelo", value: "Fusca", type: "primitive" }, { name: "velocidade", value: 0, type: "primitive", changed: true }], highlight: true }], explanation: "Sets 'this.velocidade'." },
-            { stepId: 4, line: 11, stack: [{ id: "global", name: "Global", variables: [{ name: "c1", value: "REF:car1", type: "reference", refId: "car1", changed: true }], active: true }], heap: [{ id: "car1", className: "Carro", properties: [{ name: "modelo", value: "Fusca", type: "primitive" }, { name: "velocidade", value: 0, type: "primitive" }] }], explanation: "Returns the instance to 'c1'." },
-            { stepId: 5, line: 12, stack: [{ id: "global", name: "Global", variables: [{ name: "c1", value: "REF:car1", type: "reference", refId: "car1" }], active: false }, { id: "acelerar", name: "c1.acelerar", variables: [{ name: "this", value: "REF:car1", type: "reference", refId: "car1", changed: true }], active: true }], heap: [{ id: "car1", className: "Carro", properties: [{ name: "modelo", value: "Fusca", type: "primitive" }, { name: "velocidade", value: 0, type: "primitive" }] }], explanation: "Calls method. 'this' is the object c1." },
-            { stepId: 6, line: 8, stack: [{ id: "global", name: "Global", variables: [{ name: "c1", value: "REF:car1", type: "reference", refId: "car1" }], active: false }, { id: "acelerar", name: "c1.acelerar", variables: [{ name: "this", value: "REF:car1", type: "reference", refId: "car1" }], active: true }], heap: [{ id: "car1", className: "Carro", properties: [{ name: "modelo", value: "Fusca", type: "primitive" }, { name: "velocidade", value: 10, type: "primitive", changed: true }], highlight: true }], explanation: "Updates property on the Heap." }
+            { stepId: 1, line: 2, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "constructor", name: "Car.constructor", variables: [{ name: "model", value: "Beetle", type: "primitive" }, { name: "this", value: "REF:car1", type: "reference", refId: "car1", changed: true }], active: true }], heap: [{ id: "car1", className: "Car", properties: [], highlight: true }], explanation: "'new' creates an empty object on the Heap and assigns it to 'this'." },
+            { stepId: 2, line: 3, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "constructor", name: "Car.constructor", variables: [{ name: "model", value: "Beetle", type: "primitive" }, { name: "this", value: "REF:car1", type: "reference", refId: "car1" }], active: true }], heap: [{ id: "car1", className: "Car", properties: [{ name: "model", value: "Beetle", type: "primitive", changed: true }], highlight: true }], explanation: "Sets 'this.model'." },
+            { stepId: 3, line: 4, stack: [{ id: "global", name: "Global", variables: [], active: false }, { id: "constructor", name: "Car.constructor", variables: [{ name: "model", value: "Beetle", type: "primitive" }, { name: "this", value: "REF:car1", type: "reference", refId: "car1" }], active: true }], heap: [{ id: "car1", className: "Car", properties: [{ name: "model", value: "Beetle", type: "primitive" }, { name: "speed", value: 0, type: "primitive", changed: true }], highlight: true }], explanation: "Sets 'this.speed'." },
+            { stepId: 4, line: 11, stack: [{ id: "global", name: "Global", variables: [{ name: "c1", value: "REF:car1", type: "reference", refId: "car1", changed: true }], active: true }], heap: [{ id: "car1", className: "Car", properties: [{ name: "model", value: "Beetle", type: "primitive" }, { name: "speed", value: 0, type: "primitive" }] }], explanation: "Returns the instance to 'c1'." },
+            { stepId: 5, line: 12, stack: [{ id: "global", name: "Global", variables: [{ name: "c1", value: "REF:car1", type: "reference", refId: "car1" }], active: false }, { id: "accelerate", name: "c1.accelerate", variables: [{ name: "this", value: "REF:car1", type: "reference", refId: "car1", changed: true }], active: true }], heap: [{ id: "car1", className: "Car", properties: [{ name: "model", value: "Beetle", type: "primitive" }, { name: "speed", value: 0, type: "primitive" }] }], explanation: "Calls method. 'this' is the object c1." },
+            { stepId: 6, line: 8, stack: [{ id: "global", name: "Global", variables: [{ name: "c1", value: "REF:car1", type: "reference", refId: "car1" }], active: false }, { id: "accelerate", name: "c1.accelerate", variables: [{ name: "this", value: "REF:car1", type: "reference", refId: "car1" }], active: true }], heap: [{ id: "car1", className: "Car", properties: [{ name: "model", value: "Beetle", type: "primitive" }, { name: "speed", value: 10, type: "primitive", changed: true }], highlight: true }], explanation: "Updates property on the Heap." }
           ]
       }
   }

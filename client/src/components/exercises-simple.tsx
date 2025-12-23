@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from "react";
-import { exercises, type Exercise, type Language } from "@/lib/exercises";
+import { exercises, type Exercise, type Language } from "@/lib/exercises-new";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
