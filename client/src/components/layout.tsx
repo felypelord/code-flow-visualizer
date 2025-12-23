@@ -13,6 +13,17 @@ import { Footer } from "@/components/footer";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const t: any = {};
+  const labels: Record<string, string> = {
+    lessonFunctions: "Functions",
+    lessonConditionals: "Conditionals",
+    lessonLoopsArrays: "Loops & Arrays",
+    lessonObjects: "Objects",
+    lessonClasses: "Classes",
+    lessonRecursion: "Recursion",
+    lessonClosures: "Closures",
+    lessonAsyncAwait: "Async / Await",
+    lessonDebugging: "Debugging",
+  };
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const { user, token } = useUser();
@@ -94,7 +105,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         location.includes(lesson.href) ? "text-primary" : ""
                       )}>
                         <lesson.icon className="w-4 h-4" />
-                        {t[lesson.labelKey as keyof typeof t]}
+                        {labels[lesson.labelKey as keyof typeof labels] || lesson.labelKey}
                       </div>
                     </Link>
                   </DropdownMenuItem>
@@ -260,7 +271,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         location.includes(lesson.href) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                       )}>
                         <lesson.icon className="w-4 h-4" />
-                        {t[lesson.labelKey as keyof typeof t]}
+                        {labels[lesson.labelKey as keyof typeof labels] || lesson.labelKey}
                       </span>
                     </Link>
                   ))}
