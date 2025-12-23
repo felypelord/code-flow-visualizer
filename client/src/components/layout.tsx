@@ -368,7 +368,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   {user?.isPro && (
                     <div className="mt-4">
                       <Button className="w-full" variant="secondary" onClick={() => { setIsOpen(false); openPortal(); }}>
-                        Gerenciar assinatura
+                        Manage subscription
                       </Button>
                     </div>
                   )}

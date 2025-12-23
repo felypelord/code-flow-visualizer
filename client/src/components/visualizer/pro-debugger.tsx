@@ -10,19 +10,19 @@ import { useLocation } from "wouter";
 import CallStack from "./call-stack";
 import HeapMemory from "./heap-memory";
 
-// Placeholder para Pyodide - vai carregar lazy
+// Placeholder for Pyodide - will load lazily
 let getPyodideInstance: any = null;
 let pyodideError = false;
 
 const initPyodide = async () => {
-  if (pyodideError) throw new Error("Pyodide falhou ao carregar");
+  if (pyodideError) throw new Error("Pyodide failed to load");
   if (!getPyodideInstance) {
     try {
       const module = await import("@/lib/pyodide");
       getPyodideInstance = module.getPyodideInstance;
     } catch (err) {
       pyodideError = true;
-      throw new Error("Nao foi possivel carregar Pyodide");
+      throw new Error("Unable to load Pyodide");
     }
   }
   return getPyodideInstance();
@@ -83,7 +83,7 @@ def main():
     numbers = [1, 2, 3, 4, 5]
     total = 0
     results = {}
-    for i in numeros:
+    for i in numbers:
       result = factorial(i)
       results[i] = result
       total += result
@@ -92,7 +92,7 @@ def main():
 main()`);
 
   const [breakpoints, setBreakpoints] = useState<Breakpoint[]>([{ line: 10, condition: "total > 50" }]);
-  const [watchList, setWatchList] = useState<string[]>(["total", "i", "numeros", "resultados"]);
+  const [watchList, setWatchList] = useState<string[]>(["total", "i", "numbers", "results"]);
   const [profilerRuns, setProfilerRuns] = useState<number[]>(() => {
     try {
       const saved = localStorage.getItem('pro-debugger-profiler');
@@ -126,7 +126,7 @@ main()`);
 
       const pyodide = await initPyodide();
 
-      // Usar exec com globals para evitar injecao de codigo
+      // Use exec with globals to avoid code injection
       const setup = `
 import sys
 import io
@@ -182,11 +182,11 @@ def trace_calls(frame, event, arg):
         heap_objects = {}
         
         for k, v in frame.f_locals.items():
-            try:
-                track_object(v, k)
-                local_vars[k] = repr(v)[:120]
-            except:
-                local_vars[k] = '<objeto>'
+      try:
+        track_object(v, k)
+        local_vars[k] = repr(v)[:120]
+      except:
+        local_vars[k] = '<object>'
         
         frames.append({
             'line': frame.f_lineno,
@@ -203,7 +203,7 @@ output_buffer = io.StringIO()
 
       pyodide.runPython(setup);
 
-      // Preparar o codigo do usuario com indentacao adequada
+      // Prepare the user's code with proper indentation
       const userCode = code
         .split('\n')
         .map(line => '    ' + line)
@@ -268,7 +268,7 @@ output = output_buffer.getvalue().split('\\n')
 
   const currentWatches = useMemo(() => {
     if (!currentFrame) return [] as Array<{ name: string; value: string }>;
-    return watchList.map((w) => ({ name: w, value: String(currentFrame.locals?.[w] ?? "<indefinido>") }));
+    return watchList.map((w) => ({ name: w, value: String(currentFrame.locals?.[w] ?? "<undefined>") }));
   }, [currentFrame, watchList]);
 
   const handleAddBreakpoint = () => {

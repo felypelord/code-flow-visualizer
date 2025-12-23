@@ -69,7 +69,7 @@ export function Footer() {
 
             <form onSubmit={handleSubmit} className="space-y-3">
                 <Textarea
-                placeholder={"Describe your suggestion or the bug you found..." || 'Describe your suggestion or the bug you found...'}
+                placeholder="Describe your suggestion or the bug you found..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="min-h-[120px] bg-slate-800/50 border-slate-700 focus:border-primary resize-none"

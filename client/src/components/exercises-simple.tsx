@@ -1121,7 +1121,7 @@ export function ExercisesView() {
               <TabsContent value="tests" className="space-y-4 mt-6">
                 {testResults.length === 0 ? (
                   <Card className="p-12 bg-slate-800 border-slate-700 text-center">
-                    <p className="text-slate-400 text-lg">Execute para ver resultados</p>
+                    <p className="text-slate-400 text-lg">Run to see results</p>
                   </Card>
                 ) : (
                   <div className="space-y-3">

@@ -141,7 +141,7 @@ export function GuidedPath({ id, title, steps, onComplete }: GuidedPathProps) {
               className="w-full h-32 rounded-lg bg-black/40 border border-amber-400/20 text-sm text-white p-3 font-mono"
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              placeholder={"Type Your Solution" || "Type your solution here"}
+              placeholder="Type your solution here"
             />
             <div className="flex items-center gap-2 mt-2">
               <Button onClick={verify} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">{"Verify" || "Verify"}</Button>

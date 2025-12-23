@@ -124,22 +124,20 @@ export default function Auth() {
                 {isLoginMode ? "Sign in" : "Create Account"}
               </DialogTitle>
               <DialogDescription className="text-slate-400 text-sm">
-                {isLoginMode ? "Sign in Description" : "Create Account Description"}
+                {isLoginMode ? 'Enter your email and password to sign in.' : 'Create your account — enter your email and password.'}
               </DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="space-y-4 mt-6">
               {/* Email Input */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-200 block">
-                  Email Label
-                </label>
+                <label className="text-sm font-semibold text-slate-200 block">Email</label>
                 <div className="relative">
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email Placeholder"
+                    placeholder="you@example.com"
                     className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
                     disabled={isLoading}
                   />
@@ -149,15 +147,13 @@ export default function Auth() {
 
               {/* Password Input */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-200 block">
-                  Password Label
-                </label>
+                <label className="text-sm font-semibold text-slate-200 block">Password</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password Placeholder"
+                    placeholder="Enter your password"
                     className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all pr-10"
                     disabled={isLoading}
                   />
@@ -187,14 +183,12 @@ export default function Auth() {
                 disabled={isLoading}
                 className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2.5 rounded-lg transition-all disabled:opacity-60"
               >
-                {isLoading ? '...' : (isLoginMode ? "Sign in Button" : "Create Account Button")}
+                {isLoading ? '...' : (isLoginMode ? 'Sign In' : 'Create Account')}
               </Button>
 
               {/* Toggle Mode */}
               <div className="flex items-center justify-center gap-2 pt-2 border-t border-slate-800">
-                <span className="text-xs text-slate-400">
-                  {isLoginMode ? "Toggle Mode" : 'Already have an account?'}
-                </span>
+                <span className="text-xs text-slate-400">{isLoginMode ? "Don't have an account?" : 'Already have an account?'}</span>
                 <button
                   type="button"
                   onClick={() => {

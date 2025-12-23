@@ -764,7 +764,7 @@ export const exercises: Exercise[] = [
         language: "javascript",
         initialCode: `function achatar(a) {\n  // Your code here\n  \n}`,
         solution: `function achatar(a) {\n  return a.reduce((flat, item) => flat.concat(array.isarray(item) ? achatar(item) : item), []);\n}`,
-        hint: "Use recursion e reduce",
+        hint: "Use recursion and reduce",
       },
       python: {
         language: "python",
@@ -797,15 +797,15 @@ export const exercises: Exercise[] = [
   },
   {
     id: "group-by",
-    title: "Group By Propriedade",
-    description: "Agrupe array de objetos por uma propriedade.",
+    title: "Group By Property",
+    description: "Group an array of objects by a property.",
     difficulty: "Intermediate",
     variants: {
       javascript: {
         language: "javascript",
         initialCode: `function agrupar(arr, prop) {\n  // Your code here\n  \n}`,
         solution: `function agrupar(arr, prop) {\n  return arr.reduce((groups, item) => {\n    const key = item[prop];\n    if (!groups[key]) groups[key] = [];\n    groups[key].push(item);\n    return groups;\n  }, {});\n}`,
-        hint: "Use reduce() para agrupar",
+        hint: "Use reduce() to group",
       },
       python: {
         language: "python",
@@ -838,21 +838,21 @@ export const exercises: Exercise[] = [
   },
   {
     id: "Fibonacci",
-    title: "Fibonacci com Memoiza??o",
-    description: "Calcule Fibonacci otimizado com memoiza??o.",
+    title: "Fibonacci with Memoization",
+    description: "Compute Fibonacci optimized with memoization.",
     difficulty: "Advanced",
     variants: {
       javascript: {
         language: "javascript",
         initialCode: `function Fibonacci(n, memo = {}) {\n  // Your code here\n  \n}`,
         solution: `function Fibonacci(n, memo = {}) {\n  if (n in memo) return memo[n];\n  if (n <= 1) return n;\n  memo[n] = Fibonacci(n - 1, memo) + Fibonacci(n - 2, memo);\n  return memo[n];\n}`,
-        hint: "Armazene resultados para evitar recalcular",
+        hint: "Store results to avoid recomputing",
       },
       python: {
         language: "python",
         initialCode: `def Fibonacci(n, memo={}):\n    # Your code here\n    pass`,
         solution: `def Fibonacci(n, memo={}):\n    if n in memo:\n        return memo[n]\n    if n <= 1:\n        return n\n    memo[n] = Fibonacci(n - 1, memo) + Fibonacci(n - 2, memo)\n    return memo[n]`,
-        hint: "Armazene resultados para evitar recalcular",
+        hint: "Store results to avoid recomputing",
       },
       c: {
         language: "c",
@@ -864,13 +864,13 @@ export const exercises: Exercise[] = [
         language: "csharp",
         initialCode: `using System;\nusing System.Collections.Generic;\n\npublic class Program {\n  static long Fibonacci(int n, Dictionary<int, long> memo) {\n    // Your code here\n    return 0;\n  }\n  \n  static void Main() {\n    Console.WriteLine(Fibonacci(5, new Dictionary<int, long>()));\n  }\n}`,
         solution: `using System;\nusing System.Collections.Generic;\n\npublic class Program {\n  static long Fibonacci(int n, Dictionary<int, long> memo) {\n    if (memo.ContainsKey(n)) return memo[n];\n    if (n <= 1) return n;\n    memo[n] = Fibonacci(n - 1, memo) + Fibonacci(n - 2, memo);\n    return memo[n];\n  }\n  \n  static void Main() {\n    Console.WriteLine(Fibonacci(5, new Dictionary<int, long>()));\n  }\n}`,
-        hint: "Use Dictionary para memoiza??o",
+        hint: "Use Dictionary for memoization",
       },
       java: {
         language: "java",
         initialCode: `import java.util.*;\n\npublic class Program {\n  static long Fibonacci(int n, Map<Integer, Long> memo) {\n    // Your code here\n    return 0;\n  }\n  \n  public static void main(string[] args) {\n    System.out.println(Fibonacci(5, new HashMap<>()));\n  }\n}`,
         solution: `import java.util.*;\n\npublic class Program {\n  static long Fibonacci(int n, Map<Integer, Long> memo) {\n    if (memo.containsKey(n)) return memo.get(n);\n    if (n <= 1) return n;\n    long result = Fibonacci(n - 1, memo) + Fibonacci(n - 2, memo);\n    memo.put(n, result);\n    return result;\n  }\n  \n  public static void main(string[] args) {\n    System.out.println(Fibonacci(5, new HashMap<>()));\n  }\n}`,
-        hint: "Use HashMap para memoiza??o",
+        hint: "Use HashMap for memoization",
       },
     },
     tests: [
