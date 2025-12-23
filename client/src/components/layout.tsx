@@ -12,7 +12,7 @@ import { useUser } from "@/hooks/use-user";
 import { Footer } from "@/components/footer";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  // const t = {};
+  const t: any = {};
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const { user, token } = useUser();
@@ -32,9 +32,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           return;
         }
       }
-      alert("Não foi possível abrir o portal de cobrança");
+      alert("Unable to open billing portal");
     } catch {
-      alert("Erro ao abrir o portal");
+      alert("Error opening portal");
     }
   };
 
@@ -71,7 +71,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
             <NavLink href="/" active={location === "/"}>
-              {t.home}
+              Home
             </NavLink>
 
             <DropdownMenu>
@@ -81,7 +81,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   isLessonActive ? "text-primary bg-primary/10" : "text-muted-foreground"
                 )}>
                   <GraduationCap className="w-4 h-4" />
-                  {t.learn}
+                  Learn
                   <ChevronDown className="w-3 h-3" />
                 </button>
               </DropdownMenuTrigger>
@@ -104,7 +104,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             <NavLink href="/exercises" active={location.includes("/exercises")}>
               <Dumbbell className="w-4 h-4" />
-              {t.exercises}
+              Exercises
             </NavLink>
 
             <Link href="/pricing">
@@ -116,7 +116,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               )}>
                 <span className="inline-flex items-center gap-2">
                   <Crown className="w-4 h-4 text-amber-400" />
-                  <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">{t.pricing}</span>
+                  <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">Pricing</span>
                 </span>
               </span>
             </Link>
@@ -222,7 +222,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <LanguageSelector />
             {user?.isPro && (
               <Button size="sm" variant="secondary" onClick={openPortal}>
-                {t.manageSubscription}
+                Manage Subscription
               </Button>
             )}
             <Auth />
@@ -238,20 +238,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] border-l border-white/10 bg-[#0f172a]">
-                <SheetTitle className="sr-only">Menu de Navegação</SheetTitle>
-                <SheetDescription className="sr-only">Navegue pelas opções disponíveis</SheetDescription>
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                <SheetDescription className="sr-only">Browse available options</SheetDescription>
                 <div className="flex flex-col gap-2 mt-8">
                   <Link href="/" onClick={() => setIsOpen(false)}>
                     <span className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors",
                       location === "/" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                     )}>
-                      {t.home}
+                      Home
                     </span>
                   </Link>
 
                   <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    {t.learn}
+                    Learn
                   </div>
                   {lessons.map((lesson) => (
                     <Link key={lesson.href} href={lesson.href} onClick={() => setIsOpen(false)}>
@@ -271,7 +271,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       location.includes("/exercises") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                     )}>
                       <Dumbbell className="w-4 h-4" />
-                      {t.exercises}
+                      Exercises
                     </span>
                   </Link>
 
@@ -281,7 +281,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       location.includes("/pricing") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                     )}>
                       <Crown className="w-4 h-4 text-amber-400" />
-                      <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">{t.pricing}</span>
+                      <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">Pricing</span>
                     </span>
                   </Link>
 
@@ -372,7 +372,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
         {showPricingBanner && (
           <div className="bg-amber-500/10 border-t border-b border-amber-500/30 text-amber-100 text-sm py-2 px-4 text-center">
-            Pro custa $2/mês (USD); seu banco faz a conversão para BRL/outras moedas.
+            Pro costs $2/month (USD); your bank will convert to local currency.
           </div>
         )}
       </header>

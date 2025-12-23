@@ -39,7 +39,7 @@ interface ExecutionState {
 
 export function ExercisesView() {
   const { user } = useUser();
-  // const t = {};
+  const t: any = {};
   const [selectedExercise, setSelectedExercise] = useState<Exercise>(exercises[0]);
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");
   const [code, setCode] = useState<string>("");
@@ -80,7 +80,7 @@ export function ExercisesView() {
       return 500;
     }
   });
-  // Ref para garantir leitura dinâmica do valor
+  // Ref to ensure dynamic reading of the value
   const executionSpeedRef = useRef(executionSpeed);
   useEffect(() => {
     executionSpeedRef.current = executionSpeed;
@@ -152,30 +152,30 @@ export function ExercisesView() {
 
   const generateFriendlyLog = (line: string, prevVars: Record<string, any>, newVars: Record<string, any>): string => {
     const trimmed = line.trim();
-    if (!trimmed) return "Linha vazia pulada";
+        if (!trimmed) return "Empty line skipped";
     
     const assignMatch = trimmed.match(/(?:let|const|var)?\s*(\w+)\s*=\s*(.*)/);
-    if (assignMatch) {
-      const varName = assignMatch[1];
-      const newVal = newVars[varName];
-      return `📝 Colocou ${JSON.stringify(newVal)} em "${varName}"`;
+        if (assignMatch) {
+          const varName = assignMatch[1];
+          const newVal = newVars[varName];
+          return `📝 Assigned ${JSON.stringify(newVal)} to "${varName}"`;
     }
     
     if (trimmed.startsWith("if ")) {
-      return `❓ Verificou: ${trimmed}`;
+          return `❓ Checked: ${trimmed}`;
     }
     
     if (trimmed.startsWith("for ") || trimmed.startsWith("while ")) {
-      return `🔄 Iniciou um laço: ${trimmed.substring(0, 40)}...`;
+          return `🔄 Started a loop: ${trimmed.substring(0, 40)}...`;
     }
     
     if (trimmed.startsWith("return ")) {
       const returnVal = newVars.__result || trimmed;
-      return `✅ Retornou ${typeof returnVal === "object" ? JSON.stringify(returnVal) : returnVal}`;
+          return `✅ Returned ${typeof returnVal === "object" ? JSON.stringify(returnVal) : returnVal}`;
     }
     
     if (trimmed.includes("console.log") || trimmed.includes("print")) {
-      return `💬 Imprimiu na tela: ${trimmed.substring(0, 50)}...`;
+          return `💬 Printed: ${trimmed.substring(0, 50)}...`;
     }
     
     return `⚙️ ${trimmed.substring(0, 60)}${trimmed.length > 60 ? "..." : ""}`;
@@ -253,7 +253,7 @@ export function ExercisesView() {
       const val = safeEvalExpression(rhs, updatedVars);
       if (!Array.isArray(updatedVars[arrName])) updatedVars[arrName] = [];
       (updatedVars[arrName] as any[]).push(val);
-      log = `📦 push em ${arrName}: ${JSON.stringify(val)}`;
+      log = `📦 pushed to ${arrName}: ${JSON.stringify(val)}`;
     }
 
     const { stack, heap } = buildStackAndHeap(updatedVars);
@@ -263,7 +263,7 @@ export function ExercisesView() {
   const runTests = () => {
     const allowance = checkAndConsumeExecution(user?.id, !!user?.isPro, 5);
     if (!allowance.allowed) {
-      setTestResults([{ passed: false, name: "Limite diário", error: "Limite de 5 execuções/dia no plano Free. Faça upgrade para Pro para execuções ilimitadas." }]);
+      setTestResults([{ passed: false, name: "Daily Limit", error: "5 executions/day limit on the Free plan. Upgrade to Pro for unlimited executions." }]);
       setAllPassed(false);
       return;
     }
@@ -284,7 +284,7 @@ export function ExercisesView() {
     try {
       const functionNameMatch = code.match(/function\s+(\w+)\s*\(/);
       if (!functionNameMatch) {
-        setTestResults([{ passed: false, name: "Erro", error: "Nenhuma função encontrada. Use 'function' para declarar sua função." }]);
+        setTestResults([{ passed: false, name: "Error", error: "No function found. Use 'function' to declare your function." }]);
         return;
       }
 
@@ -312,7 +312,7 @@ export function ExercisesView() {
         saveTestProgress(false, score);
       }
     } catch (e) {
-      setTestResults([{ passed: false, name: "Erro", error: `${(e as any).message}` }]);
+      setTestResults([{ passed: false, name: "Error", error: `${(e as any).message}` }]);
     }
   };
 
@@ -320,7 +320,7 @@ export function ExercisesView() {
     try {
       const functionNameMatch = code.match(/def\s+(\w+)\s*\(/);
       if (!functionNameMatch) {
-        setTestResults([{ passed: false, name: "Erro", error: "Nenhuma função encontrada. Use 'def' para declarar sua função." }]);
+        setTestResults([{ passed: false, name: "Error", error: "No function found. Use 'def' to declare your function." }]);
         return;
       }
 
@@ -330,7 +330,7 @@ export function ExercisesView() {
       try {
         py = await getPyodideInstance();
       } catch (e) {
-        setTestResults([{ passed: false, name: "Erro", error: "Falha ao carregar Pyodide: " + ((e as any).message || String(e)) }]);
+        setTestResults([{ passed: false, name: "Error", error: "Failed to load Pyodide: " + ((e as any).message || String(e)) }]);
         return;
       }
 
@@ -349,7 +349,7 @@ export function ExercisesView() {
             const passed = JSON.stringify(parsed.result) === JSON.stringify(test.expected);
             results.push({ name: test.name, passed, result: parsed.result, expected: test.expected, error: null });
           } else {
-            results.push({ name: test.name, passed: false, error: parsed.error || parsed.trace || 'Erro' });
+            results.push({ name: test.name, passed: false, error: parsed.error || parsed.trace || 'Error' });
           }
         } catch (e) {
           results.push({ name: test.name, passed: false, error: (e as any).message || String(e) });
@@ -368,11 +368,11 @@ export function ExercisesView() {
         saveTestProgress(false, score);
       }
     } catch (e) {
-      setTestResults([{ passed: false, name: "Erro", error: `${(e as any).message}` }]);
+      setTestResults([{ passed: false, name: "Error", error: `${(e as any).message}` }]);
     }
   };
 
-  // Execução controlada por play/pause/avançar/voltar
+  // Execution controlled by play/pause/step forward/step back
   useEffect(() => {
     let shouldRun = true;
     if (!executionState.isExecuting || executionState.isPaused) return;
@@ -419,7 +419,7 @@ export function ExercisesView() {
     };
   }, [executionState.isExecuting, executionState.isPaused, executionState.currentLineIndex, executionSpeed]);
 
-  // Iniciar execução linha a linha
+  // Start line-by-line execution
   const startLineByLine = () => {
     if (!allowExecution) {
       setPendingExecutionAction("line");
@@ -427,7 +427,7 @@ export function ExercisesView() {
       return;
     }
     if (selectedLanguage === "python") {
-      setTestResults([{ passed: false, name: "Erro", error: "Python requer execução no servidor. Use JavaScript para testes rápidos no navegador." }]);
+      setTestResults([{ passed: false, name: "Error", error: "Python requires server-side execution. Use JavaScript for quick in-browser tests." }]);
       return;
     }
     const lines = code.split('\n');
@@ -469,7 +469,7 @@ export function ExercisesView() {
             <div>
               <h1 className="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3">
                 <Code2 className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
-                <span>Desafios</span>
+                <span>Challenges</span>
               </h1>
               <p className="text-xs sm:text-base text-slate-300">JavaScript ou Python</p>
             </div>
@@ -492,7 +492,7 @@ export function ExercisesView() {
           {/* Horizontal Exercises Bar */}
           <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-white tracking-wide">Exercícios</h3>
+              <h3 className="text-sm font-semibold text-white tracking-wide">Exercises</h3>
               <div className="text-xs text-slate-300">Clique para selecionar</div>
             </div>
             <div className="flex gap-3 overflow-x-auto py-2">
@@ -601,7 +601,7 @@ export function ExercisesView() {
                     onChange={(e) => setAllowExecution(e.target.checked)}
                     className="form-checkbox h-4 w-4 text-blue-500 bg-slate-700 rounded"
                   />
-                  <span className="font-semibold">Executar código</span>
+                  <span className="font-semibold">Run code</span>
                 </label>
               </Card>
             </div>
@@ -610,7 +610,7 @@ export function ExercisesView() {
             <Tabs defaultValue="code">
               <TabsList className="grid w-full grid-cols-2 bg-slate-900/70 border border-slate-700 rounded-lg shadow-sm">
                 <TabsTrigger value="code" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                  Código
+                  Code
                 </TabsTrigger>
                 <TabsTrigger value="tests" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                   ✓ Testes ({testResults.length})
@@ -621,7 +621,7 @@ export function ExercisesView() {
                 {/* Code Editor */}
                 <Card className="p-4 bg-slate-900/60 border-slate-700 rounded-xl">
                   <div className="flex items-center justify-between mb-3">
-                    <label className="text-sm font-semibold text-white block">Editor de código</label>
+                    <label className="text-sm font-semibold text-white block">Code editor</label>
                     <span className="text-[11px] text-slate-300">Ctrl/⌘ + Enter roda testes</span>
                   </div>
                   <div className="relative flex-1 overflow-hidden">
@@ -656,8 +656,8 @@ export function ExercisesView() {
                       }}
                       disabled={executionState.isExecuting}
                       className={`w-full h-72 md:h-[420px] lg:h-[520px] p-3 pl-16 text-sm rounded border resize-vertical focus:outline-none focus:ring-2 transition-all font-mono ${editorProClass}`}
-                      placeholder="Escreva seu código aqui..."
-                      aria-label={`Editor de código (${selectedLanguage})`}
+                      placeholder="Write your code here..."
+                      aria-label={`Code editor (${selectedLanguage})`}
                       spellCheck="false"
                     />
                   </div>
@@ -665,22 +665,22 @@ export function ExercisesView() {
                   <div className="flex items-center gap-2 mt-4 p-2 bg-slate-800/80 border border-slate-700 rounded-lg justify-center divide-x divide-slate-700">
                     <Button variant="ghost" size="icon" onClick={() => {
                       setExecutionState((prev) => ({ ...prev, currentLineIndex: 0, errorLineIndex: null, errorMessage: null }));
-                    }} aria-label={t.backToStart}>
+                    }} aria-label="Back to Start">
                       <SkipBack className="w-4 h-4" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => {
                       setExecutionState((prev) => ({ ...prev, currentLineIndex: Math.max(0, prev.currentLineIndex - 1), errorLineIndex: null, errorMessage: null }));
-                    }} aria-label={t.previousStep}>
+                    }} aria-label="Previous Step">
                       <SkipBack className="w-4 h-4" />
                     </Button>
                     <Button size="icon" onClick={() => {
                       setExecutionState((prev) => ({ ...prev, isPaused: !prev.isPaused }));
-                    }} aria-pressed={executionState.isPaused} aria-label={executionState.isPaused ? "Executar" : "Pausar"}>
+                    }} aria-pressed={executionState.isPaused} aria-label={executionState.isPaused ? "Run" : "Pause"}>
                       {executionState.isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => {
                       setExecutionState((prev) => ({ ...prev, currentLineIndex: Math.min(prev.lines.length, prev.currentLineIndex + 1), errorLineIndex: null, errorMessage: null }));
-                    }} aria-label={t.nextStep}>
+                    }} aria-label="Next Step">
                       <SkipForward className="w-4 h-4" />
                     </Button>
                     <div className="flex items-center ml-4 pl-4">
@@ -691,7 +691,7 @@ export function ExercisesView() {
                         value={[executionSpeed]}
                         onValueChange={([val]) => setExecutionSpeed(val)}
                         className="w-28"
-                        aria-label="Velocidade de execução"
+                        aria-label="Execution speed"
                       />
                       <span className="text-xs text-slate-300 ml-2" style={{minWidth: 48, textAlign: 'right'}}>{executionSpeed} ms</span>
                     </div>
@@ -710,7 +710,7 @@ export function ExercisesView() {
                         <div className="flex gap-3">
                           <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                           <div>
-                            <p className="text-sm font-semibold text-red-300 mb-1">❌ Erro na linha {executionState.errorLineIndex + 1}</p>
+                            <p className="text-sm font-semibold text-red-300 mb-1">❌ Error on line {executionState.errorLineIndex + 1}</p>
                             <p className="text-sm text-red-200">{executionState.errorMessage}</p>
                           </div>
                         </div>
@@ -720,31 +720,31 @@ export function ExercisesView() {
                 </AnimatePresence>
 
                 {/* Legend above visualizers */}
-                <div className="flex items-center gap-3 text-[11px] text-slate-300">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-500/10 border border-blue-400/30">🔵 Variáveis (stack)</span>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-400/30">🟢 Memória (heap)</span>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-yellow-500/10 border border-yellow-400/30">⚙️ Executado (logs)</span>
+                  <div className="flex items-center gap-3 text-[11px] text-slate-300">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-500/10 border border-blue-400/30">🔵 Variables (stack)</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-400/30">🟢 Memory (heap)</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-yellow-500/10 border border-yellow-400/30">⚙️ Execution (logs)</span>
                 </div>
 
                 {/* Below editor: 3 columns - Variables, Memory, Logs */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:divide-x divide-slate-700 rounded-xl border border-slate-700 overflow-hidden bg-slate-900/50">
                   {/* Column 1: Variables */}
                   <div className="p-4 overflow-auto max-h-64 flex flex-col">
-                    <h4 className="text-sm font-semibold text-blue-300 mb-3 tracking-wide">🔵 Variáveis</h4>
+                    <h4 className="text-sm font-semibold text-blue-300 mb-3 tracking-wide">🔵 Variables</h4>
                     <CallStack stack={executionState.stack} />
                   </div>
 
                   {/* Column 2: Memory */}
                   <div className="p-4 overflow-auto max-h-64">
-                    <h4 className="text-sm font-semibold text-cyan-300 mb-3 tracking-wide">🟢 Memória</h4>
+                    <h4 className="text-sm font-semibold text-cyan-300 mb-3 tracking-wide">🟢 Memory</h4>
                     <HeapMemory heap={executionState.heap} />
                   </div>
 
                   {/* Column 3: What Computer Did */}
                   <div className="p-4 overflow-auto max-h-64">
-                    <h4 className="text-sm font-semibold text-yellow-300 mb-3 tracking-wide">⚙️ Executado</h4>
+                    <h4 className="text-sm font-semibold text-yellow-300 mb-3 tracking-wide">⚙️ Execution</h4>
                     {executionState.logs.length === 0 ? (
-                      <p className="text-xs text-slate-400">Execute o código para ver os passos.</p>
+                      <p className="text-xs text-slate-400">Run the code to see the steps.</p>
                     ) : (
                       <div className="space-y-2">
                         {executionState.logs.slice(-8).reverse().map((l, i) => (
@@ -765,15 +765,15 @@ export function ExercisesView() {
                     disabled={executionState.isExecuting}
                     className="flex-1 min-w-[120px] bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2 rounded-lg transition-all disabled:opacity-60"
                   >
-                    {executionState.isExecuting ? (
+                        {executionState.isExecuting ? (
                       <>
                         <Play className="w-4 h-4 mr-2 animate-pulse" />
-                        Executando...
+                        Running...
                       </>
                     ) : (
                       <>
                         <Play className="w-4 h-4 mr-2" />
-                        Executar
+                        Run
                       </>
                     )}
                   </Button>
@@ -786,12 +786,12 @@ export function ExercisesView() {
                     variant="outline"
                     className="border-green-600 text-green-300 hover:bg-green-700/30"
                   >
-                    ✓ Solução
+                    ✓ Solution
                   </Button>
 
                   {showUseSolutionConfirm && (
                       <div className="flex gap-2 mt-1">
-                          <Button
+                            <Button
                             onClick={() => {
                               if (currentVariant?.solution) {
                                 setCode(currentVariant.solution);
@@ -812,10 +812,10 @@ export function ExercisesView() {
                             }}
                               className="bg-green-600 text-xs px-2 py-1 h-8"
                           >
-                            Sim
+                            Yes
                           </Button>
                             <Button onClick={() => setShowUseSolutionConfirm(false)} variant="outline" className="text-xs px-2 py-1 h-8">
-                            Não
+                            No
                           </Button>
                     </div>
                   )}
@@ -846,7 +846,7 @@ export function ExercisesView() {
                     className="border-slate-600 text-slate-200 hover:bg-slate-700"
                   >
                     <Lightbulb className="w-4 h-4 mr-2" />
-                    Dica (Pro)
+                    Hint (Pro)
                   </Button>
                   <Button
                     onClick={() => setShowSolution(!showSolution)}
@@ -855,19 +855,19 @@ export function ExercisesView() {
                     className="border-slate-600 text-slate-200 hover:bg-slate-700"
                   >
                     <Eye className="w-4 h-4 mr-2" />
-                    Solução (Pro)
+                    Solution (Pro)
                   </Button>
                 </div>
                 {!isPro && (
-                  <p className="text-xs text-amber-200 mt-2">Exclusivo Pro: faça upgrade para desbloquear dicas e soluções completas.</p>
+                  <p className="text-xs text-amber-200 mt-2">Pro Exclusive: upgrade to unlock hints and full solutions.</p>
                 )}
 
                 {showEnableExecutionConfirm && (
                   <Card className="p-3 bg-slate-800 border-l-4 border-slate-600 mt-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-slate-200">Ativar execução?</p>
-                        <p className="text-xs text-slate-400">Código será executado no navegador.</p>
+                        <p className="text-sm text-slate-200">Enable execution?</p>
+                        <p className="text-xs text-slate-400">Code will be executed in the browser.</p>
                       </div>
                       <div className="flex gap-2">
                         <Button
@@ -883,7 +883,7 @@ export function ExercisesView() {
                         >
                           Sim
                         </Button>
-                        <Button onClick={() => { setShowEnableExecutionConfirm(false); setPendingExecutionAction(null); }} variant="outline">Não</Button>
+                        <Button onClick={() => { setShowEnableExecutionConfirm(false); setPendingExecutionAction(null); }} variant="outline">No</Button>
                       </div>
                     </div>
                   </Card>
@@ -891,14 +891,14 @@ export function ExercisesView() {
 
                 {showHint && currentVariant?.hint && isPro && (
                   <Card className="p-4 bg-yellow-500/10 border-l-4 border-yellow-500">
-                    <p className="text-sm font-semibold text-yellow-300 mb-1">💡 Dica</p>
+                    <p className="text-sm font-semibold text-yellow-300 mb-1">💡 Hint</p>
                     <p className="text-sm text-yellow-200">{currentVariant.hint}</p>
                   </Card>
                 )}
 
                 {showSolution && currentVariant && isPro && (
                   <Card className="p-4 bg-green-500/10 border-l-4 border-green-500">
-                    <p className="text-sm font-semibold text-green-300 mb-3">✓ Solução</p>
+                    <p className="text-sm font-semibold text-green-300 mb-3">✓ Solution</p>
                     <pre className="bg-slate-900 p-4 rounded text-xs overflow-x-auto border border-slate-700">
                       <code className="text-slate-200">{currentVariant.solution}</code>
                     </pre>
@@ -939,7 +939,7 @@ export function ExercisesView() {
                             )}
                             {!result.error && !result.passed && (
                               <div className="text-sm mt-2 space-y-1 text-slate-300">
-                                <p>Esperado: <code className="bg-slate-900 px-2 py-1 rounded text-green-300">{JSON.stringify(result.expected)}</code></p>
+                                <p>Expected: <code className="bg-slate-900 px-2 py-1 rounded text-green-300">{JSON.stringify(result.expected)}</code></p>
                                 <p>Obtido: <code className="bg-slate-900 px-2 py-1 rounded text-red-300">{JSON.stringify(result.result)}</code></p>
                               </div>
                             )}
@@ -953,8 +953,8 @@ export function ExercisesView() {
                         <div className="flex items-center gap-3">
                           <CheckCircle2 className="w-8 h-8 text-blue-400" />
                           <div>
-                            <p className="font-bold text-blue-300 text-lg">🎉 Parabéns!</p>
-                            <p className="text-sm text-blue-200">{t.nextChallenge}</p>
+                            <p className="font-bold text-blue-300 text-lg">🎉 Congratulations!</p>
+                            <p className="text-sm text-blue-200">Next Challenge</p>
                           </div>
                         </div>
                       </Card>

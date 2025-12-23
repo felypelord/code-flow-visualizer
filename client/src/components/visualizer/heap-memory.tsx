@@ -47,7 +47,7 @@ export default function HeapMemory({ heap }: { heap: HeapObject[] }) {
           
           {heap.length === 0 && (
             <div className="col-span-full py-10 text-center text-white/10 text-sm italic">
-              Memória Heap Vazia
+              Heap memory empty
             </div>
           )}
         </div>

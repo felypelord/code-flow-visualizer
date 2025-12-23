@@ -41,6 +41,6 @@ export interface Lesson {
   id: string;
   title: string;
   description: string;
-  difficulty: 'Iniciante' | 'Intermediário' | 'Avançado' | 'Beginner' | 'Intermediate' | 'Advanced';
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   variants: Partial<Record<Language, LessonVariant>>; // Not all lessons might exist for all languages
 }

@@ -82,12 +82,12 @@ export function AdStatsWidget({ onWatchAd, isWatching }: AdStatsWidgetProps) {
             <div className="bg-purple-500/20 p-3 rounded-lg">
               <Award className="w-6 h-6 text-purple-400" />
             </div>
-            <div>
-              <p className="text-sm text-gray-400">Usos Disponíveis</p>
-              <p className="text-2xl font-bold text-purple-400">
+              <div>
+                <p className="text-sm text-gray-400">Available Uses</p>
+                <p className="text-2xl font-bold text-purple-400">
                 {stats.freeUsageCount}
-              </p>
-            </div>
+                </p>
+              </div>
           </div>
         </Card>
 
@@ -97,12 +97,12 @@ export function AdStatsWidget({ onWatchAd, isWatching }: AdStatsWidgetProps) {
             <div className="bg-green-500/20 p-3 rounded-lg">
               <PlayCircle className="w-6 h-6 text-green-400" />
             </div>
-            <div>
-              <p className="text-sm text-gray-400">Anúncios Assistidos</p>
-              <p className="text-2xl font-bold text-green-400">
+              <div>
+                <p className="text-sm text-gray-400">Ads Watched</p>
+                <p className="text-2xl font-bold text-green-400">
                 {stats.adsWatched}
-              </p>
-            </div>
+                </p>
+              </div>
           </div>
         </Card>
 
@@ -112,33 +112,33 @@ export function AdStatsWidget({ onWatchAd, isWatching }: AdStatsWidgetProps) {
             <div className="bg-yellow-500/20 p-3 rounded-lg">
               <TrendingUp className="w-6 h-6 text-yellow-400" />
             </div>
-            <div>
-              <p className="text-sm text-gray-400">Usos Ganhos</p>
-              <p className="text-2xl font-bold text-yellow-400">
+              <div>
+                <p className="text-sm text-gray-400">Uses Gained</p>
+                <p className="text-2xl font-bold text-yellow-400">
                 +{stats.usageGained}
-              </p>
-            </div>
+                </p>
+              </div>
           </div>
         </Card>
 
         {/* Watch Ad Button */}
         <Card className="p-4 bg-slate-800/50 border-blue-500/30 backdrop-blur">
           <div className="flex items-center gap-3">
-            {stats.canWatchNow ? (
+              {stats.canWatchNow ? (
               <Button
                 onClick={onWatchAd}
                 disabled={isWatching}
                 className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
               >
                 <PlayCircle className="w-4 h-4 mr-2" />
-                Assistir Agora
+                Watch Now
                 <br />
-                <span className="text-xs">+5 Usos</span>
+                <span className="text-xs">+5 Uses</span>
               </Button>
             ) : (
               <div className="w-full text-center">
                 <Clock className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                <p className="text-xs text-gray-400 mb-1">Próximo anúncio em</p>
+                <p className="text-xs text-gray-400 mb-1">Next ad in</p>
                 <p className="text-xl font-bold text-blue-400">
                   {formatTime(countdown)}
                 </p>
@@ -152,7 +152,7 @@ export function AdStatsWidget({ onWatchAd, isWatching }: AdStatsWidgetProps) {
       <Card className="mt-4 p-4 bg-slate-800/50 border-purple-500/30 backdrop-blur">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-gray-400">
-            Meta diária: 5 anúncios
+            Daily goal: 5 ads
           </span>
           <span className="text-sm font-semibold text-purple-400">
             {Math.min(stats.adsWatched % 5, 5)}/5
@@ -165,7 +165,7 @@ export function AdStatsWidget({ onWatchAd, isWatching }: AdStatsWidgetProps) {
           />
         </div>
         <p className="text-xs text-gray-400 mt-2 text-center">
-          🎉 Complete 5 anúncios por dia para ganhar +5 usos bônus!
+          🎉 Complete 5 ads per day to earn +5 bonus uses!
         </p>
       </Card>
     </div>

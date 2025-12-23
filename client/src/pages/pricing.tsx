@@ -16,54 +16,54 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "@/hooks/use-toast";
-import { useLanguage } from "@/contexts/LanguageContext";
+
 
 export default function PricingPage() {
   const { user, token } = useUser();
-  const { t } = useLanguage();
+
   const [, setLocation] = useLocation();
   
   const plans = [
     {
-      name: t.planFree,
-      price: t.planFreePrice,
-      period: t.planFreePeriod,
-      description: t.planFreeDescription,
+      name: "Free",
+      price: "$0",
+      period: "per month",
+      description: "Limited access to basic features.",
       features: [
-        t.planFeature1,
-        t.planFeature2,
-        t.planFeature3,
-        t.planFeature4,
-        t.planFeature5,
+        "Feature A",
+        "Feature B",
+        "Feature C",
+        "Feature D",
+        "Feature E",
       ],
       notIncluded: [
-        t.planNotIncluded1,
-        t.planNotIncluded2,
-        t.planNotIncluded3,
-        t.planNotIncluded4,
+        "Plan Not Included1",
+        "Plan Not Included2",
+        "Plan Not Included3",
+        "Plan Not Included4",
       ],
-      cta: t.currentPlan,
+      cta: "Current Plan",
       ctaVariant: "secondary" as const,
       isFree: true,
     },
     {
-      name: t.planPro,
-      price: t.planProPrice,
-      period: t.planProPeriod,
-      description: t.planProDescription,
-      badge: t.planProBadge,
+      name: "Pro",
+      price: "$9/mo",
+      period: "per month",
+      description: "Full access to Pro features and priority support.",
+      badge: "Pro",
       features: [
-        t.planFeature6,
-        t.planFeature7,
-        t.planFeature8,
-        t.planFeature9,
-        t.planFeature10,
-        t.planFeature11,
-        t.planFeature4,
-        t.planFeature5,
+        "Plan Feature6",
+        "Plan Feature7",
+        "Plan Feature8",
+        "Plan Feature9",
+        "Plan Feature10",
+        "Plan Feature11",
+        "Feature D",
+        "Feature E",
       ],
       notIncluded: [],
-      cta: t.activatePro,
+      cta: "Activate Pro",
       ctaVariant: "default" as const,
       isPro: true,
     },
@@ -83,105 +83,117 @@ export default function PricingPage() {
 
   const monthlyBenefits = useMemo(
     () => [
-      t.benefit1,
-      t.benefit2,
-      t.benefit3,
-      t.benefit4,
+      "Priority support",
+      "AI code suggestions",
+      "Snapshots & versioning",
+      "Performance analysis",
     ],
-    [t]
+    []
   );
 
   const roadmapItems = useMemo(
     () => [
-      { title: t.proRoadmap1Title, eta: t.proRoadmap1Eta, status: t.proRoadmap1Status },
-      { title: t.proRoadmap2Title, eta: t.proRoadmap2Eta, status: t.proRoadmap2Status },
-      { title: t.proRoadmap3Title, eta: t.proRoadmap3Eta, status: t.proRoadmap3Status },
+      { title: "Interactive Debugging", eta: "Q1 2026", status: "Planned" },
+      { title: "AI Tools", eta: "Q2 2026", status: "Planned" },
+      { title: "Snapshots & Versioning", eta: "Q3 2026", status: "Planned" },
     ],
-    [t]
+    []
   );
 
   const proFeatureCards = useMemo(
     () => [
       {
         icon: <Cpu className="w-6 h-6 text-white" />,
-        title: t.proFeatureDebuggerTitle,
-        desc: t.proFeatureDebuggerDesc,
-        bullets: [t.proFeatureDebuggerB1, t.proFeatureDebuggerB2],
+        title: "Debugger",
+        desc: "Step through code and inspect values.",
+        bullets: ["Breakpoints", "Step over/into"],
       },
       {
         icon: <BarChart3 className="w-6 h-6 text-white" />,
-        title: t.proFeatureAnalyzerTitle,
-        desc: t.proFeatureAnalyzerDesc,
-        bullets: [t.proFeatureAnalyzerB1, t.proFeatureAnalyzerB2],
+        title: "Analyzer",
+        desc: "Analyze code performance with visual metrics.",
+        bullets: ["Performance charts", "Detailed metrics"],
       },
       {
         icon: <Layers className="w-6 h-6 text-white" />,
-        title: t.proFeatureStructuresTitle,
-        desc: t.proFeatureStructuresDesc,
-        bullets: [t.proFeatureStructuresB1, t.proFeatureStructuresB2],
+        title: "Code Structures",
+        desc: "Inspect code structure and data flows.",
+        bullets: ["Structure viewer", "Dependency maps"],
       },
       {
         icon: <Lightbulb className="w-6 h-6 text-white" />,
-        title: t.proFeatureAiTitle,
-        desc: t.proFeatureAiDesc,
-        bullets: [t.proFeatureAiB1, t.proFeatureAiB2],
+        title: "AI Assistant",
+        desc: "AI-powered suggestions and fixes.",
+        bullets: ["AI suggestions", "Contextual fixes"],
       },
       {
         icon: <GitBranch className="w-6 h-6 text-white" />,
-        title: t.proFeatureSnapshotsTitle,
-        desc: t.proFeatureSnapshotsDesc,
-        bullets: [t.proFeatureSnapshotsB1, t.proFeatureSnapshotsB2],
+        title: "Snapshots",
+        desc: "Save and restore code states.",
+        bullets: ["State snapshots", "Restore points"],
       },
       {
         icon: <Database className="w-6 h-6 text-white" />,
-        title: t.proFeatureDbTitle,
-        desc: t.proFeatureDbDesc,
-        bullets: [t.proFeatureDbB1, t.proFeatureDbB2],
+        title: "Database Tools",
+        desc: "Inspect and mock database content.",
+        bullets: ["Query viewer", "Schema explorer"],
       },
     ],
-    [t]
+    []
   );
 
   const proExerciseTracks = useMemo(
     () => [
       {
-        title: t.proTrackBeginnerTitle,
+        title: "Beginner Track",
         accent: "from-emerald-500/15 to-emerald-700/10",
         items: [
-          t.proTrackBeginner1,
-          t.proTrackBeginner2,
-          t.proTrackBeginner3,
-          t.proTrackBeginner4,
-          t.proTrackBeginner5,
-          t.proTrackBeginner6,
+          "Pro Track Beginner1",
+          "Pro Track Beginner2",
+          "Pro Track Beginner3",
+          "Pro Track Beginner4",
+          "Pro Track Beginner5",
+          "Pro Track Beginner6",
         ],
       },
       {
-        title: t.proTrackIntermediateTitle,
+        title: "Beginner Track",
+        accent: "from-emerald-500/15 to-emerald-700/10",
+        items: [
+          "Intro to loops",
+          "Basic recursion",
+          "Variables & types",
+          "Functions & scope",
+          "Conditionals",
+          "Simple I/O",
+        ],
+      },
+      {
+        title: "Intermediate Track",
         accent: "from-amber-500/15 to-orange-600/10",
         items: [
-          t.proTrackIntermediate1,
-          t.proTrackIntermediate2,
-          t.proTrackIntermediate3,
-          t.proTrackIntermediate4,
-          t.proTrackIntermediate5,
-          t.proTrackIntermediate6,
+          "Data structures",
+          "OOP fundamentals",
+          "Asymptotic analysis",
+          "Recursion & dynamic programming",
+          "APIs & networking",
+          "Error handling",
         ],
       },
       {
-        title: t.proTrackAdvancedTitle,
+        title: "Advanced Track",
         accent: "from-purple-500/15 to-indigo-700/10",
         items: [
-          t.proTrackAdvanced1,
-          t.proTrackAdvanced2,
-          t.proTrackAdvanced3,
-          t.proTrackAdvanced4,
-          t.proTrackAdvanced5,
-          t.proTrackAdvanced6,
+          "Concurrency & parallelism",
+          "Advanced algorithms",
+          "Memory optimization",
+          "Compiler basics",
+          "Systems design",
+          "Profiling & benchmarking",
         ],
       },
     ],
-    [t]
+    []
   );
 
   useEffect(() => {
@@ -218,7 +230,7 @@ export default function PricingPage() {
   const submitCollect = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!email) {
-      toast({ title: t.emailRequired, description: t.emailRequired });
+      toast({ title: "Email required", description: "Please enter your email." });
       return;
     }
     try {
@@ -232,14 +244,14 @@ export default function PricingPage() {
         body: JSON.stringify({ email, firstName, lastName, dateOfBirth: dobIso, country, password }),
       });
       const data = await res.json();
-      if (!res.ok || !data?.ok) throw new Error(data?.error || t.error);
+      if (!res.ok || !data?.ok) throw new Error(data?.error || "Error");
       // Persist pending signup so we can complete after payment
       const pending = { firstName, lastName, country, dateOfBirth, email, password };
       sessionStorage.setItem("pendingSignup", JSON.stringify(pending));
       setVipStep("verify");
-      toast({ title: t.vipCodeSent, description: t.vipCheckEmail });
+      toast({ title: "VIP code sent", description: "Check your email for the VIP code." });
     } catch (err: any) {
-      toast({ title: t.error, description: err?.message || String(err) });
+      toast({ title: "Error", description: err?.message || String(err) });
     } finally {
       setLoading(false);
     }
@@ -248,7 +260,7 @@ export default function PricingPage() {
   const submitVerifyThenCheckout = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!email || !code) {
-      toast({ title: t.error, description: t.error });
+      toast({ title: "Error", description: "An error occurred." });
       return;
     }
     try {
@@ -259,7 +271,7 @@ export default function PricingPage() {
         body: JSON.stringify({ email, code }),
       });
       const vdata = await vres.json();
-      if (!vres.ok || !vdata?.ok) throw new Error(vdata?.error || t.error);
+      if (!vres.ok || !vdata?.ok) throw new Error(vdata?.error || "Error");
 
       const cres = await fetch("/api/pro/create-checkout", {
         method: "POST",
@@ -271,10 +283,10 @@ export default function PricingPage() {
         window.location.href = cdata.url;
         return;
       }
-      toast({ title: t.error, description: t.error });
+      toast({ title: "Error", description: "An error occurred." });
       setLocation("/pro");
     } catch (err: any) {
-      toast({ title: t.error, description: err?.message || String(err) });
+      toast({ title: "Error", description: err?.message || String(err) });
     } finally {
       setLoading(false);
     }
@@ -299,9 +311,9 @@ export default function PricingPage() {
           return;
         }
       }
-      alert(t.error);
+      alert("Error");
     } catch (err) {
-      alert(t.error);
+      alert("Error");
     }
   };
 
@@ -310,18 +322,18 @@ export default function PricingPage() {
       <div className="min-h-screen bg-gradient-to-br from-amber-950 via-slate-900 to-slate-950 py-12 px-4">
         {/* Header */}
         <div className="max-w-4xl mx-auto text-center mb-12">
-          <h1 className="text-5xl font-bold text-white mb-4">{t.pricingPlansTitle}</h1>
+          <h1 className="text-5xl font-bold text-white mb-4">Pricing Plans</h1>
           <p className="text-xl text-gray-400">
-            {t.pricingPlansSubtitle}
+            Choose a plan that fits you
           </p>
-          <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-200">
-            <span className="font-semibold text-white">{t.planPro}: {t.planProPrice}{t.planProPeriod}</span>
-            <span className="text-gray-300">{t.billingCurrency}</span>
+            <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-200">
+            <span className="font-semibold text-white">Pro: $9/mo</span>
+            <span className="text-gray-300">USD</span>
           </div>
 
           <div className="mt-4 inline-flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-red-600/80 to-orange-500/80 border border-red-500/50 text-sm text-white shadow-lg shadow-red-500/30">
-            <span className="font-bold text-base">{t.flashOffer}</span>
-            <span className="text-white/90">{t.flashOfferText}</span>
+            <span className="font-bold text-base">Flash Offer</span>
+            <span className="text-white/90">Limited-time discount</span>
             <span className="px-2 py-1 rounded bg-black/40 font-mono text-sm tracking-wide">{minutes}:{seconds}</span>
           </div>
         </div>
@@ -331,17 +343,17 @@ export default function PricingPage() {
           <Card className="p-6 border-amber-400/30 bg-amber-500/5">
             <div className="flex items-center gap-2 text-amber-300 font-semibold mb-2">
               <Crown className="w-4 h-4" />
-              {t.premiumBadge}
+              Premium Badge
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">{t.premiumHeadline}</h3>
-            <p className="text-sm text-gray-300">{t.premiumDescription}</p>
+            <h3 className="text-xl font-bold text-white mb-2">Premium Tools for Faster Debugging</h3>
+            <p className="text-sm text-gray-300">Advanced debugging, AI-assisted fixes, snapshots, and curated learning tracks to accelerate development.</p>
           </Card>
           <Card className="p-6 border-amber-400/20 bg-slate-800/60">
             <div className="flex items-center gap-2 text-amber-200 font-semibold mb-2">
               <Sparkles className="w-4 h-4" />
-              {t.proTracksBadge}
+              Pro Tracks Badge
             </div>
-            <p className="text-sm text-gray-300">{t.proTracksSubtitle}</p>
+            <p className="text-sm text-gray-300">Curated tracks to level up</p>
           </Card>
         </div>
 
@@ -350,10 +362,10 @@ export default function PricingPage() {
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-400/30 mb-3">
               <Crown className="w-5 h-5 text-amber-300" />
-              <span className="text-sm font-semibold text-amber-200">{t.premiumBadge}</span>
+              <span className="text-sm font-semibold text-amber-200">Premium Badge</span>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-3">{t.premiumHeadline}</h2>
-            <p className="text-sm text-gray-300 max-w-3xl mx-auto">{t.premiumDescription}</p>
+            <h2 className="text-3xl font-bold text-white mb-3">Premium Headline</h2>
+            <p className="text-sm text-gray-300 max-w-3xl mx-auto">Premium description about Pro features.</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -374,9 +386,9 @@ export default function PricingPage() {
           <div className="flex items-center gap-2 mb-6">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-semibold">
               <Sparkles className="w-4 h-4" />
-              {t.proTracksBadge}
+              Pro Tracks Badge
             </span>
-            <p className="text-sm text-gray-400">{t.proTracksSubtitle}</p>
+            <p className="text-sm text-gray-400">Curated tracks to level up</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-4">
@@ -427,7 +439,7 @@ export default function PricingPage() {
                       letterSpacing: "0.05em",
                     }}
                   >
-                    Oferta relâmpago · {minutes}:{seconds}
+                    Flash offer · {minutes}:{seconds}
                   </div>
                 </div>
               )}
@@ -489,7 +501,7 @@ export default function PricingPage() {
                   variant={plan.ctaVariant}
                   className="w-full py-2 font-semibold text-base"
                 >
-                  {user?.isPro && plan.isPro ? "✓ Ativo" : plan.cta}
+                  {user?.isPro && plan.isPro ? "✓ Active" : plan.cta}
                 </Button>
                 {user?.isPro && plan.isPro && (
                   <Button
@@ -497,14 +509,14 @@ export default function PricingPage() {
                     variant="secondary"
                     className="w-full py-2 font-semibold text-base"
                   >
-                    {t.manageSubscription}
+                    Manage Subscription
                   </Button>
                 )}
                 {plan.isPro && !user?.isPro && (
                   <div className="text-xs text-center space-y-1 text-gray-300">
-                    <p>{t.billingCurrency}</p>
-                    <p className="text-red-300 font-semibold">{t.flashOfferLimited}</p>
-                    <p className="text-amber-200">{t.timeRemainingLabel}: {minutes}:{seconds}</p>
+                    <p>USD</p>
+                    <p className="text-red-300 font-semibold">Limited offer</p>
+                    <p className="text-amber-200">Time remaining: {minutes}:{seconds}</p>
                   </div>
                 )}
               </div>
@@ -517,7 +529,7 @@ export default function PricingPage() {
           <div className="lg:col-span-2 rounded-2xl border border-amber-400/25 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 p-6 space-y-4">
             <div className="flex items-center gap-2 text-amber-200 font-semibold text-sm">
               <span className="w-4 h-4">✨</span>
-              {t.monthlyBenefitsTitle}
+              Monthly Benefits
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
               {monthlyBenefits.map((b) => (
@@ -532,7 +544,7 @@ export default function PricingPage() {
           <div className="rounded-2xl border border-amber-400/25 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-6 space-y-3">
             <div className="flex items-center gap-2 text-amber-200 font-semibold text-sm">
               <span className="w-4 h-4">👑</span>
-              {t.proRoadmapTitle}
+              Roadmap
             </div>
             <div className="space-y-3 text-sm text-gray-200">
               {roadmapItems.map((item) => (
@@ -554,19 +566,19 @@ export default function PricingPage() {
             <div className="rounded-2xl border border-amber-400/25 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-5 space-y-3 text-gray-200">
               <div className="flex items-center gap-2 text-amber-200 font-semibold text-sm">
                 <span className="w-4 h-4">👑</span>
-                {t.billingTitle}
+                Billing
               </div>
-              <p className="text-sm text-slate-300">{t.billingDescription}</p>
+              <p className="text-sm text-slate-300">Manage your subscription, invoices, and payment methods.</p>
               <div className="flex flex-wrap gap-2">
                 <Button onClick={handlePortal} className="bg-gradient-to-r from-amber-400 to-amber-600 text-black font-semibold">
-                  {t.openBillingPortal}
+                  Open Billing Portal
                 </Button>
                 <Button
                   variant="outline"
                   className="border-amber-400/60 text-amber-200"
                   onClick={async () => {
                     if (!token) {
-                      alert(t.signInButton);
+                      alert("Sign in to continue");
                       return;
                     }
                     try {
@@ -577,14 +589,14 @@ export default function PricingPage() {
                       if (res.ok && data?.receiptUrl) {
                         window.open(data.receiptUrl, "_blank");
                       } else {
-                        alert(t.downloadReceipts);
+                        alert("Download receipts");
                       }
                     } catch (err) {
-                      alert(t.downloadReceipts);
+                      alert("Download receipts");
                     }
                   }}
                 >
-                  {t.downloadReceipts}
+                  Download Receipts
                 </Button>
               </div>
             </div>
@@ -593,34 +605,34 @@ export default function PricingPage() {
 
         {/* FAQ */}
         <div className="max-w-4xl mx-auto mt-16">
-          <h2 className="text-3xl font-bold text-white text-center mb-8">{t.faqTitle}</h2>
+          <h2 className="text-3xl font-bold text-white text-center mb-8">FAQ</h2>
 
           <div className="space-y-6">
             <div className="bg-slate-800/40 border border-gray-700 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-white mb-2">{t.faq1Question}</h3>
+              <h3 className="text-lg font-bold text-white mb-2">How does Pro billing work?</h3>
               <p className="text-gray-400">
-                {t.faq1Answer}
+                Pro is billed monthly (USD). You can cancel anytime.
               </p>
             </div>
 
             <div className="bg-slate-800/40 border border-gray-700 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-white mb-2">{t.faq2Question}</h3>
+              <h3 className="text-lg font-bold text-white mb-2">What features are included in Pro?</h3>
               <p className="text-gray-400">
-                {t.faq2Answer}
+                Access to AI tools, debugger, snapshots, and premium tracks.
               </p>
             </div>
 
             <div className="bg-slate-800/40 border border-gray-700 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-white mb-2">{t.faq3Question}</h3>
+              <h3 className="text-lg font-bold text-white mb-2">Can I try Pro features for free?</h3>
               <p className="text-gray-400">
-                {t.faq3Answer}
+                Some features offer a one-time free trial use.
               </p>
             </div>
 
             <div className="bg-slate-800/40 border border-gray-700 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-white mb-2">{t.faq4Question}</h3>
+              <h3 className="text-lg font-bold text-white mb-2">How do I contact support?</h3>
               <p className="text-gray-400">
-                {t.faq4Answer}
+                Email support@codeflow.example or use the in-app help.
               </p>
             </div>
           </div>
@@ -630,9 +642,9 @@ export default function PricingPage() {
         {!user?.isPro ? (
           <div className="max-w-4xl mx-auto mt-16 text-center">
             <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-8">
-              <h2 className="text-3xl font-bold text-white mb-4">{t.ctaTitle}</h2>
+              <h2 className="text-3xl font-bold text-white mb-4">Get Started</h2>
               <p className="text-purple-100 mb-6 text-lg">
-                {t.ctaSubtitle}
+                Join Pro to unlock features
               </p>
               <Button
                 size="lg"
@@ -640,19 +652,19 @@ export default function PricingPage() {
                 className="font-bold text-lg px-8 py-6"
                 onClick={handleUpgrade}
               >
-                {t.activateProNow}
+                Activate Pro Now
               </Button>
             </div>
           </div>
         ) : (
           <div className="max-w-4xl mx-auto mt-16 text-center">
             <div className="bg-slate-900/60 border border-gray-700 rounded-lg p-8">
-              <h2 className="text-3xl font-bold text-white mb-4">{t.youArePro}</h2>
+              <h2 className="text-3xl font-bold text-white mb-4">You Are Pro</h2>
               <p className="text-gray-300 mb-6 text-lg">
-                {t.youAreProDesc}
+                You are a Pro subscriber.
               </p>
               <Button size="lg" className="font-bold text-lg px-8 py-6" onClick={handlePortal}>
-                {t.manageSubscription}
+                Manage Subscription
               </Button>
             </div>
           </div>
@@ -663,10 +675,10 @@ export default function PricingPage() {
         <DialogContent className="bg-slate-900 border border-amber-400/30 text-white">
           <DialogHeader>
             <DialogTitle className="text-white flex items-center gap-2">
-              <Crown className="w-5 h-5 text-amber-300" /> {t.vipSignupTitle}
+              <Crown className="w-5 h-5 text-amber-300" /> VIP Signup
             </DialogTitle>
             <DialogDescription className="text-amber-100/80">
-              {t.vipSignupDesc}
+              Sign up for exclusive VIP access.
             </DialogDescription>
           </DialogHeader>
 
@@ -674,42 +686,42 @@ export default function PricingPage() {
             <form onSubmit={submitCollect} className="space-y-3">
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="firstName">{t.firstName}</Label>
+                  <Label htmlFor="firstName">First Name</Label>
                   <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">{t.lastName}</Label>
+                  <Label htmlFor="lastName">Last Name</Label>
                   <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
                 </div>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="country">{t.country}</Label>
+                  <Label htmlFor="country">Country</Label>
                   <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} required />
                 </div>
                 <div>
-                  <Label htmlFor="dob">{t.dateOfBirth}</Label>
+                  <Label htmlFor="dob">Date of Birth</Label>
                   <Input id="dob" type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} required />
                 </div>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="email">{t.emailLabel}</Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                 </div>
                 <div>
-                  <Label htmlFor="password">{t.passwordLabel}</Label>
+                  <Label htmlFor="password">Password</Label>
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
                 </div>
               </div>
               <Button type="submit" className="w-full bg-amber-500 text-black font-semibold" disabled={loading}>
-                {loading ? t.sendingCode : t.continueToEmailConfirm}
+                {loading ? "Sending Code" : "Continue to Email Confirm"}
               </Button>
             </form>
           ) : (
             <form onSubmit={submitVerifyThenCheckout} className="space-y-4">
               <div>
-                <Label>{t.codeSentTo} {email}</Label>
+                <Label>Code Sent to {email}</Label>
                 <div className="mt-2">
                   <InputOTP maxLength={6} value={code} onChange={setCode}>
                     <InputOTPGroup>
@@ -725,10 +737,10 @@ export default function PricingPage() {
               </div>
               <div className="flex gap-2">
                 <Button type="button" variant="outline" className="border-amber-400/50 text-amber-200" onClick={() => setVipStep("collect")} disabled={loading}>
-                  {t.back}
+                  Back
                 </Button>
                 <Button type="submit" className="flex-1 bg-amber-500 text-black font-semibold" disabled={loading}>
-                  {loading ? t.verifying : t.continueToPayment}
+                  {loading ? "Verifying" : "Continue to Payment"}
                 </Button>
               </div>
             </form>

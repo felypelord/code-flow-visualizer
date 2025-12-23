@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Send, Mail, Bug, MessageSquare } from 'lucide-react';
 
 export function Footer() {
-  // const t = {};
+  const t: any = {};
   const { toast } = useToast();
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,8 +16,8 @@ export function Footer() {
     
     if (!message.trim()) {
       toast({
-        title: t.footerErrorTitle || 'Campo vazio',
-        description: t.footerErrorDesc || 'Por favor, escreva sua mensagem',
+        title: "Error" || 'Empty field',
+        description: "Please write your message" || 'Please write your message',
         variant: 'destructive',
       });
       return;
@@ -27,22 +27,22 @@ export function Footer() {
 
     try {
       // Open email client with pre-filled message
-      const subject = encodeURIComponent('Code Flow - Sugestão/Bug');
+      const subject = encodeURIComponent('Code Flow - Suggestion/Bug');
       const body = encodeURIComponent(message);
       const mailtoLink = `mailto:codeflowbr@outlook.com?subject=${subject}&body=${body}`;
       
       window.location.href = mailtoLink;
       
       toast({
-        title: t.footerSuccessTitle || 'Email aberto!',
-        description: t.footerSuccessDesc || 'Seu cliente de email foi aberto com a mensagem',
+        title: "Thank you" || 'Email opened!',
+        description: "Your message was prepared in your email client." || 'Your email client was opened with the message',
       });
 
       setMessage('');
     } catch (error) {
       toast({
-        title: t.footerErrorTitle || 'Erro',
-        description: t.footerErrorSend || 'Não foi possível abrir o email',
+        title: "Error" || 'Error',
+        description: "Could not open email client" || 'Could not open email',
         variant: 'destructive',
       });
     } finally {
@@ -59,17 +59,17 @@ export function Footer() {
             <div className="flex items-center gap-2 mb-4">
               <MessageSquare className="w-6 h-6 text-primary" />
               <h3 className="text-xl font-bold text-white">
-                {t.footerTitle || 'Sugestões & Bugs'}
+                {"Suggestions & Bugs" || 'Suggestions & Bugs'}
               </h3>
             </div>
             
             <p className="text-sm text-gray-400">
-              {t.footerDescription || 'Ajude-nos a melhorar! Envie suas sugestões ou reporte bugs diretamente para nossa equipe.'}
+              {"Help us improve! Send suggestions or report bugs directly to our team." || 'Help us improve! Send suggestions or report bugs directly to our team.'}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-3">
-              <Textarea
-                placeholder={t.footerPlaceholder || 'Descreva sua sugestão ou bug encontrado...'}
+                <Textarea
+                placeholder={"Describe your suggestion or the bug you found..." || 'Describe your suggestion or the bug you found...'}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="min-h-[120px] bg-slate-800/50 border-slate-700 focus:border-primary resize-none"
@@ -86,7 +86,7 @@ export function Footer() {
                   className="bg-primary hover:bg-primary/90"
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  {t.footerSendButton || 'Enviar'}
+                  {"Send" || 'Send'}
                 </Button>
               </div>
             </form>
@@ -107,35 +107,35 @@ export function Footer() {
             <div className="flex items-center gap-2 mb-4">
               <Bug className="w-6 h-6 text-amber-400" />
               <h3 className="text-xl font-bold text-white">
-                {t.footerHelpTitle || 'Como Ajudar'}
+                {"How to Help" || 'How to Help'}
               </h3>
             </div>
 
             <div className="space-y-3 text-sm text-gray-300">
               <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
-                <h4 className="font-semibold text-white mb-2">
-                  {t.footerBugTitle || '🐛 Reportar Bugs'}
+                  <h4 className="font-semibold text-white mb-2">
+                  {"Report Bugs" || '🐛 Report Bugs'}
                 </h4>
                 <p className="text-gray-400">
-                  {t.footerBugDesc || 'Encontrou algo que não funciona? Descreva o problema detalhadamente para que possamos corrigi-lo rapidamente.'}
+                  {"Found something not working? Describe the problem in detail so we can fix it quickly." || 'Found something not working? Describe the problem in detail so we can fix it quickly.'}
                 </p>
               </div>
 
               <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
-                <h4 className="font-semibold text-white mb-2">
-                  {t.footerSuggestionTitle || '💡 Sugestões'}
+                  <h4 className="font-semibold text-white mb-2">
+                  {"Suggestions" || '💡 Suggestions'}
                 </h4>
                 <p className="text-gray-400">
-                  {t.footerSuggestionDesc || 'Tem uma ideia para melhorar o Code Flow? Compartilhe conosco! Adoramos feedback da comunidade.'}
+                  {"Have an idea to improve Code Flow? Share it with us!" || 'Have an idea to improve Code Flow? Share it with us! We love community feedback.'}
                 </p>
               </div>
 
               <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
-                <h4 className="font-semibold text-white mb-2">
-                  {t.footerFeatureTitle || '✨ Novas Features'}
+                  <h4 className="font-semibold text-white mb-2">
+                  {"New Features" || '✨ New Features'}
                 </h4>
                 <p className="text-gray-400">
-                  {t.footerFeatureDesc || 'Quer ver uma nova funcionalidade no Code Flow? Envie sua proposta e ela pode se tornar realidade!'}
+                  {"Want to see a new feature in Code Flow? Send your proposal." || 'Want to see a new feature in Code Flow? Send your proposal and it may become reality!'}
                 </p>
               </div>
             </div>
@@ -144,7 +144,7 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-white/10 text-center text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} Code Flow BR. {t.footerRights || 'Todos os direitos reservados.'}</p>
+          <p>© {new Date().getFullYear()} Code Flow BR. {"All rights reserved." || 'All rights reserved.'}</p>
         </div>
       </div>
     </footer>

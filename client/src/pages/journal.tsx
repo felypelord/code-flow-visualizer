@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/use-user';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import { BookOpen, Plus, Edit, Trash2, Save, X, Code, Tag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,7 +20,7 @@ interface JournalEntry {
 
 export default function JournalPage() {
   const { user } = useUser();
-  const { t } = useLanguage();
+
   const { toast } = useToast();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);

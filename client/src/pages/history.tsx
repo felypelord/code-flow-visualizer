@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { useUser } from '@/hooks/use-user';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import { TrendingUp, Clock, Trophy, Target, Calendar, BarChart3, Zap } from 'lucide-react';
 
 interface Activity {
@@ -16,7 +16,7 @@ interface Activity {
 
 export default function HistoryPage() {
   const { user } = useUser();
-  const { t } = useLanguage();
+
   const [activities, setActivities] = useState<Activity[]>([]);
   const [stats, setStats] = useState({
     totalExercises: 0,

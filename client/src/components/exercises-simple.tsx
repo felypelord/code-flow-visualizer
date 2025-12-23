@@ -49,6 +49,9 @@ export function ExercisesView() {
   const [showSolution, setShowSolution] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [allPassed, setAllPassed] = useState(false);
+  const [showUseSolutionConfirm, setShowUseSolutionConfirm] = useState(false);
+  const [showEnableExecutionConfirm, setShowEnableExecutionConfirm] = useState(false);
+  const [pendingExecutionAction, setPendingExecutionAction] = useState<"line" | "tests" | null>(null);
   const [progress, setProgress] = useState<ExerciseProgressState>({});
   const [executionState, setExecutionState] = useState<ExecutionState>({
     isExecuting: false,
@@ -62,9 +65,6 @@ export function ExercisesView() {
     heap: [],
     logs: [],
   });
-  const [showUseSolutionConfirm, setShowUseSolutionConfirm] = useState(false);
-  const [showEnableExecutionConfirm, setShowEnableExecutionConfirm] = useState(false);
-  const [pendingExecutionAction, setPendingExecutionAction] = useState<"line" | "tests" | null>(null);
 
   const [allowExecution, setAllowExecution] = useState<boolean>(() => {
     try {
@@ -73,9 +73,11 @@ export function ExercisesView() {
       return false;
     }
   });
+
   const [executionSpeed, setExecutionSpeed] = useState<number>(() => {
     try {
-      return Number(localStorage.getItem("executionSpeed")) || 500;
+      const val = Number(localStorage.getItem("executionSpeed")) || 500;
+      return Math.max(10, Math.min(500, val));
     } catch {
       return 500;
     }
@@ -147,30 +149,30 @@ export function ExercisesView() {
 
   const generateFriendlyLog = (line: string, prevVars: Record<string, any>, newVars: Record<string, any>): string => {
     const trimmed = line.trim();
-    if (!trimmed) return "Linha vazia pulada";
+        if (!trimmed) return "Empty line skipped";
     
     const assignMatch = trimmed.match(/(?:let|const|var)?\s*(\w+)\s*=\s*(.*)/);
-    if (assignMatch) {
-      const varName = assignMatch[1];
-      const newVal = newVars[varName];
-      return `📝 Colocou ${JSON.stringify(newVal)} em "${varName}"`;
+        if (assignMatch) {
+          const varName = assignMatch[1];
+          const newVal = newVars[varName];
+          return `📝 Assigned ${JSON.stringify(newVal)} to "${varName}"`;
     }
     
-    if (trimmed.startsWith("if ")) {
-      return `❓ Verificou: ${trimmed}`;
+        if (trimmed.startsWith("if ")) {
+          return `❓ Checked: ${trimmed}`;
     }
     
-    if (trimmed.startsWith("for ") || trimmed.startsWith("while ")) {
-      return `🔄 Iniciou um laço: ${trimmed.substring(0, 40)}...`;
+        if (trimmed.startsWith("for ") || trimmed.startsWith("while ")) {
+          return `🔄 Started a loop: ${trimmed.substring(0, 40)}...`;
     }
     
-    if (trimmed.startsWith("return ")) {
-      const returnVal = newVars.__result || trimmed;
-      return `✅ Retornou ${typeof returnVal === "object" ? JSON.stringify(returnVal) : returnVal}`;
+        if (trimmed.startsWith("return ")) {
+          const returnVal = newVars.__result || trimmed;
+          return `✅ Returned ${typeof returnVal === "object" ? JSON.stringify(returnVal) : returnVal}`;
     }
     
-    if (trimmed.includes("console.log") || trimmed.includes("print")) {
-      return `💬 Imprimiu na tela: ${trimmed.substring(0, 50)}...`;
+        if (trimmed.includes("console.log") || trimmed.includes("print")) {
+          return `💬 Printed: ${trimmed.substring(0, 50)}...`;
     }
     
     return `⚙️ ${trimmed.substring(0, 60)}${trimmed.length > 60 ? "..." : ""}`;
@@ -201,20 +203,20 @@ export function ExercisesView() {
       if (pattern.test(code)) {
         return { 
           valid: false, 
-          error: `🛑 Código bloqueado por segurança: padrão "${pattern.source}" não permitido. Use apenas lógica de programação simples.` 
+          error: `🛑 Code blocked for safety: pattern "${pattern.source}" is not allowed. Use only simple programming logic.` 
         };
       }
     }
 
     // Check code length
     if (code.length > 10000) {
-      return { valid: false, error: "Código muito longo. Limite: 10.000 caracteres." };
+      return { valid: false, error: "Code too long. Limit: 10,000 characters." };
     }
 
     // Check for excessive loops (rough heuristic)
     const loopCount = (code.match(/\b(for|while)\b/g) || []).length;
     if (loopCount > 5) {
-      return { valid: false, error: "Muitos loops detectados. Máximo permitido: 5." };
+      return { valid: false, error: "Too many loops detected. Maximum allowed: 5." };
     }
 
     return { valid: true };
@@ -225,7 +227,7 @@ export function ExercisesView() {
     return Promise.race([
       Promise.resolve(fn()),
       new Promise<T>((_, reject) => 
-        setTimeout(() => reject(new Error("⏱️ Tempo esgotado! Código demorou mais de 10 segundos. Verifique se há loops infinitos.")), timeoutMs)
+          setTimeout(() => reject(new Error("⏱️ Time out! Code took more than 10 seconds. Check for infinite loops.")), timeoutMs)
       )
     ]);
   };
@@ -233,7 +235,7 @@ export function ExercisesView() {
   const runTests = () => {
     const allowance = checkAndConsumeExecution(user?.id, !!user?.isPro, 5);
     if (!allowance.allowed) {
-      setTestResults([{ passed: false, name: "Limite diário", error: "Limite de 5 execuções/dia no plano Free. Faça upgrade para Pro." }]);
+      setTestResults([{ passed: false, name: "Daily Limit", error: "5 executions/day limit on the Free plan. Upgrade to Pro for unlimited runs." }]);
       setAllPassed(false);
       return;
     }
@@ -255,13 +257,13 @@ export function ExercisesView() {
       // Security: Validate code first
       const validation = validateCode(code, "javascript");
       if (!validation.valid) {
-        setTestResults([{ passed: false, name: "🛑 Segurança", error: validation.error! }]);
+        setTestResults([{ passed: false, name: "🛑 Security", error: validation.error! }]);
         return;
       }
 
       const functionNameMatch = code.match(/function\s+(\w+)\s*\(/);
       if (!functionNameMatch) {
-        setTestResults([{ passed: false, name: "Erro", error: "Nenhuma função encontrada. Use 'function' para declarar sua função." }]);
+        setTestResults([{ passed: false, name: "Error", error: "No function found. Use 'function' to declare your function." }]);
         return;
       }
 
@@ -290,7 +292,7 @@ export function ExercisesView() {
         saveTestProgress(false, score);
       }
     } catch (e) {
-      setTestResults([{ passed: false, name: "Erro", error: `${(e as any).message}` }]);
+      setTestResults([{ passed: false, name: "Error", error: `${(e as any).message}` }]);
     }
   };
 
@@ -298,7 +300,7 @@ export function ExercisesView() {
     try {
       const functionNameMatch = code.match(/def\s+(\w+)\s*\(/);
       if (!functionNameMatch) {
-        setTestResults([{ passed: false, name: "Erro", error: "Nenhuma função encontrada. Use 'def' para declarar sua função." }]);
+        setTestResults([{ passed: false, name: "Error", error: "No function found. Use 'def' to declare your Python function." }]);
         return;
       }
 
@@ -308,7 +310,7 @@ export function ExercisesView() {
       try {
         py = await getPyodideInstance();
       } catch (e) {
-        setTestResults([{ passed: false, name: "Erro", error: "Falha ao carregar Pyodide: " + ((e as any).message || String(e)) }]);
+        setTestResults([{ passed: false, name: "Error", error: "Failed to load Pyodide: " + ((e as any).message || String(e)) }]);
         return;
       }
 
@@ -327,7 +329,7 @@ export function ExercisesView() {
             const passed = JSON.stringify(parsed.result) === JSON.stringify(test.expected);
             results.push({ name: test.name, passed, result: parsed.result, expected: test.expected, error: null });
           } else {
-            results.push({ name: test.name, passed: false, error: parsed.error || parsed.trace || 'Erro' });
+            results.push({ name: test.name, passed: false, error: parsed.error || parsed.trace || 'Error' });
           }
         } catch (e) {
           results.push({ name: test.name, passed: false, error: (e as any).message || String(e) });
@@ -346,7 +348,7 @@ export function ExercisesView() {
         saveTestProgress(false, score);
       }
     } catch (e) {
-      setTestResults([{ passed: false, name: "Erro", error: `${(e as any).message}` }]);
+      setTestResults([{ passed: false, name: "Error", error: `${(e as any).message}` }]);
     }
   };
 
@@ -355,8 +357,8 @@ export function ExercisesView() {
       const functionNameMatch = code.match(/def\s+(\w+)\s*\(/);
       if (!functionNameMatch) {
         toast({
-          title: "❌ Erro",
-          description: "Nenhuma função encontrada. Use 'def' para declarar sua função em Python.",
+          title: "❌ Error",
+          description: "No function found. Use 'def' to declare your function in Python.",
           variant: "destructive",
         });
         return;
@@ -370,7 +372,7 @@ export function ExercisesView() {
         py = await getPyodideInstance();
       } catch (e) {
         toast({
-          title: "❌ Erro ao carregar Python",
+          title: "❌ Error loading Python",
           description: "Falha ao carregar o interpretador Python: " + ((e as any).message || String(e)),
           variant: "destructive",
         });
@@ -423,7 +425,7 @@ export function ExercisesView() {
             const passed = JSON.stringify(parsed.result) === JSON.stringify(test.expected);
             results.push({ name: test.name, passed, result: parsed.result, expected: test.expected, error: null });
           } else {
-            results.push({ name: test.name, passed: false, error: parsed.error || parsed.trace || 'Erro' });
+            results.push({ name: test.name, passed: false, error: parsed.error || parsed.trace || 'Error' });
           }
         } catch (e) {
           results.push({ name: test.name, passed: false, error: (e as any).message || String(e) });
@@ -455,7 +457,7 @@ export function ExercisesView() {
         errorMessage: (e as any).message,
       }));
       toast({
-        title: "❌ Erro",
+        title: "❌ Error",
         description: (e as any).message,
         variant: "destructive",
       });
@@ -496,7 +498,7 @@ export function ExercisesView() {
 
     // Run tests
     await new Promise(resolve => setTimeout(resolve, 500));
-    setExecutionState(prev => ({ ...prev, logs: [...prev.logs, "🧪 Executando testes..."] }));
+    setExecutionState(prev => ({ ...prev, logs: [...prev.logs, "🧪 Running tests..."] }));
     
     runTests();
     
@@ -529,17 +531,17 @@ export function ExercisesView() {
       const validation = validateCode(code, "javascript");
       if (!validation.valid) {
         toast({
-          title: "🛑 Código Bloqueado",
+          title: "🛑 Code Blocked",
           description: validation.error!,
           variant: "destructive",
         });
-        setTestResults([{ passed: false, name: "🛑 Segurança", error: validation.error! }]);
+        setTestResults([{ passed: false, name: "🛑 Security", error: validation.error! }]);
         return;
       }
 
       const functionNameMatch = code.match(/function\s+(\w+)\s*\(/);
       if (!functionNameMatch) {
-        setTestResults([{ passed: false, name: "Erro", error: "Nenhuma função encontrada. Use 'function' para declarar sua função." }]);
+        setTestResults([{ passed: false, name: "Error", error: "No function found. Use 'function' to declare your function." }]);
         return;
       }
 
@@ -548,7 +550,7 @@ export function ExercisesView() {
       try {
         new Function(code)();
       } catch (e) {
-        setTestResults([{ passed: false, name: "Erro de Sintaxe", error: `${(e as any).message}` }]);
+        setTestResults([{ passed: false, name: "Syntax Error", error: `${(e as any).message}` }]);
         return;
       }
 
@@ -686,7 +688,7 @@ export function ExercisesView() {
         errorLineIndex: 0,
         errorMessage: (e as any).message,
       }));
-      setTestResults([{ passed: false, name: "Erro", error: `${(e as any).message}` }]);
+      setTestResults([{ passed: false, name: "Error", error: `${(e as any).message}` }]);
     }
   };
 
@@ -710,12 +712,12 @@ export function ExercisesView() {
             <div className="flex-1">
               <h1 className="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3">
                 <Code2 className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
-                <span>{t.challenges}</span>
+                <span>Challenges</span>
               </h1>
-              <p className="text-xs sm:text-base text-slate-300">{t.jsOrPython}</p>
+              <p className="text-xs sm:text-base text-slate-300">JS or Python</p>
             </div>
             <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg px-3 py-2 sm:px-4 sm:py-3 flex-shrink-0">
-              <p className="text-blue-300 text-xs sm:text-sm font-semibold">{t.progress}</p>
+              <p className="text-blue-300 text-xs sm:text-sm font-semibold">Progress</p>
               <p className="text-xl sm:text-2xl font-bold text-blue-400">{completedCount}/{exercises.length * availableLanguages.length}</p>
             </div>
           </div>
@@ -732,8 +734,8 @@ export function ExercisesView() {
           {/* Horizontal Exercises Bar */}
           <div className="bg-slate-800/40 rounded p-3">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-white">{t.exercises}</h3>
-              <div className="text-xs text-slate-300">{t.clickToSelect}</div>
+              <h3 className="text-sm font-semibold text-white">Exercises</h3>
+              <div className="text-xs text-slate-300">Click to Select</div>
             </div>
             <div className="flex gap-3 overflow-x-auto py-2">
               {exercises.map((ex, idx) => {
@@ -841,7 +843,7 @@ export function ExercisesView() {
                     onChange={(e) => setAllowExecution(e.target.checked)}
                     className="form-checkbox h-4 w-4 text-blue-500 bg-slate-700 rounded"
                   />
-                  <span className="font-semibold">Executar código</span>
+                  <span className="font-semibold">Run code</span>
                 </label>
               </Card>
             </div>
@@ -850,7 +852,7 @@ export function ExercisesView() {
             <Tabs defaultValue="code" className="w-full">
               <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700">
                 <TabsTrigger value="code" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                  Código
+                  Code
                 </TabsTrigger>
                 <TabsTrigger value="tests" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                   ✓ Testes ({testResults.length})
@@ -860,7 +862,7 @@ export function ExercisesView() {
               <TabsContent value="code" className="space-y-4 mt-6">
                 {/* Code Editor */}
                 <Card className="p-4 bg-slate-800 border-slate-700">
-                  <label className="text-sm font-semibold text-white mb-3 block">Código:</label>
+                  <label className="text-sm font-semibold text-white mb-3 block">Code:</label>
                   <div className="relative flex-1 overflow-hidden">
                     <div className="absolute left-0 top-0 bottom-0 w-12 bg-slate-900 border-r border-slate-600 flex flex-col overflow-hidden">
                       {executionState.lines.map((_, idx) => (
@@ -893,8 +895,8 @@ export function ExercisesView() {
                       }}
                       disabled={executionState.isExecuting}
                       className="w-full h-64 md:h-96 p-3 pl-16 font-mono text-sm bg-slate-900 text-slate-50 rounded border border-slate-600 resize-vertical focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Escreva seu código aqui..."
-                      aria-label={`Editor de código (${selectedLanguage})`}
+                      placeholder="Write your code here..."
+                      aria-label={`Code editor (${selectedLanguage})`}
                       spellCheck="false"
                     />
                   </div>
@@ -912,7 +914,7 @@ export function ExercisesView() {
                         <div className="flex gap-3">
                           <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                           <div>
-                            <p className="text-sm font-semibold text-red-300 mb-1">❌ Erro na linha {executionState.errorLineIndex + 1}</p>
+                            <p className="text-sm font-semibold text-red-300 mb-1">❌ Error on line {executionState.errorLineIndex + 1}</p>
                             <p className="text-sm text-red-200">{executionState.errorMessage}</p>
                           </div>
                         </div>
@@ -934,7 +936,7 @@ export function ExercisesView() {
                     value={[executionSpeed]}
                     onValueChange={([val]) => setExecutionSpeed(val)}
                     className="flex-1 max-w-xs"
-                    aria-label="Velocidade de execução"
+                    aria-label="Execution speed"
                   />
                   <span className="text-xs text-slate-300 font-mono" style={{minWidth: 35, textAlign: 'right'}}>{executionSpeed}ms</span>
                 </div>
@@ -948,12 +950,12 @@ export function ExercisesView() {
                   {executionState.isExecuting ? (
                     <>
                       <Play className="w-4 h-4 mr-2 animate-pulse" />
-                      {t.executing}
+                      Executing
                     </>
                   ) : (
                     <>
                       <Play className="w-4 h-4 mr-2" />
-                      {t.execute}
+                      Execute
                     </>
                   )}
                 </Button>
@@ -962,21 +964,21 @@ export function ExercisesView() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {/* Column 1: Variables */}
                   <Card className="p-4 bg-slate-800 border-slate-700 overflow-auto max-h-64">
-                    <h4 className="text-sm font-semibold text-blue-300 mb-3">🔵 {t.variables}</h4>
+                    <h4 className="text-sm font-semibold text-blue-300 mb-3">🔵 Variables</h4>
                     <CallStack stack={executionState.stack} />
                   </Card>
 
                   {/* Column 2: Memory */}
                   <Card className="p-4 bg-slate-800 border-slate-700 overflow-auto max-h-64">
-                    <h4 className="text-sm font-semibold text-cyan-300 mb-3">🟢 {t.memory}</h4>
+                    <h4 className="text-sm font-semibold text-cyan-300 mb-3">🟢 Memory</h4>
                     <HeapMemory heap={executionState.heap} />
                   </Card>
 
                   {/* Column 3: What Computer Did */}
                   <Card className="p-4 bg-slate-800 border-slate-700 overflow-auto max-h-64">
-                    <h4 className="text-sm font-semibold text-yellow-300 mb-3">⚙️ {t.executed}</h4>
+                    <h4 className="text-sm font-semibold text-yellow-300 mb-3">⚙️ Executed</h4>
                     {executionState.logs.length === 0 ? (
-                      <p className="text-xs text-slate-400">{t.executeToSeeSteps}</p>
+                      <p className="text-xs text-slate-400">Execute to See Steps</p>
                     ) : (
                       <div className="space-y-2">
                         {executionState.logs.slice(-8).reverse().map((l, i) => (
@@ -1000,7 +1002,7 @@ export function ExercisesView() {
                     variant="outline"
                     className="border-green-600 text-green-300 hover:bg-green-700/30"
                   >
-                    ✓ Solução
+                    ✓ Solution
                   </Button>
 
                   {showUseSolutionConfirm && (
@@ -1026,10 +1028,10 @@ export function ExercisesView() {
                         }}
                         className="bg-green-600 text-xs px-2 py-1 h-8"
                       >
-                        Sim
+                        Yes
                       </Button>
                       <Button onClick={() => setShowUseSolutionConfirm(false)} variant="outline" className="text-xs px-2 py-1 h-8">
-                        Não
+                        No
                       </Button>
                     </div>
                   )}
@@ -1060,7 +1062,7 @@ export function ExercisesView() {
                     className="border-slate-600 text-slate-200 hover:bg-slate-700"
                   >
                     <Lightbulb className="w-4 h-4 mr-2" />
-                    Dica
+                    Hint
                   </Button>
                   <Button
                     onClick={() => setShowSolution(!showSolution)}
@@ -1076,8 +1078,8 @@ export function ExercisesView() {
                   <Card className="p-3 bg-slate-800 border-l-4 border-slate-600 mt-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-slate-200">Ativar execução?</p>
-                        <p className="text-xs text-slate-400">Código será executado no navegador.</p>
+                        <p className="text-sm text-slate-200">Enable execution?</p>
+                        <p className="text-xs text-slate-400">Code will be executed in the browser.</p>
                       </div>
                       <div className="flex gap-2">
                         <Button
@@ -1091,9 +1093,9 @@ export function ExercisesView() {
                           }}
                           className="bg-green-600"
                         >
-                          Sim
+                          Yes
                         </Button>
-                        <Button onClick={() => { setShowEnableExecutionConfirm(false); setPendingExecutionAction(null); }} variant="outline">Não</Button>
+                        <Button onClick={() => { setShowEnableExecutionConfirm(false); setPendingExecutionAction(null); }} variant="outline">No</Button>
                       </div>
                     </div>
                   </Card>
@@ -1101,14 +1103,14 @@ export function ExercisesView() {
 
                 {showHint && currentVariant?.hint && (
                   <Card className="p-4 bg-yellow-500/10 border-l-4 border-yellow-500">
-                    <p className="text-sm font-semibold text-yellow-300 mb-1">💡 Dica</p>
+                    <p className="text-sm font-semibold text-yellow-300 mb-1">💡 Hint</p>
                     <p className="text-sm text-yellow-200">{currentVariant.hint}</p>
                   </Card>
                 )}
 
                 {showSolution && currentVariant && (
                   <Card className="p-4 bg-green-500/10 border-l-4 border-green-500">
-                    <p className="text-sm font-semibold text-green-300 mb-3">✓ Solução</p>
+                    <p className="text-sm font-semibold text-green-300 mb-3">✓ Solution</p>
                     <pre className="bg-slate-900 p-4 rounded text-xs overflow-x-auto border border-slate-700">
                       <code className="text-slate-200">{currentVariant.solution}</code>
                     </pre>
@@ -1149,7 +1151,7 @@ export function ExercisesView() {
                             )}
                             {!result.error && !result.passed && (
                               <div className="text-sm mt-2 space-y-1 text-slate-300">
-                                <p>Esperado: <code className="bg-slate-900 px-2 py-1 rounded text-green-300">{JSON.stringify(result.expected)}</code></p>
+                                <p>Expected: <code className="bg-slate-900 px-2 py-1 rounded text-green-300">{JSON.stringify(result.expected)}</code></p>
                                 <p>Obtido: <code className="bg-slate-900 px-2 py-1 rounded text-red-300">{JSON.stringify(result.result)}</code></p>
                               </div>
                             )}
@@ -1163,8 +1165,8 @@ export function ExercisesView() {
                         <div className="flex items-center gap-3">
                           <CheckCircle2 className="w-8 h-8 text-blue-400" />
                           <div>
-                            <p className="font-bold text-blue-300 text-lg">🎉 Parabéns!</p>
-                            <p className="text-sm text-blue-200">{t.nextChallenge}</p>
+                            <p className="font-bold text-blue-300 text-lg">🎉 Congratulations!</p>
+                            <p className="text-sm text-blue-200">Next Challenge</p>
                           </div>
                         </div>
                       </Card>

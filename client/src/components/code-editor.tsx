@@ -51,7 +51,7 @@ export default function CodeEditor({ code, activeLine }: CodeEditorProps) {
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                   >
-                    ← Executando
+                    ← Running
                   </motion.div>
                 )}
               </div>

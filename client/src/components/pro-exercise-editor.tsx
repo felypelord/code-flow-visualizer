@@ -61,7 +61,7 @@ interface ProExerciseEditorProps {
 }
 
 export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps) {
-  // const t = {};
+  const t: any = {};
   const { user } = useUser();
 
   // Disable body scroll when editor is open
@@ -97,8 +97,8 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
 
   const stats = useMemo(() => {
     if (testResults.length === 0) return null;
-    const passed = testResults.filter((t) => t.passed).length;
-    const totalTime = testResults.reduce((acc, t) => acc + t.time, 0);
+    const passed = testResults.filter((t) => "Passed").length;
+    const totalTime = testResults.reduce((acc, t) => acc + "Time", 0);
     return {
       passed,
       total: testResults.length,
@@ -228,7 +228,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
         code,
         language,
         testsCount: results.length,
-        passedCount: results.filter((t) => t.passed).length,
+        passedCount: results.filter((t) => "Passed").length,
       };
       setAttempts((prev) => [newAttempt, ...prev].slice(0, 10));
     } catch (err: any) {
@@ -290,7 +290,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
         code,
         language,
         testsCount: results.length,
-        passedCount: results.filter((t) => t.passed).length,
+        passedCount: results.filter((t) => "Passed").length,
       };
       setAttempts((prev) => [newAttempt, ...prev].slice(0, 10));
     } catch (err: any) {
@@ -346,7 +346,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                 ? "🔴"
                 : exercise.difficulty === "Intermediate"
                   ? "🟡"
-                  : "🟢"}{" "}
+                  : "🟢"} 
               {exercise.difficulty.toUpperCase()}
             </div>
             <h1 className="text-4xl font-bold text-white">{exercise.title}</h1>
@@ -390,7 +390,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 className="w-full h-96 p-4 bg-black/60 text-purple-50 border border-purple-500/30 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-purple-400/60"
-                placeholder={"Write code first"}
+                placeholder="Write code first"
               />
             </Card>
 
@@ -406,14 +406,14 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
               </Button>
               <Button onClick={resetCode} variant="outline">
                 <RotateCcw className="w-4 h-4 mr-2" />
-                {"Clear"}
+                Clear
               </Button>
               <Button
                 onClick={() => setShowSolution(!showSolution)}
                 variant="outline"
               >
                 <Eye className="w-4 h-4 mr-2" />
-                {"View Solution"}
+                View Solution
               </Button>
               <Button
                 onClick={getAiHint}
@@ -421,7 +421,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                 variant="outline"
               >
                 <Lightbulb className="w-4 h-4 mr-2" />
-                {"Hint"}
+                Hint
               </Button>
             </div>
 
@@ -436,7 +436,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                   {exercise.solution?.[language] || exercise.solution?.javascript}
                 </pre>
                 <p className="text-xs text-amber-200/70 mt-2">
-                  📝 Estude a solução oficial e compare com seu código
+                  📝 Study the official solution and compare with your code
                 </p>
               </Card>
             )}
@@ -456,7 +456,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                 {testResults.length === 0 ? (
                   <Card className="p-6 bg-black/40 border border-purple-400/20 text-center">
                     <p className="text-purple-200/70 text-sm">
-                      {"Run to see results"}
+                      Run to see results
                     </p>
                   </Card>
                 ) : (
@@ -491,13 +491,13 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                           {!test.passed && (
                             <div className="text-xs text-gray-200 mt-2 space-y-1">
                               <p>
-                                <strong>Expected:</strong>{" "}
+                                <strong>Expected:</strong> 
                                 <code className="bg-black/40 px-1 rounded">
                                   {test.expected}
                                 </code>
                               </p>
                               <p>
-                                <strong>Received:</strong>{" "}
+                                <strong>Received:</strong> 
                                 <code className="bg-black/40 px-1 rounded">
                                   {test.received}
                                 </code>
@@ -615,7 +615,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                     <h3 className="font-semibold text-green-100">Real-time Execution</h3>
                   </div>
                   <div className="text-xs text-green-200/70">
-                    {"Line"}: {executionState.currentLineIndex + 1}/{executionState.lines.length}
+                    Line: {executionState.currentLineIndex + 1}/{executionState.lines.length}
                   </div>
                 </div>
                 
@@ -652,7 +652,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
             <div>
               <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-purple-400" />
-                {"Description"}
+                Description
               </h3>
               <p className="text-purple-100/80 text-sm leading-relaxed">
                 {exercise.description}
@@ -661,7 +661,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
             <div>
               <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-purple-400" />
-                {"Complexity"}
+                Complexity
               </h3>
               <div className="space-y-1 text-sm text-purple-100/80">
                 <p>

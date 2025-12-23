@@ -21,7 +21,7 @@ export default function AdminPage() {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
-          <div>Carregando...</div>
+          <div>Loading...</div>
         </div>
       </Layout>
     );
@@ -35,10 +35,10 @@ export default function AdminPage() {
     <Layout>
       <div className="p-6">
         <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-        <p className="mb-6">Acesso somente para administradores.</p>
+        <p className="mb-6">Access restricted to administrators.</p>
 
         <div className="max-w-xl space-y-4">
-          <h2 className="text-xl font-semibold">Conceder Pro (gera token)</h2>
+          <h2 className="text-xl font-semibold">Grant Pro (generate token)</h2>
           <div className="space-y-2">
             <label className="block text-sm">Email</label>
             <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded border px-3 py-2 bg-white/5 border-white/10 text-white" placeholder="user@example.com" />
@@ -52,7 +52,7 @@ export default function AdminPage() {
           </div>
           <div className="space-y-2">
             <label className="block text-sm">ADMIN_API_TOKEN</label>
-            <input value={adminToken} onChange={(e) => setAdminToken(e.target.value)} className="w-full rounded border px-3 py-2 bg-white/5 border-white/10 text-white" placeholder="cole o token do admin" />
+            <input value={adminToken} onChange={(e) => setAdminToken(e.target.value)} className="w-full rounded border px-3 py-2 bg-white/5 border-white/10 text-white" placeholder="Paste the admin token here" />
           </div>
           <div>
             <button
@@ -69,14 +69,14 @@ export default function AdminPage() {
                     body: JSON.stringify({ email, status }),
                   });
                   const data = await res.json();
-                  if (!res.ok) throw new Error(data?.error || "erro");
+                  if (!res.ok) throw new Error(data?.error || "error");
                   setResult({ token: data?.token });
                 } catch (e: any) {
-                  setResult({ error: e?.message || "erro" });
+                  setResult({ error: e?.message || "error" });
                 }
               }}
             >
-              Gerar token
+              Generate token
             </button>
           </div>
 
@@ -86,7 +86,7 @@ export default function AdminPage() {
               <div className="font-mono bg-black/30 text-white px-3 py-2 rounded inline-block">{result.token}</div>
             </div>
           )}
-          {result?.error && <div className="text-red-300">{result.error}</div>}
+          {result?.error && <div className="text-red-300">{result.error || "Error"}</div>}
         </div>
       </div>
     </Layout>

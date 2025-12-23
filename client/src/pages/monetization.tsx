@@ -27,44 +27,44 @@ interface Package {
 const PACKAGES: Package[] = [
   {
     id: 'pro_monthly',
-    name: 'Pro Mensal',
-    description: 'Acesso completo ao Code Flow',
+    name: 'Pro Monthly',
+    description: 'Full access to Code Flow',
     price: 1990,
     currency: 'BRL',
     type: 'subscription',
-    duration: '1 mês',
+    duration: '1 month',
     icon: Crown,
     popular: true,
     items: [
-      'Uso ilimitado de todas features',
-      'Acesso a todos os desafios Expert',
-      'Sem anúncios',
-      '2x XP em todas atividades',
-      'Avatar e badges exclusivos',
-      'Suporte prioritário',
+      'Unlimited use of all features',
+      'Access to all Expert challenges',
+      'No ads',
+      '2x XP on all activities',
+      'Exclusive avatar and badges',
+      'Priority support',
     ],
   },
   {
     id: 'pro_yearly',
-    name: 'Pro Anual',
-    description: 'Economize 40% no plano anual',
+    name: 'Pro Yearly',
+    description: 'Save 40% on annual plan',
     price: 14390,
     currency: 'BRL',
     type: 'subscription',
-    duration: '1 ano',
+    duration: '1 year',
     icon: Crown,
     items: [
-      'Todos os benefícios Pro',
-      'Economize R$ 9,50/mês',
-      'Avatar exclusivo Anual',
-      'Badge de fundador',
-      'Acesso antecipado a features',
+      'All Pro benefits',
+      'Save R$ 9.50/month',
+      'Exclusive annual avatar',
+      'Founders badge',
+      'Early access to features',
     ],
   },
   {
     id: 'coins_100',
     name: '100 FlowCoins',
-    description: 'Pacote básico de moedas',
+    description: 'Basic coin pack',
     price: 490,
     currency: 'BRL',
     type: 'coins',
@@ -72,15 +72,15 @@ const PACKAGES: Package[] = [
     icon: Coins,
     items: [
       '100 FlowCoins',
-      'Compre hints e soluções',
-      'Desbloqueia avatares',
-      'Sem expiração',
+      'Buy hints and solutions',
+      'Unlock avatars',
+      'No expiration',
     ],
   },
   {
     id: 'coins_500',
     name: '500 FlowCoins',
-    description: '+50 coins bônus',
+    description: '+50 bonus coins',
     price: 1990,
     currency: 'BRL',
     type: 'coins',
@@ -88,41 +88,41 @@ const PACKAGES: Package[] = [
     icon: Coins,
     popular: true,
     items: [
-      '550 FlowCoins (bônus +10%)',
-      'Melhor custo-benefício',
-      'Todos os benefícios do pacote básico',
+      '550 FlowCoins (10% bonus)',
+      'Best value',
+      'All basic package benefits',
     ],
   },
   {
     id: 'coins_1000',
     name: '1000 FlowCoins',
-    description: '+200 coins bônus',
+    description: '+200 bonus coins',
     price: 3490,
     currency: 'BRL',
     type: 'coins',
     coins: 1200,
     icon: Coins,
     items: [
-      '1200 FlowCoins (bônus +20%)',
-      'Máximo valor agregado',
-      'Badge de supporter',
+      '1200 FlowCoins (20% bonus)',
+      'Maximum value',
+      'Supporter badge',
     ],
   },
   {
     id: 'premium_lifetime',
-    name: 'Pro Vitalício',
-    description: 'Acesso permanente ao Code Flow',
+    name: 'Pro Lifetime',
+    description: 'Permanent access to Code Flow',
     price: 49900,
     currency: 'BRL',
     type: 'premium',
     icon: Zap,
     items: [
-      'Acesso Pro para sempre',
-      'Todas as features futuras incluídas',
-      'Badge exclusivo de fundador',
-      'Nome nos créditos',
-      'Acesso VIP ao Discord',
-      'Sem renovações ou cobranças',
+      'Pro access forever',
+      'All future features included',
+      'Exclusive founders badge',
+      'Name in credits',
+      'VIP Discord access',
+      'No renewals or charges',
     ],
   },
 ];
@@ -136,8 +136,8 @@ export default function MonetizationPage() {
   const handlePurchase = async (packageId: string) => {
     if (!user) {
       toast({
-        title: 'Login necessário',
-        description: 'Faça login para realizar compras',
+        title: 'Login required',
+        description: 'Please log in to make purchases',
         variant: 'destructive',
       });
       return;
@@ -153,7 +153,7 @@ export default function MonetizationPage() {
         body: JSON.stringify({ packageId }),
       });
 
-      if (!response.ok) throw new Error('Falha ao criar pagamento');
+      if (!response.ok) throw new Error('Failed to create payment');
 
       const { checkoutUrl } = await response.json();
 
@@ -162,8 +162,8 @@ export default function MonetizationPage() {
     } catch (error) {
       console.error('Purchase error:', error);
       toast({
-        title: 'Erro',
-        description: 'Não foi possível processar a compra',
+        title: 'Error',
+        description: 'Unable to process purchase',
         variant: 'destructive',
       });
     } finally {
@@ -179,8 +179,8 @@ export default function MonetizationPage() {
   const handleWatchAd = async () => {
     if (!user) {
       toast({
-        title: 'Login necessário',
-        description: 'Faça login para assistir anúncios',
+        title: 'Login required',
+        description: 'Please log in to watch ads',
         variant: 'destructive',
       });
       return;
@@ -202,12 +202,12 @@ export default function MonetizationPage() {
         
         if (response.status === 429) {
           toast({
-            title: 'Aguarde um pouco',
-            description: `Você pode assistir outro anúncio em ${Math.ceil(errorData.remainingSeconds / 60)} minutos`,
+            title: 'Please wait',
+            description: `You can watch another ad in ${Math.ceil(errorData.remainingSeconds / 60)} minutes`,
             variant: 'destructive',
           });
         } else {
-          throw new Error(errorData.error || 'Falha ao recompensar anúncio');
+          throw new Error(errorData.error || 'Failed to reward ad');
         }
         return;
       }
@@ -215,16 +215,16 @@ export default function MonetizationPage() {
       const { usageAdded } = await response.json();
 
       toast({
-        title: '🎉 Anúncio assistido!',
-        description: `+${usageAdded} usos desbloqueados!`,
+        title: '🎉 Ad watched!',
+        description: `+${usageAdded} usages unlocked!`,
       });
 
       await refreshUser();
     } catch (error) {
       console.error('Ad reward error:', error);
       toast({
-        title: 'Erro',
-        description: 'Não foi possível processar a recompensa',
+        title: 'Error',
+        description: 'Unable to process the reward',
         variant: 'destructive',
       });
     } finally {
@@ -235,8 +235,8 @@ export default function MonetizationPage() {
   const handleAdClose = () => {
     setShowAdModal(false);
     toast({
-      title: 'Anúncio cancelado',
-      description: 'Assista até o final para ganhar recompensas',
+      title: 'Ad cancelled',
+      description: 'Watch until the end to earn rewards',
     });
   };
 
@@ -250,10 +250,10 @@ export default function MonetizationPage() {
         {/* Header */}
         <div className="max-w-7xl mx-auto mb-12 text-center">
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">
-            Desbloqueie Todo o Potencial
+            Unlock Your Full Potential
           </h1>
           <p className="text-xl text-gray-300">
-            Escolha o plano perfeito para acelerar seu aprendizado
+            Choose the perfect plan to accelerate your learning
           </p>
         </div>
 
@@ -278,7 +278,7 @@ export default function MonetizationPage() {
               >
                 {pkg.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-500 to-orange-500 px-4 py-1 rounded-full text-xs font-bold">
-                    MAIS POPULAR
+                    MOST POPULAR
                   </div>
                 )}
 
@@ -325,11 +325,11 @@ export default function MonetizationPage() {
                   }`}
                 >
                   {loading === pkg.id ? (
-                    'Processando...'
+                    'Processing...'
                   ) : user?.isPro && pkg.type === 'subscription' ? (
-                    'Já é Pro'
+                    'Already Pro'
                   ) : (
-                    'Comprar Agora'
+                    'Buy Now'
                   )}
                 </Button>
               </Card>
@@ -348,24 +348,24 @@ export default function MonetizationPage() {
         {/* Benefits Section */}
         <div className="max-w-7xl mx-auto mt-16 mb-12">
           <h2 className="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            O Que Você Ganha com Pro
+            What You Get with Pro
           </h2>
           <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
-            Acesso completo a ferramentas profissionais, desafios avançados e recursos exclusivos que vão acelerar sua jornada de aprendizado
+            Full access to professional tools, advanced challenges, and exclusive resources to accelerate your learning journey.
           </p>
 
           {/* Advanced Tools Section */}
           <div className="mb-12">
             <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <Code2 className="w-6 h-6 text-purple-400" />
-              Ferramentas Avançadas
+              Advanced Tools
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className="p-6 bg-slate-800/50 backdrop-blur border-purple-500/30">
                 <BarChart3 className="w-12 h-12 text-blue-400 mb-4" />
                 <h4 className="text-lg font-bold mb-2">Code Profiler</h4>
                 <p className="text-sm text-gray-400">
-                  Análise de performance em tempo real. Meça tempo de execução, identifique gargalos e otimize seu código com precisão profissional.
+                  Real-time performance analysis. Measure execution time, identify bottlenecks, and optimize your code with professional precision.
                 </p>
               </Card>
 
@@ -373,7 +373,7 @@ export default function MonetizationPage() {
                 <PauseCircle className="w-12 h-12 text-red-400 mb-4" />
                 <h4 className="text-lg font-bold mb-2">Advanced Debugger</h4>
                 <p className="text-sm text-gray-400">
-                  Breakpoints condicionais, step-through debugging, e inspeção de variáveis em tempo de execução. Debug como um profissional.
+                  Conditional breakpoints, step-through debugging, and runtime variable inspection. Debug like a pro.
                 </p>
               </Card>
 
@@ -381,7 +381,7 @@ export default function MonetizationPage() {
                 <Sparkles className="w-12 h-12 text-yellow-400 mb-4" />
                 <h4 className="text-lg font-bold mb-2">AI Code Inspector</h4>
                 <p className="text-sm text-gray-400">
-                  Análise inteligente de código com IA. Identifica padrões, sugere melhorias e explica complexidades automaticamente.
+                  Intelligent code analysis with AI. Identifies patterns, suggests improvements, and explains complex code automatically.
                 </p>
               </Card>
 
@@ -389,7 +389,7 @@ export default function MonetizationPage() {
                 <Search className="w-12 h-12 text-green-400 mb-4" />
                 <h4 className="text-lg font-bold mb-2">Variable Inspector</h4>
                 <p className="text-sm text-gray-400">
-                  Explore objetos complexos, arrays aninhados e estruturas de dados com visualização interativa e busca avançada.
+                  Explore complex objects, nested arrays and data structures with interactive visualization and advanced search.
                 </p>
               </Card>
 
@@ -397,7 +397,7 @@ export default function MonetizationPage() {
                 <Activity className="w-12 h-12 text-cyan-400 mb-4" />
                 <h4 className="text-lg font-bold mb-2">Execution Visualizer</h4>
                 <p className="text-sm text-gray-400">
-                  Visualização em tempo real da execução do código. Veja o fluxo de dados, call stack e transformações passo a passo.
+                  Real-time execution visualization. See data flow, call stack and step-by-step transformations.
                 </p>
               </Card>
 
@@ -405,7 +405,7 @@ export default function MonetizationPage() {
                 <Database className="w-12 h-12 text-indigo-400 mb-4" />
                 <h4 className="text-lg font-bold mb-2">Memory Inspector</h4>
                 <p className="text-sm text-gray-400">
-                  Rastreamento de memória, análise de heap e detecção de memory leaks. Entenda como seu código usa recursos.
+                  Memory tracking, heap analysis and leak detection. Understand how your code uses resources.
                 </p>
               </Card>
 
@@ -413,7 +413,7 @@ export default function MonetizationPage() {
                 <Code2 className="w-12 h-12 text-purple-400 mb-4" />
                 <h4 className="text-lg font-bold mb-2">VIP Playground</h4>
                 <p className="text-sm text-gray-400">
-                  Ambiente de testes avançado com scratchpad, snippets salvos e execução isolada para experimentos sem limites.
+                  Advanced testing environment with a scratchpad, saved snippets and isolated execution for unlimited experiments.
                 </p>
               </Card>
 
@@ -421,7 +421,7 @@ export default function MonetizationPage() {
                 <Target className="w-12 h-12 text-orange-400 mb-4" />
                 <h4 className="text-lg font-bold mb-2">Learning Paths</h4>
                 <p className="text-sm text-gray-400">
-                  Trilhas guiadas de Frontend, Backend e Algoritmos. Progresso estruturado do básico ao avançado com projetos práticos.
+                  Guided paths for Frontend, Backend and Algorithms. Structured progress from fundamentals to advanced projects.
                 </p>
               </Card>
             </div>
@@ -431,7 +431,7 @@ export default function MonetizationPage() {
           <div className="mb-12">
             <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <Award className="w-6 h-6 text-yellow-400" />
-              Conteúdo & Aprendizado
+              Content & Learning
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="p-6 bg-slate-800/50 backdrop-blur border-purple-500/30">
@@ -440,26 +440,26 @@ export default function MonetizationPage() {
                     <Zap className="w-8 h-8 text-purple-400" />
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold">50+ Desafios Expert</h4>
-                    <p className="text-sm text-gray-400">Algoritmos avançados</p>
+                    <h4 className="text-xl font-bold">50+ Expert Challenges</h4>
+                    <p className="text-sm text-gray-400">Advanced algorithms</p>
                   </div>
                 </div>
                 <ul className="space-y-2 text-sm text-gray-300">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Data Structures complexas
+                    Complex Data Structures
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Design Patterns avançados
+                    Advanced Design Patterns
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Performance & Otimização
+                    Performance & Optimization
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Async & Concorrência
+                    Async & Concurrency
                   </li>
                 </ul>
               </Card>
@@ -471,25 +471,25 @@ export default function MonetizationPage() {
                   </div>
                   <div>
                     <h4 className="text-xl font-bold">2x XP Multiplier</h4>
-                    <p className="text-sm text-gray-400">Evolua mais rápido</p>
+                    <p className="text-sm text-gray-400">Progress faster</p>
                   </div>
                 </div>
                 <ul className="space-y-2 text-sm text-gray-300">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Dobro de XP em desafios
+                    Double XP on challenges
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Suba de nível 2x mais rápido
+                    Level up twice as fast
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Desbloqueia conquistas mais cedo
+                    Unlock achievements earlier
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Ranking boost automático
+                    Automatic ranking boost
                   </li>
                 </ul>
               </Card>
@@ -501,25 +501,25 @@ export default function MonetizationPage() {
                   </div>
                   <div>
                     <h4 className="text-xl font-bold">Daily Challenges</h4>
-                    <p className="text-sm text-gray-400">Novos desafios diários</p>
+                    <p className="text-sm text-gray-400">New daily challenges</p>
                   </div>
                 </div>
                 <ul className="space-y-2 text-sm text-gray-300">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Desafio novo todo dia
+                    A new challenge every day
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Bônus de XP por streaks
+                    XP bonuses for streaks
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Recompensas exclusivas
+                    Exclusive rewards
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Prática consistente
+                    Consistent practice
                   </li>
                 </ul>
               </Card>
@@ -528,111 +528,111 @@ export default function MonetizationPage() {
 
           {/* Community & Rewards Section */}
           <div className="mb-12">
-            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <Gift className="w-6 h-6 text-pink-400" />
-              Exclusividades & Comunidade
+              Community & Exclusives
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="p-6 bg-slate-800/50 backdrop-blur border-purple-500/30">
                 <Crown className="w-12 h-12 text-yellow-400 mb-4" />
-                <h4 className="text-xl font-bold mb-3">Avatares & Badges Exclusivos</h4>
+                <h4 className="text-xl font-bold mb-3">Exclusive Avatars & Badges</h4>
                 <p className="text-sm text-gray-400 mb-4">
-                  Destaque-se na comunidade com avatares animados, badges especiais e customizações que só membros Pro têm acesso.
+                  Stand out in the community with animated avatars, special badges, and customizations exclusive to Pro members.
                 </p>
                 <ul className="space-y-2 text-sm text-gray-300">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    20+ avatares exclusivos
+                    20+ exclusive avatars
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Badge Pro verificado
+                    Verified Pro badge
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Molduras de perfil animadas
+                    Animated profile frames
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Títulos personalizados
+                    Custom titles
                   </li>
                 </ul>
               </Card>
 
               <Card className="p-6 bg-slate-800/50 backdrop-blur border-purple-500/30">
                 <Sparkles className="w-12 h-12 text-cyan-400 mb-4" />
-                <h4 className="text-xl font-bold mb-3">Experiência Premium</h4>
+                <h4 className="text-xl font-bold mb-3">Premium Experience</h4>
                 <p className="text-sm text-gray-400 mb-4">
-                  Navegação sem interrupções, suporte prioritário e acesso antecipado a novos recursos antes de todos.
+                  Seamless navigation, priority support, and early access to new features.
                 </p>
                 <ul className="space-y-2 text-sm text-gray-300">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Zero anúncios na plataforma
+                    Zero ads on the platform
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Suporte prioritário 24/7
+                    Priority support 24/7
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Acesso antecipado a features
+                    Early access to features
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Servidor Discord exclusivo
+                    Exclusive Discord server
                   </li>
                 </ul>
               </Card>
 
               <Card className="p-6 bg-slate-800/50 backdrop-blur border-purple-500/30">
                 <Activity className="w-12 h-12 text-green-400 mb-4" />
-                <h4 className="text-xl font-bold mb-3">Uso Ilimitado</h4>
+                <h4 className="text-xl font-bold mb-3">Unlimited Use</h4>
                 <p className="text-sm text-gray-400 mb-4">
-                  Sem restrições de uso. Execute quantos códigos quiser, acesse todos os recursos sem limites.
+                  No usage limits. Run as much code as you want and access all features without limits.
                 </p>
                 <ul className="space-y-2 text-sm text-gray-300">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Execuções ilimitadas
+                    Unlimited executions
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Todas as ferramentas liberadas
+                    All tools unlocked
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Sem cooldown ou esperas
+                    No cooldowns or waits
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Aprenda no seu ritmo
+                    Learn at your own pace
                   </li>
                 </ul>
               </Card>
 
               <Card className="p-6 bg-slate-800/50 backdrop-blur border-purple-500/30">
                 <Lock className="w-12 h-12 text-purple-400 mb-4" />
-                <h4 className="text-xl font-bold mb-3">Conteúdo Bloqueado Liberado</h4>
+                <h4 className="text-xl font-bold mb-3">Locked Content Unlocked</h4>
                 <p className="text-sm text-gray-400 mb-4">
-                  Acesso instantâneo a todo conteúdo que estava bloqueado. Nada fica de fora.
+                  Instant access to all previously locked content. Nothing left out.
                 </p>
                 <ul className="space-y-2 text-sm text-gray-300">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Todos os desafios Expert
+                    All Expert challenges
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Soluções completas com explicações
+                    Complete solutions with explanations
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Projetos guiados avançados
+                    Advanced guided projects
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-400" />
-                    Material de estudo completo
+                    Complete study materials
                   </li>
                 </ul>
               </Card>
@@ -641,9 +641,9 @@ export default function MonetizationPage() {
 
           {/* Why Pro Section */}
           <Card className="p-8 bg-gradient-to-r from-purple-900/50 to-pink-900/50 backdrop-blur border-purple-500/30 text-center">
-            <h3 className="text-3xl font-bold mb-4">Por Que Escolher Pro?</h3>
+            <h3 className="text-3xl font-bold mb-4">Why Choose Pro?</h3>
             <p className="text-lg text-gray-300 max-w-3xl mx-auto mb-6">
-              Membros Pro aprendem <span className="text-yellow-400 font-bold">2x mais rápido</span>, têm acesso a <span className="text-purple-400 font-bold">ferramentas profissionais</span> usadas por desenvolvedores de grandes empresas, e fazem parte de uma <span className="text-pink-400 font-bold">comunidade exclusiva</span> de aprendizes avançados.
+              Pro members learn <span className="text-yellow-400 font-bold">twice as fast</span>, have access to <span className="text-purple-400 font-bold">professional tools</span> used by industry developers, and join a <span className="text-pink-400 font-bold">exclusive community</span> of advanced learners.
             </p>
             <div className="flex flex-wrap justify-center gap-8 text-left">
               <div className="flex items-start gap-3">
@@ -651,8 +651,8 @@ export default function MonetizationPage() {
                   <Check className="w-5 h-5 text-green-400" />
                 </div>
                 <div>
-                  <p className="font-bold">Economia de Tempo</p>
-                  <p className="text-sm text-gray-400">Ferramentas que aceleram seu aprendizado</p>
+                  <p className="font-bold">Time Savings</p>
+                  <p className="text-sm text-gray-400">Tools that accelerate your learning</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -660,8 +660,8 @@ export default function MonetizationPage() {
                   <Check className="w-5 h-5 text-green-400" />
                 </div>
                 <div>
-                  <p className="font-bold">Habilidades Profissionais</p>
-                  <p className="text-sm text-gray-400">Aprenda com as mesmas ferramentas da indústria</p>
+                  <p className="font-bold">Professional Skills</p>
+                  <p className="text-sm text-gray-400">Learn with the same industry tools</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -669,8 +669,8 @@ export default function MonetizationPage() {
                   <Check className="w-5 h-5 text-green-400" />
                 </div>
                 <div>
-                  <p className="font-bold">Investimento no Futuro</p>
-                  <p className="text-sm text-gray-400">Acelere sua carreira em tecnologia</p>
+                  <p className="font-bold">Investment in Your Future</p>
+                  <p className="text-sm text-gray-400">Boost your tech career</p>
                 </div>
               </div>
             </div>
@@ -681,25 +681,25 @@ export default function MonetizationPage() {
         <div className="max-w-7xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
           <Card className="p-6 bg-slate-800/50 backdrop-blur border-purple-500/30">
             <TrendingUp className="w-12 h-12 text-purple-400 mb-4" />
-            <h3 className="text-xl font-bold mb-2">Aprenda Mais Rápido</h3>
+                  <h3 className="text-xl font-bold mb-2">Learn Faster</h3>
             <p className="text-gray-400">
-              Acesse conteúdo premium e acelere seu aprendizado com 2x XP
+              Access premium content and accelerate your learning with 2x XP
             </p>
           </Card>
 
           <Card className="p-6 bg-slate-800/50 backdrop-blur border-purple-500/30">
             <Gift className="w-12 h-12 text-pink-400 mb-4" />
-            <h3 className="text-xl font-bold mb-2">Recompensas Exclusivas</h3>
+            <h3 className="text-xl font-bold mb-2">Exclusive Rewards</h3>
             <p className="text-gray-400">
-              Desbloqueie avatares, badges e itens especiais para membros Pro
+              Unlock avatars, badges and special items for Pro members
             </p>
           </Card>
 
           <Card className="p-6 bg-slate-800/50 backdrop-blur border-purple-500/30">
             <Lock className="w-12 h-12 text-yellow-400 mb-4" />
-            <h3 className="text-xl font-bold mb-2">Conteúdo Exclusivo</h3>
+            <h3 className="text-xl font-bold mb-2">Exclusive Content</h3>
             <p className="text-gray-400">
-              Acesso a desafios Expert e recursos avançados disponíveis apenas para Pro
+              Access Expert challenges and advanced resources available only to Pro
             </p>
           </Card>
         </div>

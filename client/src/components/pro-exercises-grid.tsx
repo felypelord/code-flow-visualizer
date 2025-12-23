@@ -19,7 +19,7 @@ export function ProExerciseCard({ exercise, onSelect, completed }: ProExerciseCa
   const [, setLocation] = useLocation();
   const [showEditor, setShowEditor] = useState(false);
   const isPro = !!user?.isPro;
-  // const t = {};
+  const t: any = {};
 
   const difficultyColors = {
     Beginner: "bg-green-500/20 text-green-300 border-green-500/30",

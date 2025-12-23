@@ -18,7 +18,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { ProExercisesGrid } from "@/components/pro-exercises-grid";
 import { getAllProExercises } from "@/lib/pro-exercises";
-import { useLanguage } from "@/contexts/LanguageContext";
+
 
 const ProDebuggerLazy = lazy(() =>
   import("@/components/visualizer/pro-debugger").then((m) => ({ default: m.ProDebugger }))
@@ -33,12 +33,13 @@ const VIPPlaygroundLazy = lazy(() =>
 );
 
 const ProAdvancedFeaturesLazy = lazy(() =>
-  import("@/components/pro-advanced-features").then((m) => ({ default: m.ProAdvancedFeatures }))
+  import("@/components/pro-advanced-features").then((m: any) => ({ default: m.ProAdvancedFeatures || m.default }))
 );
 
 export default function ProPage() {
   const { user, refreshUser } = useUser();
-  const { t } = useLanguage();
+  const t: any = {};
+
   const [, setLocation] = useLocation();
   const [profilerCode, setProfilerCode] = useState(
     "function fib(n){ return n<=1 ? n : fib(n-1)+fib(n-2); }\nfunction main(){ return fib(15); }"
@@ -50,10 +51,10 @@ export default function ProPage() {
     { id: "sort", code: "function main(){ const arr=[5,1,9,2]; return arr.sort((a,b)=>a-b); }" },
   ];
   const profilerExampleLabels: Record<string, string> = {
-    fib: t.profilerExampleFib,
-    loop: t.profilerExampleLoop,
-    async: t.profilerExampleAsync,
-    sort: t.profilerExampleSort,
+    fib: "Profiler Example Fib",
+    loop: "Profiler Example Loop",
+    async: "Profiler Example Async",
+    sort: "Profiler Example Sort",
   };
   const [profilerRuns, setProfilerRuns] = useState<Array<{ run: number; ms: number; result?: any }>>([]);
   const [profilerError, setProfilerError] = useState<string | null>(null);
@@ -134,16 +135,16 @@ export default function ProPage() {
     graph: 'Graph',
   };
   const inspectorDescriptions: Record<string, string> = {
-    user: t.inspectorDescUser,
-    nested: t.inspectorDescNested,
-    array: t.inspectorDescArray,
-    closure: t.inspectorDescClosure,
-    prototype: t.inspectorDescPrototype,
-    async: t.inspectorDescAsync,
-    circular: t.inspectorDescCircular,
-    mixed: t.inspectorDescMixed,
-    symbols: t.inspectorDescSymbols,
-    graph: t.inspectorDescGraph,
+    user: "Inspect user-related objects and properties.",
+    nested: "Explore deeply nested object structures and their relationships.",
+    array: "View arrays, indices, and common array operations.",
+    closure: "Inspect closures and captured lexical scope values.",
+    prototype: "Examine prototype chains and inherited properties.",
+    async: "Analyze async functions, promises, and timing behavior.",
+    circular: "Detect and visualize circular references in objects.",
+    mixed: "Inspect mixed-type collections and heterogeneous structures.",
+    symbols: "Reveal symbol-keyed properties and metadata.",
+    graph: "Render object graphs for complex data visualizations.",
   };
   const [inspectorParsed, setInspectorParsed] = useState<any>(null);
   const [inspectorError, setInspectorError] = useState<string | null>(null);
@@ -168,10 +169,10 @@ export default function ProPage() {
     const used = trialUses[feature] || 0;
     if (used === 0) {
       setTrialUses((prev) => ({ ...prev, [feature]: used + 1 }));
-      toast({ title: t.proFeatureAiTitle || "Primeiro uso liberado", description: t.proFeatureAiDesc || "Assine Pro para uso ilimitado." });
+      toast({ title: "First use unlocked", description: "Subscribe to Pro for unlimited use." });
       return true;
     }
-    toast({ title: t.proFeature || "Recurso exclusivo Pro", description: t.upgradeToPro || "Assine para continuar usando este recurso." });
+    toast({ title: "Pro exclusive feature", description: "Subscribe to continue using this feature." });
     return false;
   };
 
@@ -186,9 +187,9 @@ export default function ProPage() {
     if (!allowProAction("scratchpad-copy")) return;
     try {
       await navigator.clipboard.writeText(scratchpad);
-      toast({ title: t.proPlaygroundCopied, description: t.proPlaygroundCopy });
+      toast({ title: "Copied!", description: "Pro Playground code copied to clipboard." });
     } catch (err) {
-      toast({ title: t.proPlaygroundCopyFailed, description: String(err) });
+      toast({ title: "Copy failed", description: String(err) });
     }
   };
 
@@ -266,7 +267,7 @@ export default function ProPage() {
       setTimelinePlaying(true);
       setProfilerError(null);
     } catch (e: any) {
-      setProfilerError(e?.message || t.profilerError);
+      setProfilerError(e?.message || "Profiler Error");
       setProfilerRuns([]);
       setProfilerTimeline(null);
       setTimelinePlaying(false);
@@ -307,7 +308,7 @@ export default function ProPage() {
       setInspectorParsed(parsed);
       setInspectorError(null);
     } catch (e: any) {
-      setInspectorError(e?.message || t.proInspectorInvalidJson);
+      setInspectorError(e?.message || "Pro Inspector Invalid Json");
       setInspectorParsed(null);
     }
   };
@@ -369,10 +370,10 @@ export default function ProPage() {
     return (
       <div className="bg-slate-950/60 border border-amber-400/15 rounded-lg overflow-hidden">
         <div className="px-3 py-2 text-[11px] text-amber-100 border-b border-amber-400/20 bg-amber-500/10 flex items-center justify-between">
-          <span>{t.inspectorCodeMapTitle}</span>
+          <span>Code Map</span>
           {selectedPath && (
             <span className="font-mono text-amber-300">
-              {t.inspectorCurrentPathLabel}: {selectedPath}
+              Inspector Current Path Label: {selectedPath}
             </span>
           )}
         </div>
@@ -417,10 +418,10 @@ export default function ProPage() {
     return (
       <div className="mt-3 space-y-2">
         <div className="flex items-center gap-3">
-          <div className="text-xs text-gray-300 flex-1">{t.proFeatureAnalyzerB1 || "Execution timeline"}</div>
+          <div className="text-xs text-gray-300 flex-1">Execution timeline</div>
           <div className="flex items-center gap-2 text-xs text-amber-200">
             <Button size="sm" variant="outline" className="border-amber-400/40 text-amber-100" onClick={() => setTimelinePlaying((p) => !p)} disabled={!profilerTimeline?.events.length}>
-              {timelinePlaying ? t.pause || "Pause" : t.play || "Play"}
+              {timelinePlaying ? "Pause" || "Pause" : "Play" || "Play"}
             </Button>
             <input
               type="range"
@@ -435,7 +436,7 @@ export default function ProPage() {
         <div className="space-y-2">
           {profilerTimeline.runs.map((r) => (
             <div key={`run-${r.run}`} className="flex items-center gap-3">
-              <span className="text-xs text-gray-400">{t.run} {r.run}</span>
+              <span className="text-xs text-gray-400">Run {r.run}</span>
               <div className="flex-1 h-3 bg-black/30 rounded">
                 <div
                   className="h-3 bg-amber-500 rounded"
@@ -450,16 +451,16 @@ export default function ProPage() {
         <div className="mt-3 bg-black/20 border border-amber-400/20 rounded p-2 max-h-40 overflow-y-auto">
           {profilerTimeline.events.map((e, idx) => (
             <div key={`evt-${idx}`} className={`text-xs ${idx === timelineIndex ? "text-amber-200 font-semibold" : "text-gray-200"}`}>
-              <span className={idx === timelineIndex ? "text-amber-400" : "text-gray-400"}>[{e.t}ms]</span> <span className="text-amber-300">{t.run} {e.run}</span> → {e.type}
+              <span className={idx === timelineIndex ? "text-amber-400" : "text-gray-400"}>[{e.t}ms]</span> <span className="text-amber-300">Run {e.run}</span> → {e.type}
               {e.data !== undefined && <span className="text-gray-300">: {typeof e.data === "string" ? e.data : JSON.stringify(e.data)}</span>}
             </div>
           ))}
           {currentEvent && (
             <div className="mt-2 text-[11px] text-amber-200 bg-amber-500/10 border border-amber-400/30 rounded p-2">
-              <div className="font-semibold">{t.profilerCurrentEventTitle}</div>
-              <div>{t.run} {currentEvent.run} • {currentEvent.type} • {currentEvent.t}ms</div>
+              <div className="font-semibold">Current Event</div>
+              <div>Run {currentEvent.run} • {currentEvent.type} • {currentEvent.t}ms</div>
               {currentEvent.data !== undefined && (
-                <div className="text-amber-100/80">{t.profilerCurrentEventData}: {typeof currentEvent.data === "string" ? currentEvent.data : JSON.stringify(currentEvent.data)}</div>
+                <div className="text-amber-100/80">Profiler Current Event Data: {typeof currentEvent.data === "string" ? currentEvent.data : JSON.stringify(currentEvent.data)}</div>
               )}
             </div>
           )}
@@ -510,7 +511,7 @@ export default function ProPage() {
         });
         const cdata = await cres.json();
         if (!cres.ok || !cdata?.ok || !cdata?.proToken) {
-          throw new Error(cdata?.error || t.proVipPaymentNotConfirmed);
+          throw new Error(cdata?.error || "Pro VIP Payment Not Confirmed");
         }
         const proToken: string = cdata.proToken;
 
@@ -531,7 +532,7 @@ export default function ProPage() {
         });
         const sdata = await sres.json();
         if (!sres.ok || !sdata?.ok) {
-          throw new Error(sdata?.message || sdata?.error || t.proVipCreateFailed);
+          throw new Error(sdata?.message || sdata?.error || "Pro VIP Create Failed");
         }
         sessionStorage.removeItem("pendingSignup");
         // Auto-login
@@ -544,15 +545,15 @@ export default function ProPage() {
           const ldata = await lres.json();
           if (lres.ok && ldata?.token) {
             localStorage.setItem("token", ldata.token);
-            toast({ title: t.proVipCreatedTitle, description: t.proVipCreatedLogin });
+            toast({ title: "VIP Created", description: "Login to access your VIP features." });
             window.location.reload();
             return;
           }
         } catch {}
-        toast({ title: t.proVipCreatedTitle, description: t.proVipCreatedCheckEmail });
+        toast({ title: "VIP Created", description: "Check your email for confirmation." });
         await refreshUser();
       } catch (err: any) {
-        toast({ title: t.error, description: err?.message || String(err) });
+        toast({ title: "Error", description: err?.message || String(err) });
       }
     })();
   }, [refreshUser, t]);
@@ -587,11 +588,11 @@ export default function ProPage() {
                 <span className="relative inline-block">
                   <Crown className="absolute -top-8 left-1 -rotate-12 w-10 h-10 text-amber-300 drop-shadow-[0_0_12px_rgba(255,215,0,0.45)]" />
                   <span className="block px-3 py-1 rounded-xl bg-gradient-to-r from-amber-200 via-yellow-200 to-amber-400 text-transparent bg-clip-text drop-shadow-[0_0_18px_rgba(255,214,102,0.35)]">
-                    {t.proLearningTitle}
+                    Pro Learning
                   </span>
                 </span>
               </h1>
-              <p className="text-sm text-amber-100/90">{t.proLearningSubtitle}</p>
+              <p className="text-sm text-amber-100/90">Learn advanced concepts with examples</p>
             </div>
           </div>
         </div>
@@ -602,47 +603,47 @@ export default function ProPage() {
             <Card className="p-5 bg-slate-900/60 border border-slate-700 rounded-xl text-white">
               <div className="flex items-center gap-2 mb-2">
                 <Crown className="w-4 h-4 text-amber-300" />
-                <span className="text-sm font-semibold text-amber-200">{t.proChallengesBadge}</span>
+                <span className="text-sm font-semibold text-amber-200">Pro Challenges</span>
               </div>
-              <h3 className="text-lg font-bold mb-1">{t.proChallengesSubtitle}</h3>
-              <p className="text-sm text-gray-300 mb-4">{t.proLearningSubtitle}</p>
+              <h3 className="text-lg font-bold mb-1">Pro Challenges</h3>
+              <p className="text-sm text-gray-300 mb-4">Learn advanced concepts with examples</p>
               <Button
                 variant="secondary"
                 className="w-full"
                 onClick={() => scrollToSection("pro-exercises")}
               >
-                {t.start}
+                Start
               </Button>
             </Card>
 
             <Card className="p-5 bg-slate-900/60 border border-slate-700 rounded-xl text-white">
               <div className="flex items-center gap-2 mb-2">
                 <Database className="w-4 h-4 text-amber-300" />
-                <span className="text-sm font-semibold text-amber-200">{t.aiCodeInspectorTitle}</span>
+                <span className="text-sm font-semibold text-amber-200">AI Code Inspector</span>
               </div>
-              <h3 className="text-lg font-bold mb-1">{t.aiCodeInspector}</h3>
-              <p className="text-sm text-gray-300 mb-4">{t.aiCodeInspectorDesc}</p>
+              <h3 className="text-lg font-bold mb-1">AI Code Inspector</h3>
+              <p className="text-sm text-gray-300 mb-4">Automatic analysis with optimization suggestions, warnings, and algorithm explanations.</p>
               <Button
                 variant="secondary"
                 className="w-full"
                 onClick={() => scrollToSection("ai-inspector")}
               >
-                {t.analyze}
+                Analyze
               </Button>
             </Card>
 
             <Card className="p-5 bg-slate-900/60 border border-slate-700 rounded-xl text-white">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-4 h-4 text-amber-300" />
-                <span className="text-sm font-semibold text-amber-200">{t.proFeatureDebuggerTitle}</span>
+                <span className="text-sm font-semibold text-amber-200">Debugger</span>
               </div>
-              <h3 className="text-lg font-bold mb-1">{t.premiumBadge}</h3>
-              <p className="text-sm text-gray-300 mb-4">{t.proDebuggerRequiresText}</p>
+              <h3 className="text-lg font-bold mb-1">Premium Badge</h3>
+              <p className="text-sm text-gray-300 mb-4">Pro Debugger Requires Text</p>
               <Button
                 className="w-full bg-gradient-to-r from-amber-400 to-amber-600 text-black font-semibold"
                 onClick={handleGoToPricing}
               >
-                {t.viewPricing}
+                View Pricing
               </Button>
             </Card>
           </div>
@@ -655,30 +656,30 @@ export default function ProPage() {
               <div className="space-y-3">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 border border-amber-400/40 text-amber-100 text-xs font-semibold shadow-[0_0_10px_rgba(251,191,36,0.3)]">
                   <Crown className="w-4 h-4" />
-                  {t.proPlaygroundTitle}
+                  Pro Playground
                 </div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-amber-200 to-amber-400 bg-clip-text text-transparent">{t.proPlaygroundTitle}</h3>
-                <p className="text-sm text-amber-100/90">{t.proPlaygroundSubtitle}</p>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-amber-200 to-amber-400 bg-clip-text text-transparent">Pro Playground</h3>
+                <p className="text-sm text-amber-100/90">VIP Playground</p>
                 <div className="space-y-2 text-sm text-amber-50/90">
                   <div className="flex items-start gap-2">
                     <Sparkles className="w-4 h-4 text-amber-300 mt-0.5" />
-                    <span>{t.proPlaygroundIdea1}</span>
+                    <span>Quick experiments</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Sparkles className="w-4 h-4 text-amber-300 mt-0.5" />
-                    <span>{t.proPlaygroundIdea2}</span>
+                    <span>Test code snippets</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Sparkles className="w-4 h-4 text-amber-300 mt-0.5" />
-                    <span>{t.proPlaygroundIdea3}</span>
+                    <span>Share and iterate</span>
                   </div>
                 </div>
                 <div className="flex gap-3 pt-2">
                   <Button variant="secondary" className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white border border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.4)] font-semibold" onClick={() => scrollToSection("pro-exercises")}>
-                    {t.start}
+                    Start
                   </Button>
                   <Button variant="outline" className="border-amber-500/60 text-amber-200 hover:bg-amber-500/10" onClick={() => scrollToSection("pro-labs")}>
-                    {t.proMiniDemosBadge}
+                    Mini Demos
                   </Button>
                 </div>
               </div>
@@ -688,14 +689,14 @@ export default function ProPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Code2 className="w-5 h-5 text-amber-400" />
-                  <span className="font-semibold text-amber-100">{t.proPlaygroundTitle}</span>
+                  <span className="font-semibold text-amber-100">Pro Playground</span>
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" variant="secondary" className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold shadow-[0_0_10px_rgba(251,191,36,0.3)]" onClick={copyScratchpad}>
-                    {t.proPlaygroundCopy}
+                    Pro Playground Copy
                   </Button>
                   <Button size="sm" variant="outline" className="border-amber-500/50 text-amber-200 hover:bg-amber-500/10" onClick={clearScratchpad}>
-                    {t.proPlaygroundClear}
+                    Pro Playground Clear
                   </Button>
                 </div>
               </div>
@@ -703,9 +704,9 @@ export default function ProPage() {
                 className="w-full h-48 rounded-xl bg-slate-950/70 border border-amber-500/20 text-sm text-amber-50 p-3 font-mono focus:border-amber-400/40 focus:ring-2 focus:ring-amber-400/20"
                 value={scratchpad}
                 onChange={(e) => setScratchpad(e.target.value)}
-                placeholder={t.proPlaygroundPlaceholder}
+                placeholder="Write or paste code to experiment."
               />
-              <p className="text-xs text-slate-300">{t.proPlaygroundPlaceholder}</p>
+              <p className="text-xs text-slate-300">Write or paste code to experiment.</p>
             </div>
           </div>
         </div>
@@ -716,21 +717,21 @@ export default function ProPage() {
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-semibold">
                 <Code2 className="w-4 h-4" />
-                {t.proChallengesBadge}
+                Pro Challenges
               </span>
-              <p className="text-sm text-gray-400">{t.proChallengesSubtitle}</p>
+              <p className="text-sm text-gray-400">Pro Challenges</p>
             </div>
           </div>
 
           {/* Category filter */}
           <div className="flex flex-wrap gap-2 mb-3">
             {[
-              { id: "all", label: t.proCategoryAll },
-              { id: "algorithms", label: t.proCategoryAlgorithms },
-              { id: "data-structures", label: t.proCategoryDataStructures },
-              { id: "async", label: t.proCategoryAsync },
-              { id: "performance", label: t.proCategoryPerformance },
-              { id: "design-patterns", label: t.proCategoryDesignPatterns },
+              { id: "all", label: "Pro Category All" },
+              { id: "algorithms", label: "Pro Category Algorithms" },
+              { id: "data-structures", label: "Pro Category Data Structures" },
+              { id: "async", label: "Pro Category Async" },
+              { id: "performance", label: "Pro Category Performance" },
+              { id: "design-patterns", label: "Pro Category Design Patterns" },
             ].map((c: any) => (
               <button
                 key={c.id}
@@ -749,7 +750,7 @@ export default function ProPage() {
           {/* Difficulty + search */}
           <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
             <div className="flex flex-wrap gap-2">
-              {[{id:"all",label:t.proCategoryAll},{id:"beginner",label:t.beginner},{id:"intermediate",label:t.intermediate},{id:"advanced",label:t.advanced}].map((d:any)=> (
+              {[{id:"all",label:"Pro Category All"},{id:"beginner",label:"Beginner"},{id:"intermediate",label:"Intermediate"},{id:"advanced",label:"Advanced"}].map((d:any)=> (
                 <button
                   key={d.id}
                   onClick={() => setDifficulty(d.id)}
@@ -765,16 +766,16 @@ export default function ProPage() {
               <input
                 value={query}
                 onChange={(e)=> setQuery(e.target.value)}
-                placeholder={t.proSearchPlaceholder}
+                placeholder="Search Pro content..."
                 className="w-full md:max-w-sm text-sm px-3 py-2 rounded-lg bg-slate-950/60 border border-slate-700 text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40"
               />
               <select
                 onChange={(e)=> setSort(e.target.value as any)}
                 className="text-sm px-3 py-2 rounded-lg bg-slate-950/60 border border-slate-700 text-slate-200 focus:outline-none"
               >
-                <option value="relevance">{t.proSortRecommended}</option>
-                <option value="difficulty">{t.proSortDifficulty}</option>
-                <option value="time">{t.proSortTime}</option>
+                <option value="relevance">Pro Sort Recommended</option>
+                <option value="difficulty">Pro Sort Difficulty</option>
+                <option value="time">Pro Sort Time</option>
               </select>
             </div>
           </div>
@@ -797,7 +798,7 @@ export default function ProPage() {
               })}
             completedIds={[]}
             onSelectExercise={(ex) => {
-              toast({ title: `${t.proFeature}: ${ex.title}`, description: t.proChallengesSubtitle });
+              toast({ title: `$Pro Feature: ${ex.title}`, description: "Pro Challenges" });
             }}
           />
         </div>
@@ -807,7 +808,7 @@ export default function ProPage() {
           <div id="vip-playground" className="max-w-7xl mx-auto px-4 mb-16">
             <Suspense
               fallback={
-                <div className="text-center text-white/60 py-10">{t.loading}</div>
+                <div className="text-center text-white/60 py-10">Loading</div>
               }
             >
               <VIPPlaygroundLazy />
@@ -820,7 +821,7 @@ export default function ProPage() {
           <Suspense
             fallback={
               <div className="text-center text-white/60 py-10">
-                {t.analyzing}
+                Analyzing
               </div>
             }
           >
@@ -829,7 +830,7 @@ export default function ProPage() {
         </div>
 
         <div id="pro-advanced" className="max-w-6xl mx-auto px-4 mb-16">
-          <Suspense fallback={<div className="text-center text-white/60 py-10">{t.loading}</div>}>
+          <Suspense fallback={<div className="text-center text-white/60 py-10">Loading</div>}>
             <ProAdvancedFeaturesLazy />
           </Suspense>
         </div>
@@ -838,20 +839,20 @@ export default function ProPage() {
           <div className="flex items-center gap-2 mb-6">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 border border-amber-400/50 text-amber-200 text-xs font-semibold shadow-[0_0_10px_rgba(251,191,36,0.25)]">
               <Sparkles className="w-4 h-4" />
-              {t.proMiniDemosBadge}
+              Mini Demos
             </span>
-            <p className="text-sm text-amber-200/70">{t.proMiniDemosNote}</p>
+            <p className="text-sm text-amber-200/70">Pro Mini Demos Note</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-slate-900/60 p-4 space-y-3 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
               <div className="flex items-center gap-2 text-white">
                 <BarChart3 className="w-5 h-5 text-amber-400" />
-                <h3 className="text-lg font-semibold text-amber-100">{t.codeProfiler}</h3>
+                <h3 className="text-lg font-semibold text-amber-100">Code Profiler</h3>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-amber-100">
-                <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-400/40">{t.profilerHowToLabel}</span>
-                <span className="text-amber-50/80">{t.profilerHowToText}</span>
+                <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-400/40">Profiler Steps</span>
+                <span className="text-amber-50/80">Use the profiler to measure function performance.</span>
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
                 {profilerExamples.map((ex) => (
@@ -860,7 +861,7 @@ export default function ProPage() {
                     onClick={() => applyProfilerExample(ex.id)}
                     className="px-3 py-1 rounded-full border border-amber-300/40 text-amber-100 bg-black/30 hover:bg-amber-500/10"
                   >
-                    {ex.id === 'fib' ? t.profilerExampleFib : ex.id === 'loop' ? t.profilerExampleLoop : ex.id === 'async' ? t.profilerExampleAsync : t.profilerExampleSort}
+                    {ex.id === 'fib' ? "Profiler Example Fib" : ex.id === 'loop' ? "Profiler Example Loop" : ex.id === 'async' ? "Profiler Example Async" : "Profiler Example Sort"}
                   </button>
                 ))}
               </div>
@@ -875,7 +876,7 @@ export default function ProPage() {
                     />
                     <span className="inline-flex items-center gap-1">
                       <Activity className="w-3 h-3" />
-                      {t.profilerRealtimeToggle}
+                      Profiler Realtime Toggle
                     </span>
                   </label>
                 </div>
@@ -906,7 +907,7 @@ export default function ProPage() {
               <div className="flex flex-col md:flex-row md:items-center gap-2">
                 <div className="flex items-center gap-2 text-xs text-gray-300">
                   <label className="inline-flex items-center gap-1">
-                    <span>{t.profilerConfigRuns}</span>
+                    <span>Profiler Config Runs</span>
                     <select
                       value={profilerConfig.runs}
                       onChange={(e) => setProfilerConfig((c) => ({ ...c, runs: parseInt(e.target.value, 10) }))}
@@ -916,7 +917,7 @@ export default function ProPage() {
                     </select>
                   </label>
                   <label className="inline-flex items-center gap-1">
-                    <span>{t.profilerConfigWarmup}</span>
+                    <span>Profiler Config Warmup</span>
                     <select
                       value={profilerConfig.warmup}
                       onChange={(e) => setProfilerConfig((c) => ({ ...c, warmup: parseInt(e.target.value, 10) }))}
@@ -932,12 +933,12 @@ export default function ProPage() {
                       onChange={(e) => setProfilerConfig((c) => ({ ...c, captureConsole: e.target.checked }))}
                       className="accent-blue-400"
                     />
-                    <span className="inline-flex items-center gap-1"><Activity className="w-3 h-3" /> {t.profilerConfigCaptureConsole}</span>
+                    <span className="inline-flex items-center gap-1"><Activity className="w-3 h-3" /> Profiler Config Capture Console</span>
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button onClick={runProfiler} className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-semibold shadow-[0_0_15px_rgba(251,191,36,0.4)]">
-                    {`${t.run} ${t.profiler} x${profilerConfig.runs}`}
+                    {`$Run $Profiler x${profilerConfig.runs}`}
                   </Button>
                   {profilerError && <span className="text-sm text-red-300">{profilerError}</span>}
                 </div>
@@ -946,7 +947,7 @@ export default function ProPage() {
                 <div className="bg-black/30 border border-slate-700 rounded-lg p-3 text-sm text-gray-200 space-y-1">
                   {profilerRuns.map((r) => (
                     <div key={r.run} className="flex items-center justify-between">
-                      <span className="text-gray-400">{t.run} {r.run}</span>
+                      <span className="text-gray-400">Run {r.run}</span>
                       <span className="font-semibold text-blue-300">{r.ms} ms</span>
                     </div>
                   ))}
@@ -954,17 +955,17 @@ export default function ProPage() {
               )}
               {renderTimeline()}
               <div className="bg-slate-800/80 border border-slate-700 rounded-lg p-3 text-xs text-slate-200 space-y-1">
-                <div className="font-semibold text-slate-100">{t.profilerWhatToWatchTitle}</div>
-                <div>{t.profilerWhatToWatch1}</div>
-                <div>{t.profilerWhatToWatch2}</div>
-                <div>{t.profilerWhatToWatch3}</div>
+                <div className="font-semibold text-slate-100">What to Watch</div>
+                <div>Profiler What to Watch1</div>
+                <div>Profiler What to Watch2</div>
+                <div>Profiler What to Watch3</div>
               </div>
             </div>
 
             <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-slate-900/60 p-4 space-y-3 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
               <div className="flex items-center gap-2 text-white">
                 <PauseCircle className="w-5 h-5 text-amber-400" />
-                <h3 className="text-lg font-semibold text-amber-100">{t.breakpointManager}</h3>
+                <h3 className="text-lg font-semibold text-amber-100">Breakpoint Manager</h3>
               </div>
               <div className="space-y-2">
                 {breakpoints.map((bp) => (
@@ -984,13 +985,13 @@ export default function ProPage() {
                       onChange={(e) =>
                         setBreakpoints((prev) => prev.map((b) => (b.id === bp.id ? { ...b, condition: e.target.value } : b)))
                       }
-                      placeholder={t.condition}
+                      placeholder="Condition"
                     />
                   </div>
                 ))}
               </div>
               <Button onClick={addBreakpoint} variant="outline" className="border-slate-600 text-slate-200">
-                {t.addBreakpoint}
+                Add Breakpoint
               </Button>
             </div>
           </div>
@@ -998,11 +999,11 @@ export default function ProPage() {
           <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-slate-900/60 p-4 space-y-3 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
             <div className="flex items-center gap-2 text-white">
               <Database className="w-5 h-5 text-amber-400" />
-              <h3 className="text-lg font-semibold text-amber-100">{t.variableInspector}</h3>
+              <h3 className="text-lg font-semibold text-amber-100">Variable Inspector</h3>
             </div>
             <div className="flex flex-wrap gap-2 text-xs text-amber-50 items-center">
-              <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-600/30 to-amber-700/30 border border-amber-400/50">{t.inspectorGuideLabel}</span>
-              <span className="text-amber-100/80">{t.inspectorGuideText}</span>
+              <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-600/30 to-amber-700/30 border border-amber-400/50">Inspector Guide Label</span>
+              <span className="text-amber-100/80">Inspector Guide Text</span>
             </div>
             <div className="flex flex-wrap gap-2 text-xs">
               {inspectorExamples.map((ex) => (
@@ -1027,12 +1028,12 @@ export default function ProPage() {
                   className="w-full rounded bg-black/40 border border-slate-700 text-sm text-white px-2 py-1"
                   value={inspectorQuery}
                   onChange={(e) => setInspectorQuery(e.target.value)}
-                  placeholder={t.inspectorSearchPlaceholder}
+                  placeholder="Search inspector..."
                 />
               </div>
               {selectedPath && (
                 <div className="text-xs text-amber-200 inline-flex items-center gap-1">
-                  <ArrowRight className="w-3 h-3" /> {t.inspectorPathLabel}: <span className="font-mono">{selectedPath}</span>
+                  <ArrowRight className="w-3 h-3" /> Inspector Path Label: <span className="font-mono">{selectedPath}</span>
                 </div>
               )}
             </div>
@@ -1040,40 +1041,40 @@ export default function ProPage() {
               className="w-full h-32 rounded-lg bg-black/40 border border-slate-700 text-sm text-white p-3 font-mono"
               value={inspectorInput}
               onChange={(e) => setInspectorInput(e.target.value)}
-              placeholder={t.proInspectorPlaceholder}
+              placeholder="Paste JSON or object to inspect."
             />
             <div className="flex items-center gap-2">
               <Button onClick={parseInspector} className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-semibold shadow-[0_0_15px_rgba(251,191,36,0.4)]">
-                {t.proInspectorAnalyze}
+                Pro Inspector Analyze
               </Button>
               {inspectorError && <span className="text-sm text-red-300">{inspectorError}</span>}
             </div>
             <div className="bg-black/30 border border-slate-700 rounded-lg p-3 min-h-[120px] text-sm text-gray-200">
-              {inspectorParsed ? renderObject(inspectorParsed, 0, []) : <span className="text-gray-500">{t.proInspectorPlaceholder}</span>}
+              {inspectorParsed ? renderObject(inspectorParsed, 0, []) : <span className="text-gray-500">Paste JSON or object to inspect.</span>}
             </div>
             {inspectorInput && (
               <div className="grid md:grid-cols-2 gap-3">
                 <div className="bg-black/25 border border-slate-700 rounded-lg p-3 space-y-2">
                   <div className="flex items-center justify-between text-xs text-amber-200">
-                    <span>{t.inspectorFocusTitle}</span>
-                    <span className="font-mono text-amber-300">{selectedPath || t.inspectorSelectInTree}</span>
+                    <span>Focus</span>
+                    <span className="font-mono text-amber-300">{selectedPath || "Inspector Select in Tree"}</span>
                   </div>
                   <div className="flex flex-wrap gap-2 text-[11px] text-amber-50">
                     <span className="px-2 py-1 rounded-full bg-amber-600/25 border border-amber-300/60 shadow-[0_0_0_1px_rgba(251,191,36,0.35)]">{valueKind}</span>
-                    {arrayLength !== null && <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">{t.inspectorLenLabel}: {arrayLength}</span>}
+                    {arrayLength !== null && <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">Inspector Len Label: {arrayLength}</span>}
                     {objectKeysCount !== null && (
-                      <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">{t.inspectorKeysLabel}: {objectKeysCount}</span>
+                      <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">Inspector Keys Label: {objectKeysCount}</span>
                     )}
-                    <span className="px-2 py-1 rounded-full bg-emerald-600/25 border border-emerald-300/60 text-emerald-50">{t.stackHeapHint}</span>
+                    <span className="px-2 py-1 rounded-full bg-emerald-600/25 border border-emerald-300/60 text-emerald-50">Stack Heap Hint</span>
                   </div>
                   <pre className="bg-slate-950/70 border border-slate-700 rounded text-xs text-slate-200 p-2 max-h-40 overflow-auto">
-                    {selectedValuePreview || t.inspectorSelectPathPrompt}
+                    {selectedValuePreview || "Inspector Select Path Prompt"}
                   </pre>
                   <div className="text-[11px] text-slate-200 space-y-1 bg-slate-800/80 border border-slate-700 rounded p-2">
-                    <div className="font-semibold text-slate-100">{t.inspectorHowToTitle}</div>
-                    <div>{t.inspectorHowTo1}</div>
-                    <div>{t.inspectorHowTo2}</div>
-                    <div>{t.inspectorHowTo3}</div>
+                    <div className="font-semibold text-slate-100">How to Use the Inspector</div>
+                    <div>Inspector How To1</div>
+                    <div>Inspector How To2</div>
+                    <div>Inspector How To3</div>
                   </div>
                 </div>
                 {renderCodePreview()}
@@ -1081,12 +1082,12 @@ export default function ProPage() {
             )}
             {selectedPath && inspectorParsed && (
               <div className="bg-black/20 border border-slate-700 rounded p-3">
-                <div className="text-xs text-gray-300 mb-2">{t.inspectorInterpreterTitle}</div>
+                <div className="text-xs text-gray-300 mb-2">Interpreter</div>
                 <ul className="text-xs text-gray-200 space-y-1">
-                  <li>{t.inspectorInterpreter1}</li>
-                  <li>{t.inspectorInterpreter2}</li>
-                  <li>{t.inspectorInterpreter3.replace('{path}', selectedPath || '')}</li>
-                  <li>{t.inspectorInterpreter4}</li>
+                  <li>Inspector Interpreter1</li>
+                  <li>Inspector Interpreter2</li>
+                  <li>{"Inspector Interpreter3".replace('{path}', selectedPath || '')}</li>
+                  <li>Inspector Interpreter4</li>
                 </ul>
               </div>
             )}
@@ -1095,18 +1096,18 @@ export default function ProPage() {
 
         <div className="border-t border-white/10 pt-12">
           {user?.isPro ? (
-            <Suspense fallback={<div className="text-center p-8 text-white">{t.proDebuggerLoading}</div>}>
+            <Suspense fallback={<div className="text-center p-8 text-white">Pro Debugger Loading</div>}>
               <ProDebuggerLazy />
             </Suspense>
           ) : (
             <div className="max-w-4xl mx-auto text-center text-white space-y-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-semibold">
                 <Crown className="w-4 h-4" />
-                {t.proDebuggerRequiresBadge}
+                Pro Debugger Requires Badge
               </div>
-              <p className="text-gray-200">{t.proDebuggerRequiresText}</p>
+              <p className="text-gray-200">Pro Debugger Requires Text</p>
               <Button onClick={handleGoToPricing} className="bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-black font-bold h-12">
-                {t.viewPricing}
+                View Pricing
               </Button>
             </div>
           )}

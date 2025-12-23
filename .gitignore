@@ -28,6 +28,27 @@ Thumbs.db
 # Editor
 .vscode/
 
+# Local/dev/automation
+.local/
+.replit/
+script/
+migrations/
+debug.js
+build-log.txt
+save-and-push.*
+temp_zh_translations.txt
+
+# Shell and batch scripts
+*.ps1
+*.sh
+*.bat
+*.cjs
+
+# SQL, docs, and temp
+*.sql
+*.md
+*.txt
+
 # Generated assets
 attached_assets/generated_images/
 server/public

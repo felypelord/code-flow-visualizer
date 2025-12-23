@@ -112,12 +112,12 @@ export function AdVideoPlayer({ onAdComplete, onClose }: AdVideoPlayerProps) {
                 <div className="animate-pulse mb-4">
                   <PlayCircle className="w-20 h-20 text-purple-400 mx-auto" />
                 </div>
-                <h3 className="text-2xl font-bold mb-2">Anúncio Patrocinado</h3>
+                <h3 className="text-2xl font-bold mb-2">Sponsored Ad</h3>
                 <p className="text-gray-400 mb-4">
-                  Apoie o Code Flow assistindo este anúncio
+                  Support Code Flow by watching this ad
                 </p>
                 <div className="text-sm text-gray-500">
-                  Isto é um anúncio simulado. Configure o Google AdSense para anúncios reais.
+                  This is a simulated ad. Configure Google AdSense for real ads.
                 </div>
               </div>
             </div>
@@ -128,7 +128,7 @@ export function AdVideoPlayer({ onAdComplete, onClose }: AdVideoPlayerProps) {
                 onClick={handleSkip}
                 className="absolute bottom-4 right-4 bg-white/10 backdrop-blur hover:bg-white/20"
               >
-                Pular Anúncio →
+                Skip Ad →
               </Button>
             )}
 
@@ -136,7 +136,7 @@ export function AdVideoPlayer({ onAdComplete, onClose }: AdVideoPlayerProps) {
             {!canSkip && progress < 33 && (
               <div className="absolute bottom-4 right-4 bg-black/70 px-4 py-2 rounded">
                 <span className="text-sm text-gray-300">
-                  Você pode pular em {Math.ceil((5000 - (progress * 150)) / 1000)}s
+                  You can skip in {Math.ceil((5000 - (progress * 150)) / 1000)}s
                 </span>
               </div>
             )}
@@ -169,9 +169,9 @@ export function AdVideoPlayer({ onAdComplete, onClose }: AdVideoPlayerProps) {
                 <PlayCircle className="w-5 h-5 text-yellow-400" />
               </div>
               <div>
-                <p className="font-semibold">Ganhe +5 Usos Gratuitos</p>
+                <p className="font-semibold">Earn +5 Free Uses</p>
                 <p className="text-xs text-gray-400">
-                  Assista até o final ou pule após {canSkip ? '0' : '5'} segundos
+                  Watch to the end or skip after {canSkip ? '0' : '5'} seconds
                 </p>
               </div>
             </div>
@@ -190,7 +190,7 @@ export function AdVideoPlayer({ onAdComplete, onClose }: AdVideoPlayerProps) {
         {/* Instructions */}
         <div className="mt-4 text-center text-sm text-gray-400">
           <p>
-            💡 Os anúncios nos ajudam a manter o Code Flow gratuito para todos
+            💡 Ads help keep Code Flow free for everyone
           </p>
         </div>
       </div>

@@ -48,7 +48,7 @@ export default function Playground({ variant }: { variant: any }) {
           <div className="h-full">
             {/* Seletor de velocidade tipo slider de volume */}
             <div className="flex items-center gap-3 mb-3" style={{maxWidth: 260}}>
-              <span className="text-xs text-muted-foreground" style={{minWidth: 60}}>Velocidade</span>
+              <span className="text-xs text-muted-foreground" style={{minWidth: 60}}>Speed</span>
               <Slider
                 min={100}
                 max={3000}
@@ -56,7 +56,7 @@ export default function Playground({ variant }: { variant: any }) {
                 value={[speed]}
                 onValueChange={([val]) => setSpeed(val)}
                 className="w-40"
-                aria-label="Velocidade de execução"
+                aria-label="Execution speed"
               />
               <span className="text-xs text-muted-foreground ml-2" style={{minWidth: 40, textAlign: 'right'}}>{speed} ms</span>
             </div>
@@ -65,7 +65,7 @@ export default function Playground({ variant }: { variant: any }) {
 
           <div className="flex flex-col gap-4 h-full">
             <div className="bg-card/50 border border-white/10 rounded-lg p-4 flex-1 overflow-auto">
-              <h3 className="text-sm font-bold mb-2">Explicação</h3>
+              <h3 className="text-sm font-bold mb-2">Explanation</h3>
               <motion.div key={index} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <p className="text-sm leading-relaxed">{step.explanation}</p>
               </motion.div>
@@ -83,14 +83,14 @@ export default function Playground({ variant }: { variant: any }) {
       </div>
 
       <div className="p-4 border-t border-white/10 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => { setIndex(0); setIsPlaying(false); }} aria-label="Ir para início">
+        <Button variant="ghost" size="icon" onClick={() => { setIndex(0); setIsPlaying(false); }} aria-label="Go to start">
           <SkipBack className="w-4 h-4" />
         </Button>
         <Button variant="ghost" size="icon" onClick={() => setIndex((i) => Math.max(0, i - 1))} aria-label="Previous Step">
           <SkipBack className="w-4 h-4" />
         </Button>
 
-        <Button size="icon" onClick={() => setIsPlaying((p) => !p)} aria-pressed={isPlaying} aria-label={isPlaying ? "Pausar" : "Executar"}>
+        <Button size="icon" onClick={() => setIsPlaying((p) => !p)} aria-pressed={isPlaying} aria-label={isPlaying ? "Pause" : "Run"}>
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </Button>
 
@@ -98,7 +98,7 @@ export default function Playground({ variant }: { variant: any }) {
           <SkipForward className="w-4 h-4" />
         </Button>
 
-        <div className="ml-auto text-xs text-muted-foreground">Passo {index + 1}/{steps.length}</div>
+        <div className="ml-auto text-xs text-muted-foreground">Step {index + 1}/{steps.length}</div>
       </div>
     </div>
   );

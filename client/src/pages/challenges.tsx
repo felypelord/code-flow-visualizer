@@ -85,9 +85,9 @@ export default function ChallengesPage() {
 
   const getDifficultyLabel = (difficulty: ChallengeDifficulty) => {
     const labels: Record<ChallengeDifficulty, string> = {
-      beginner: '🟢 Iniciante',
-      intermediate: '🔵 Intermediário',
-      advanced: '🟣 Avançado',
+      beginner: '🟢 Beginner',
+      intermediate: '🔵 Intermediate',
+      advanced: '🟣 Advanced',
       expert: '🔴 Expert',
     };
     return labels[difficulty];
@@ -105,7 +105,7 @@ export default function ChallengesPage() {
 
   const executeCode = async () => {
     if (!selectedChallenge || !code.trim()) {
-      toast({ title: 'Erro', description: 'Escreva algum código primeiro' });
+      toast({ title: 'Error', description: 'Write some code first' });
       return;
     }
 
@@ -134,10 +134,10 @@ export default function ChallengesPage() {
         const bonus = dailyBonus === selectedChallenge.id ? getDailyBonusXP(selectedChallenge.baseXP) : 0;
         const totalXP = earnedXP + bonus;
 
-        setOutput(`✅ Todas as testes passaram!\n+${totalXP} XP ${bonus > 0 ? `(+${bonus} Daily Bonus 🔥)` : ''}`);
+        setOutput(`✅ All tests passed!\n+${totalXP} XP ${bonus > 0 ? `(+${bonus} Daily Bonus 🔥)` : ''}`);
         toast({
-          title: 'Sucesso!',
-          description: `Desafio completado! +${totalXP} XP`,
+          title: 'Success!',
+          description: `Challenge completed! +${totalXP} XP`,
         });
 
         await refreshUser();
@@ -150,7 +150,7 @@ export default function ChallengesPage() {
         setOutput(`❌ ${data.message}\n\n${data.details || ''}`);
       }
     } catch (error: any) {
-      setOutput(`❌ Erro: ${error.message}`);
+      setOutput(`❌ Error: ${error.message}`);
     } finally {
       setExecuting(false);
     }
@@ -159,11 +159,11 @@ export default function ChallengesPage() {
   const showHint = () => {
     if (!selectedChallenge) return;
     if (hintsUsed >= selectedChallenge.hints.length) {
-      toast({ title: 'Sem dicas', description: 'Você usou todas as dicas!' });
+      toast({ title: 'No hints', description: 'You used all hints!' });
       return;
     }
     const hint = selectedChallenge.hints[hintsUsed];
-    setOutput(`💡 Dica ${hintsUsed + 1}: ${hint}`);
+    setOutput(`💡 Hint ${hintsUsed + 1}: ${hint}`);
     setHintsUsed(hintsUsed + 1);
   };
 
@@ -171,10 +171,10 @@ export default function ChallengesPage() {
     if (!selectedChallenge) return;
     setSolutionViewed(true);
     setCode(selectedChallenge.solution);
-    setOutput(`📖 Solução mostrada! (Você ganhará apenas 20% do XP)`);
+    setOutput(`📖 Solution shown! (You will earn only 20% of XP)`);
     toast({
-      title: 'Aviso',
-      description: 'Mostrar a solução reduz o XP ganho para 20%',
+      title: 'Notice',
+      description: 'Showing the solution reduces XP earned to 20%',
       variant: 'destructive',
     });
   };
@@ -198,7 +198,7 @@ export default function ChallengesPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="text-white text-xl">Por favor, faça login para acessar os desafios</div>
+        <div className="text-white text-xl">Please log in to access the challenges</div>
       </div>
     );
   }
@@ -212,7 +212,7 @@ export default function ChallengesPage() {
             <Code2 className="w-12 h-12 text-blue-400" />
             Coding Challenges
           </h1>
-          <p className="text-blue-300 text-lg">Melhore suas habilidades de programação com {CHALLENGES.length} desafios</p>
+          <p className="text-blue-300 text-lg">Improve your coding skills with {CHALLENGES.length} challenges</p>
         </div>
 
         {/* Progress Overview */}
@@ -220,7 +220,7 @@ export default function ChallengesPage() {
           <Card className="p-6 bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border-blue-600/40">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Desafios Completados</p>
+                <p className="text-gray-400 text-sm">Challenges Completed</p>
                 <p className="text-3xl font-bold text-blue-200">{completedCount} / {CHALLENGES.length}</p>
               </div>
               <CheckCircle2 className="w-12 h-12 text-blue-400" />
@@ -230,7 +230,7 @@ export default function ChallengesPage() {
           <Card className="p-6 bg-gradient-to-br from-yellow-900/40 to-amber-900/40 border-yellow-600/40">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">XP Total Ganho</p>
+                <p className="text-gray-400 text-sm">Total XP Earned</p>
                 <p className="text-3xl font-bold text-yellow-200">{totalXPGained}</p>
               </div>
               <Zap className="w-12 h-12 text-yellow-400" />
@@ -240,7 +240,7 @@ export default function ChallengesPage() {
           <Card className="p-6 bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-purple-600/40">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Taxa de Conclusão</p>
+                <p className="text-gray-400 text-sm">Completion Rate</p>
                 <p className="text-3xl font-bold text-purple-200">{Math.round((completedCount / CHALLENGES.length) * 100)}%</p>
               </div>
               <Trophy className="w-12 h-12 text-purple-400" />
@@ -254,7 +254,7 @@ export default function ChallengesPage() {
             {/* Filters */}
             <div className="space-y-3">
               <div>
-                <p className="text-sm font-semibold text-gray-300 mb-2">Dificuldade</p>
+                <p className="text-sm font-semibold text-gray-300 mb-2">Difficulty</p>
                 <div className="flex flex-wrap gap-2">
                   {['all', ...difficulties].map((diff) => (
                     <button
@@ -266,14 +266,14 @@ export default function ChallengesPage() {
                           : 'bg-slate-800 text-gray-300 border-slate-700 hover:bg-slate-700'
                       } border`}
                     >
-                      {diff === 'all' ? 'Todas' : getDifficultyLabel(diff as ChallengeDifficulty).split(' ')[1]}
+                      {diff === 'all' ? 'All' : getDifficultyLabel(diff as ChallengeDifficulty).split(' ')[1]}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <p className="text-sm font-semibold text-gray-300 mb-2">Categoria</p>
+                <p className="text-sm font-semibold text-gray-300 mb-2">Category</p>
                 <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
                   {['all', ...categories].map((cat: string) => (
                     <button
@@ -285,7 +285,7 @@ export default function ChallengesPage() {
                           : 'bg-slate-800 text-gray-300 hover:bg-slate-700'
                       }`}
                     >
-                      {cat === 'all' ? 'Todas' : cat}
+                      {cat === 'all' ? 'All' : cat}
                     </button>
                   ))}
                 </div>
@@ -360,17 +360,17 @@ export default function ChallengesPage() {
 
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-semibold text-gray-300 mb-2">Problema:</p>
+                      <p className="text-sm font-semibold text-gray-300 mb-2">Problem:</p>
                       <p className="text-gray-100 text-sm bg-black/30 p-3 rounded">{selectedChallenge.problem}</p>
                     </div>
 
                     <div>
-                      <p className="text-sm font-semibold text-gray-300 mb-2">Casos de Teste:</p>
+                      <p className="text-sm font-semibold text-gray-300 mb-2">Test Cases:</p>
                       <div className="space-y-2">
                         {selectedChallenge.testCases.map((tc: any, idx: number) => (
                           <div key={idx} className="text-xs bg-black/30 p-2 rounded text-gray-300">
                             <p>Input: {JSON.stringify(tc.input)}</p>
-                            <p>Output esperado: {JSON.stringify(tc.output)}</p>
+                            <p>Expected output: {JSON.stringify(tc.output)}</p>
                           </div>
                         ))}
                       </div>
@@ -380,12 +380,12 @@ export default function ChallengesPage() {
 
                 {/* Code Editor */}
                 <Card className="p-4 bg-slate-900/90 border-slate-700">
-                  <p className="text-sm font-semibold text-gray-300 mb-2">Seu Código:</p>
+                  <p className="text-sm font-semibold text-gray-300 mb-2">Your Code:</p>
                   <textarea
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     className="w-full h-48 bg-black/60 border border-slate-700 text-white text-sm p-3 rounded font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="Digite seu solução aqui..."
+                    placeholder="Type your solution here..."
                   />
 
                   <div className="flex gap-2 mt-4 flex-wrap">
@@ -394,7 +394,7 @@ export default function ChallengesPage() {
                       disabled={executing || !code.trim()}
                       className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
-                      {executing ? 'Executando...' : '▶️ Executar'}
+                      {executing ? 'Running...' : '▶️ Run'}
                     </Button>
                     <Button
                       onClick={showHint}
@@ -403,7 +403,7 @@ export default function ChallengesPage() {
                       disabled={hintsUsed >= selectedChallenge.hints.length}
                     >
                       <Lightbulb className="w-4 h-4 mr-1" />
-                      Dica ({hintsUsed}/{selectedChallenge.hints.length})
+                      Hint ({hintsUsed}/{selectedChallenge.hints.length})
                     </Button>
                     <Button
                       onClick={showSolution}
@@ -412,7 +412,7 @@ export default function ChallengesPage() {
                       disabled={solutionViewed}
                     >
                       <BookOpen className="w-4 h-4 mr-1" />
-                      Ver Solução
+                      View Solution
                     </Button>
                   </div>
                 </Card>
@@ -427,7 +427,7 @@ export default function ChallengesPage() {
             ) : (
               <Card className="p-12 bg-slate-900/90 border-slate-700 text-center">
                 <Code2 className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400">Selecione um desafio para começar</p>
+                <p className="text-gray-400">Select a challenge to start</p>
               </Card>
             )}
           </div>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/use-user';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import { Camera, Save, Trophy, Zap, Target, Calendar, TrendingUp, Award } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -28,7 +28,7 @@ function getLevelInfo(xp: number) {
 
 export default function ProfilePage() {
   const { user, refreshUser } = useUser();
-  const { t } = useLanguage();
+
   const { toast } = useToast();
   
   const [isEditing, setIsEditing] = useState(false);

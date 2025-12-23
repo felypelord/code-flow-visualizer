@@ -63,20 +63,20 @@ export default function Auth() {
     try {
       // Validate email
       if (!email || !validateEmail(email)) {
-        setError(t.invalidEmail);
+        setError("Invalid Email");
         setIsLoading(false);
         return;
       }
 
       // Validate password
       if (!password) {
-        setError(t.passwordRequired);
+        setError("Password Required");
         setIsLoading(false);
         return;
       }
 
       if (!validatePassword(password)) {
-        setError(t.passwordRequired);
+        setError("Password Required");
         setIsLoading(false);
         return;
       }
@@ -93,7 +93,7 @@ export default function Auth() {
       setEmail('');
       setPassword('');
     } catch (err: any) {
-      setError(err.message || 'Erro');
+      setError(err.message || 'Error');
     } finally {
       setIsLoading(false);
     }
@@ -104,27 +104,27 @@ export default function Auth() {
       {user ? (
         <div className="flex items-center gap-3">
           <div className="flex flex-col items-end">
-            <span className="text-sm font-medium">{t.hello}, {user.email.split('@')[0]}</span>
+            <span className="text-sm font-medium">Hello, {user.email.split('@')[0]}</span>
             <span className="text-xs text-slate-400">{user.isPro ? 'Pro' : 'Free'}</span>
           </div>
           <Button variant="outline" size="sm" onClick={logout} className="text-xs">
-            {t.logOut}
+            Log Out
           </Button>
         </div>
       ) : (
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-              {t.signIn}
+              Sign in
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md bg-slate-950 border-slate-800">
             <DialogHeader>
               <DialogTitle className="text-xl text-white">
-                {isLoginMode ? t.signIn : t.createAccount}
+                {isLoginMode ? "Sign in" : "Create Account"}
               </DialogTitle>
               <DialogDescription className="text-slate-400 text-sm">
-                {isLoginMode ? t.signInDescription : t.createAccountDescription}
+                {isLoginMode ? "Sign in Description" : "Create Account Description"}
               </DialogDescription>
             </DialogHeader>
 
@@ -132,14 +132,14 @@ export default function Auth() {
               {/* Email Input */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-200 block">
-                  {t.emailLabel}
+                  Email Label
                 </label>
                 <div className="relative">
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={t.emailPlaceholder}
+                    placeholder="Email Placeholder"
                     className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
                     disabled={isLoading}
                   />
@@ -150,14 +150,14 @@ export default function Auth() {
               {/* Password Input */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-200 block">
-                  {t.passwordLabel}
+                  Password Label
                 </label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={t.passwordPlaceholder}
+                    placeholder="Password Placeholder"
                     className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all pr-10"
                     disabled={isLoading}
                   />
@@ -187,13 +187,13 @@ export default function Auth() {
                 disabled={isLoading}
                 className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2.5 rounded-lg transition-all disabled:opacity-60"
               >
-                {isLoading ? '...' : (isLoginMode ? t.signInButton : t.createAccountButton)}
+                {isLoading ? '...' : (isLoginMode ? "Sign in Button" : "Create Account Button")}
               </Button>
 
               {/* Toggle Mode */}
               <div className="flex items-center justify-center gap-2 pt-2 border-t border-slate-800">
                 <span className="text-xs text-slate-400">
-                  {isLoginMode ? t.toggleMode : 'Already have an account?'}
+                  {isLoginMode ? "Toggle Mode" : 'Already have an account?'}
                 </span>
                 <button
                   type="button"
@@ -205,7 +205,7 @@ export default function Auth() {
                   disabled={isLoading}
                   className="text-xs text-blue-400 hover:text-blue-300 font-semibold transition-colors disabled:opacity-60"
                 >
-                  {isLoginMode ? t.createAccount : t.signIn}
+                  {isLoginMode ? "Create Account" : "Sign in"}
                 </button>
               </div>
 

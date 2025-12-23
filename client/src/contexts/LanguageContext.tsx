@@ -1,12 +1,13 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-// import removed: i18n
+import React, { ReactNode } from 'react';
 
-// interface removed: LanguageContextType
+// English-only simplified language provider.
+// Keeps a compatible API for `useLanguage()` but does not rely on external maps.
+export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+  return <>{children}</>;
+};
 
-// const LanguageContext removed
+export const useLanguage = () => {
+  const t = (k: string, fallback?: string) => fallback || k;
+  return { lang: 'en' as const, setLang: (_: string) => undefined, t };
+};
 
-// export const useLanguage removed
-
-// interface removed: LanguageProviderProps
-
-// LanguageProvider removed

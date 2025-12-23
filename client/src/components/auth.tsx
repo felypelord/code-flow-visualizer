@@ -383,7 +383,7 @@ export default function Auth() {
         }
       }
 
-      setError('Não foi possível abrir o pagamento Pro. Tente novamente.');
+      setError('Could not open Pro checkout. Please try again.');
     } catch (err: any) {
       setError('Falha ao iniciar o pagamento Pro.');
     } finally {
@@ -407,29 +407,29 @@ export default function Auth() {
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-              {t.signIn || 'Sign In'}
+              {"Sign in" || 'Sign In'}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md bg-slate-950 border-slate-800">
             <DialogHeader>
               <DialogTitle className="text-xl text-white">
                 {step === 'login' 
-                  ? (t.signIn || 'Sign In')
-                  : step === 'signup-form' ? (t.createAccount || 'Create Account')
-                  : step === 'signup-verify' ? `📧 ${t.verifyEmail}`
-                  : step === 'forgot-email' ? `🔑 ${t.resetPassword}`
-                  : step === 'forgot-verify' ? `📧 ${t.verifyCode}`
-                  : `🔐 ${t.newPassword}`}
+                  ? ("Sign in" || 'Sign In')
+                  : step === 'signup-form' ? ("Create Account" || 'Create Account')
+                  : step === 'signup-verify' ? `📧 $Verify Email`
+                  : step === 'forgot-email' ? `🔑 $Reset Password`
+                  : step === 'forgot-verify' ? `📧 $Verify Code`
+                  : `🔐 $New Password`}
               </DialogTitle>
               <DialogDescription className="text-slate-400 text-sm">
                 {step === 'login'
-                  ? (t.signInDescription || 'Enter your email and password')
+                  ? ("Sign in Description" || 'Enter your email and password')
                   : step === 'signup-form'
-                    ? (t.createAccountDescription || 'Create your account with email')
-                    : step === 'signup-verify' ? t.enterCodeSentToEmail
-                    : step === 'forgot-email' ? t.enterEmailForReset
-                    : step === 'forgot-verify' ? t.enterCodeFromEmail
-                    : t.enterNewPassword}
+                    ? ("Create Account Description" || 'Create your account with email')
+                    : step === 'signup-verify' ? "Enter Code Sent to Email"
+                    : step === 'forgot-email' ? "Enter Email for Reset"
+                    : step === 'forgot-verify' ? "Enter Code From Email"
+                    : "Enter New Password"}
               </DialogDescription>
             </DialogHeader>
 
@@ -438,13 +438,13 @@ export default function Auth() {
               <form onSubmit={handleLogin} className="space-y-4 mt-6">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-200 block">
-                    {t.emailLabel || 'Email'}
+                    {"Email Label" || 'Email'}
                   </label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={t.emailPlaceholder || 'your@email.com'}
+                    placeholder={"Email Placeholder" || 'your@email.com'}
                     className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
                     disabled={isLoading}
                   />
@@ -452,14 +452,14 @@ export default function Auth() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-200 block">
-                    {t.passwordLabel || 'Password'}
+                    {"Password Label" || 'Password'}
                   </label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder={t.passwordPlaceholder || '••••••••••'}
+                      placeholder={"Password Placeholder" || '••••••••••'}
                       className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all pr-10"
                       disabled={isLoading}
                     />
@@ -486,12 +486,12 @@ export default function Auth() {
                   disabled={isLoading}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2.5 rounded-lg transition-all disabled:opacity-60"
                 >
-                  {isLoading ? '...' : (t.signInButton || 'Sign In')}
+                  {isLoading ? '...' : ("Sign in Button" || 'Sign In')}
                 </Button>
 
                 <div className="flex items-center justify-center gap-2 pt-2 border-t border-slate-800">
                   <span className="text-xs text-slate-400">
-                    {t.toggleMode || "Don't have an account?"}
+                    {"Toggle Mode" || "Don't have an account?"}
                   </span>
                   <button
                     type="button"
@@ -504,7 +504,7 @@ export default function Auth() {
                     disabled={isLoading}
                     className="text-xs text-blue-400 hover:text-blue-300 font-semibold transition-colors disabled:opacity-60"
                   >
-                    {t.createAccount || 'Create Account'}
+                    {"Create Account" || 'Create Account'}
                   </button>
                 </div>
 
@@ -528,7 +528,7 @@ export default function Auth() {
               // SIGNUP FORM
               <form onSubmit={handleSendVerificationCode} className="space-y-3 mt-6 max-h-[70vh] overflow-y-auto">
                 <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-100 text-xs leading-relaxed">
-                  Cadastro disponível <strong>só para clientes Pro</strong>. Clique em "Pagar Pro" para gerar o código Pro e cole abaixo para criar a conta.
+                  Signup available <strong>only for Pro customers</strong>. Click "Pay Pro" to generate the Pro code and paste it below to create the account.
                 </div>
 
                 <Button
@@ -537,7 +537,7 @@ export default function Auth() {
                   disabled={checkoutLoading || isLoading}
                   className="w-full bg-gradient-to-r from-amber-400 to-amber-600 text-black font-semibold"
                 >
-                  {checkoutLoading ? 'Abrindo checkout...' : 'Pagar Pro e gerar código'}
+                  {checkoutLoading ? 'Opening checkout...' : 'Pay Pro and generate code'}
                 </Button>
 
                 <div className="space-y-1">
@@ -606,20 +606,20 @@ export default function Auth() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-200 block">{t.proCodeLabel}</label>
+                  <label className="text-xs font-semibold text-slate-200 block">Pro Code Label</label>
                   <input
                     type="text"
                     value={proToken}
                     onChange={(e) => setProToken(e.target.value)}
-                    placeholder={t.proCodePlaceholder}
+                    placeholder="Pro Code Placeholder"
                     className="w-full px-3 py-2 bg-slate-900 border border-amber-500/50 rounded text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/60 text-sm"
                     disabled={isLoading}
                   />
-                  <p className="text-[11px] text-amber-200/80">{t.proCodeNote}</p>
+                  <p className="text-[11px] text-amber-200/80">Pro Code Note</p>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-200 block">{t.passwordLabel}</label>
+                  <label className="text-xs font-semibold text-slate-200 block">Password Label</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -638,7 +638,7 @@ export default function Auth() {
                       {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">{t.passwordRequirements}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Password Requirements</p>
                 </div>
 
                 {error && (
@@ -653,11 +653,11 @@ export default function Auth() {
                   disabled={isLoading}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2 rounded text-sm disabled:opacity-60"
                 >
-                  {isLoading ? '...' : t.sendVerificationCode}
+                  {isLoading ? '...' : "Send Verification Code"}
                 </Button>
 
                 <div className="flex items-center justify-center gap-2 pt-2 border-t border-slate-800">
-                  <span className="text-xs text-slate-400">{t.alreadyHaveAccount}</span>
+                  <span className="text-xs text-slate-400">Already Have Account</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -667,7 +667,7 @@ export default function Auth() {
                     disabled={isLoading}
                     className="text-xs text-blue-400 hover:text-blue-300 font-semibold transition-colors disabled:opacity-60"
                   >
-                    {t.signIn}
+                    Sign in
                   </button>
                 </div>
               </form>
@@ -701,7 +701,7 @@ export default function Auth() {
                   disabled={isLoading || verificationCode.length !== 6}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2.5 rounded-lg transition-all disabled:opacity-60"
                 >
-                  {isLoading ? '...' : t.verifyAndCreateAccount}
+                  {isLoading ? '...' : "Verify and Create Account"}
                 </Button>
 
                 <button
@@ -714,19 +714,19 @@ export default function Auth() {
                   disabled={isLoading}
                   className="w-full text-xs text-slate-400 hover:text-slate-300 py-2"
                 >
-                  {t.backToForm}
+                  Back to Form
                 </button>
               </form>
             ) : step === 'forgot-email' ? (
               // FORGOT PASSWORD - EMAIL FORM
               <form onSubmit={handleForgotPasswordEmail} className="space-y-4 mt-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-200 block">{t.emailLabel}</label>
+                  <label className="text-sm font-semibold text-slate-200 block">Email Label</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={t.emailPlaceholder}
+                    placeholder="Email Placeholder"
                     className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
                     disabled={isLoading}
                   />
@@ -744,7 +744,7 @@ export default function Auth() {
                   disabled={isLoading}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2.5 rounded-lg transition-all disabled:opacity-60"
                 >
-                  {isLoading ? '...' : t.sendResetCode}
+                  {isLoading ? '...' : "Send Reset Code"}
                 </Button>
 
                 <button
@@ -757,7 +757,7 @@ export default function Auth() {
                   disabled={isLoading}
                   className="w-full text-xs text-slate-400 hover:text-slate-300 py-2"
                 >
-                  {t.backToLogin}
+                  Back to Login
                 </button>
               </form>
             ) : step === 'forgot-verify' ? (

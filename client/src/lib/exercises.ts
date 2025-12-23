@@ -217,13 +217,13 @@ export const exercises: Exercise[] = [
         language: "javascript",
         initialCode: `function countVowels(text) {\n  // Your code here\n  \n}`,
         solution: `function countVowels(text) {\n  return (text.match(/[aeiouAEIOU]/g) || []).length;\n}`,
-        hint: "Use um loop ou regex para verificar vowels",
+        hint: "Use a loop or regex to check vowels",
       },
       python: {
         language: "python",
         initialCode: `def count_vowels(text):\n    # Your code here\n    pass`,
         solution: `def count_vowels(text):\n    return sum(1 for c in text if c.lower() in 'aeiou')`,
-        hint: "Use um loop ou list comprehension para Count Vowels",
+        hint: "Use a loop or list comprehension to count vowels",
       },
       c: {
         language: "c",
@@ -336,8 +336,8 @@ export const exercises: Exercise[] = [
   },
   {
     id: "palindrome",
-    title: "Pal?ndromo",
-    description: "Verifique se uma word ? um pal?ndromo (l?-se igual de tr?s para frente).",
+    title: "Palindrome",
+    description: "Check if a word is a palindrome (reads the same forwards and backwards).",
     difficulty: "Intermediate",
     variants: {
       javascript: {
@@ -356,19 +356,19 @@ export const exercises: Exercise[] = [
         language: "c",
         initialCode: `#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nbool isPalindrome(char* word) {\n  // Your code here\n  \n}\n\nint main() {\n  printf("%s", isPalindrome("arara") ? "true" : "false");\n  return 0;\n}`,
         solution: `#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nbool isPalindrome(char* word) {\n  int len = strlen(word);\n  for (int i = 0; i < len / 2; i++) {\n    if (word[i] != word[len - 1 - i]) return false;\n  }\n  return true;\n}\n\nint main() {\n  printf("%s", isPalindrome("arara") ? "true" : "false");\n  return 0;\n}`,
-        hint: "Use dois ponteiros para comparar caracteres",
+        hint: "Use two pointers to compare characters",
       },
       csharp: {
         language: "csharp",
         initialCode: `using System;\n\npublic class Program {\n  static bool isPalindrome(str word) {\n    // Your code here\n    \n  }\n  \n  static void Main() {\n    Console.WriteLine(isPalindrome("arara"));\n  }\n}`,
         solution: `using System;\n\npublic class Program {\n  static bool isPalindrome(str word) {\n    for (int i = 0; i < word.Length / 2; i++) {\n      if (word[i] != word[word.Length - 1 - i]) return false;\n    }\n    return true;\n  }\n  \n  static void Main() {\n    Console.WriteLine(isPalindrome("arara"));\n  }\n}`,
-        hint: "Use um loop para comparar caracteres",
+        hint: "Use a loop to compare characters",
       },
       java: {
         language: "java",
         initialCode: `public class Program {\n  static boolean isPalindrome(str word) {\n    // Your code here\n    \n  }\n  \n  public static void main(string[] args) {\n    System.out.println(isPalindrome("arara"));\n  }\n}`,
         solution: `public class Program {\n  static boolean isPalindrome(str word) {\n    for (int i = 0; i < word.length() / 2; i++) {\n      if (word.charAt(i) != word.charAt(word.length() - 1 - i)) return false;\n    }\n    return true;\n  }\n  \n  public static void main(string[] args) {\n    System.out.println(isPalindrome("arara"));\n  }\n}`,
-        hint: "Use charAt() para acessar caracteres",
+        hint: "Use charAt() to access characters",
       },
     },
     tests: [
@@ -387,7 +387,7 @@ export const exercises: Exercise[] = [
         language: "javascript",
         initialCode: `function countOccurrences(array, element) {\n  // Your code here\n  \n}`,
         solution: `function countOccurrences(array, element) {\n  return array.filter(item => item === element).length;\n}`,
-        hint: "Use .filter() para contar elements iguais",
+        hint: "Use .filter() to count matching elements",
       },
       python: {
         language: "python",
@@ -399,7 +399,7 @@ export const exercises: Exercise[] = [
         language: "c",
         initialCode: `#include <stdio.h>\n\nint countOccurrences(int* array, int size, int element) {\n  // Your code here\n  \n}\n\nint main() {\n  int array[] = {1, 2, 2, 3, 2};\n  printf("%d", countOccurrences(array, 5, 2));\n  return 0;\n}`,
         solution: `#include <stdio.h>\n\nint countOccurrences(int* array, int size, int element) {\n  int count = 0;\n  for (int i = 0; i < size; i++) {\n    if (array[i] == element) count++;\n  }\n  return count;\n}\n\nint main() {\n  int array[] = {1, 2, 2, 3, 2};\n  printf("%d", countOccurrences(array, 5, 2));\n  return 0;\n}`,
-        hint: "Use um loop para contar elements iguais",
+        hint: "Use a loop to count matching elements",
       },
       csharp: {
         language: "csharp",
@@ -411,7 +411,7 @@ export const exercises: Exercise[] = [
         language: "java",
         initialCode: `import java.util.*;\n\npublic class Program {\n  static int countOccurrences(int[] array, int element) {\n    // Your code here\n    \n  }\n  \n  public static void main(string[] args) {\n    int[] array = {1, 2, 2, 3, 2};\n    System.out.println(countOccurrences(array, 2));\n  }\n}`,
         solution: `import java.util.*;\n\npublic class Program {\n  static int countOccurrences(int[] array, int element) {\n    int count = 0;\n    for (int n : array) {\n      if (n == element) count++;\n    }\n    return count;\n  }\n  \n  public static void main(string[] args) {\n    int[] array = {1, 2, 2, 3, 2};\n    System.out.println(countOccurrences(array, 2));\n  }\n}`,
-        hint: "Use um loop enhanced for",
+        hint: "Use an enhanced for loop",
       },
     },
     tests: [
@@ -441,7 +441,7 @@ export const exercises: Exercise[] = [
         language: "c",
         initialCode: `#include <stdio.h>\n\nint sumarray(int* array, int size) {\n  // Your code here\n  \n}\n\nint main() {\n  int array[] = {1, 2, 3, 4};\n  printf("%d", sumarray(array, 4));\n  return 0;\n}`,
         solution: `#include <stdio.h>\n\nint sumarray(int* array, int size) {\n  int sum = 0;\n  for (int i = 0; i < size; i++) sum += array[i];\n  return sum;\n}\n\nint main() {\n  int array[] = {1, 2, 3, 4};\n  printf("%d", sumarray(array, 4));\n  return 0;\n}`,
-        hint: "Use um loop para somar elements",
+        hint: "Use a loop to sum elements",
       },
       csharp: {
         language: "csharp",
@@ -464,14 +464,14 @@ export const exercises: Exercise[] = [
   {
     id: "quick-sort",
     title: "Quick Sort",
-    description: "Implemente o algoritmo Quick Sort para ordenar um array.",
+    description: "Implement the Quick Sort algorithm to sort an array.",
     difficulty: "Advanced",
     variants: {
       javascript: {
         language: "javascript",
         initialCode: `function quickSort(array) {\n  // Your code here\n  \n}`,
         solution: `function quickSort(array) {\n  if (array.length <= 1) return array;\n  const pivot = array[0];\n  const left = array.slice(1).filter(x => x <= pivot);\n  const right = array.slice(1).filter(x => x > pivot);\n  return [...quickSort(left), pivot, ...quickSort(right)];\n}`,
-        hint: "Escolha um pivot e particione recursivamente",
+        hint: "Choose a pivot and partition recursively",
       },
       python: {
         language: "python",
@@ -506,14 +506,14 @@ export const exercises: Exercise[] = [
   {
     id: "merge-sorted",
     title: "Merge arrays",
-    description: "Mescle dois arrays j? ordenados mantendo a ordem.",
+    description: "Merge two already-sorted arrays while maintaining order.",
     difficulty: "Advanced",
     variants: {
       javascript: {
         language: "javascript",
         initialCode: `function mesclarOrdenados(arr1, arr2) {\n  // Your code here\n  \n}`,
         solution: `function mesclarOrdenados(arr1, arr2) {\n  const result = [];\n  let i = 0, j = 0;\n  while (i < arr1.length && j < arr2.length) {\n    if (arr1[i] <= arr2[j]) result.push(arr1[i++]);\n    else result.push(arr2[j++]);\n  }\n  return [...result, ...arr1.slice(i), ...arr2.slice(j)];\n}`,
-        hint: "Use dois ponteiros para comparar elements",
+        hint: "Use two pointers to compare elements",
       },
       python: {
         language: "python",
@@ -547,7 +547,7 @@ export const exercises: Exercise[] = [
   {
     id: "binary-search",
     title: "Busca Bin?ria",
-    description: "Implemente busca bin?ria em um array ordenado.",
+    description: "Implement binary search on a sorted array.",
     difficulty: "Intermediate",
     variants: {
       javascript: {
@@ -572,7 +572,7 @@ export const exercises: Exercise[] = [
         language: "csharp",
         initialCode: `using System;\n\npublic class Program {\n  static int BuscaBinaria(int[] array, int alvo) {\n    // Your code here\n    return -1;\n  }\n  \n  static void Main() {\n    int[] array = {1, 3, 5, 7, 9};\n    Console.WriteLine(BuscaBinaria(array, 5));\n  }\n}`,
         solution: `using System;\n\npublic class Program {\n  static int BuscaBinaria(int[] array, int alvo) {\n    int left = 0, right = array.Length - 1;\n    while (left <= right) {\n      int mid = (left + right) / 2;\n      if (array[mid] == alvo) return mid;\n      if (array[mid] < alvo) left = mid + 1;\n      else right = mid - 1;\n    }\n    return -1;\n  }\n  \n  static void Main() {\n    int[] array = {1, 3, 5, 7, 9};\n    Console.WriteLine(BuscaBinaria(array, 5));\n  }\n}`,
-        hint: "Use um loop com left/right",
+        hint: "Use a two-pointer loop with left/right",
       },
       java: {
         language: "java",
@@ -589,14 +589,14 @@ export const exercises: Exercise[] = [
   {
     id: "anagrams",
     title: "Anagrams",
-    description: "Verifique se duas words s?o Anagrams.",
+    description: "Check if two words are anagrams of each other.",
     difficulty: "Beginner",
     variants: {
       javascript: {
         language: "javascript",
         initialCode: `function saoAnagrams(p1, p2) {\n  // Your code here\n  \n}`,
         solution: `function saoAnagrams(p1, p2) {\n  return p1.split('').sort().join('') === p2.split('').sort().join('');\n}`,
-        hint: "Ordene as letras e compare",
+        hint: "Sort the letters and compare",
       },
       python: {
         language: "python",
@@ -631,14 +631,14 @@ export const exercises: Exercise[] = [
   {
     id: "longest-substr",
     title: "Longest Substr",
-    description: "Encontre a Longest Substr sem caracteres repetidos.",
+    description: "Find the longest substring without repeating characters.",
     difficulty: "Advanced",
     variants: {
       javascript: {
         language: "javascript",
         initialCode: `function substrMaisLonga(s) {\n  // Your code here\n  \n}`,
         solution: `function substrMaisLonga(s) {\n  const map = {};\n  let maxLen = 0, start = 0;\n  for (let i = 0; i < s.length; i++) {\n    if (map[s[i]] !== undefined) start = Math.max(start, map[s[i]] + 1);\n    map[s[i]] = i;\n    maxLen = Math.max(maxLen, i - start + 1);\n  }\n  return maxLen;\n}`,
-        hint: "Use sliding window com um Map",
+        hint: "Use a sliding window with a Map",
       },
       python: {
         language: "python",
@@ -650,13 +650,13 @@ export const exercises: Exercise[] = [
         language: "c",
         initialCode: `#include <stdio.h>\n#include <string.h>\n\nint substrMaisLonga(char* s) {\n  // Your code here\n  return 0;\n}\n\nint main() {\n  printf("%d", substrMaisLonga("abcabcbb"));\n  return 0;\n}`,
         solution: `#include <stdio.h>\n#include <string.h>\n\nint substrMaisLonga(char* s) {\n  int map[256];\n  for (int i = 0; i < 256; i++) map[i] = -1;\n  int maxLen = 0, start = 0;\n  for (int i = 0; s[i]; i++) {\n    if (map[(unsigned char)s[i]] >= start) start = map[(unsigned char)s[i]] + 1;\n    map[(unsigned char)s[i]] = i;\n    int len = i - start + 1;\n    if (len > maxLen) maxLen = len;\n  }\n  return maxLen;\n}\n\nint main() {\n  printf("%d", substrMaisLonga("abcabcbb"));\n  return 0;\n}`,
-        hint: "Use uma array para armazenar posi??es",
+        hint: "Use an array to store positions",
       },
       csharp: {
         language: "csharp",
         initialCode: `using System;\nusing System.Collections.Generic;\n\npublic class Program {\n  static int SubstrMaisLonga(str s) {\n    // Your code here\n    return 0;\n  }\n  \n  static void Main() {\n    Console.WriteLine(SubstrMaisLonga("abcabcbb"));\n  }\n}`,
         solution: `using System;\nusing System.Collections.Generic;\n\npublic class Program {\n  static int SubstrMaisLonga(str s) {\n    Dictionary<char, int> map = new Dictionary<char, int>();\n    int maxLen = 0, start = 0;\n    for (int i = 0; i < s.Length; i++) {\n      if (map.ContainsKey(s[i])) start = Math.Max(start, map[s[i]] + 1);\n      map[s[i]] = i;\n      maxLen = Math.Max(maxLen, i - start + 1);\n    }\n    return maxLen;\n  }\n  \n  static void Main() {\n    Console.WriteLine(SubstrMaisLonga("abcabcbb"));\n  }\n}`,
-        hint: "Use Dictionary para armazenar posi??es",
+        hint: "Use Dictionary to store positions",
       },
       java: {
         language: "java",
@@ -672,39 +672,39 @@ export const exercises: Exercise[] = [
   },
   {
     id: "matrix-spiral",
-    title: "Matriz em Espiral",
-    description: "Percorra uma matriz em padr?o espiral.",
+    title: "Spiral Matrix",
+    description: "Traverse a matrix in spiral order.",
     difficulty: "Advanced",
     variants: {
       javascript: {
         language: "javascript",
         initialCode: `function matrizEspiral(m) {\n  // Your code here\n  \n}`,
         solution: `function matrizEspiral(m) {\n  const r = [];\n  let top = 0, bot = m.length - 1, left = 0, right = m[0].length - 1;\n  while (top <= bot && left <= right) {\n    for (let i = left; i <= right; i++) r.push(m[top][i]);\n    top++;\n    for (let i = top; i <= bot; i++) r.push(m[i][right]);\n    right--;\n    if (top <= bot) for (let i = right; i >= left; i--) r.push(m[bot][i]);\n    bot--;\n    if (left <= right) for (let i = bot; i >= top; i--) r.push(m[i][left]);\n    left++;\n  }\n  return r;\n}`,
-        hint: "Controle os limites e reduza-os",
+        hint: "Manage window bounds and shrink them",
       },
       python: {
         language: "python",
         initialCode: `def matriz_espiral(m):\n    # Your code here\n    pass`,
         solution: `def matriz_espiral(m):\n    r = []\n    top, bot, left, right = 0, len(m) - 1, 0, len(m[0]) - 1\n    while top <= bot and left <= right:\n        for i in range(left, right + 1):\n            r.append(m[top][i])\n        top += 1\n        for i in range(top, bot + 1):\n            r.append(m[i][right])\n        right -= 1\n        if top <= bot:\n            for i in range(right, left - 1, -1):\n                r.append(m[bot][i])\n            bot -= 1\n        if left <= right:\n            for i in range(bot, top - 1, -1):\n                r.append(m[i][left])\n            left += 1\n    return r`,
-        hint: "Controle os limites e reduza-os",
+        hint: "Manage window bounds and shrink them",
       },
       c: {
         language: "c",
         initialCode: `#include <stdio.h>\n\nvoid matrizEspiral(int** m, int rows, int cols, int* result, int* resultSize) {\n  // Your code here\n  *resultSize = 0;\n}\n\nint main() {\n  return 0;\n}`,
         solution: `#include <stdio.h>\n\nvoid matrizEspiral(int** m, int rows, int cols, int* result, int* resultSize) {\n  *resultSize = 0;\n  int top = 0, bot = rows - 1, left = 0, right = cols - 1;\n  while (top <= bot && left <= right) {\n    for (int i = left; i <= right; i++) result[(*resultSize)++] = m[top][i];\n    top++;\n    for (int i = top; i <= bot; i++) result[(*resultSize)++] = m[i][right];\n    right--;\n    if (top <= bot) for (int i = right; i >= left; i--) result[(*resultSize)++] = m[bot][i];\n    bot--;\n    if (left <= right) for (int i = bot; i >= top; i--) result[(*resultSize)++] = m[i][left];\n    left++;\n  }\n}\n\nint main() {\n  return 0;\n}`,
-        hint: "Controle os limites e reduza-os",
+        hint: "Manage window bounds and shrink them",
       },
       csharp: {
         language: "csharp",
         initialCode: `using System;\nusing System.Collections.Generic;\n\npublic class Program {\n  static int[] MatrizEspiral(int[][] m) {\n    // Your code here\n    \n  }\n  \n  static void Main() {\n  }\n}`,
         solution: `using System;\nusing System.Collections.Generic;\n\npublic class Program {\n  static int[] MatrizEspiral(int[][] m) {\n    List<int> r = new List<int>();\n    int top = 0, bot = m.Length - 1, left = 0, right = m[0].Length - 1;\n    while (top <= bot && left <= right) {\n      for (int i = left; i <= right; i++) r.Add(m[top][i]);\n      top++;\n      for (int i = top; i <= bot; i++) r.Add(m[i][right]);\n      right--;\n      if (top <= bot) for (int i = right; i >= left; i--) r.Add(m[bot][i]);\n      bot--;\n      if (left <= right) for (int i = bot; i >= top; i--) r.Add(m[i][left]);\n      left++;\n    }\n    return r.Toarray();\n  }\n  \n  static void Main() {\n  }\n}`,
-        hint: "Controle os limites e reduza-os",
+        hint: "Manage window bounds and shrink them",
       },
       java: {
         language: "java",
         initialCode: `import java.util.*;\n\npublic class Program {\n  static int[] matrizEspiral(int[][] m) {\n    // Your code here\n    \n  }\n  \n  public static void main(string[] args) {\n  }\n}`,
         solution: `import java.util.*;\n\npublic class Program {\n  static int[] matrizEspiral(int[][] m) {\n    List<Integer> r = new arrayList<>();\n    int top = 0, bot = m.length - 1, left = 0, right = m[0].length - 1;\n    while (top <= bot && left <= right) {\n      for (int i = left; i <= right; i++) r.add(m[top][i]);\n      top++;\n      for (int i = top; i <= bot; i++) r.add(m[i][right]);\n      right--;\n      if (top <= bot) for (int i = right; i >= left; i--) r.add(m[bot][i]);\n      bot--;\n      if (left <= right) for (int i = bot; i >= top; i--) r.add(m[i][left]);\n      left++;\n    }\n    return r.stream().mapToInt(Integer::intValue).toarray();\n  }\n  \n  public static void main(string[] args) {\n  }\n}`,
-        hint: "Controle os limites e reduza-os",
+        hint: "Manage window bounds and shrink them",
       },
     },
     tests: [
@@ -714,14 +714,14 @@ export const exercises: Exercise[] = [
   {
     id: "balanced-parens",
     title: "Par?nteses Balanceados",
-    description: "Verifique se par?nteses/colchetes/chaves est?o balanceados.",
+    description: "Check if parentheses/brackets/braces are balanced.",
     difficulty: "Intermediate",
     variants: {
       javascript: {
         language: "javascript",
         initialCode: `function balanceado(s) {\n  // Your code here\n  \n}`,
         solution: `function balanceado(s) {\n  const stack = [];\n  const map = { ')': '(', '}': '{', ']': '[' };\n  for (let c of s) {\n    if (c in map) {\n      if (stack.pop() !== map[c]) return false;\n    } else stack.push(c);\n  }\n  return stack.length === 0;\n}`,
-        hint: "Use uma stack para rastrear par?nteses",
+        hint: "Use a stack to track parentheses",
       },
       python: {
         language: "python",
@@ -733,7 +733,7 @@ export const exercises: Exercise[] = [
         language: "c",
         initialCode: `#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nbool balanceado(char* s) {\n  // Your code here\n  return true;\n}\n\nint main() {\n  printf("%s", balanceado("()") ? "true" : "false");\n  return 0;\n}`,
         solution: `#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nbool balanceado(char* s) {\n  int stack[1000], top = -1;\n  for (int i = 0; s[i]; i++) {\n    if (s[i] == '(' || s[i] == '[' || s[i] == '{') {\n      stack[++top] = s[i];\n    } else if (s[i] == ')' || s[i] == ']' || s[i] == '}') {\n      if (top < 0) return false;\n      int open = stack[top--];\n      if ((s[i] == ')' && open != '(') || (s[i] == ']' && open != '[') || (s[i] == '}' && open != '{')) return false;\n    }\n  }\n  return top == -1;\n}\n\nint main() {\n  printf("%s", balanceado("()") ? "true" : "false");\n  return 0;\n}`,
-        hint: "Use uma array como stack",
+        hint: "Use an array as a stack",
       },
       csharp: {
         language: "csharp",
@@ -757,7 +757,7 @@ export const exercises: Exercise[] = [
   {
     id: "flatten-array",
     title: "Flatten array",
-    description: "Achate arrays aninhados em qualquer profundidade.",
+    description: "Flatten nested arrays to any depth.",
     difficulty: "Intermediate",
     variants: {
       javascript: {
@@ -776,7 +776,7 @@ export const exercises: Exercise[] = [
         language: "c",
         initialCode: `#include <stdio.h>\n\nvoid achatar(int* array, int size, int* result, int* resultSize) {\n  // Your code here\n  *resultSize = 0;\n}\n\nint main() {\n  return 0;\n}`,
         solution: `#include <stdio.h>\n\nvoid achatar(int* array, int size, int* result, int* resultSize) {\n  *resultSize = 0;\n  for (int i = 0; i < size; i++) {\n    result[(*resultSize)++] = array[i];\n  }\n}\n\nint main() {\n  return 0;\n}`,
-        hint: "Use um loop para copiar elements",
+        hint: "Use a loop to copy elements",
       },
       csharp: {
         language: "csharp",
@@ -811,13 +811,13 @@ export const exercises: Exercise[] = [
         language: "python",
         initialCode: `def agrupar(arr, prop):\n    # Your code here\n    pass`,
         solution: `def agrupar(arr, prop):\n    groups = {}\n    for item in arr:\n        key = item[prop]\n        if key not in groups:\n            groups[key] = []\n        groups[key].append(item)\n    return groups`,
-        hint: "Use um dicion?rio para agrupar",
+        hint: "Use a dictionary to group items",
       },
       c: {
         language: "c",
-        initialCode: `#include <stdio.h>\n\n// C n?o tem dicion?rios nativos, use uma estrutura\nvoid agrupar(void) {\n  // Your code here\n  \n}\n\nint main() {\n  return 0;\n}`,
+        initialCode: `#include <stdio.h>\n\n// C does not have native dictionaries; use a struct instead\nvoid agrupar(void) {\n  // Your code here\n  \n}\n\nint main() {\n  return 0;\n}`,
         solution: `#include <stdio.h>\n#include <string.h>\n\n// Implementa??o simplificada\nstruct Group {\n  char key[100];\n  int count;\n};\n\nint main() {\n  return 0;\n}`,
-        hint: "Use uma estrutura para agrupar",
+        hint: "Use a struct to group items",
       },
       csharp: {
         language: "csharp",
@@ -858,7 +858,7 @@ export const exercises: Exercise[] = [
         language: "c",
         initialCode: `#include <stdio.h>\n\nlong Fibonacci(int n, long* memo) {\n  // Your code here\n  return 0;\n}\n\nint main() {\n  long memo[50] = {0};\n  printf("%ld", Fibonacci(5, memo));\n  return 0;\n}`,
         solution: `#include <stdio.h>\n\nlong Fibonacci(int n, long* memo) {\n  if (memo[n] != 0 && n > 1) return memo[n];\n  if (n <= 1) return n;\n  memo[n] = Fibonacci(n - 1, memo) + Fibonacci(n - 2, memo);\n  return memo[n];\n}\n\nint main() {\n  long memo[50] = {0};\n  printf("%ld", Fibonacci(5, memo));\n  return 0;\n}`,
-        hint: "Use uma array para memoiza??o",
+        hint: "Use an array for memoization",
       },
       csharp: {
         language: "csharp",

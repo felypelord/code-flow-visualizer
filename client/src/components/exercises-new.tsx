@@ -35,16 +35,12 @@ interface ExecutionState {
 }
 
 export function ExercisesViewNew() {
-  // const t = {};
+  const t: any = {};
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { user } = useUser();
   
-  // Debug log
-  useEffect(() => {
-    console.log('Current language in exercises:', language);
-    console.log('Translation sample (testCode):', t.testCode);
-  }, [language, t]);
+  // Debug log removed for stability
   
   const [selectedExercise, setSelectedExercise] = useState<Exercise>(exercises[0]);
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");
@@ -97,13 +93,13 @@ export function ExercisesViewNew() {
 
   const runTests = async () => {
     if (!code.trim()) {
-      toast({ title: `❌ ${t.error}`, description: t.writeCodeFirst, variant: "destructive" });
+      toast({ title: `❌ $Error`, description: "Write Code First", variant: "destructive" });
       return;
     }
 
     const allowance = checkAndConsumeExecution(user?.id, !!user?.isPro, 5);
     if (!allowance.allowed) {
-      setTestResults([{ name: t.error, passed: false, error: "Limite de 5 execuções/dia no plano Free. Faça upgrade para Pro." }]);
+      setTestResults([{ name: "Error", passed: false, error: "5 executions/day limit on the Free plan. Upgrade to Pro for unlimited runs." }]);
       setExecutionState(prev => ({ ...prev, isExecuting: false }));
       return;
     }
@@ -115,7 +111,7 @@ export function ExercisesViewNew() {
       // Extract function name
       const functionMatch = code.match(/function\s+(\w+)\s*\(/);
       if (!functionMatch) {
-        setTestResults([{ name: t.error, passed: false, error: t.noFunctionFound }]);
+        setTestResults([{ name: "Error", passed: false, error: "No Function Found" }]);
         setExecutionState(prev => ({ ...prev, isExecuting: false }));
         return;
       }
@@ -152,14 +148,14 @@ export function ExercisesViewNew() {
         ...prev,
         isExecuting: false,
         stack: [stackFrame],
-        logs: results.map(r => r.passed ? `✅ ${r.name}` : `❌ ${r.name}: ${r.error || t.received}`),
+        logs: results.map(r => r.passed ? `✅ ${r.name}` : `❌ ${r.name}: ${r.error || "Received"}`),
       }));
 
       if (allPassed) {
-        toast({ title: "🎉 " + t.allTestsPassed, description: t.allTestsPassed, variant: "default" });
+        toast({ title: "🎉 " + "All Tests Passed", description: "All Tests Passed", variant: "default" });
       }
     } catch (e) {
-      setTestResults([{ name: t.error, passed: false, error: (e as any).message }]);
+      setTestResults([{ name: "Error", passed: false, error: (e as any).message }]);
       setExecutionState(prev => ({ ...prev, isExecuting: false, errorMessage: (e as any).message }));
     }
   };
@@ -177,7 +173,7 @@ export function ExercisesViewNew() {
     if (isMobile) {
       return (
         <div className="flex flex-col h-full overflow-y-auto pb-20 gap-4 p-4">
-          {/* Descrição */}
+          {/* Description */}
           <Card className="p-4 bg-card/50 border-white/10">
             <h3 className="text-lg font-bold mb-2">{selectedExercise.title}</h3>
             <p className="text-sm text-muted-foreground mb-3">{selectedExercise.description}</p>
@@ -188,7 +184,7 @@ export function ExercisesViewNew() {
                 onClick={() => setShowHint(!showHint)}
                 className="gap-2"
               >
-                <Lightbulb className="w-4 h-4" /> {showHint ? "Ocultar" : "Ver"} Dica
+                <Lightbulb className="w-4 h-4" /> {showHint ? "Hide" : "View"} Hint
               </Button>
             )}
             {showHint && currentVariant?.hint && (
@@ -201,21 +197,21 @@ export function ExercisesViewNew() {
           {/* Editor */}
           <Card className="p-4">
             <h4 className="text-sm font-bold mb-2 flex items-center gap-2">
-              <ChevronRight className="w-3 h-3" /> Seu Código
+              <ChevronRight className="w-3 h-3" /> Your Code
             </h4>
-            <textarea
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className="w-full h-64 p-3 font-mono text-sm bg-slate-900 text-slate-50 rounded border border-white/20 resize-vertical focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Escreva seu código aqui..."
-              spellCheck="false"
-            />
+                    <textarea
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      className="w-full h-64 p-3 font-mono text-sm bg-slate-900 text-slate-50 rounded border border-white/20 resize-vertical focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Write your code here..."
+                      spellCheck="false"
+                    />
           </Card>
 
           {/* Resultados */}
           {testResults.length > 0 && (
             <Card className="p-4">
-              <h4 className="text-sm font-bold mb-3">📊 Resultados</h4>
+              <h4 className="text-sm font-bold mb-3">📊 Results</h4>
               <div className="space-y-2">
                 {testResults.map((result, idx) => (
                   <div
@@ -237,8 +233,8 @@ export function ExercisesViewNew() {
                         {result.error && <p className="text-xs text-red-300 mt-1">{result.error}</p>}
                         {!result.passed && !result.error && (
                           <div className="text-xs mt-1">
-                            <p>Esperado: {JSON.stringify(result.expected)}</p>
-                            <p>Obtido: {JSON.stringify(result.result)}</p>
+                            <p>Expected: {JSON.stringify(result.expected)}</p>
+                            <p>Received: {JSON.stringify(result.result)}</p>
                           </div>
                         )}
                       </div>
@@ -254,10 +250,10 @@ export function ExercisesViewNew() {
 
     return (
       <ResizablePanelGroup direction="horizontal">
-        {/* Painel Esquerdo: Descrição + Editor */}
+        {/* Left panel: Description + Editor */}
         <ResizablePanel defaultSize={55} minSize={25}>
           <ResizablePanelGroup direction="vertical">
-            {/* Descrição do Exercício */}
+            {/* Exercise Description */}
             <ResizablePanel defaultSize={25} minSize={15}>
               <div className="h-full p-4 overflow-y-auto">
                 <Card className="p-4 bg-card/50 border-white/10 h-full">
@@ -282,7 +278,7 @@ export function ExercisesViewNew() {
                         disabled={!user?.isPro}
                         className="gap-2"
                       >
-                        <Lightbulb className="w-4 h-4" /> {t.hint} (Pro)
+                        <Lightbulb className="w-4 h-4" /> Hint (Pro)
                       </Button>
                     )}
                     {currentVariant?.solution && (
@@ -297,13 +293,13 @@ export function ExercisesViewNew() {
                         disabled={!user?.isPro}
                         className="gap-2"
                       >
-                        <Eye className="w-4 h-4" /> {t.viewSolution} (Pro)
+                        <Eye className="w-4 h-4" /> View Solution (Pro)
                       </Button>
                     )}
                   </div>
 
                   {!user?.isPro && (
-                    <p className="text-xs text-amber-200 mt-2">Exclusivo Pro: faça upgrade para desbloquear dicas e soluções completas.</p>
+                    <p className="text-xs text-amber-200 mt-2">Pro Exclusive: upgrade to unlock hints and full solutions.</p>
                   )}
 
                   <AnimatePresence>
@@ -336,12 +332,12 @@ export function ExercisesViewNew() {
 
             <ResizableHandle withHandle className="bg-white/10 hover:bg-primary/50 transition-colors" />
 
-            {/* Editor de Código */}
+            {/* Code Editor */}
             <ResizablePanel defaultSize={75} minSize={25}>
               <div className="h-full p-4 flex flex-col">
                 <Card className="flex-1 flex flex-col p-4 bg-card/50 border-white/10">
                   <h4 className="text-sm font-bold mb-2 flex items-center gap-2 text-slate-50">
-                    <ChevronRight className="w-3 h-3" /> {t.editor}
+                    <ChevronRight className="w-3 h-3" /> Editor
                   </h4>
                   <textarea
                     value={code}
@@ -370,11 +366,11 @@ export function ExercisesViewNew() {
             {/* Stack */}
             <ResizablePanel defaultSize={35} minSize={10}>
               <div className="h-full p-4 bg-[#0d1220]/50 border-b border-white/5 overflow-auto">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">📚 {t.variables}</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">📚 Variables</h4>
                 {executionState.stack.length > 0 ? (
                   <CallStack stack={executionState.stack} />
                 ) : (
-                  <p className="text-xs text-muted-foreground">{t.executeToSeeSteps}</p>
+                  <p className="text-xs text-muted-foreground">Execute to See Steps</p>
                 )}
               </div>
             </ResizablePanel>
@@ -384,11 +380,11 @@ export function ExercisesViewNew() {
             {/* Heap */}
             <ResizablePanel defaultSize={30} minSize={10}>
               <div className="h-full p-4 bg-[#0d1220]/50 border-b border-white/5 overflow-auto">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3">💾 {t.memory}</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3">💾 Memory</h4>
                 {executionState.heap.length > 0 ? (
                   <HeapMemory heap={executionState.heap} />
                 ) : (
-                  <p className="text-xs text-muted-foreground">{t.executeToSeeSteps}</p>
+                  <p className="text-xs text-muted-foreground">Execute to See Steps</p>
                 )}
               </div>
             </ResizablePanel>
@@ -398,9 +394,9 @@ export function ExercisesViewNew() {
             {/* Resultados */}
             <ResizablePanel defaultSize={35} minSize={10}>
               <div className="h-full p-4 bg-[#0d1220]/50 overflow-auto">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-yellow-400 mb-3">📊 {t.tests}</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-yellow-400 mb-3">📊 Tests</h4>
                 {testResults.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">{t.runToSeeResults}</p>
+                  <p className="text-xs text-muted-foreground">Run to See Results</p>
                 ) : (
                   <div className="space-y-2">
                     {testResults.map((result, idx) => (
@@ -426,13 +422,13 @@ export function ExercisesViewNew() {
                             {!result.passed && !result.error && (
                               <div className="text-xs mt-1 space-y-1">
                                 <p className="break-words">
-                                  <span className="text-muted-foreground">{t.expected}:</span>{" "}
+                                  <span className="text-muted-foreground">Expected:</span> 
                                   <code className="bg-green-500/20 px-1 rounded text-green-300">
                                     {JSON.stringify(result.expected)}
                                   </code>
                                 </p>
                                 <p className="break-words">
-                                  <span className="text-muted-foreground">{t.received}:</span>{" "}
+                                  <span className="text-muted-foreground">Received:</span> 
                                   <code className="bg-red-500/20 px-1 rounded text-red-300">
                                     {JSON.stringify(result.result)}
                                   </code>
@@ -453,11 +449,11 @@ export function ExercisesViewNew() {
                         <div className="flex items-center gap-3">
                           <CheckCircle2 className="w-6 h-6 text-primary" />
                           <div className="flex-1">
-                            <p className="font-bold text-primary">🎉 {t.allTestsPassed}!</p>
-                            <p className="text-xs text-muted-foreground">{t.allTestsPassed}</p>
+                            <p className="font-bold text-primary">🎉 All Tests Passed!</p>
+                            <p className="text-xs text-muted-foreground">All Tests Passed</p>
                           </div>
                           <Button size="sm" onClick={handleNextExercise} className="gap-2">
-                            {t.nextExercise} <SkipForward className="w-3 h-3" />
+                            Next Exercise <SkipForward className="w-3 h-3" />
                           </Button>
                         </div>
                       </motion.div>
@@ -477,9 +473,9 @@ export function ExercisesViewNew() {
       {/* Toolbar */}
       <div className="h-auto md:h-16 border-b border-white/10 bg-card/30 flex flex-col md:flex-row items-center px-4 py-2 md:py-0 justify-between shrink-0 gap-4">
         <div className="flex flex-wrap items-center gap-3 flex-1 w-full md:w-auto">
-          <h2 className="font-bold text-lg whitespace-nowrap hidden md:block">Exercícios</h2>
+          <h2 className="font-bold text-lg whitespace-nowrap hidden md:block">Exercises</h2>
           
-          {/* Seletor de Exercício */}
+          {/* Exercise Selector */}
           <Select
             value={selectedExercise.id}
             onValueChange={(id) => {
@@ -511,13 +507,13 @@ export function ExercisesViewNew() {
           </Select>
         </div>
 
-        {/* Botões de Ação */}
+        {/* Action Buttons */}
         <div className="flex items-center gap-2 w-full md:w-auto justify-center">
           <Button
             onClick={resetExecution}
             variant="ghost"
             size="icon"
-            title={t.clear}
+            title="Clear"
             className="h-8 w-8"
           >
             <RotateCcw className="w-4 h-4" />
@@ -530,7 +526,7 @@ export function ExercisesViewNew() {
             className="gap-2 bg-primary hover:bg-primary/90"
           >
             <Play className="w-4 h-4" />
-            {executionState.isExecuting ? t.executing : t.testCode}
+            {executionState.isExecuting ? "Executing" : "Test Code"}
           </Button>
 
           <div className="w-24 ml-2 hidden md:block">
@@ -540,13 +536,13 @@ export function ExercisesViewNew() {
               max={2900} 
               step={100} 
               onValueChange={(v) => setExecutionSpeed(3000 - v[0])} 
-              title="Velocidade de execução"
+              title="Execution speed"
             />
           </div>
         </div>
       </div>
 
-      {/* Conteúdo Principal */}
+      {/* Main Content */}
       <div className="flex-1 overflow-hidden">
         {renderContent()}
       </div>

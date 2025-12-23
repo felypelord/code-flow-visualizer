@@ -20,7 +20,7 @@ export const ADSENSE_CONFIG = {
     banner: 'XXXXXXXXXX',       // Banner ad slot ID - Configure no AdSense dashboard
   },
   
-  // Testing mode (set to false in production após configurar slots)
+  // Testing mode (set to false in production after configuring slots)
   testMode: true,
 };
 

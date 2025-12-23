@@ -53,7 +53,7 @@ interface Breakpoint {
 
 export function ProDebugger() {
   const { user } = useUser();
-  // const t = {};
+  const t: any = {};
   const [, setLocation] = useLocation();
   const isPro = user?.isPro || false;
 
@@ -80,13 +80,13 @@ export function ProDebugger() {
     return n * factorial(n - 1)
 
 def main():
-    numeros = [1, 2, 3, 4, 5]
+    numbers = [1, 2, 3, 4, 5]
     total = 0
-    resultados = {}
+    results = {}
     for i in numeros:
-        resultado = factorial(i)
-        resultados[i] = resultado
-        total += resultado
+      result = factorial(i)
+      results[i] = result
+      total += result
     print(f"Total: {total}")
 
 main()`);
@@ -112,7 +112,7 @@ main()`);
     }
   };
 
-  // Executar codigo com rastreamento
+  // Run code with tracing
   const executeWithDebug = async () => {
     try {
       setDebugState((prev) => ({
@@ -223,7 +223,7 @@ output = output_buffer.getvalue().split('\\n')
         setDebugState((prev) => ({
           ...prev,
           isRunning: false,
-          error: `Erro na execucao: ${execErr.message || String(execErr)}`,
+          error: `Execution error: ${execErr.message || String(execErr)}`,
         }));
         return;
       }
@@ -249,7 +249,7 @@ output = output_buffer.getvalue().split('\\n')
       setDebugState((prev) => ({
         ...prev,
         isRunning: false,
-        error: `Erro ao carregar Pyodide: ${err.message || String(err)}`,
+        error: `Error loading Pyodide: ${err.message || String(err)}`,
       }));
       console.error("[ProDebugger] Error:", err);
     }
@@ -280,8 +280,8 @@ output = output_buffer.getvalue().split('\\n')
   const handleRunProfiler = async () => {
     if (!isPro && profilerUsageCount >= 1) {
       toast({
-        title: t.proRequired || "Pro Required",
-        description: t.profilerLimit || "You've used your free profiler run. Upgrade to Pro for unlimited access.",
+        title: "Pro Required" || "Pro Required",
+        description: "Profiler Limit" || "You've used your free profiler run. Upgrade to Pro for unlimited access.",
         variant: "destructive",
       });
       return;
@@ -309,11 +309,11 @@ output = output_buffer.getvalue().split('\\n')
       const min = Math.min(...runs).toFixed(2);
       const max = Math.max(...runs).toFixed(2);
       toast({ 
-        title: t.profilerComplete || "Profiler Complete", 
-        description: `${t.average || "Average"}: ${avg}ms | ${t.min || "Min"}: ${min}ms | ${t.max || "Max"}: ${max}ms` 
+        title: "Profiler Complete" || "Profiler Complete", 
+        description: `${"Average" || "Average"}: ${avg}ms | ${"Min" || "Min"}: ${min}ms | ${"Max" || "Max"}: ${max}ms` 
       });
     } catch (err: any) {
-      toast({ title: t.profilerError || "Profiler Error", description: err?.message || String(err) });
+      toast({ title: "Profiler Error" || "Profiler Error", description: err?.message || String(err) });
     }
   };
 
@@ -361,13 +361,13 @@ output = output_buffer.getvalue().split('\\n')
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <Card className="p-4 bg-slate-900/60 border border-slate-700 rounded-xl shadow-sm xl:col-span-1">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-white">Codigo</h2>
+            <h2 className="text-lg font-semibold text-white">Code</h2>
             <div className="flex gap-2">
               <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={executeWithDebug} disabled={debugState.isRunning}>
-                <Play className="w-4 h-4" /> Executar
+                <Play className="w-4 h-4" /> Run
               </Button>
               <Button size="sm" variant="outline" onClick={() => setDebugState((prev) => ({ ...prev, currentFrame: 0, frames: [], output: [], error: null }))}>
-                <RotateCcw className="w-4 h-4" /> Resetar
+                <RotateCcw className="w-4 h-4" /> Reset
               </Button>
             </div>
           </div>
@@ -376,7 +376,7 @@ output = output_buffer.getvalue().split('\\n')
             value={code}
             onChange={(e) => setCode(e.target.value)}
             className="w-full h-72 p-3 border rounded-lg font-mono text-sm bg-black/60 text-slate-100 border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400/60"
-            placeholder="Escreva seu codigo Python aqui..."
+            placeholder="Write your Python code here..."
           />
 
           <div className="grid sm:grid-cols-2 gap-3 mt-4">
@@ -400,7 +400,7 @@ output = output_buffer.getvalue().split('\\n')
                     />
                     <input
                       type="text"
-                      placeholder="condicao opcional"
+                      placeholder="optional condition"
                       value={bp.condition || ""}
                       onChange={(e) => {
                         const next = [...breakpoints];
@@ -466,9 +466,9 @@ output = output_buffer.getvalue().split('\\n')
                 <div className="absolute inset-0 bg-black/70 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center">
                   <Card className="p-6 bg-slate-900/90 border border-slate-700 shadow-xl max-w-sm text-center">
                     <Lock className="w-12 h-12 text-amber-400 mx-auto mb-3" />
-                    <h4 className="text-xl font-bold text-white mb-2">{t.proFeature || "Pro Feature"}</h4>
+                    <h4 className="text-xl font-bold text-white mb-2">{"Pro Feature" || "Pro Feature"}</h4>
                     <p className="text-amber-100/80 text-sm mb-4">
-                      {t.variableInspectorPro || "Variable Inspector is available for Pro users only."}
+                      {"Variable Inspector Pro" || "Variable Inspector is available for Pro users only."}
                     </p>
                     <Button
                       size="sm"
@@ -476,7 +476,7 @@ output = output_buffer.getvalue().split('\\n')
                       onClick={() => setLocation("/pro")}
                     >
                       <Crown className="w-4 h-4 mr-2" />
-                      {t.upgradeToPro || "Upgrade to Pro"}
+                      {"Upgrade to Pro" || "Upgrade to Pro"}
                     </Button>
                   </Card>
                 </div>
@@ -594,15 +594,15 @@ output = output_buffer.getvalue().split('\\n')
               <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center">
                 <div className="text-center">
                   <Lock className="w-10 h-10 text-amber-400 mx-auto mb-2" />
-                  <p className="text-amber-100 text-sm font-semibold">{t.profilerLocked || "Profiler Locked"}</p>
-                  <p className="text-amber-200/70 text-xs mt-1">{profilerUsageCount}/1 {t.freeRunsUsed || "free runs used"}</p>
+                  <p className="text-amber-100 text-sm font-semibold">{"Profiler Locked" || "Profiler Locked"}</p>
+                  <p className="text-amber-200/70 text-xs mt-1">{profilerUsageCount}/1 {"Free Runs Used" || "free runs used"}</p>
                 </div>
               </div>
             )}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2 text-slate-200">
-                <Clock3 className="w-4 h-4" /> {t.profiler || "Profiler"} (5 {t.executions || "executions"})
-                {!isPro && <span className="ml-2 px-2 py-0.5 bg-blue-500/20 text-blue-200 text-xs rounded">({1 - profilerUsageCount} {t.freeLeft || "free left"})</span>}
+                <Clock3 className="w-4 h-4" /> {"Profiler" || "Profiler"} (5 {"Executions" || "executions"})
+                {!isPro && <span className="ml-2 px-2 py-0.5 bg-blue-500/20 text-blue-200 text-xs rounded">({1 - profilerUsageCount} {"Free Left" || "free left"})</span>}
               </div>
               <div className="flex gap-2">
                 <Button 
@@ -611,13 +611,13 @@ output = output_buffer.getvalue().split('\\n')
                   onClick={handleRunProfiler}
                   disabled={!isPro && profilerUsageCount >= 1}
                 >
-                  {t.runProfiler || "Run Profiler"}
+                  {"Run Profiler" || "Run Profiler"}
                 </Button>
                 {profilerRuns.length > 0 && (
                   <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={() => {
                     setProfilerRuns([]);
                     localStorage.removeItem('pro-debugger-profiler');
-                  }}>{t.clear || "Clear"}</Button>
+                  }}>{"Clear" || "Clear"}</Button>
                 )}
               </div>
             </div>

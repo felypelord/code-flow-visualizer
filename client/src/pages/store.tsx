@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/use-user';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { ShoppingBag, Zap, Sparkles, Camera, Award, Palette, HelpCircle, Eye, Clock, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -59,7 +58,7 @@ const STORE_CATALOG: StoreItem[] = [
 
 export default function StorePage() {
   const { user, refreshUser } = useUser();
-  const { t } = useLanguage();
+  // Translation removed, all text is now English
   const { toast } = useToast();
   const [items, setItems] = useState<StoreItem[]>([]);
   const [purchases, setPurchases] = useState<string[]>([]);

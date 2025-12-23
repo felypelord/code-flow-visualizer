@@ -35,7 +35,7 @@ interface ExecutionFrame {
 }
 
 export function VIPPlayground() {
-  // const t = {};
+  const t: any = {};
   const { user } = useUser();
   const isPro = user?.isPro || false;
 
@@ -79,7 +79,7 @@ main();`);
   const executeWithFrames = () => {
     if (!isPro) {
       toast({
-        title: t.proRequired || "Pro Required",
+        title: "Pro Required" || "Pro Required",
         description: "Advanced playground features require Pro subscription",
         variant: "destructive",
       });
@@ -272,10 +272,10 @@ main();`);
             VIP Playground - Advanced Execution
           </div>
           <h2 className="text-2xl font-bold text-white">
-            Playground Interativo Profissional
+            Professional Interactive Playground
           </h2>
           <p className="text-sm text-indigo-200/80 mt-1">
-            Execute, analise e compare código com visualização em tempo real de memória, CPU e call stack
+            Run, analyze and compare code with real-time visualization of memory, CPU and call stack
           </p>
         </div>
 
@@ -504,7 +504,7 @@ main();`);
                             key={`heap-${key}`}
                             className="bg-purple-500/10 border border-slate-700 rounded px-3 py-2 text-sm"
                           >
-                            <span className="text-purple-300">{key}</span>:{" "}
+                            <span className="text-purple-300">{key}</span>: 
                             <span className="text-gray-300">{JSON.stringify(val)}</span>
                           </div>
                         ))
@@ -562,23 +562,23 @@ main();`);
         <div className="text-xs text-indigo-100 space-y-2">
           <div className="font-semibold mb-2 flex items-center gap-2">
             <Zap className="w-4 h-4 text-amber-400" />
-            Como usar este playground avançado:
+            How to use this advanced playground:
           </div>
           <ul className="space-y-1 text-indigo-200/80 list-disc list-inside">
             <li>
-              <strong>Execute & Capture:</strong> Roda o código e grava cada frame (linha, variáveis, memória, CPU)
+              <strong>Execute & Capture:</strong> Runs the code and records each frame (line, variables, memory, CPU)
             </li>
             <li>
-              <strong>Timeline:</strong> Visualiza graficamente uso de memória (barras azuis) e tempo de CPU (linha vermelha)
+              <strong>Timeline:</strong> Graphically shows memory usage (blue bars) and CPU time (red line)
             </li>
             <li>
-              <strong>Compare Mode:</strong> Cole duas implementações diferentes e compare performance/resultados
+              <strong>Compare Mode:</strong> Paste two different implementations and compare performance/results
             </li>
             <li>
-              <strong>Export:</strong> Salva toda a trace de execução em JSON para análise offline
+              <strong>Export:</strong> Saves the entire execution trace as JSON for offline analysis
             </li>
             <li>
-              <strong>Playback:</strong> Assista frame-by-frame como o código executou (ajuste velocidade com slider)
+              <strong>Playback:</strong> Watch frame-by-frame how the code executed (adjust speed with the slider)
             </li>
           </ul>
         </div>
