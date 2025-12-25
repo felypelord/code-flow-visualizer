@@ -30,6 +30,12 @@ export interface Exercise {
     input: any[];
     expected: any;
   }[];
+  // Optional teaching helpers
+  freeTips?: string[]; // small tips shown for free
+  paidHint?: string; // more detailed hint purchasable
+  paidSolution?: string; // full solution purchasable
+  hintPrice?: number;
+  solutionPrice?: number;
 }
 
 // ==========================================
@@ -333,5 +339,184 @@ export const exercises: Exercise[] = [
       { name: "factorial(0)", input: [0], expected: 1 },
       { name: "factorial(4)", input: [4], expected: 24 },
     ],
+  },
+  // Additional exercises (to reach 15 total)
+  {
+    id: "fibonacci",
+    title: "Fibonacci",
+    description: "Return the n-th Fibonacci number (0-indexed).",
+    difficulty: "Intermediate",
+    variants: {
+      javascript: {
+        language: "javascript",
+        initialCode: `function fibonacci(n) {\n  // Your code here\n}`,
+        solution: `function fibonacci(n) {\n  if (n < 2) return n;\n  let a = 0, b = 1;\n  for (let i = 2; i <= n; i++) { const c = a + b; a = b; b = c; }\n  return b;\n}`,
+        hint: "Start from base cases n=0 and n=1 and iterate",
+      },
+      python: {
+        language: "python",
+        initialCode: `def fibonacci(n):\n    # Your code here\n    pass`,
+        solution: `def fibonacci(n):\n    if n < 2: return n\n    a, b = 0, 1\n    for _ in range(2, n+1):\n        a, b = b, a + b\n    return b`,
+        hint: "Use iterative approach to avoid recursion depth",
+      }
+    },
+    tests: [
+      { name: "fib(0)", input: [0], expected: 0 },
+      { name: "fib(1)", input: [1], expected: 1 },
+      { name: "fib(7)", input: [7], expected: 13 }
+    ],
+    freeTips: ["Draw the first few Fibonacci numbers: 0,1,1,2,3,...","Remember base cases n=0 and n=1"],
+    paidHint: "Try maintaining two variables and iterate up to n (I can show step-by-step).",
+    paidSolution: "Full iterative solution with complexity explanation.",
+    hintPrice: 30,
+    solutionPrice: 80,
+  },
+  {
+    id: "is-prime",
+    title: "Is Prime",
+    description: "Check whether a number is prime.",
+    difficulty: "Intermediate",
+    variants: {
+      javascript: {
+        language: "javascript",
+        initialCode: `function isPrime(n) {\n  // Your code here\n}`,
+        solution: `function isPrime(n) {\n  if (n <= 1) return false;\n  if (n <= 3) return true;\n  if (n % 2 === 0) return false;\n  for (let i = 3; i * i <= n; i += 2) if (n % i === 0) return false;\n  return true;\n}`,
+        hint: "Check divisibility up to sqrt(n)",
+      }
+    },
+    tests: [
+      { name: "isPrime(2)", input: [2], expected: true },
+      { name: "isPrime(15)", input: [15], expected: false },
+      { name: "isPrime(17)", input: [17], expected: true }
+    ],
+    freeTips: ["Even numbers >2 are not prime","You only need to test divisors up to sqrt(n)"],
+    paidHint: "I'll show trial division steps for a sample number.",
+    paidSolution: "Complete optimized primality check with explanation.",
+    hintPrice: 25,
+    solutionPrice: 70,
+  },
+  {
+    id: "two-sum",
+    title: "Two Sum",
+    description: "Given an array and target, return indices of two numbers that add up to target.",
+    difficulty: "Intermediate",
+    variants: {
+      javascript: {
+        language: "javascript",
+        initialCode: `function twoSum(nums, target) {\n  // Your code here\n}`,
+        solution: `function twoSum(nums, target) {\n  const map = new Map();\n  for (let i = 0; i < nums.length; i++) {\n    const need = target - nums[i];\n    if (map.has(need)) return [map.get(need), i];\n    map.set(nums[i], i);\n  }\n  return null;\n}`,
+        hint: "Use a hash map to store seen values",
+      }
+    },
+    tests: [
+      { name: "twoSum([2,7,11,15],9)", input: [[2,7,11,15],9], expected: [0,1] }
+    ],
+    freeTips: ["Brute force is O(n^2). Consider storing seen values."],
+    paidHint: "Step-by-step hash map approach with example.",
+    paidSolution: "Full solution with explanation and complexity.",
+    hintPrice: 30,
+    solutionPrice: 75,
+  },
+  {
+    id: "palindrome-check",
+    title: "Palindrome Check",
+    description: "Check if a string is a palindrome.",
+    difficulty: "Beginner",
+    variants: {
+      javascript: {
+        language: "javascript",
+        initialCode: `function isPalindrome(s) {\n  // Your code here\n}`,
+        solution: `function isPalindrome(s) {\n  const cleaned = s.replace(/[^a-z0-9]/gi,'').toLowerCase();\n  return cleaned === cleaned.split('').reverse().join('');\n}`,
+        hint: "Normalize the string and compare with its reverse",
+      }
+    },
+    tests: [
+      { name: "isPalindrome('madam')", input: ['madam'], expected: true }
+    ],
+    freeTips: ["Remove non-alphanumeric chars and normalize case"],
+    hintPrice: 10,
+    solutionPrice: 40,
+  },
+  {
+    id: "anagram",
+    title: "Anagram Check",
+    description: "Check if two strings are anagrams.",
+    difficulty: "Intermediate",
+    variants: {
+      javascript: {
+        language: "javascript",
+        initialCode: `function isAnagram(a, b) {\n  // Your code here\n}`,
+        solution: `function isAnagram(a, b) {\n  const norm = s => s.replace(/\s+/g,'').toLowerCase().split('').sort().join('');\n  return norm(a) === norm(b);\n}`,
+        hint: "Sort characters or use frequency maps",
+      }
+    },
+    tests: [
+      { name: "isAnagram('listen','silent')", input: ['listen','silent'], expected: true }
+    ],
+    freeTips: ["Try sorting characters or counting frequency"],
+    hintPrice: 20,
+    solutionPrice: 60,
+  },
+  {
+    id: "binary-search",
+    title: "Binary Search",
+    description: "Implement binary search on a sorted array.",
+    difficulty: "Intermediate",
+    variants: {
+      javascript: {
+        language: "javascript",
+        initialCode: `function binarySearch(arr, target) {\n  // Your code here\n}`,
+        solution: `function binarySearch(arr, target) {\n  let l = 0, r = arr.length - 1;\n  while (l <= r) {\n    const m = Math.floor((l+r)/2);\n    if (arr[m] === target) return m;\n    if (arr[m] < target) l = m+1; else r = m-1;\n  }\n  return -1;\n}`,
+        hint: "Keep a left and right pointer and cut the search space in half",
+      }
+    },
+    tests: [
+      { name: "binarySearch([1,2,3],2)", input: [[1,2,3],2], expected: 1 }
+    ],
+    freeTips: ["Visualize mid = Math.floor((l+r)/2)","Check off-by-one carefully"],
+    hintPrice: 20,
+    solutionPrice: 50,
+  },
+  {
+    id: "quick-sort",
+    title: "Quick Sort",
+    description: "Implement Quick Sort (advanced).",
+    difficulty: "Advanced",
+    variants: {
+      javascript: {
+        language: "javascript",
+        initialCode: `function quickSort(arr) {\n  // Your code here\n}`,
+        solution: `function quickSort(arr) {\n  if (arr.length <= 1) return arr;\n  const pivot = arr[Math.floor(arr.length/2)];\n  const left = arr.filter(x => x < pivot);\n  const right = arr.filter(x => x > pivot);\n  const middle = arr.filter(x => x === pivot);\n  return [...quickSort(left), ...middle, ...quickSort(right)];\n}`,
+        hint: "Pick a pivot and partition the array",
+      }
+    },
+    tests: [
+      { name: "quickSort([3,1,2])", input: [[3,1,2]], expected: [1,2,3] }
+    ],
+    freeTips: ["Recursively sort partitions"],
+    paidHint: "I'll show partition example step-by-step.",
+    paidSolution: "Full implementation with pivot selection notes.",
+    hintPrice: 50,
+    solutionPrice: 120,
+  },
+  {
+    id: "matrix-transpose",
+    title: "Matrix Transpose",
+    description: "Transpose a 2D matrix.",
+    difficulty: "Advanced",
+    variants: {
+      javascript: {
+        language: "javascript",
+        initialCode: `function transpose(matrix) {\n  // Your code here\n}`,
+        solution: `function transpose(matrix) {\n  const rows = matrix.length;\n  const cols = matrix[0].length;\n  const out = Array.from({length: cols}, () => Array(rows));\n  for (let r=0;r<rows;r++) for (let c=0;c<cols;c++) out[c][r] = matrix[r][c];\n  return out;\n}`,
+        hint: "Swap indices: result[c][r] = matrix[r][c]",
+      }
+    },
+    tests: [
+      { name: "transpose([[1,2],[3,4]])", input: [[[1,2],[3,4]]], expected: [[1,3],[2,4]] }
+    ],
+    freeTips: ["Think in terms of rows and columns indexes"],
+    hintPrice: 40,
+    solutionPrice: 100,
   },
 ];

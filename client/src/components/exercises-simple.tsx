@@ -2,6 +2,7 @@
 import { exercises, type Exercise, type Language } from "@/lib/exercises-new";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { LanguageBadge } from '@/components/language-selector';
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertCircle, CheckCircle2, Lightbulb, Eye, Code2, Play, RotateCcw } from "lucide-react";
@@ -817,21 +818,9 @@ export function ExercisesView() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Card className="flex-1 p-4 bg-slate-800 border-slate-700">
                 <label className="text-sm font-semibold text-white mb-3 block">Linguagem:</label>
-                <div className="flex gap-2">
-                  {availableLanguages.map((lang) => (
-                    <Button
-                      key={lang}
-                      onClick={() => setSelectedLanguage(lang)}
-                      variant={selectedLanguage === lang ? "default" : "outline"}
-                      className={`flex-1 ${
-                        selectedLanguage === lang
-                          ? "bg-blue-600 hover:bg-blue-700 text-white"
-                          : "border-slate-600 text-slate-200 hover:bg-slate-700"
-                      }`}
-                    >
-                      {lang === "javascript" ? "JS" : lang === "python" ? "Py" : lang === "c" ? "C" : lang === "csharp" ? "C#" : "Java"}
-                    </Button>
-                  ))}
+                <div className="flex gap-3 items-center">
+                  <LanguageBadge />
+                  <div className="text-sm text-slate-300">Supported: {availableLanguages.join(', ')}</div>
                 </div>
               </Card>
 

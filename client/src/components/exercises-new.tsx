@@ -11,11 +11,16 @@ import { StackFrame, HeapObject } from "@/lib/types";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import Roadmap from '@/components/roadmap';
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from '@/contexts/LanguageContext';
+import { AdVideoPlayer } from '@/components/ad-video-player';
+import { LanguageBadge } from '@/components/language-selector';
 import { useIsMobile } from "@/hooks/use-mobile";
 // import removed: useLanguage
 import { useUser } from "@/hooks/use-user";
-import { checkAndConsumeExecution } from "@/lib/execution-limit";
+import { checkAndConsumeExecution, grantExecutions } from "@/lib/execution-limit";
 
 interface TestResult {
   name: string;
@@ -43,11 +48,16 @@ export function ExercisesViewNew() {
   // Debug log removed for stability
   
   const [selectedExercise, setSelectedExercise] = useState<Exercise>(exercises[0]);
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");
+  const { progLang, setProgLang } = useLanguage();
+  const selectedLanguage: Language = (progLang as Language) || "javascript";
   const [code, setCode] = useState<string>("");
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [showSolution, setShowSolution] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [mode, setMode] = useState<'exercises' | 'roadmap'>('exercises');
+  const [purchaseDialog, setPurchaseDialog] = useState<{ open: boolean; type?: 'hint' | 'solution'; price?: number }>(() => ({ open: false }));
+  const [serverPurchases, setServerPurchases] = useState<string[]>([]);
+  const [showAdPromo, setShowAdPromo] = useState(false);
   const [executionSpeed, setExecutionSpeed] = useState(500);
   
   const [executionState, setExecutionState] = useState<ExecutionState>({
@@ -59,7 +69,7 @@ export function ExercisesViewNew() {
     logs: [],
   });
 
-  const currentVariant = selectedExercise.variants[selectedLanguage];
+  const currentVariant = selectedExercise.variants[selectedLanguage] || selectedExercise.variants['javascript'];
 
   // Load initial code when exercise or language changes
   useEffect(() => {
@@ -72,6 +82,8 @@ export function ExercisesViewNew() {
     setShowHint(false);
     resetExecution();
   }, [selectedExercise.id, selectedLanguage]);
+
+  // selectedLanguage is derived from global selector (progLang)
 
   // Save code to localStorage
   useEffect(() => {
@@ -99,7 +111,8 @@ export function ExercisesViewNew() {
 
     const allowance = checkAndConsumeExecution(user?.id, !!user?.isPro, 5);
     if (!allowance.allowed) {
-      setTestResults([{ name: "Error", passed: false, error: "5 executions/day limit on the Free plan. Upgrade to Pro for unlimited runs." }]);
+      // Show ad promo to grant extra executions instead of immediate error
+      setShowAdPromo(true);
       setExecutionState(prev => ({ ...prev, isExecuting: false }));
       return;
     }
@@ -160,6 +173,16 @@ export function ExercisesViewNew() {
     }
   };
 
+  const handleAdComplete = () => {
+    grantExecutions(user?.id, 5);
+    setShowAdPromo(false);
+    toast({ title: '✅ Promo complete', description: 'You earned +5 free uses' });
+  };
+
+  const handleAdClose = () => {
+    setShowAdPromo(false);
+  };
+
   const handleNextExercise = () => {
     const currentIndex = exercises.indexOf(selectedExercise);
     if (currentIndex < exercises.length - 1) {
@@ -169,7 +192,69 @@ export function ExercisesViewNew() {
     }
   };
 
+  const hasPurchased = (exerciseId: string, kind: 'hint' | 'solution') => {
+    try {
+      const serverKey = `exercise:${exerciseId}:${kind}`;
+      if (serverPurchases && serverPurchases.includes(serverKey)) return true;
+      return !!localStorage.getItem(`purchased:${kind}:${exerciseId}`);
+    } catch {
+      return false;
+    }
+  };
+
+  const openPurchase = (kind: 'hint' | 'solution') => {
+    const price = kind === 'hint' ? 5 : 10;
+    setPurchaseDialog({ open: true, type: kind, price });
+  };
+
+  const confirmPurchase = () => {
+    (async () => {
+      const kind = purchaseDialog.type as 'hint' | 'solution';
+      if (!kind) return;
+      setPurchaseDialog({ open: false });
+      try {
+        const res = await fetch('/api/monetization/create-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ packageId: kind, itemId: `exercise:${selectedExercise.id}:${kind}` }),
+        });
+        if (!res.ok) throw new Error('Failed to create checkout');
+        const data = await res.json();
+        if (data?.checkoutUrl) {
+          // Redirect to Stripe Checkout
+          window.location.href = data.checkoutUrl;
+          return;
+        }
+        throw new Error('No checkout URL');
+      } catch (err: any) {
+        console.error('Purchase error:', err);
+        toast({ title: 'Error', description: err?.message || 'Purchase failed', variant: 'destructive' });
+      }
+    })();
+  };
+
+  // Fetch server-side purchases (entitlements)
+  const fetchServerPurchases = async () => {
+    try {
+      const res = await fetch('/api/monetization/purchases', { credentials: 'include' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setServerPurchases(Array.isArray(data.items) ? data.items : []);
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    fetchServerPurchases();
+    const onFocus = () => fetchServerPurchases();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [user?.id]);
+
   const renderContent = () => {
+    if (mode === 'roadmap') return <div className="p-6"><Roadmap /></div>;
     if (isMobile) {
       return (
         <div className="flex flex-col h-full overflow-y-auto pb-20 gap-4 p-4">
@@ -181,7 +266,13 @@ export function ExercisesViewNew() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={() => setShowHint(!showHint)}
+                onClick={() => {
+                  if (user?.isPro || hasPurchased(selectedExercise.id, 'hint')) {
+                    setShowHint(!showHint);
+                    return;
+                  }
+                  openPurchase('hint');
+                }}
                 className="gap-2"
               >
                 <Lightbulb className="w-4 h-4" /> {showHint ? "Hide" : "View"} Hint
@@ -271,14 +362,16 @@ export function ExercisesViewNew() {
                         variant="outline" 
                         size="sm" 
                         onClick={() => {
-                          if (!user?.isPro) return;
-                          setShowHint(!showHint);
-                          if (!showHint) setShowSolution(false);
+                          if (user?.isPro || hasPurchased(selectedExercise.id, 'hint')) {
+                            setShowHint(!showHint);
+                            if (!showHint) setShowSolution(false);
+                            return;
+                          }
+                          openPurchase('hint');
                         }}
-                        disabled={!user?.isPro}
                         className="gap-2"
                       >
-                        <Lightbulb className="w-4 h-4" /> Hint (Pro)
+                        <Lightbulb className="w-4 h-4" /> Hint {user?.isPro || hasPurchased(selectedExercise.id, 'hint') ? '' : `(Buy 5¢)`}
                       </Button>
                     )}
                     {currentVariant?.solution && (
@@ -286,14 +379,16 @@ export function ExercisesViewNew() {
                         variant="outline" 
                         size="sm" 
                         onClick={() => {
-                          if (!user?.isPro) return;
-                          setShowSolution(!showSolution);
-                          if (!showSolution) setShowHint(false);
+                          if (user?.isPro || hasPurchased(selectedExercise.id, 'solution')) {
+                            setShowSolution(!showSolution);
+                            if (!showSolution) setShowHint(false);
+                            return;
+                          }
+                          openPurchase('solution');
                         }}
-                        disabled={!user?.isPro}
                         className="gap-2"
                       >
-                        <Eye className="w-4 h-4" /> View Solution (Pro)
+                        <Eye className="w-4 h-4" /> View Solution {user?.isPro || hasPurchased(selectedExercise.id, 'solution') ? '' : `(Buy 10¢)`}
                       </Button>
                     )}
                   </div>
@@ -303,7 +398,7 @@ export function ExercisesViewNew() {
                   )}
 
                   <AnimatePresence>
-                    {showHint && currentVariant?.hint && user?.isPro && (
+                      {showHint && currentVariant?.hint && (user?.isPro || hasPurchased(selectedExercise.id, 'hint')) && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
@@ -313,7 +408,7 @@ export function ExercisesViewNew() {
                         <p className="text-sm text-yellow-200">💡 {currentVariant.hint}</p>
                       </motion.div>
                     )}
-                    {showSolution && currentVariant?.solution && user?.isPro && (
+                      {showSolution && currentVariant?.solution && (user?.isPro || hasPurchased(selectedExercise.id, 'solution')) && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
@@ -469,10 +564,10 @@ export function ExercisesViewNew() {
   };
 
   return (
-    <div className="h-[calc(100vh-64px)] min-h-[720px] flex flex-col">
+    <div className="h-[calc(100vh-64px)] min-h-[720px] flex flex-col pb-24">
       {/* Toolbar */}
       <div className="h-auto md:h-16 border-b border-white/10 bg-card/30 flex flex-col md:flex-row items-center px-4 py-2 md:py-0 justify-between shrink-0 gap-4">
-        <div className="flex flex-wrap items-center gap-3 flex-1 w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-3 flex-1 w-full md:w-auto">
           <h2 className="font-bold text-lg whitespace-nowrap hidden md:block">Exercises</h2>
           
           {/* Exercise Selector */}
@@ -495,16 +590,13 @@ export function ExercisesViewNew() {
             </SelectContent>
           </Select>
 
-          {/* Seletor de Linguagem */}
-          <Select value={selectedLanguage} onValueChange={(v) => setSelectedLanguage(v as Language)}>
-            <SelectTrigger className="w-[120px] h-8 bg-white/5 border-white/10 text-xs">
-              <SelectValue placeholder="Language" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="javascript">JavaScript</SelectItem>
-              <SelectItem value="python">Python</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Indicador de Linguagem (apenas display) */}
+          <div className="hidden md:block">
+            <LanguageBadge />
+          </div>
+          <div className="hidden md:block">
+            <Button variant="ghost" size="sm" onClick={() => setMode(mode === 'exercises' ? 'roadmap' : 'exercises')}>{mode === 'exercises' ? 'Roadmap' : 'Exercises'}</Button>
+          </div>
         </div>
 
         {/* Action Buttons */}
@@ -560,6 +652,29 @@ export function ExercisesViewNew() {
           transition={{ duration: 0.3 }}
         />
       </div>
+      {showAdPromo && (
+        <AdVideoPlayer onAdComplete={handleAdComplete} onClose={handleAdClose} />
+      )}
+      {/* Purchase Dialog (simulated checkout) */}
+      {purchaseDialog.open && (
+        <Dialog>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Purchase {purchaseDialog.type}</DialogTitle>
+              <DialogDescription>Buy this item to unlock the {purchaseDialog.type} for this exercise.</DialogDescription>
+            </DialogHeader>
+            <div className="p-4">
+              <p className="mb-3">Price: <strong>{purchaseDialog.price}¢</strong></p>
+              <div className="flex gap-2 justify-end">
+                <Button variant="ghost" onClick={() => setPurchaseDialog({ open: false })}>Cancel</Button>
+                <Button onClick={confirmPurchase}>Buy</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+      {/* Divider above footer */}
+      <div className="border-t border-white/10 w-full" />
     </div>
   );
 }

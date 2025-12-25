@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import Stripe from 'stripe';
 import { db } from '../../server/db.js';
-import { users, infinityPayPurchases, coinTransactions, adRewards } from '../../shared/schema.js';
+import { users, infinityPayPurchases, coinTransactions, adRewards, storePurchases } from '../../shared/schema.js';
 import { eq, sql } from 'drizzle-orm';
 
 // Stripe configuration
@@ -15,7 +15,7 @@ interface PackageConfig {
   price: number;
   coins?: number;
   proDuration?: number; // days
-  type: 'subscription' | 'coins' | 'premium';
+  type: 'subscription' | 'coins' | 'premium' | 'micro';
 }
 
 const PACKAGES: Record<string, PackageConfig> = {
@@ -25,11 +25,15 @@ const PACKAGES: Record<string, PackageConfig> = {
   coins_500: { price: 1990, coins: 550, type: 'coins' },
   coins_1000: { price: 3490, coins: 1200, type: 'coins' },
   premium_lifetime: { price: 49900, proDuration: 36500, type: 'premium' }, // 100 years
+  // Micro purchases for individual exercise hints/solutions (prices in cents)
+  hint: { price: 5, type: 'micro' },
+  solution: { price: 10, type: 'micro' },
+  roadmap_item: { price: 199, type: 'micro' },
 };
 
 export async function createPayment(req: Request, res: Response) {
   try {
-    const { packageId } = req.body;
+    const { packageId, itemId } = req.body;
     const userId = (req as any).user?.id;
     const userEmail = (req as any).user?.email;
 
@@ -66,6 +70,7 @@ export async function createPayment(req: Request, res: Response) {
       metadata: {
         userId,
         packageId,
+        itemId: itemId || '',
         type: packageConfig.type,
       },
     });
@@ -81,6 +86,8 @@ export async function createPayment(req: Request, res: Response) {
       paymentMethod: 'stripe',
       metadata: JSON.stringify({ sessionId: session.id }),
     });
+
+    // If a micro purchase (itemId) was provided, also return that info in response
 
     res.json({
       sessionId: session.id,
@@ -100,6 +107,8 @@ function getPackageName(packageId: string): string {
     coins_500: '500 FlowCoins (+50 bônus)',
     coins_1000: '1000 FlowCoins (+200 bônus)',
     premium_lifetime: 'Code Flow Pro - Vitalício',
+    hint: 'Exercise Hint (single)',
+    solution: 'Exercise Solution (single)',
   };
   return names[packageId] || 'Code Flow Package';
 }
@@ -112,6 +121,8 @@ function getPackageDescription(packageId: string): string {
     coins_500: '550 FlowCoins com 10% de bônus',
     coins_1000: '1200 FlowCoins com 20% de bônus',
     premium_lifetime: 'Acesso ilimitado para sempre',
+    hint: 'Unlock one hint for an exercise',
+    solution: 'Unlock the full solution for an exercise',
   };
   return descriptions[packageId] || 'Code Flow Premium';
 }
@@ -143,6 +154,7 @@ export async function stripeWebhook(req: Request, res: Response) {
       const session = event.data.object as Stripe.Checkout.Session;
       const userId = session.metadata?.userId || session.client_reference_id;
       const packageId = session.metadata?.packageId;
+      const itemId = (session.metadata as any)?.itemId || '';
 
       if (!userId || !packageId) {
         console.error('Missing userId or packageId in session metadata');
@@ -159,8 +171,26 @@ export async function stripeWebhook(req: Request, res: Response) {
         })
         .where(eq(infinityPayPurchases.transactionId, session.id));
 
-      // Grant benefits
+      // If this was a micro purchase (hint/solution), record it in store_purchases
+      const metadataItemId = (session.metadata as any)?.itemId || '';
+      // Determine package config
       const packageConfig = PACKAGES[packageId];
+
+      if (packageConfig && packageConfig.type === 'micro') {
+        try {
+          // itemId should be something like 'exercise:<id>' or custom identifier
+          await db.insert(storePurchases).values({
+            userId: String(userId),
+            itemId: metadataItemId || packageId,
+            itemType: 'micro',
+            xpCost: 0,
+            coinCost: 0,
+          });
+        } catch (recErr) {
+          console.error('Failed to record micro purchase in store_purchases:', recErr);
+        }
+      }
+      // Grant benefits
       if (!packageConfig) {
         throw new Error('Invalid package');
       }
@@ -208,6 +238,21 @@ export async function stripeWebhook(req: Request, res: Response) {
           source: 'purchase',
           metadata: JSON.stringify({ packageId, sessionId: session.id }),
         });
+      
+      } else if (packageConfig.type === 'micro') {
+        // Micro purchase (hint/solution). We expect session.metadata.itemId to indicate which item/exercise.
+        const itemId = (session.metadata && (session.metadata.itemId || session.metadata.item)) || packageId;
+        try {
+          await db.insert(storePurchases).values({
+            userId,
+            itemId: String(itemId),
+            itemType: 'micro',
+            xpCost: 0,
+            coinCost: 0,
+          });
+        } catch (err) {
+          console.error('Failed to record micro purchase in store_purchases:', err);
+        }
       }
 
       console.log(`✅ Payment completed for user ${userId}, package ${packageId}`);

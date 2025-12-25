@@ -19,8 +19,9 @@ import {
   Pause,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-// import removed: useLanguage
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useUser } from "@/hooks/use-user";
+import { LanguageBadge } from '@/components/language-selector';
 import { ProExercise } from "@/lib/pro-exercises";
 import { getPyodideInstance } from "@/lib/pyodide";
 
@@ -72,11 +73,11 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
     };
   }, []);
 
-  const [language, setLanguage] = useState<string>(
-    exercise.languages[0] || "javascript"
-  );
+  const { progLang } = useLanguage();
+  const initialLang = exercise.languages.includes(progLang) ? progLang : (exercise.languages[0] || 'javascript');
+  const [language, setLanguage] = useState<string>(initialLang);
   const [code, setCode] = useState(
-    exercise.initialCode[language] || exercise.initialCode[exercise.languages[0]] || ""
+    exercise.initialCode[initialLang] || exercise.initialCode[exercise.languages[0]] || ""
   );
   const [output, setOutput] = useState("");
   const [executing, setExecuting] = useState(false);
@@ -95,10 +96,17 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
     setOutput("");
   }, [language, exercise]);
 
+  // Apply global language change when supported by this exercise
+  useEffect(() => {
+    if (progLang && exercise.languages.includes(progLang) && progLang !== language) {
+      setLanguage(progLang);
+    }
+  }, [progLang, exercise.languages, language]);
+
   const stats = useMemo(() => {
     if (testResults.length === 0) return null;
-    const passed = testResults.filter((t) => "Passed").length;
-    const totalTime = testResults.reduce((acc, t) => acc + "Time", 0);
+    const passed = testResults.filter((t) => t.passed).length;
+    const totalTime = testResults.reduce((acc, t) => acc + (t.time || 0), 0);
     return {
       passed,
       total: testResults.length,
@@ -228,7 +236,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
         code,
         language,
         testsCount: results.length,
-        passedCount: results.filter((t) => "Passed").length,
+        passedCount: results.filter((t) => t.passed).length,
       };
       setAttempts((prev) => [newAttempt, ...prev].slice(0, 10));
     } catch (err: any) {
@@ -290,7 +298,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
         code,
         language,
         testsCount: results.length,
-        passedCount: results.filter((t) => "Passed").length,
+        passedCount: results.filter((t) => t.passed).length,
       };
       setAttempts((prev) => [newAttempt, ...prev].slice(0, 10));
     } catch (err: any) {
@@ -370,18 +378,17 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Left: Code Editor */}
           <div className="xl:col-span-2 space-y-4">
-            {/* Language Selector */}
-            <div className="flex gap-2 flex-wrap">
-              {exercise.languages.map((lang) => (
-                <Button
-                  key={lang}
-                  variant={language === lang ? "default" : "outline"}
-                  className={language === lang ? "bg-purple-600" : ""}
-                  onClick={() => setLanguage(lang)}
-                >
-                  {getLanguageName(lang)}
-                </Button>
-              ))}
+            {/* Language Indicator (read-only) */}
+            <div className="flex gap-4 flex-wrap items-center">
+              <LanguageBadge compact />
+              <div className="flex items-center gap-2 text-sm text-purple-200/70">
+                <span className="text-xs">Supported:</span>
+                {exercise.languages.map((l) => (
+                  <span key={l} className="inline-flex items-center gap-1 px-2 py-1 bg-white/5 rounded text-xs">
+                    {getLanguageName(l)}
+                  </span>
+                ))}
+              </div>
             </div>
 
             {/* Code Editor */}

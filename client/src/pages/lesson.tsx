@@ -16,6 +16,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Playground from "@/components/playground";
 import Skeleton from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageBadge } from '@/components/language-selector';
 
 
 export default function LessonPage() {
@@ -25,14 +27,14 @@ export default function LessonPage() {
   const lesson = lessons[lessonId];
   const isMobile = useIsMobile();
   
-  const [language, setLanguage] = useState<Language>('javascript');
+  const { progLang, setProgLang } = useLanguage();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1500);
   const [view, setView] = useState<"lesson" | "playground">("lesson");
 
-  // Get current variant based on language, fallback to javascript if not found
-  const variant = lesson?.variants[language] || lesson?.variants['javascript'];
+  // Get current variant based on global language selector, fallback to javascript if not found
+  const variant = lesson?.variants[progLang] || lesson?.variants['javascript'];
   
   const currentStep = variant?.steps[currentStepIndex] || variant?.steps[0];
   const totalSteps = variant?.steps.length || 0;
@@ -57,10 +59,10 @@ export default function LessonPage() {
   // Reset when lesson or language changes
   useEffect(() => {
     // try to restore saved progress for this lesson+language
-    const saved = localStorage.getItem(`progress:${lessonId}:${language}`);
+    const saved = localStorage.getItem(`progress:${lessonId}:${progLang}`);
     setCurrentStepIndex(saved ? parseInt(saved, 10) : 0);
     setIsPlaying(false);
-  }, [lessonId, language]);
+  }, [lessonId, progLang]);
 
   if (!lesson || !variant || !currentStep) {
     return (
@@ -84,18 +86,18 @@ export default function LessonPage() {
     setCurrentStepIndex(0);
     setIsPlaying(false);
     // clear saved progress
-    localStorage.removeItem(`progress:${lessonId}:${language}`);
+    localStorage.removeItem(`progress:${lessonId}:${progLang}`);
   };
 
   // persist progress
   useEffect(() => {
-    localStorage.setItem(`progress:${lessonId}:${language}`, String(currentStepIndex));
+    localStorage.setItem(`progress:${lessonId}:${progLang}`, String(currentStepIndex));
     // if logged in, sync to server
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('/api/progress', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ lessonId, language, index: currentStepIndex }) }).catch(() => {});
+      fetch('/api/progress', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ lessonId, language: progLang, index: currentStepIndex }) }).catch(() => {});
     }
-  }, [currentStepIndex, lessonId, language]);
+  }, [currentStepIndex, lessonId, progLang]);
 
   const progress = ((currentStepIndex + 1) / totalSteps) * 100;
 
@@ -136,7 +138,7 @@ export default function LessonPage() {
               </h3>
               <AnimatePresence mode="wait">
                 <motion.p 
-                  key={`${language}-${currentStepIndex}`}
+                  key={`${progLang}-${currentStepIndex}`}
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -5 }}
@@ -186,7 +188,7 @@ export default function LessonPage() {
               </h3>
               <AnimatePresence mode="wait">
                 <motion.div 
-                  key={`${language}-${currentStepIndex}`}
+                  key={`${progLang}-${currentStepIndex}`}
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -5 }}
@@ -233,17 +235,11 @@ export default function LessonPage() {
           <div className="flex flex-wrap items-center gap-3 flex-1 w-full md:w-auto">
              <h2 className="font-bold text-lg whitespace-nowrap hidden md:block">{lesson.title}</h2>
              
-             <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
-               <SelectTrigger className="w-[120px] h-8 bg-white/5 border-white/10 text-xs">
-                 <SelectValue placeholder="Language" />
-               </SelectTrigger>
-               <SelectContent>
-                 <SelectItem value="javascript">JavaScript</SelectItem>
-                 <SelectItem value="csharp">C#</SelectItem>
-                 <SelectItem value="java">Java</SelectItem>
-                 {lesson.variants.c && <SelectItem value="c">C</SelectItem>}
-               </SelectContent>
-             </Select>
+
+             {/* Language indicator (display-only) */}
+             <div className="hidden md:block">
+               <LanguageBadge />
+             </div>
 
              <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-muted-foreground whitespace-nowrap">
                Step {currentStepIndex + 1}/{totalSteps}

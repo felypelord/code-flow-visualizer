@@ -32,6 +32,17 @@ async function ensureAuxTables() {
     )`);
   } catch {}
   try {
+    await db.execute(sql`create table if not exists roadmap_progress (
+      id varchar primary key default gen_random_uuid(),
+      user_id varchar not null references users(id) on delete cascade,
+      path_id text not null,
+      item_slug text not null,
+      status text not null default 'completed',
+      progress_meta text,
+      created_at timestamp default now()
+    )`);
+  } catch {}
+  try {
     await db.execute(sql`create table if not exists stripe_customers (
       user_id varchar(255) primary key references users(id) on delete cascade,
       customer_id text not null unique,

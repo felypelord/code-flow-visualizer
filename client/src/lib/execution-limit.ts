@@ -12,6 +12,14 @@ function getKey(userId?: string | null) {
 export function checkAndConsumeExecution(userId: string | undefined | null, isPro: boolean, limit = 5): ExecutionAllowance {
   if (isPro) return { allowed: true, remaining: Number.POSITIVE_INFINITY };
   try {
+    // Bonus runs (granted by promos) are stored separately and consumed first
+    const bonusKey = `exec-bonus-${userId || 'anon'}`;
+    const bonus = Number(localStorage.getItem(bonusKey) || "0");
+    if (!Number.isNaN(bonus) && bonus > 0) {
+      localStorage.setItem(bonusKey, String(bonus - 1));
+      return { allowed: true, remaining: Math.max(limit - 0, 0) };
+    }
+
     const key = getKey(userId);
     const current = Number(localStorage.getItem(key) || "0");
     if (Number.isNaN(current)) {
@@ -26,5 +34,17 @@ export function checkAndConsumeExecution(userId: string | undefined | null, isPr
   } catch {
     // If storage fails, allow to avoid false negatives
     return { allowed: true, remaining: limit };
+  }
+}
+
+export function grantExecutions(userId: string | undefined | null, amount = 5) {
+  try {
+    const bonusKey = `exec-bonus-${userId || 'anon'}`;
+    const current = Number(localStorage.getItem(bonusKey) || "0");
+    const next = (Number.isNaN(current) ? 0 : current) + amount;
+    localStorage.setItem(bonusKey, String(next));
+    return true;
+  } catch {
+    return false;
   }
 }

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useUser } from "@/hooks/use-user";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -20,10 +21,11 @@ export interface GuidedPathProps {
   onComplete?: () => void;
 }
 
-function usePersistedProgress(key: string, maxSteps: number) {
+function usePersistedProgress(key: string, maxSteps: number, useSession: boolean) {
+  const storage = useSession ? sessionStorage : localStorage;
   const [progress, setProgress] = useState<number>(() => {
     try {
-      const raw = localStorage.getItem(key);
+      const raw = storage.getItem(key);
       const v = raw ? parseInt(raw, 10) : 0;
       return isNaN(v) ? 0 : Math.min(v, maxSteps);
     } catch {
@@ -31,43 +33,112 @@ function usePersistedProgress(key: string, maxSteps: number) {
     }
   });
   useEffect(() => {
-    try { localStorage.setItem(key, String(progress)); } catch {}
+    try { storage.setItem(key, String(progress)); } catch {}
   }, [key, progress]);
   return [progress, setProgress] as const;
 }
 
 export function GuidedPath({ id, title, steps, onComplete }: GuidedPathProps) {
   const storageKey = `guided:${id}:progress`;
-  const [progress, setProgress] = usePersistedProgress(storageKey, steps.length);
+  const { user } = useUser();
+  const isAnonymous = !user;
+  // session-backed progress for anonymous users
+  const [sessionProgress, setSessionProgress] = usePersistedProgress(storageKey, steps.length, true);
+  // server-backed progress state for authenticated users
+  const [serverProgress, setServerProgress] = useState<number>(() => sessionProgress || 0);
+  const progress = isAnonymous ? sessionProgress : serverProgress;
   const [open, setOpen] = useState(false);
   const [currentIdx, setCurrentIdx] = useState<number>(progress);
   const currentStep = steps[currentIdx];
   const [answer, setAnswer] = useState<string>("");
   const [result, setResult] = useState<{ ok: boolean; messages?: string[] } | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [lastSavedSlug, setLastSavedSlug] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const t: any = {};
 
-  useEffect(() => {
-    setCurrentIdx(progress);
-  }, [progress]);
+  useEffect(() => { setCurrentIdx(progress); }, [progress]);
 
   const pct = useMemo(() => Math.round((progress / steps.length) * 100), [progress, steps.length]);
 
   const startLesson = () => { setOpen(true); setResult(null); };
   const closeLesson = () => setOpen(false);
-  const resetProgress = () => { setProgress(0); setCurrentIdx(0); setAnswer(""); setResult(null); };
+  const resetProgress = () => {
+    if (isAnonymous) setSessionProgress(0);
+    else setServerProgress(0);
+    setCurrentIdx(0); setAnswer(""); setResult(null);
+  };
 
-  const verify = () => {
+  const verify = async () => {
     if (!currentStep) return;
-    const r = currentStep.check(answer);
-    setResult(r);
-    if (r.ok) {
-      const next = Math.min(steps.length, progress + 1);
-      setProgress(next);
-      setAnswer("");
-      setOpen(false);
-      if (next >= steps.length) onComplete?.();
+    try {
+      const maybe = currentStep.check(answer);
+      const r = maybe && typeof (maybe as any).then === 'function' ? await maybe : maybe;
+      setResult(r as any);
+      if ((r as any)?.ok) {
+        const next = Math.min(steps.length, progress + 1);
+        if (isAnonymous) {
+          setSessionProgress(next);
+        } else {
+          // optimistic update + save indicator
+          setServerProgress(next);
+          const slugToSave = currentStep.id;
+          setLastSavedSlug(slugToSave);
+          setRetryCount(0);
+          attemptSave(slugToSave, 2);
+        }
+        setAnswer("");
+        setOpen(false);
+        if (next >= steps.length) onComplete?.();
+      }
+    } catch (e: any) {
+      setResult({ ok: false, messages: [e?.message || String(e)] });
     }
   };
+
+  async function attemptSave(itemSlug: string, attemptsLeft = 2) {
+    setSaveStatus('saving');
+    try {
+      const token = localStorage.getItem('token') || '';
+      const res = await fetch('/api/roadmap/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ pathId: id, itemSlug }),
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('save failed');
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    } catch (e) {
+      if (attemptsLeft > 0) {
+        setRetryCount((c) => c + 1);
+        setTimeout(() => attemptSave(itemSlug, attemptsLeft - 1), 1500);
+      } else {
+        setSaveStatus('error');
+      }
+    }
+  }
+
+  // If user logged in, fetch server progress on mount
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      try {
+        setSaveStatus('saving');
+        const token = localStorage.getItem('token');
+        const res = await fetch(`/api/roadmap/progress?pathId=${encodeURIComponent(id)}`, { headers: { Authorization: `Bearer ${token || ''}` } });
+        if (!res.ok) { setSaveStatus('error'); return; }
+        const data = await res.json();
+        if (data && typeof data.completed === 'number') {
+          setServerProgress(Math.min(steps.length, data.completed));
+          setSaveStatus('saved');
+          setTimeout(() => setSaveStatus('idle'), 1000);
+        } else {
+          setSaveStatus('idle');
+        }
+      } catch (e) { setSaveStatus('error'); }
+    })();
+  }, [user?.id]);
 
   return (
     <Card className="p-4 bg-slate-900/70 border border-white/10">
@@ -77,7 +148,18 @@ export function GuidedPath({ id, title, steps, onComplete }: GuidedPathProps) {
           {title}
         </div>
           <div className="flex items-center gap-3">
-          <span className="text-xs text-amber-200">{pct}%</span>
+              <span className="text-xs text-amber-200">{pct}%</span>
+              <span className="text-xs ml-2" style={{ color: saveStatus === 'saving' ? '#f59e0b' : saveStatus === 'saved' ? '#10b981' : saveStatus === 'error' ? '#f87171' : '#94a3b8' }}>
+                {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : saveStatus === 'error' ? 'Save failed' : ''}
+              </span>
+              {saveStatus === 'error' && lastSavedSlug && (
+                <button
+                  className="ml-2 text-xs text-amber-200 border border-amber-400/30 px-2 py-1 rounded"
+                  onClick={() => attemptSave(lastSavedSlug, 2)}
+                >
+                  Retry
+                </button>
+              )}
           <Button size="sm" variant="outline" className="border-amber-300/40 text-amber-100" onClick={resetProgress}>{"Reset" || "Reset"}</Button>
         </div>
       </div>

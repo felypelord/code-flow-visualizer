@@ -184,6 +184,19 @@ export const insertProgressSchema = createInsertSchema(progress).pick({
   stepIndex: true,
 });
 
+// Roadmap progress for Pro users (persistent)
+export const roadmapProgress = pgTable("roadmap_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  pathId: text("path_id").notNull(),
+  itemSlug: text("item_slug").notNull(),
+  status: text("status").notNull().default('completed'),
+  progressMeta: text("progress_meta"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type RoadmapProgress = typeof roadmapProgress.$inferSelect;
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Progress = typeof progress.$inferSelect;

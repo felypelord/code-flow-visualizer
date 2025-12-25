@@ -1,0 +1,38 @@
+[
+  {
+    "pathId": "algorithms-roadmap",
+    "slug": "two-sum",
+    "title": "Two Sum (Algorithms)",
+    "summary": "Learn a common array/hashmap technique to solve Two Sum.",
+    "content": "# Two Sum\n\nUse a hashmap to store seen values and their indices. Iterate once and check for complement.",
+    "starterCode": "function twoSum(nums, target) {\n  // your code here\n}",
+    "tests": [{ "input": [2,7,11,15], "target": 9, "expected": [0,1] }, { "input": [3,2,4], "target": 6, "expected": [1,2] }],
+    "proOnly": false,
+    "xpReward": 10,
+    "order": 1
+  },
+  {
+    "pathId": "algorithms-roadmap",
+    "slug": "binary-search",
+    "title": "Binary Search (Algorithms)",
+    "summary": "Binary search fundamentals for sorted arrays.",
+    "content": "# Binary Search\n\nDivide and conquer using low/high pointers.",
+    "starterCode": "function binarySearch(arr, target) {\n  // your code here\n}",
+    "tests": [{ "input": [1,3,5,7,9], "target": 7, "expected": 3 }, { "input": [1,3,5,7,9], "target": 2, "expected": -1 }],
+    "proOnly": true,
+    "xpReward": 20,
+    "order": 2
+  },
+  {
+    "pathId": "frontend-roadmap",
+    "slug": "debounce",
+    "title": "Debounce (Frontend)",
+    "summary": "Implement debounce to batch rapid events.",
+    "content": "# Debounce\n\nUse a timer and closure to delay execution.",
+    "starterCode": "function debounce(fn, wait) {\n  // your code here\n}",
+    "tests": [],
+    "proOnly": false,
+    "xpReward": 8,
+    "order": 1
+  }
+]

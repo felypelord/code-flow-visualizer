@@ -1,0 +1,23 @@
+*** Begin Patch
+*** Update File: client/src/pages/lesson.tsx
+@@
+-import { useLanguage } from '@/contexts/LanguageContext';
++import { useLanguage } from '@/contexts/LanguageContext';
++import { LanguageBadge } from '@/components/language-selector';
+@@
+-             <Select value={progLang} onValueChange={(v) => setProgLang(v as Language)}>
+-               <SelectTrigger className="w-[120px] h-8 bg-white/5 border-white/10 text-xs">
+-                 <SelectValue placeholder="Language" />
+-               </SelectTrigger>
+-               <SelectContent>
+-                 <SelectItem value="javascript">JavaScript</SelectItem>
+-                 <SelectItem value="csharp">C#</SelectItem>
+-                 <SelectItem value="java">Java</SelectItem>
+-                 {lesson.variants.c && <SelectItem value="c">C</SelectItem>}
+-               </SelectContent>
+-             </Select>
++             {/* Language indicator (display-only) */}
++             <div className="hidden md:block">
++               <LanguageBadge />
++             </div>
+*** End Patch

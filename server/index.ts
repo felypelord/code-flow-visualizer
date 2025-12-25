@@ -162,7 +162,7 @@ app.use((req, res, next) => {
   try {
     await registerRoutes(httpServer, app);
   } catch (err: any) {
-    console.error("[ERROR] Failed to initialize routes");
+    console.error("[ERROR] Failed to initialize routes", err && err.stack ? err.stack : err);
     process.exit(1);
   }
 
@@ -240,6 +240,9 @@ process.on("unhandledRejection", (reason: any) => {
 process.on("uncaughtException", (err: any) => {
   const msg = err instanceof Error ? err.message : String(err);
   log(`Uncaught exception: ${msg}`);
+  try {
+    if (err && err.stack) log(`Stack: ${err.stack}`);
+  } catch {}
 });
 
 process.on("beforeExit", (code) => {
@@ -248,4 +251,40 @@ process.on("beforeExit", (code) => {
 
 process.on("exit", (code) => {
   log(`exit with code ${code}`);
+});
+
+// Graceful shutdown for signals (helpful to diagnose exit code 130 / SIGINT)
+process.on("SIGINT", () => {
+  log("SIGINT received, initiating graceful shutdown...", "process");
+  try {
+    httpServer.close(() => {
+      log("HTTP server closed after SIGINT", "process");
+      process.exit(0);
+    });
+    // Force exit if close hangs
+    setTimeout(() => {
+      log("Forcing shutdown after SIGINT timeout", "process");
+      process.exit(1);
+    }, 5000).unref();
+  } catch (err: any) {
+    log(`Error during SIGINT shutdown: ${err?.message || err}`, "process");
+    process.exit(1);
+  }
+});
+
+process.on("SIGTERM", () => {
+  log("SIGTERM received, initiating graceful shutdown...", "process");
+  try {
+    httpServer.close(() => {
+      log("HTTP server closed after SIGTERM", "process");
+      process.exit(0);
+    });
+    setTimeout(() => {
+      log("Forcing shutdown after SIGTERM timeout", "process");
+      process.exit(1);
+    }, 5000).unref();
+  } catch (err: any) {
+    log(`Error during SIGTERM shutdown: ${err?.message || err}`, "process");
+    process.exit(1);
+  }
 });

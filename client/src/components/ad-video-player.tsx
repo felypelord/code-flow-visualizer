@@ -17,6 +17,7 @@ export function AdVideoPlayer({ onAdComplete, onClose }: AdVideoPlayerProps) {
   const [adType, setAdType] = useState<'video' | 'display'>('video');
   const containerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const totalDuration = 40000; // 40 seconds, used in UI
 
   useEffect(() => {
     // Initialize Google AdSense or ad provider
@@ -47,8 +48,7 @@ export function AdVideoPlayer({ onAdComplete, onClose }: AdVideoPlayerProps) {
   }, []);
 
   const startSimulatedAd = () => {
-    // Simulate internal promo: 40 seconds total, non-skippable
-    const totalDuration = 40000; // 40 seconds
+    // Simulate internal promo: non-skippable
     const skipAfter = totalDuration; // not skippable before end
     const interval = 100; // Update every 100ms
 

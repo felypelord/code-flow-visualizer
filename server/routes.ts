@@ -20,6 +20,7 @@ import {
   adRewards
 } from "../shared/schema";
 import { createPayment, stripeWebhook, watchAd, checkUsage, consumeUsage } from "../api/monetization";
+import { getRoadmap, getRoadmapItem, getProgress, completeProgress } from "../api/roadmap";
 import { trackAdImpression, verifyAdWatch, getAdStats, skipAdForCoins } from "../api/analytics/ads";
 import { storage } from "./storage";
 import { getStripe, getBaseUrl, STRIPE_PRICE_PRO_MONTHLY, STRIPE_PRICE_PRO_MONTHLY_USD, STRIPE_WEBHOOK_SECRET } from "./stripe";
@@ -1409,6 +1410,23 @@ export async function registerRoutes(
   
   app.post("/api/monetization/create-payment", requireAuth, createPayment);
   app.post("/api/monetization/stripe-webhook", stripeWebhook);
+  // Roadmap endpoints
+  app.get("/api/roadmap", getRoadmap);
+  app.get("/api/roadmap/:slug", getRoadmapItem);
+  app.get("/api/roadmap/progress", requireAuth, getProgress);
+  app.post("/api/roadmap/complete", requireAuth, completeProgress);
+  // Roadmap API
+  app.get("/api/monetization/purchases", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const purchases = await db.select().from(storePurchases).where(eq(storePurchases.userId, userId)).orderBy(desc(storePurchases.purchasedAt));
+      const items = purchases.map(p => p.itemId);
+      return res.json({ items });
+    } catch (error: any) {
+      console.error('Error fetching monetization purchases:', error);
+      return res.status(500).json({ message: 'Failed to fetch purchases' });
+    }
+  });
   app.post("/api/monetization/watch-ad", requireAuth, watchAd);
   app.get("/api/monetization/check-usage", requireAuth, checkUsage);
   app.post("/api/monetization/consume-usage", requireAuth, consumeUsage);

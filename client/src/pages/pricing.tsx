@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "@/hooks/use-toast";
+import RoadmapPath from "@/components/roadmap-path";
 
 
 export default function PricingPage() {
@@ -93,14 +94,50 @@ export default function PricingPage() {
     []
   );
 
-  const roadmapItems = useMemo(
-    () => [
-      { title: "Interactive Debugging", eta: "Q1 2026", status: "Planned" },
-      { title: "AI Tools", eta: "Q2 2026", status: "Planned" },
-      { title: "Snapshots & Versioning", eta: "Q3 2026", status: "Planned" },
-    ],
-    []
-  );
+  const [roadmapItems, setRoadmapItems] = useState<Array<any>>([]);
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [selectedLocked, setSelectedLocked] = useState<boolean>(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/roadmap');
+        if (!res.ok) return;
+        const data = await res.json();
+        setRoadmapItems(Array.isArray(data.items) ? data.items : []);
+      } catch (e) { /* ignore */ }
+    })();
+  }, []);
+
+  // fetch a specific item when requested
+  useEffect(() => {
+    if (!selectedSlug) { setSelectedItem(null); setSelectedLocked(false); return; }
+    (async () => {
+      try {
+        const res = await fetch(`/api/roadmap/${encodeURIComponent(selectedSlug)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setSelectedItem(data.item || null);
+        setSelectedLocked(Boolean(data.locked));
+      } catch (e) { /* ignore */ }
+    })();
+  }, [selectedSlug]);
+
+  function renderMarkdownToHtml(md: string) {
+    if (!md) return '';
+    // very small lightweight markdown -> html conversion for headings and paragraphs
+    let html = md.replace(/^### (.*$)/gim, '<h4>$1</h4>');
+    html = html.replace(/^## (.*$)/gim, '<h3>$1</h3>');
+    html = html.replace(/^# (.*$)/gim, '<h2>$1</h2>');
+    html = html.replace(/\n\n+/g, '</p><p>');
+    html = '<p>' + html + '</p>';
+    // code fences
+    html = html.replace(/```([\s\S]*?)```/g, '<pre class="rounded bg-black/60 p-3 font-mono text-sm overflow-auto">$1</pre>');
+    // inline code
+    html = html.replace(/`([^`]+)`/g, '<code class="bg-black/30 px-1 rounded">$1</code>');
+    return html;
+  }
 
   const proFeatureCards = useMemo(
     () => [
@@ -549,15 +586,7 @@ export default function PricingPage() {
               Roadmap
             </div>
             <div className="space-y-3 text-sm text-gray-200">
-              {roadmapItems.map((item) => (
-                <div key={item.title} className="border border-amber-400/20 rounded-lg p-3 bg-black/25">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-white">{item.title}</span>
-                    <span className="text-amber-200 text-xs">{item.eta}</span>
-                  </div>
-                  <p className="text-xs text-slate-300 mt-1">{item.status}</p>
-                </div>
-              ))}
+              <RoadmapPath />
             </div>
           </div>
         </div>
@@ -672,6 +701,42 @@ export default function PricingPage() {
           </div>
         )}
        
+       {/* Roadmap Item Modal */}
+       <Dialog open={Boolean(selectedSlug)} onOpenChange={(open) => { if (!open) setSelectedSlug(null); }}>
+        <DialogContent className="bg-slate-900 border border-amber-400/30 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-white">{selectedItem?.title || 'Roadmap Item'}</DialogTitle>
+            <DialogDescription className="text-amber-100/80">
+              {selectedItem?.summary || ''}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-4 text-sm text-gray-200">
+            {selectedItem ? (
+              selectedLocked ? (
+                <div>
+                  <div className="mb-3 text-gray-300">This item is locked. Preview:</div>
+                  <div className="prose max-w-none text-sm text-gray-200" dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(selectedItem.content || selectedItem.summary || '') }} />
+                  <div className="mt-4 flex gap-2">
+                    <button className="bg-amber-500 text-black px-3 py-2 rounded font-semibold" onClick={handleUpgrade}>Unlock (Upgrade)</button>
+                    <button className="border border-amber-400/40 text-amber-200 px-3 py-2 rounded" onClick={() => setSelectedSlug(null)}>Close</button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="prose max-w-none text-sm text-gray-200" dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(selectedItem.content || selectedItem.summary || '') }} />
+                  <div className="mt-4">
+                    <button className="bg-amber-500 text-black px-3 py-2 rounded font-semibold" onClick={() => { setSelectedSlug(null); }}>Close</button>
+                  </div>
+                </div>
+              )
+            ) : (
+              <div className="text-xs text-gray-400">Loading...</div>
+            )}
+          </div>
+        </DialogContent>
+       </Dialog>
+
        {/* VIP Signup Modal */}
        <Dialog open={vipOpen} onOpenChange={setVipOpen}>
         <DialogContent className="bg-slate-900 border border-amber-400/30 text-white">
