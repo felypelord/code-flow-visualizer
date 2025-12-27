@@ -533,21 +533,7 @@ export default function PricingPage() {
             <p className="text-sm text-gray-400">Centralized purchases for items and extras</p>
           </div>
           <div className="flex gap-4 overflow-x-auto py-2">
-            {/* Static small items */}
-            <div className="min-w-[220px] p-4 rounded bg-slate-800 border border-slate-700">
-              <div className="text-sm font-semibold">Hint Pack</div>
-              <div className="text-xs text-gray-300 mb-3">Buy hints for exercises</div>
-              <div className="flex gap-2">
-                <Button size="sm" onClick={() => handleStorePurchase('hint')}>Buy Hint (5)</Button>
-              </div>
-            </div>
-            <div className="min-w-[220px] p-4 rounded bg-slate-800 border border-slate-700">
-              <div className="text-sm font-semibold">Solution Pack</div>
-              <div className="text-xs text-gray-300 mb-3">Get solution explanations</div>
-              <div className="flex gap-2">
-                <Button size="sm" onClick={() => handleStorePurchase('solution')}>Buy Solution (10)</Button>
-              </div>
-            </div>
+            {/* Static small items removed: Hint/Solution packs are no longer sold here. Use Pro subscription or dedicated micro-purchase flows inside Exercises. */}
             {/* Roadmap items removed from Store — handled on Tracks page */}
           </div>
         </div>

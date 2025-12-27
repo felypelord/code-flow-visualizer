@@ -476,42 +476,40 @@ export function ExercisesViewNew() {
                             : "bg-red-500/10 border-red-500/30"
                         }`}
                       >
-                        <div className="flex items-start gap-2">
-                          {result.passed ? (
-                            <CheckCircle2 className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                          ) : (
-                            <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold">{result.name}</p>
-                            {result.error && (
-                              <p className="text-xs text-red-300 mt-1 break-words">{result.error}</p>
-                            )}
-                            {!result.passed && !result.error && (
-                              <div className="text-xs mt-1 space-y-1">
-                                <p className="break-words">
-                                  <span className="text-muted-foreground">Expected:</span> 
-                                  <code className="bg-green-500/20 px-1 rounded text-green-300">
-                                    {JSON.stringify(result.expected)}
-                                  </code>
-                                </p>
-                                <p className="break-words">
-                                  <span className="text-muted-foreground">Received:</span> 
-                                  <code className="bg-red-500/20 px-1 rounded text-red-300">
-                                    {JSON.stringify(result.result)}
-                                  </code>
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        <div className="flex gap-2">
+                        {currentVariant?.hint && (user?.isPro || hasPurchased(selectedExercise.id, 'hint')) && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => {
+                              setShowHint((s) => {
+                                const next = !s;
+                                if (next) setShowSolution(false);
+                                return next;
+                              });
+                            }}
+                            className="gap-2"
+                          >
+                            <Lightbulb className="w-4 h-4" /> Hint
+                          </Button>
+                        )}
+                        {currentVariant?.solution && (user?.isPro || hasPurchased(selectedExercise.id, 'solution')) && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => {
+                              setShowSolution((s) => {
+                                const next = !s;
+                                if (next) setShowHint(false);
+                                return next;
+                              });
+                            }}
+                            className="gap-2"
+                          >
+                            <Eye className="w-4 h-4" /> View Solution
+                          </Button>
+                        )}
                       </div>
-                    ))}
-
-                    {testResults.every(r => r.passed) && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
                         className="p-4 bg-primary/20 border border-primary rounded"
                       >
                         <div className="flex items-center gap-3">
