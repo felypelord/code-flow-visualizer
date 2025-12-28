@@ -131,6 +131,12 @@ const STORE_CATALOG = [
   
   // Weekly Challenge
   { id: 'boss_challenge', name: 'Boss Challenge (Weekly)', description: 'Unlock a special weekly challenge', type: 'utility', category: 'challenge', price: 200, icon: '🏆' },
+  // Legendary / special items
+  { id: 'avatar_dragon_legend', name: 'Legendary Dragon Avatar', description: 'Mythical dragon avatar (unique)', type: 'cosmetic', category: 'avatar', price: 800, icon: '🐉' },
+  // XP Packs (convert to XP when purchased)
+  { id: 'xp_pack_small', name: 'Small XP Pack (500 XP)', description: 'Instantly grant 500 XP', type: 'utility', category: 'xp_pack', price: 50, icon: '🎁' },
+  { id: 'xp_pack_medium', name: 'Medium XP Pack (2000 XP)', description: 'Instantly grant 2000 XP', type: 'utility', category: 'xp_pack', price: 180, icon: '🎁' },
+  { id: 'xp_pack_large', name: 'Large XP Pack (10000 XP)', description: 'Instantly grant 10000 XP', type: 'utility', category: 'xp_pack', price: 800, icon: '🎁' },
 ];
 
 // Calculate achievement progress
@@ -1156,6 +1162,62 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error("Error purchasing item:", error);
       return res.status(500).json({ message: "Failed to purchase item" });
+    }
+  });
+
+  // Equip or use a purchased item (cosmetics/effects/xp packs)
+  app.post("/api/store/equip", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const { itemId } = req.body;
+      if (!itemId) return res.status(400).json({ message: "itemId required" });
+
+      // Check ownership
+      const owned = await db.select().from(storePurchases).where(and(eq(storePurchases.userId, userId), eq(storePurchases.itemId, itemId))).limit(1);
+      if (owned.length === 0) return res.status(403).json({ message: "Item not owned" });
+
+      const item = STORE_CATALOG.find(i => i.id === itemId);
+      if (!item) return res.status(404).json({ message: "Item not found" });
+
+      // Handle XP packs immediately: credit XP and record transaction
+      if (item.category === 'xp_pack') {
+        // Map item to XP amount
+        const xpMap: Record<string, number> = {
+          xp_pack_small: 500,
+          xp_pack_medium: 2000,
+          xp_pack_large: 10000,
+        };
+        const xpAmount = xpMap[itemId] || 0;
+        if (xpAmount > 0) {
+          const user = await storage.getUser(userId);
+          const newXP = (user.xp || 0) + xpAmount;
+          await db.update(users).set({ xp: newXP, level: calculateLevel(newXP) }).where(eq(users.id, userId));
+          await db.insert(coinTransactions).values({ userId, amount: 0, type: 'earn', source: 'xp_pack', metadata: JSON.stringify({ itemId, xp: xpAmount }) });
+          return res.json({ message: 'XP granted', xp: xpAmount, newXP });
+        }
+      }
+
+      // Cosmetics: apply avatar or theme by updating users table
+      if (item.type === 'cosmetic') {
+        if (item.category === 'avatar') {
+          await db.update(users).set({ avatar: itemId }).where(eq(users.id, userId));
+          return res.json({ message: 'Avatar equipped', avatar: itemId });
+        }
+        if (item.category === 'theme') {
+          await db.update(users).set({ theme: itemId }).where(eq(users.id, userId));
+          return res.json({ message: 'Theme applied', theme: itemId });
+        }
+        if (item.category === 'frame') {
+          // frames treated as metadata on users.bio for simplicity (could be separate column)
+          await db.update(users).set({ bio: (await storage.getUser(userId)).bio }).where(eq(users.id, userId));
+          return res.json({ message: 'Frame applied', frame: itemId });
+        }
+      }
+
+      return res.status(400).json({ message: 'Nothing to equip for this item' });
+    } catch (error: any) {
+      console.error('Error equipping item:', error);
+      return res.status(500).json({ message: 'Failed to equip item' });
     }
   });
 

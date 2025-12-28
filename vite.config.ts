@@ -36,6 +36,14 @@ export default defineConfig({
   server: {
     host: "127.0.0.1",
     allowedHosts: ["localhost", "127.0.0.1", "*.localhost"],
+    // Proxy API calls to the backend server so the dev client can use relative `/api` paths
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:5000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
     // Allow Vite to access the repository root and node_modules so
     // the built-in client script (`/@vite/client`) and dependency
     // resolution work correctly. Denying `node_modules` here causes

@@ -293,7 +293,17 @@ export function ExercisesView() {
       const results: any[] = [];
       for (const test of selectedExercise.tests) {
         try {
-          const result = await (await import("@/lib/sandbox")).runInWorker(code, functionName, test.input, { timeoutMs: 3000 });
+          const result = await (await import("@/lib/sandbox")).runInWorker(code, functionName, test.input, {
+            timeoutMs: 3000,
+            onStep: (line) => {
+              try {
+                setExecutionState(prev => ({ ...prev, currentLineIndex: Math.max(0, line - 1) }));
+              } catch {}
+            },
+            onSnapshot: (vars) => {
+              try { setExecutionState(prev => ({ ...prev, variables: vars || {} })); } catch {}
+            }
+          });
           const passed = JSON.stringify(result) === JSON.stringify(test.expected);
           results.push({ name: test.name, passed, result, expected: test.expected, error: null });
         } catch (e: any) {
@@ -609,10 +619,15 @@ export function ExercisesView() {
               <TabsContent value="code" className="space-y-4 mt-6">
                 {/* Code Editor */}
                 <Card className="p-4 bg-slate-900/60 border-slate-700 rounded-xl">
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="text-sm font-semibold text-white block">Code editor</label>
-                    <span className="text-[11px] text-slate-300">Ctrl/⌘ + Enter roda testes</span>
-                  </div>
+                  <div className="flex items-start justify-between mb-3 gap-4">
+                        <div>
+                          <label className="text-lg font-bold text-white block">Code editor — Step-by-step</label>
+                          <div className="text-sm text-slate-300 mt-1">Edit the code, then press <span className="font-mono">Run</span> to watch each line execute.</div>
+                        </div>
+                        <div className="ml-auto text-right">
+                          <span className="text-[11px] text-slate-300">Ctrl/⌘ + Enter runs tests</span>
+                        </div>
+                      </div>
                   <div className="relative flex-1 overflow-hidden">
                     <div className="absolute left-0 top-0 bottom-0 w-12 bg-slate-950/80 border-r border-slate-700 flex flex-col overflow-hidden">
                       {executionState.lines.map((_, idx) => (
@@ -644,11 +659,19 @@ export function ExercisesView() {
                         }
                       }}
                       disabled={executionState.isExecuting}
-                      className={`w-full h-72 md:h-[420px] lg:h-[520px] p-3 pl-16 text-sm rounded border resize-vertical focus:outline-none focus:ring-2 transition-all font-mono ${editorProClass}`}
+                      className={`w-full h-72 md:h-[480px] lg:h-[560px] p-4 pl-20 text-base rounded border resize-vertical focus:outline-none focus:ring-2 transition-all font-mono ${editorProClass}`}
                       placeholder="Write your code here..."
                       aria-label={`Code editor (${selectedLanguage})`}
                       spellCheck="false"
                     />
+                    <div className="mt-3 p-3 bg-slate-800/60 border border-white/5 rounded text-sm text-gray-200">
+                      <div className="font-semibold text-amber-300">Beginner Tips</div>
+                      <ul className="mt-2 text-xs text-gray-300 space-y-1 list-inside list-decimal">
+                        <li>Start small: change one line and press <span className="font-mono">Run</span>.</li>
+                        <li>Watch the highlighted line to see execution order.</li>
+                        <li>Use the Variables panel to inspect values after each step.</li>
+                      </ul>
+                    </div>
                   </div>
                   {/* Barra de controles igual ao playground */}
                   <div className="flex items-center gap-2 mt-4 p-2 bg-slate-800/80 border border-slate-700 rounded-lg justify-center divide-x divide-slate-700">
@@ -716,28 +739,28 @@ export function ExercisesView() {
                 </div>
 
                 {/* Below editor: 3 columns - Variables, Memory, Logs */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:divide-x divide-slate-700 rounded-xl border border-slate-700 overflow-hidden bg-slate-900/50">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-0 md:divide-x divide-slate-700 rounded-xl border border-slate-700 overflow-hidden bg-slate-900/50">
                   {/* Column 1: Variables */}
-                  <div className="p-4 overflow-auto max-h-64 flex flex-col">
+                  <div className="p-4 overflow-auto max-h-72 flex flex-col">
                     <h4 className="text-sm font-semibold text-blue-300 mb-3 tracking-wide">🔵 Variables</h4>
                     <CallStack stack={executionState.stack} />
                   </div>
 
                   {/* Column 2: Memory */}
-                  <div className="p-4 overflow-auto max-h-64">
+                  <div className="p-4 overflow-auto max-h-72">
                     <h4 className="text-sm font-semibold text-cyan-300 mb-3 tracking-wide">🟢 Memory</h4>
                     <HeapMemory heap={executionState.heap} />
                   </div>
 
                   {/* Column 3: What Computer Did */}
-                  <div className="p-4 overflow-auto max-h-64">
+                  <div className="p-4 overflow-auto max-h-72">
                     <h4 className="text-sm font-semibold text-yellow-300 mb-3 tracking-wide">⚙️ Execution</h4>
                     {executionState.logs.length === 0 ? (
-                      <p className="text-xs text-slate-400">Run the code to see the steps.</p>
+                      <p className="text-xs text-slate-400">Run the code to see the step-by-step actions the computer performs.</p>
                     ) : (
                       <div className="space-y-2">
                         {executionState.logs.slice(-8).reverse().map((l, i) => (
-                          <div key={i} className="text-xs text-slate-200 bg-black/30 border border-slate-700/60 p-2 rounded">
+                          <div key={i} className="text-sm text-slate-200 bg-black/30 border border-slate-700/60 p-2 rounded">
                             {l}
                           </div>
                         ))}

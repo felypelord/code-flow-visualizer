@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Lock, Play } from 'lucide-react';
@@ -161,7 +161,10 @@ function friendlyErrorMessage(err: any) {
 }
 
 function makeItems(level: 'basic' | 'medium' | 'advanced', lang: string): TrackItem[] {
-  const topics = (TOPICS as any)[lang]?.[level] || (TOPICS as any)['javascript'][level];
+  const langTopics = (TOPICS as any)[lang];
+  // If this language doesn't define topics for the requested level, return an empty list.
+  if (!langTopics || !Array.isArray(langTopics[level])) return [];
+  const topics = langTopics[level];
   return topics.slice(0, 15).map((t: string, i: number) => ({
     id: `${level.toLowerCase()}-${i + 1}`,
     title: `${i + 1}. ${t}`,
@@ -217,6 +220,8 @@ export default function LearningTrack() {
 
   const [openItem, setOpenItem] = useState<TrackItem | null>(null);
   const [previewPlaying, setPreviewPlaying] = useState(false);
+  const editorRef = useRef<HTMLTextAreaElement | null>(null);
+  const [currentVars, setCurrentVars] = useState<Record<string, any> | null>(null);
   const [lessonStage, setLessonStage] = useState<'overview' | 'step' | 'result'>('overview');
   const [editorCode, setEditorCode] = useState('');
   const [stepIndex, setStepIndex] = useState(0);
@@ -254,6 +259,12 @@ export default function LearningTrack() {
   // Live syntax check (debounced) while editing in lesson step
   useEffect(() => {
     if (lessonStage !== 'step') return;
+    // Only perform JS syntax quick-parse checks — other languages will not parse in new Function
+    if (lang !== 'javascript') {
+      setLiveError(null);
+      setLiveLine(null);
+      return;
+    }
     const id = setTimeout(() => {
       try {
         // quick parse check without executing user code
@@ -272,7 +283,7 @@ export default function LearningTrack() {
       }
     }, 400);
     return () => clearTimeout(id);
-  }, [editorCode, lessonStage]);
+  }, [editorCode, lessonStage, lang]);
 
   return (
     <div className="space-y-6 relative">
@@ -322,6 +333,14 @@ export default function LearningTrack() {
 
               {/* Center: items grid (tile-style activity tiles) */}
               <div className="flex-1">
+                {track.items.length === 0 ? (
+                  <div className="p-4">
+                    <Card className="p-4 bg-slate-800/60 border-white/5">
+                      <div className="text-sm font-semibold text-amber-300">This language doesn't use this track format</div>
+                      <div className="mt-2 text-sm text-gray-300">Esta linguagem não utiliza este formato de trilha. Try switching the programming language selector or check the Exercises page for language-specific content.</div>
+                    </Card>
+                  </div>
+                ) : (
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
                   {track.items.map((it, idx) => {
                     const unlockedIndex = Number(localStorage.getItem(`unlocked-${lang}-${track.title.toLowerCase()}`) || '0');
@@ -339,6 +358,7 @@ export default function LearningTrack() {
                     );
                   })}
                 </div>
+                )}
               </div>
 
               {/* Right: small details */}
@@ -414,7 +434,7 @@ export default function LearningTrack() {
 
                   <div>
                     <div className="text-sm text-gray-300">Editor</div>
-                    <textarea value={editorCode} onChange={(e) => setEditorCode(e.target.value)} className={`w-full h-56 p-2 font-mono text-sm bg-slate-900 text-gray-100 rounded mt-2 ${liveError ? 'border-2 border-red-600' : 'border border-white/10'}`} />
+                      <textarea ref={editorRef} value={editorCode} onChange={(e) => setEditorCode(e.target.value)} className={`w-full h-56 p-3 leading-6 text-base font-mono bg-slate-900 text-gray-100 rounded mt-2 ${liveError ? 'border-2 border-red-600' : 'border border-white/10'}`} />
                     {liveError && (
                       <div className="mt-2 p-2 bg-red-900/60 border border-red-700 text-sm text-red-100 rounded">
                         <div className="font-semibold">Live check failed:</div>
@@ -427,7 +447,7 @@ export default function LearningTrack() {
                         <div className="w-full mb-2 p-2 rounded bg-blue-900/40 text-sm text-blue-100">Run is available for JavaScript exercises only. For Python and Java tracks, please follow the examples and try locally.</div>
                       )}
                       <Button onClick={async () => {
-                        setRunning(true); setResultMsg(null);
+                        setRunning(true); setResultMsg(null); setLiveLine(null);
                         try {
                           if (lang !== 'javascript') {
                             setResultMsg('Execution is supported only for JavaScript in this demo.');
@@ -439,39 +459,55 @@ export default function LearningTrack() {
                             return;
                           }
                           const fn = fnMatch[1];
-                          const res = await runInWorker(editorCode, fn, []);
-                              // Use lesson spec validator when available
+                          const res = await runInWorker(editorCode, fn, [], {
+                            timeoutMs: 5000,
+                            onStep: (line) => {
                               try {
-                                const idxNum = openItem ? Number(openItem.id.split('-')[1]) - 1 : 0;
-                                const titleOnly = openItem ? openItem.title.replace(/^[0-9]+\.\s*/, '') : '';
-                                const spec = getLessonSpec(titleOnly, openItem?.sampleCode || editorCode, idxNum);
-                                const check = spec?.validate ? spec.validate(res) : { ok: true, message: JSON.stringify(res) };
-                                if (check?.ok) {
-                                  setResultMsg('✅ Correct — ' + (check.message || 'Validation passed.'));
-                                  setLessonStage('result');
-                                  toast({ title: 'Success', description: 'Step validated.' });
-                                  try {
-                                    if (openItem) {
-                                      const [lvl, idn] = openItem.id.split('-');
-                                      const curIdx = Number(idn) - 1;
-                                      const key = `unlocked-${lang}-${lvl}`;
-                                      const cur = Number(localStorage.getItem(key) || '0');
-                                      localStorage.setItem(`completed-${openItem.id}-${lang}`, '1');
-                                      if (curIdx === cur) {
-                                        localStorage.setItem(key, String(cur + 1));
-                                        toast({ title: 'Unlocked', description: 'Next activity unlocked.' });
-                                      }
-                                    }
-                                  } catch (e) {
-                                    // ignore storage errors
+                                setLiveLine(line);
+                                setPreviewPlaying(true);
+                                if (editorRef.current) {
+                                  const approxLineHeight = 18;
+                                  editorRef.current.scrollTop = Math.max(0, (line - 3) * approxLineHeight);
+                                }
+                              } catch {}
+                            },
+                            onSnapshot: (vars) => {
+                              try { setCurrentVars(vars); } catch {}
+                            }
+                          });
+                          setPreviewPlaying(false);
+                          // Use lesson spec validator when available
+                          try {
+                            const idxNum = openItem ? Number(openItem.id.split('-')[1]) - 1 : 0;
+                            const titleOnly = openItem ? openItem.title.replace(/^[0-9]+\.\s*/, '') : '';
+                            const spec = getLessonSpec(titleOnly, openItem?.sampleCode || editorCode, idxNum);
+                            const check = spec?.validate ? spec.validate(res) : { ok: true, message: JSON.stringify(res) };
+                            if (check?.ok) {
+                              setResultMsg('✅ Correct — ' + (check.message || 'Validation passed.'));
+                              setLessonStage('result');
+                              toast({ title: 'Success', description: 'Step validated.' });
+                              try {
+                                if (openItem) {
+                                  const [lvl, idn] = openItem.id.split('-');
+                                  const curIdx = Number(idn) - 1;
+                                  const key = `unlocked-${lang}-${lvl}`;
+                                  const cur = Number(localStorage.getItem(key) || '0');
+                                  localStorage.setItem(`completed-${openItem.id}-${lang}`, '1');
+                                  if (curIdx === cur) {
+                                    localStorage.setItem(key, String(cur + 1));
+                                    toast({ title: 'Unlocked', description: 'Next activity unlocked.' });
                                   }
-                                } else {
-                                  setResultMsg('❌ ' + (check?.message || 'Validation failed.'));
                                 }
                               } catch (e) {
-                                setResultMsg('✅ Code ran successfully. Result: ' + JSON.stringify(res));
-                                setLessonStage('result');
+                                // ignore storage errors
                               }
+                            } else {
+                              setResultMsg('❌ ' + (check?.message || 'Validation failed.'));
+                            }
+                          } catch (e) {
+                            setResultMsg('✅ Code ran successfully. Result: ' + JSON.stringify(res));
+                            setLessonStage('result');
+                          }
                         } catch (err: any) {
                           const friendly = friendlyErrorMessage(err);
                           setResultMsg('❌ Error: ' + friendly + '\nTip: check the function name and syntax.');
@@ -480,6 +516,20 @@ export default function LearningTrack() {
                       }} disabled={running || lang !== 'javascript'}>{running ? 'Running...' : 'Run'}</Button>
                       <Button variant="ghost" onClick={() => { setEditorCode(openItem.sampleCode); setResultMsg(null); setLiveError(null); }}>Reset</Button>
                     </div>
+                    {currentVars && (
+                      <div className="mt-3 p-3 bg-slate-800/60 border border-white/5 rounded text-sm text-gray-200">
+                        <div className="font-semibold text-amber-300">Current Variables</div>
+                        <div className="mt-2">
+                          {Object.keys(currentVars).length === 0 ? (
+                            <div className="text-xs text-gray-400">(no tracked variables)</div>
+                          ) : (
+                            Object.entries(currentVars).map(([k,v]) => (
+                              <div key={k} className="flex justify-between text-xs py-0.5"><div className="text-gray-300">{k}</div><div className="text-amber-200">{JSON.stringify(v)}</div></div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

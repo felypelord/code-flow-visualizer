@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import { exercises, type Exercise, type Language } from "@/lib/exercises-new";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -66,6 +66,8 @@ export function ExercisesView() {
     heap: [],
     logs: [],
   });
+
+  const editorRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [allowExecution, setAllowExecution] = useState<boolean>(() => {
     try {
@@ -273,7 +275,18 @@ export function ExercisesView() {
       const jsTimeoutMs = user?.isPro ? 6000 : 3000;
       for (const test of selectedExercise.tests) {
         try {
-          const result = await (await import("@/lib/sandbox")).runInWorker(code, functionName, test.input, { timeoutMs: jsTimeoutMs });
+          const result = await (await import("@/lib/sandbox")).runInWorker(code, functionName, test.input, {
+            timeoutMs: jsTimeoutMs,
+            onStep: (line) => {
+              try {
+                setExecutionState(prev => ({ ...prev, currentLineIndex: Math.max(0, line - 1), logs: [...prev.logs, `▶ line ${line}`] }));
+                if (editorRef.current) {
+                  const approxLineHeight = 18;
+                  editorRef.current.scrollTop = Math.max(0, (line - 3) * approxLineHeight);
+                }
+              } catch {}
+            }
+          });
           const passed = JSON.stringify(result) === JSON.stringify(test.expected);
           results.push({ name: test.name, passed, result, expected: test.expected, error: null });
         } catch (e: any) {
@@ -872,6 +885,7 @@ export function ExercisesView() {
                       ))}
                     </div>
                     <textarea
+                      ref={editorRef}
                       value={code}
                       onChange={(e) => setCode(e.target.value)}
                       onKeyDown={(e) => {

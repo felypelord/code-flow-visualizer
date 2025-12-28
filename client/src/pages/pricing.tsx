@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "@/hooks/use-toast";
+import MonetizationSection from '@/components/monetization-section';
 // Roadmap moved to Exercises page
 
 
@@ -80,8 +81,106 @@ export default function PricingPage() {
   const [country, setCountry] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [code, setCode] = useState("");
+  const [password, setPassword] = useState(""); // Password state
+  const [code, setCode] = useState(""); // Code state
+  // Store state
+  const [storeItems, setStoreItems] = useState<any[]>([]);
+  const [coins, setCoins] = useState<number>(user?.coins || 0);
+  const [loadingStore, setLoadingStore] = useState(false);
+  const [storeRequiresAuth, setStoreRequiresAuth] = useState(false);
+
+  const loadStore = async () => {
+    setLoadingStore(true);
+    try {
+      const res = await fetch('/api/store', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      if (res.ok) {
+        const data = await res.json();
+        setStoreItems(data.items || []);
+        setStoreRequiresAuth(false);
+      } else if (res.status === 401 || res.status === 403) {
+        setStoreItems([]);
+        setStoreRequiresAuth(true);
+      } else {
+        console.error('Failed to load store');
+      }
+    } catch (err) {
+      console.error('Error loading store', err);
+    } finally {
+      setLoadingStore(false);
+    }
+  };
+
+  const loadCoins = async () => {
+    try {
+      const res = await fetch('/api/coins/balance', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      if (res.ok) {
+        const data = await res.json();
+        setCoins(data.coins || 0);
+      }
+    } catch (err) {
+      console.error('Error loading coins', err);
+    }
+  };
+
+  // Canonical coin packages (match server PACKAGES: prices in USD cents)
+  const coinPackages = useMemo(() => [
+    { id: 'coins_100', coins: 100, priceCents: 100 },
+    { id: 'coins_500', coins: 500, priceCents: 500 },
+    { id: 'coins_1000', coins: 1000, priceCents: 1000 },
+  ], []);
+
+  function formatUSD(cents: number) {
+    return `$${(cents / 100).toFixed(2)}`;
+  }
+
+  // Always attempt to load the store on mount (shows message if auth required),
+  // and re-load when user/token changes so owned flags and balances refresh.
+  useEffect(() => {
+    loadStore();
+    if (user) loadCoins();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, token]);
+
+  const handleCoinPurchase = async (itemId: string) => {
+    if (!token) { toast({ title: 'Sign in', description: 'Please sign in to purchase.' }); return; }
+    setPurchaseLoading(itemId);
+    try {
+      const res = await fetch('/api/store/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ itemId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || 'Purchase failed');
+      toast({ title: 'Purchase successful', description: data.message || 'Item purchased' });
+      await loadStore();
+      await loadCoins();
+      if (refreshUser) await refreshUser();
+    } catch (err: any) {
+      toast({ title: 'Purchase failed', description: err.message || 'Something went wrong', variant: 'destructive' });
+    } finally {
+      setPurchaseLoading(null);
+    }
+  };
+
+  const handleEquip = async (itemId: string) => {
+    if (!token) { toast({ title: 'Sign in', description: 'Please sign in to equip.' }); return; }
+    try {
+      const res = await fetch('/api/store/equip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ itemId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || 'Equip failed');
+      toast({ title: data.message || 'Equipped', description: '' });
+      if (refreshUser) await refreshUser();
+      await loadStore();
+      await loadCoins();
+    } catch (err: any) {
+      toast({ title: 'Action failed', description: err.message || 'Something went wrong', variant: 'destructive' });
+    }
+  };
 
   const monthlyBenefits = useMemo(
     () => [
@@ -526,7 +625,20 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* Store: centralized purchases for small products and roadmap items */}
+          {/* Stripe / Billing developer hint */}
+          <div className="max-w-6xl mx-auto px-4 mb-8">
+            <Card className="p-4 bg-slate-800/60 border-slate-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-semibold text-white">Billing / Stripe</h4>
+                  <p className="text-xs text-gray-300">If checkout fails in development, ensure the server has STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET and price IDs set. Without them the server returns a 503 and checkout cannot start.</p>
+                </div>
+                <div className="text-right text-xs text-gray-400">Dev hint: set env vars and restart server</div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Store: centralized purchases for small products and roadmap items */}
         <div className="max-w-6xl mx-auto px-4 mb-12">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-white">Store</h3>
@@ -555,7 +667,7 @@ export default function PricingPage() {
                   <div>
                     <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                       <Zap className="w-6 h-6 text-yellow-400" />
-                      {user?.coins || 0} FlowCoins
+                      {coins} FlowCoins
                     </h2>
                     <p className="text-amber-200 text-sm">Your current balance • Earn 1 coin per 50 XP</p>
                   </div>
@@ -567,59 +679,79 @@ export default function PricingPage() {
               </div>
             </Card>
 
-            {/* Store Grid */}
+            {/* Buy FlowCoins (USD) - visible to all, purchase button disabled for free users */}
+            <div className="my-6">
+              <h3 className="text-lg font-semibold text-white mb-3">Buy FlowCoins</h3>
+              <div className="grid sm:grid-cols-3 gap-4">
+                {coinPackages.map((pkg) => (
+                  <Card key={pkg.id} className="p-4 bg-slate-900 border-slate-700">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm text-gray-300 font-semibold">{pkg.coins} FlowCoins</h4>
+                        <p className="text-xs text-gray-500">{formatUSD(pkg.priceCents)}</p>
+                      </div>
+                      <div>
+                        <Button
+                          onClick={() => handleStorePurchase(pkg.id)}
+                          disabled={!user?.isPro || Boolean(purchaseLoading)}
+                          className={`${!user?.isPro ? 'bg-slate-700 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'}`}
+                        >
+                          {!user?.isPro ? 'Pro only' : purchaseLoading === pkg.id ? 'Processing...' : `Buy ${formatUSD(pkg.priceCents)}`}
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Store Grid (fetched from server) */}
             <div>
-              {(() => {
-                const STORE_CATALOG = [
-                  { id: 'avatar_ninja', name: 'Ninja Avatar', description: 'Stealthy and cool 🥷', type: 'cosmetic', price: 50, icon: '🥷', category: 'avatar' },
-                  { id: 'avatar_robot', name: 'Robot Avatar', description: 'Beep boop 🤖', type: 'cosmetic', price: 50, icon: '🤖', category: 'avatar' },
-                  { id: 'badge_fire', name: 'Fire Badge', description: "Show you're on fire 🔥", type: 'cosmetic', price: 100, icon: '🔥', category: 'badge' },
-                  { id: 'hint_token', name: 'Hint Token', description: 'Get 1 free hint in any exercise', type: 'utility', price: 10, icon: '💡', category: 'utility' },
-                  { id: 'hint_pack_5', name: 'Hint Pack (5x)', description: 'Get 5 free hints', type: 'utility', price: 40, icon: '💡', category: 'utility' },
-                  { id: 'solution_unlock', name: 'Solution Unlock', description: 'Instantly view 1 solution', type: 'utility', price: 25, icon: '🔓', category: 'utility' },
-                  { id: 'xp_boost_2h', name: '2x XP Boost (2h)', description: 'Double XP for 2 hours', type: 'boost', price: 100, icon: '⚡', category: 'boost' },
-                ];
-
-                const purchases: string[] = [];
-                const filteredItems = STORE_CATALOG;
-
-                return (
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredItems.map((item) => {
-                      const owned = purchases.includes(item.id);
-                      const canAfford = (user?.coins || 0) >= item.price;
-                      const proOnly = !user?.isPro;
-
-                      return (
-                        <Card key={item.id} className={`p-6 transition-all ${owned ? 'bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-600/50' : canAfford ? 'bg-slate-900 border-slate-700 hover:border-amber-500 hover:scale-105' : 'bg-slate-900/50 border-slate-800 opacity-60'}`}>
-                          <div className="flex items-start gap-4 mb-4">
-                            <div className={`text-5xl ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}>{item.icon}</div>
-                            <div className="flex-1">
-                              <div className="flex items-start justify-between mb-2">
-                                <h3 className="font-bold text-white">{item.name}</h3>
-                                {owned && <span className="text-xs px-2 py-1 bg-green-600/30 text-green-400 rounded-full">Owned</span>}
-                              </div>
-                              <p className="text-sm text-gray-400 mb-3">{item.description}</p>
-                              <span className={`text-xs px-2 py-1 rounded-full ${item.type === 'cosmetic' ? 'bg-purple-600/30 text-purple-400' : item.type === 'utility' ? 'bg-blue-600/30 text-blue-400' : 'bg-amber-600/30 text-amber-400'}`}>{item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>
+              {loadingStore ? (
+                <div className="text-center text-gray-400 py-8">Loading store...</div>
+              ) : storeItems.length === 0 ? (
+                storeRequiresAuth ? (
+                  <div className="text-center text-gray-400 py-8">Sign in to view store items</div>
+                ) : (
+                  <div className="text-center text-gray-400 py-8">No items available</div>
+                )
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {storeItems.map((item) => {
+                    const owned = !!item.owned;
+                    const canAfford = (coins || 0) >= item.price;
+                    return (
+                      <Card key={item.id} className={`p-6 transition-all ${owned ? 'bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-600/50' : canAfford ? 'bg-slate-900 border-slate-700 hover:border-amber-500 hover:scale-105' : 'bg-slate-900/50 border-slate-800 opacity-60'}`}>
+                        <div className="flex items-start gap-4 mb-4">
+                          <div className={`text-5xl ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}>{item.icon}</div>
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-2">
+                              <h3 className="font-bold text-white">{item.name}</h3>
+                              {owned && <span className="text-xs px-2 py-1 bg-green-600/30 text-green-400 rounded-full">Owned</span>}
                             </div>
+                            <p className="text-sm text-gray-400 mb-3">{item.description}</p>
+                            <span className={`text-xs px-2 py-1 rounded-full ${item.type === 'cosmetic' ? 'bg-purple-600/30 text-purple-400' : item.type === 'utility' ? 'bg-blue-600/30 text-blue-400' : 'bg-amber-600/30 text-amber-400'}`}>{item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>
                           </div>
+                        </div>
 
-                          <div className="flex items-center justify-between pt-4 border-t border-slate-700">
-                            <div className="flex items-center gap-2 text-amber-400 font-bold"><Zap className="w-5 h-5" />{item.price} FlowCoins</div>
-                            <Button
-                              onClick={() => { if (proOnly) { toast({ title: 'Pro only', description: 'Purchases are available to Pro users only.' }); return; } }}
-                              disabled={owned || !canAfford || !user?.isPro}
-                              className={`${owned ? 'bg-green-700 cursor-not-allowed' : !canAfford ? 'bg-slate-700 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'}`}
-                            >
-                              {owned ? 'Owned' : !user?.isPro ? 'Pro only' : !canAfford ? 'Not enough coins' : 'Buy'}
-                            </Button>
+                        <div className="flex items-center justify-between pt-4 border-t border-slate-700">
+                          <div className="flex items-center gap-2 text-amber-400 font-bold"><Zap className="w-5 h-5" />{item.price} FlowCoins</div>
+                          <div className="flex items-center gap-2">
+                            {owned && item.type === 'cosmetic' && (
+                              <Button onClick={() => handleEquip(item.id)} className="bg-amber-600 hover:bg-amber-700">Equip</Button>
+                            )}
+                            {!owned && (
+                            <Button onClick={() => handleCoinPurchase(item.id)} disabled={!canAfford || !user?.isPro} className={`${!canAfford || !user?.isPro ? 'bg-slate-700 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'}`}>
+                                          {!user?.isPro ? 'Pro only' : !canAfford ? 'Not enough coins' : 'Buy' }
+                                        </Button>
+                              )}
                           </div>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <Card className="p-6 bg-slate-900/90 border-slate-700">
@@ -631,6 +763,11 @@ export default function PricingPage() {
               </div>
             </Card>
           </div>
+        </div>
+
+        {/* Embedded Upgrade (Gamification -> Pricing) - exact upgrade UI copied into Pricing */}
+        <div className="max-w-7xl mx-auto my-12 px-4">
+          <MonetizationSection />
         </div>
 
         {/* Single price: $2 USD/month; card conversion handles FX */}

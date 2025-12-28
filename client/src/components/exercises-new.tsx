@@ -1,5 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
-import { runInWorker } from "@/lib/sandbox";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { runInWorker, createWorkerController } from "@/lib/sandbox";
+import CodeMirror from '@uiw/react-codemirror';
+import { javascript } from '@codemirror/lang-javascript';
+import { lineNumbers, highlightActiveLineGutter } from '@codemirror/gutter';
+import { EditorView } from '@codemirror/view';
+import { EditorSelection } from '@codemirror/state';
 import { exercises, type Exercise, type Language } from "@/lib/exercises-new";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -139,6 +144,13 @@ export function ExercisesViewNew() {
     logs: [],
   });
 
+  const editorRef = useRef<HTMLTextAreaElement | null>(null);
+  const cmViewRef = useRef<any>(null);
+  const [currentVars, setCurrentVars] = useState<Record<string, any> | null>(null);
+  const [viewModal, setViewModal] = useState<{ open: boolean; type?: 'hint' | 'solution' }>({ open: false });
+  const controllerRef = useRef<any>(null);
+  const pendingStepResolveRef = useRef<((line:number)=>void) | null>(null);
+
   const currentVariant = selectedExercise.variants[selectedLanguage] || selectedExercise.variants['javascript'];
 
   // Helper: explain common errors with friendly tips
@@ -226,7 +238,20 @@ export function ExercisesViewNew() {
       const jsTimeoutMs = user?.isPro ? 6000 : 3000;
       for (const test of selectedExercise.tests) {
         try {
-          const result = await runInWorker(code, functionName, test.input, { timeoutMs: jsTimeoutMs });
+          // run with step callback to update executionState.currentLineIndex
+          const result = await runInWorker(code, functionName, test.input, {
+            timeoutMs: jsTimeoutMs,
+            onStep: (line) => {
+              try {
+                setExecutionState(prev => ({ ...prev, currentLineIndex: Math.max(0, line - 1), logs: [...prev.logs, `▶ line ${line}`] }));
+                if (editorRef.current) {
+                  const approxLineHeight = 18;
+                  editorRef.current.scrollTop = Math.max(0, (line - 3) * approxLineHeight);
+                }
+              } catch {}
+            },
+            onSnapshot: (snapshot) => { try { const vars = snapshot?.vars || {}; const stack = snapshot?.stack || []; const heap = snapshot?.heap || []; setCurrentVars(vars); setExecutionState(prev => ({ ...prev, stack, heap })); } catch {} }
+          });
           const passed = JSON.stringify(result) === JSON.stringify(test.expected);
           if (!passed) {
             const explanation = `Expected: ${JSON.stringify(test.expected)}, Received: ${JSON.stringify(result)}`;
@@ -268,6 +293,99 @@ export function ExercisesViewNew() {
     } catch (e) {
       setTestResults([{ name: "Error", passed: false, error: (e as any).message }]);
       setExecutionState(prev => ({ ...prev, isExecuting: false, errorMessage: (e as any).message }));
+    }
+  };
+
+  const createController = () => {
+    // terminate existing
+    try { controllerRef.current?.terminate(); } catch {}
+    const functionMatch = code.match(/function\s+(\w+)\s*\(/);
+    if (!functionMatch) {
+      toast({ title: 'No function found', description: 'Please define a function to step through.', variant: 'destructive' });
+      return null;
+    }
+    const functionName = functionMatch[1];
+    const snapshotHistory: Array<{ line:number; vars: Record<string, any>; stack?: any[]; heap?: any[] }> = [];
+    const ctrl = createWorkerController(code, functionName, [], {
+      onStep: (line:number) => {
+        try {
+          setExecutionState(prev => ({ ...prev, currentLineIndex: Math.max(0, line - 1), logs: [...prev.logs, `▶ line ${line}`] }));
+          // highlight line in CodeMirror if available
+          try {
+            const view = cmViewRef.current;
+            if (view && typeof line === 'number' && line > 0) {
+              const docLine = view.state.doc.line(line);
+              view.dispatch({ selection: EditorSelection.range(docLine.from, docLine.from) });
+              view.focus();
+            }
+          } catch {}
+          if (pendingStepResolveRef.current) {
+            pendingStepResolveRef.current(line);
+            pendingStepResolveRef.current = null;
+          }
+        } catch {}
+      },
+      onSnapshot: (snapshot, line) => { try { const vars = snapshot?.vars || {}; const stack = snapshot?.stack || []; const heap = snapshot?.heap || []; setCurrentVars(vars); setExecutionState(prev => ({ ...prev, stack, heap })); snapshotHistory.push({ line: Number(line)||0, vars: { ...vars }, stack, heap }); } catch {} }
+    });
+    // attach history and helper to controller
+    (ctrl as any).snapshotHistory = snapshotHistory;
+    (ctrl as any).goTo = (index: number) => {
+      const h = snapshotHistory[index];
+      if (h) {
+        setExecutionState(prev => ({ ...prev, currentLineIndex: Math.max(0, h.line - 1) }));
+        try { setCurrentVars(h.vars || {}); } catch {}
+        try {
+          const view = cmViewRef.current;
+          if (view && h.line > 0) {
+            const docLine = view.state.doc.line(h.line);
+            view.dispatch({ selection: EditorSelection.range(docLine.from, docLine.from) });
+            view.focus();
+          }
+        } catch {}
+      }
+    };
+    controllerRef.current = ctrl;
+    return ctrl;
+  };
+
+  const stepForward = async () => {
+    if (!controllerRef.current) {
+      const c = createController();
+      if (!c) return;
+    }
+    const p = new Promise<number>((res) => { pendingStepResolveRef.current = res; });
+    try { controllerRef.current.step(); } catch (e) { pendingStepResolveRef.current = null; return; }
+    try {
+      const line = await p;
+      return line;
+    } catch { return; }
+  };
+
+  const stepBack = async () => {
+    const current = executionState.currentLineIndex;
+    if (current <= 0) return;
+    const ctrl = controllerRef.current;
+    if (ctrl && (ctrl as any).snapshotHistory) {
+      const hist = (ctrl as any).snapshotHistory as Array<any>;
+      const targetIndex = Math.max(0, hist.length - 1 - 1); // go to previous snapshot
+      // simpler: find last snapshot with line < current+1
+      let idx = -1;
+      for (let i = hist.length - 1; i >= 0; i--) {
+        if (hist[i].line < current + 1) { idx = i; break; }
+      }
+      if (idx >= 0) {
+        (ctrl as any).goTo(idx);
+      }
+      return;
+    }
+    // fallback: replay
+    const targetLine = Math.max(0, current - 1);
+    try { controllerRef.current?.terminate(); } catch {}
+    const c = createController();
+    if (!c) return;
+    for (let i = 0; i <= targetLine; i++) {
+      // eslint-disable-next-line no-await-in-loop
+      await stepForward();
     }
   };
 
@@ -408,9 +526,10 @@ export function ExercisesViewNew() {
                     <ChevronRight className="w-3 h-3" /> Editor
                   </h4>
                   <textarea
+                    ref={editorRef}
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    className="flex-1 w-full p-3 font-mono text-sm bg-[#0d1220] text-slate-50 rounded border border-white/10 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="flex-1 w-full p-4 leading-7 text-base font-mono bg-[#0d1220] text-slate-50 rounded border border-white/10 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="// Write your code here..."
                     spellCheck="false"
                   />
@@ -421,6 +540,20 @@ export function ExercisesViewNew() {
                     </div>
                   )}
                 </Card>
+                {currentVars && (
+                  <div className="mt-3 p-3 bg-slate-800/60 border border-white/5 rounded text-sm text-gray-200">
+                    <div className="font-semibold text-amber-300">Current Variables</div>
+                    <div className="mt-2">
+                      {Object.keys(currentVars).length === 0 ? (
+                        <div className="text-sm text-gray-400">(no tracked variables)</div>
+                      ) : (
+                        Object.entries(currentVars).map(([k,v]) => (
+                          <div key={k} className="flex justify-between text-sm py-1"><div className="text-gray-300">{k}</div><div className="text-amber-200">{JSON.stringify(v)}</div></div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
@@ -434,7 +567,7 @@ export function ExercisesViewNew() {
             {/* Stack */}
             <ResizablePanel defaultSize={35} minSize={10}>
               <div className="h-full p-4 bg-[#0d1220]/50 border-b border-white/5 overflow-auto">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">📚 Variables</h4>
+                <h4 className="text-sm font-semibold mb-3 text-slate-200">📚 Variables</h4>
                 {executionState.stack.length > 0 ? (
                   <CallStack stack={executionState.stack} />
                 ) : (
@@ -448,7 +581,7 @@ export function ExercisesViewNew() {
             {/* Heap */}
             <ResizablePanel defaultSize={30} minSize={10}>
               <div className="h-full p-4 bg-[#0d1220]/50 border-b border-white/5 overflow-auto">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3">💾 Memory</h4>
+                <h4 className="text-sm font-semibold mb-3 text-slate-200">💾 Memory</h4>
                 {executionState.heap.length > 0 ? (
                   <HeapMemory heap={executionState.heap} />
                 ) : (
@@ -462,66 +595,72 @@ export function ExercisesViewNew() {
             {/* Resultados */}
             <ResizablePanel defaultSize={35} minSize={10}>
               <div className="h-full p-4 bg-[#0d1220]/50 overflow-auto">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-yellow-400 mb-3">📊 Tests</h4>
+                <h4 className="text-sm font-semibold mb-3 text-slate-200">📊 Tests</h4>
                 {testResults.length === 0 ? (
                   <p className="text-xs text-muted-foreground">Run to See Results</p>
                 ) : (
                   <div className="space-y-2">
-                    {testResults.map((result, idx) => (
-                      <div
-                        key={idx}
-                        className={`p-3 rounded border ${
-                          result.passed
-                            ? "bg-green-500/10 border-green-500/30"
-                            : "bg-red-500/10 border-red-500/30"
-                        }`}
-                      >
-                        <div className="flex gap-2">
-                        {currentVariant?.hint && (user?.isPro || hasPurchased(selectedExercise.id, 'hint')) && (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => {
-                              setShowHint((s) => {
-                                const next = !s;
-                                if (next) setShowSolution(false);
-                                return next;
-                              });
-                            }}
-                            className="gap-2"
-                          >
-                            <Lightbulb className="w-4 h-4" /> Hint
-                          </Button>
-                        )}
-                        {currentVariant?.solution && (user?.isPro || hasPurchased(selectedExercise.id, 'solution')) && (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => {
-                              setShowSolution((s) => {
-                                const next = !s;
-                                if (next) setShowHint(false);
-                                return next;
-                              });
-                            }}
-                            className="gap-2"
-                          >
-                            <Eye className="w-4 h-4" /> View Solution
-                          </Button>
-                        )}
-                      <motion.div className="p-4 bg-primary/20 border border-primary rounded">
-                        <div className="flex items-center gap-3">
-                          <CheckCircle2 className="w-6 h-6 text-primary" />
-                          <div className="flex-1">
-                            <p className="font-bold text-primary">🎉 All Tests Passed!</p>
-                            <p className="text-xs text-muted-foreground">All Tests Passed</p>
+                    {testResults.map((result, idx) => {
+                      return (
+                        <div
+                          key={idx}
+                          className={`p-3 rounded border ${
+                            result.passed
+                              ? "bg-green-500/10 border-green-500/30"
+                              : "bg-red-500/10 border-red-500/30"
+                          }`}
+                        >
+                          <div className="flex gap-2 items-start">
+                            {currentVariant?.hint && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  if (user?.isPro || hasPurchased(selectedExercise.id, 'hint')) {
+                                    setViewModal({ open: true, type: 'hint' });
+                                  } else {
+                                    openPurchase('hint');
+                                  }
+                                }}
+                                className="gap-2"
+                              >
+                                <Lightbulb className="w-4 h-4" /> Hint
+                              </Button>
+                            )}
+
+                            {currentVariant?.solution && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  if (user?.isPro || hasPurchased(selectedExercise.id, 'solution')) {
+                                    setViewModal({ open: true, type: 'solution' });
+                                  } else {
+                                    openPurchase('solution');
+                                  }
+                                }}
+                                className="gap-2"
+                              >
+                                <Eye className="w-4 h-4" /> View Solution
+                              </Button>
+                            )}
+
+                            <motion.div className="p-4 bg-primary/20 border border-primary rounded text-sm">
+                              <div className="flex items-center gap-3">
+                                <CheckCircle2 className="w-6 h-6 text-primary" />
+                                <div className="flex-1">
+                                  <p className="font-bold text-primary">🎉 All Tests Passed!</p>
+                                  <p className="text-sm text-muted-foreground">All Tests Passed</p>
+                                </div>
+                                <Button size="sm" onClick={handleNextExercise} className="gap-2">
+                                  Next Exercise <SkipForward className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </motion.div>
                           </div>
-                          <Button size="sm" onClick={handleNextExercise} className="gap-2">
-                            Next Exercise <SkipForward className="w-3 h-3" />
-                          </Button>
                         </div>
-                      </motion.div>
-                    )}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -535,39 +674,19 @@ export function ExercisesViewNew() {
   return (
     <div className="h-[calc(100vh-64px)] min-h-[720px] flex flex-col pb-24">
       {/* Toolbar */}
-      <div className="h-auto md:h-16 border-b border-white/10 bg-card/30 flex flex-col md:flex-row items-center px-4 py-2 md:py-0 justify-between shrink-0 gap-4">
-          <div className="flex flex-wrap items-center gap-3 flex-1 w-full md:w-auto">
-          <h2 className="font-bold text-lg whitespace-nowrap hidden md:block">Exercises</h2>
-          
-          {/* Exercise Selector */}
-          <Select
-            value={selectedExercise.id}
-            onValueChange={(id) => {
-              const exercise = exercises.find(e => e.id === id);
-              if (exercise) setSelectedExercise(exercise);
-            }}
-          >
-            <SelectTrigger className="w-[200px] h-8 bg-white/5 border-white/10 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {exercises.map((ex) => (
-                <SelectItem key={ex.id} value={ex.id}>
-                  {ex.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Indicador de Linguagem (apenas display) */}
-          <div className="hidden md:block">
-            <LanguageBadge />
+      <div className="h-auto md:h-16 border-b border-white/10 bg-card/30 flex items-center px-4 py-3 justify-between gap-4 shrink-0">
+        <div className="flex items-center gap-3">
+          <h2 className="font-bold text-lg">{selectedExercise.title}</h2>
+          <div className="ml-2">
+            <span className="px-2 py-1 bg-slate-800/40 rounded text-xs">{selectedLanguage}</span>
           </div>
-          
+          <div className="ml-4 flex items-center gap-2">
+            <Button size="sm" variant={/*@ts-ignore*/ 'ghost'} onClick={() => {}} className="px-3">Lesson</Button>
+            <Button size="sm" variant="outline" onClick={() => {}} className="px-3">Playground</Button>
+          </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2 w-full md:w-auto justify-center">
+        <div className="flex items-center gap-2">
           <Button
             onClick={resetExecution}
             variant="ghost"
@@ -577,7 +696,17 @@ export function ExercisesViewNew() {
           >
             <RotateCcw className="w-4 h-4" />
           </Button>
-          
+
+          <Button
+            onClick={() => { stepBack(); }}
+            variant="ghost"
+            size="icon"
+            title="Step Back"
+            className="h-8 w-8 hidden md:inline-flex"
+          >
+            <ChevronRight className="w-4 h-4 rotate-180" />
+          </Button>
+
           <Button
             onClick={runTests}
             disabled={executionState.isExecuting}
@@ -585,10 +714,20 @@ export function ExercisesViewNew() {
             className="gap-2 bg-primary hover:bg-primary/90"
           >
             <Play className="w-4 h-4" />
-            {executionState.isExecuting ? "Executing" : "Test Code"}
+            {executionState.isExecuting ? "Executing" : "Run"}
           </Button>
 
-          <div className="w-24 ml-2 hidden md:block">
+          <Button
+            onClick={() => { stepForward(); }}
+            variant="ghost"
+            size="icon"
+            title="Step Forward"
+            className="h-8 w-8 hidden md:inline-flex"
+          >
+            <SkipForward className="w-4 h-4" />
+          </Button>
+
+          <div className="w-36 ml-2 hidden md:block">
             <Slider 
               value={[3000 - executionSpeed]} 
               min={100} 
@@ -601,42 +740,80 @@ export function ExercisesViewNew() {
         </div>
       </div>
 
-      {/* Main Content: Left tiles (20 random exercises) + Right sandbox editor */}
+      {/* Main Content: sandbox editor + visualizer (full width) */}
       <div className="flex-1 overflow-hidden">
-        <div className="flex flex-col md:flex-row h-full">
-          {/* Left: tiles */}
-          <div className="w-full md:w-1/2 lg:w-1/3 p-6 overflow-auto border-r border-white/5">
+        <div className="flex h-full">
+          {/* Left: Editor and Explanation */}
+          <div className="w-2/3 p-6">
             <div className="mb-4">
-              <h3 className="text-lg font-bold text-white">Exercises</h3>
-              <p className="text-sm text-gray-300">20 randomized activities — from simple to complex. Click one to open the sandbox on the right.</p>
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-400">script.js</div>
+                <div className="text-xs text-muted-foreground">Step {executionState.currentLineIndex > 0 ? executionState.currentLineIndex : '-'}</div>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              {sampleExercises.map((ex) => (
-                <button
-                  key={ex.id}
-                  onClick={() => {
-                    setSelectedExercise(ex);
-                    const v = ex.variants[selectedLanguage] || ex.variants.javascript;
-                    setCode(v?.initialCode || '');
-                    resetExecution();
-                    setTestResults([]);
-                    
-                  }}
-                  className="p-3 text-left rounded bg-slate-800/40 hover:bg-slate-800/60 transition"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-semibold text-white">{ex.title}</div>
-                    <div className="text-xs text-gray-300">{ex.difficulty}</div>
-                  </div>
-                  <div className="text-xs text-gray-400 mt-2">{ex.description}</div>
-                </button>
-              ))}
-            </div>
+
+            <Card className="p-6 bg-[#0b1220]/70 border border-white/5 mb-4 min-h-[360px]">
+              <div className="w-full h-[360px]">
+                <CodeMirror
+                  value={code}
+                  height="100%"
+                  extensions={[javascript(), lineNumbers(), highlightActiveLineGutter(), EditorView.lineWrapping]}
+                  onChange={(value) => setCode(value)}
+                  onCreateEditor={(view) => { cmViewRef.current = view; }}
+                  className="rounded"
+                />
+              </div>
+            </Card>
+
+            <Card className="p-4 bg-card/40 border-white/5">
+              <h4 className="text-sm font-semibold text-slate-200">Explanation</h4>
+              <p className="mt-2 text-sm text-gray-300">{selectedExercise.description}</p>
+            </Card>
           </div>
 
-          {/* Right: sandbox editor + visualizer */}
-          <div className="flex-1 p-4 overflow-auto">
-            {renderContent()}
+          {/* Right: Call Stack / Heap / Tests */}
+          <div className="w-1/3 p-6 space-y-4">
+            <div className="p-4 bg-[#0d1220]/60 border border-white/5 rounded min-h-[140px]">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold text-slate-200">CALL STACK (PILHA)</h4>
+                <div className="text-xs text-muted-foreground">ACTIVE</div>
+              </div>
+              <div className="text-sm text-slate-100">
+                {executionState.stack.length > 0 ? (
+                  <CallStack stack={executionState.stack} />
+                ) : (
+                  <p className="text-sm text-gray-400">Execute to See Steps</p>
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 bg-[#0d1220]/60 border border-white/5 rounded min-h-[140px]">
+              <h4 className="text-sm font-semibold text-slate-200 mb-2">HEAP MEMORY (OBJECTS)</h4>
+              {executionState.heap.length > 0 ? (
+                <HeapMemory heap={executionState.heap} />
+              ) : (
+                <p className="text-sm text-gray-400">Heap memory empty</p>
+              )}
+            </div>
+
+            <div className="p-4 bg-[#0d1220]/60 border border-white/5 rounded min-h-[160px] overflow-auto">
+              <h4 className="text-sm font-semibold text-slate-200 mb-2">TESTS</h4>
+              {testResults.length === 0 ? (
+                <p className="text-sm text-gray-400">Run to See Results</p>
+              ) : (
+                <div className="space-y-3">
+                  {testResults.map((r, i) => (
+                    <div key={i} className={`p-3 rounded ${r.passed ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm">{r.name}</div>
+                        <div className="text-sm text-amber-200">{r.passed ? 'Passed' : 'Failed'}</div>
+                      </div>
+                      {r.error && <div className="mt-2 text-xs text-red-300">{r.error}</div>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -656,6 +833,36 @@ export function ExercisesViewNew() {
       </div>
       {showAdPromo && (
         <AdVideoPlayer onAdComplete={handleAdComplete} onClose={handleAdClose} />
+      )}
+      {/* Hint / Solution Viewer */}
+      {viewModal.open && (
+        <Dialog>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{viewModal.type === 'hint' ? 'Hint' : 'Solution'}</DialogTitle>
+              <DialogDescription>{viewModal.type === 'hint' ? 'A helpful hint to guide you.' : 'Full solution for the exercise.'}</DialogDescription>
+            </DialogHeader>
+            <div className="p-4">
+              {viewModal.type === 'hint' ? (
+                currentVariant?.hint ? (
+                  <p className="text-sm text-yellow-200">{currentVariant.hint}</p>
+                ) : (
+                  <p className="text-sm text-gray-400">No hint available for this exercise.</p>
+                )
+              ) : (
+                currentVariant?.solution ? (
+                  <pre className="text-sm overflow-x-auto"><code className="text-green-200">{currentVariant.solution}</code></pre>
+                ) : (
+                  <p className="text-sm text-gray-400">No solution available for this exercise.</p>
+                )
+              )}
+
+              <div className="flex gap-2 justify-end mt-4">
+                <Button variant="ghost" onClick={() => setViewModal({ open: false })}>Close</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
       {/* Purchase Dialog (simulated checkout) */}
       {purchaseDialog.open && (

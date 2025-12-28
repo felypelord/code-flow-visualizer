@@ -34,6 +34,7 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [ownedAvatars, setOwnedAvatars] = useState<Record<string, boolean>>({});
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -60,6 +61,30 @@ export default function ProfilePage() {
       });
     }
   }, [user]);
+
+  // Load owned avatars when opening the avatar picker so we can restrict selection
+  useEffect(() => {
+    if (!showAvatarPicker) return;
+    (async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/store', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        if (!res.ok) return;
+        const data = await res.json();
+        const owned: Record<string, boolean> = {};
+        (data.items || []).forEach((it: any) => {
+          if (it.category === 'avatar' && it.owned) {
+            // server ids are like 'avatar_ninja' -> map to 'ninja'
+            const name = String(it.id).replace(/^avatar_/, '');
+            owned[name] = true;
+          }
+        });
+        setOwnedAvatars(owned);
+      } catch (e) {
+        // ignore
+      }
+    })();
+  }, [showAvatarPicker]);
 
   if (!user) {
     return (
@@ -182,22 +207,49 @@ export default function ProfilePage() {
           <Card className="p-6 bg-slate-900 border-slate-700">
             <h3 className="text-xl font-bold text-white mb-4">Choose Avatar</h3>
             <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
-              {AVATAR_GALLERY.map((avatar) => (
-                <button
-                  key={avatar}
-                  onClick={() => {
-                    setFormData({ ...formData, avatar });
-                    setShowAvatarPicker(false);
-                  }}
-                  className={`text-4xl p-3 rounded-lg transition-all ${
-                    formData.avatar === avatar
-                      ? 'bg-purple-600 scale-110'
-                      : 'bg-slate-800 hover:bg-slate-700'
-                  }`}
-                >
-                  {getAvatarEmoji(avatar)}
-                </button>
-              ))}
+              {AVATAR_GALLERY.map((avatar) => {
+                const owned = !!ownedAvatars[avatar] || avatar === 'default';
+                return (
+                  <div key={avatar} className="relative">
+                    <button
+                      onClick={async () => {
+                        if (!owned) {
+                          // redirect to pricing store for purchase
+                          window.location.href = `/pricing?product=avatar_${avatar}&returnTo=/profile`;
+                          return;
+                        }
+                        // Owned: equip via store API to ensure server-side enforcement
+                        try {
+                          const token = localStorage.getItem('token');
+                          if (!token) { toast({ title: 'Sign in', description: 'Please sign in to equip avatars.' }); return; }
+                          const res = await fetch('/api/store/equip', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                            body: JSON.stringify({ itemId: `avatar_${avatar}` }),
+                          });
+                          const j = await res.json().catch(() => ({}));
+                          if (!res.ok) throw new Error(j?.message || 'Equip failed');
+                          toast({ title: 'Equipped', description: j?.message || 'Avatar equipped.' });
+                          if (refreshUser) await refreshUser();
+                          setShowAvatarPicker(false);
+                        } catch (err: any) {
+                          toast({ title: 'Error', description: err?.message || 'Unable to equip', variant: 'destructive' });
+                        }
+                      }}
+                      className={`text-4xl p-3 rounded-lg transition-all flex items-center justify-center ${
+                        formData.avatar === avatar ? 'bg-purple-600 scale-110' : 'bg-slate-800 hover:bg-slate-700'
+                      }`}
+                    >
+                      {getAvatarEmoji(avatar)}
+                    </button>
+                    {!owned && (
+                      <div className="absolute inset-0 flex items-end justify-center p-2">
+                        <div className="bg-black/60 text-xs text-gray-200 px-2 py-1 rounded-md">Buy in Store</div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </Card>
         )}

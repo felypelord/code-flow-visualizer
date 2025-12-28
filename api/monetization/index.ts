@@ -18,13 +18,17 @@ interface PackageConfig {
   type: 'subscription' | 'coins' | 'premium' | 'micro';
 }
 
+// Prices are expressed in USD cents (canonical). Stripe sessions use currency 'usd'.
 const PACKAGES: Record<string, PackageConfig> = {
-  pro_monthly: { price: 1990, proDuration: 30, type: 'subscription' },
-  pro_yearly: { price: 14390, proDuration: 365, type: 'subscription' },
-  coins_100: { price: 490, coins: 100, type: 'coins' },
-  coins_500: { price: 1990, coins: 550, type: 'coins' },
-  coins_1000: { price: 3490, coins: 1200, type: 'coins' },
-  premium_lifetime: { price: 49900, proDuration: 36500, type: 'premium' }, // 100 years
+  // Pro: $2/month, $24/year
+  pro_monthly: { price: 200, proDuration: 30, type: 'subscription' },
+  pro_yearly: { price: 2400, proDuration: 365, type: 'subscription' },
+  // FlowCoins: 1 USD == 100 FlowCoins
+  coins_100: { price: 100, coins: 100, type: 'coins' },
+  coins_500: { price: 500, coins: 500, type: 'coins' },
+  coins_1000: { price: 1000, coins: 1000, type: 'coins' },
+  // Lifetime premium (kept as $499 canonical)
+  premium_lifetime: { price: 49900, proDuration: 36500, type: 'premium' },
   // Micro purchases for individual exercise hints/solutions (prices in cents)
   hint: { price: 5, type: 'micro' },
   solution: { price: 10, type: 'micro' },
@@ -46,13 +50,38 @@ export async function createPayment(req: Request, res: Response) {
       return res.status(400).json({ error: 'Invalid package' });
     }
 
+    // If Stripe is not configured (dev), simulate a checkout session and apply benefits immediately.
+    if (!process.env.STRIPE_SECRET_KEY) {
+      const simId = `sim_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      // record as completed for convenience in dev
+      await db.insert(infinityPayPurchases).values({
+        userId,
+        transactionId: simId,
+        packageId,
+        amount: packageConfig.price,
+        currency: 'USD',
+        status: 'completed',
+        paymentMethod: 'simulated',
+        metadata: JSON.stringify({ simulated: true, packageId, itemId }),
+      });
+
+      // apply package benefits immediately (same logic as webhook)
+      await applyPackageBenefits(userId, packageId, itemId || '', simId);
+
+      return res.json({
+        sessionId: simId,
+        checkoutUrl: `${APP_URL}/monetization/simulated?session_id=${simId}`,
+        simulated: true,
+      });
+    }
+
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
           price_data: {
-            currency: 'brl',
+            currency: 'usd',
             product_data: {
               name: getPackageName(packageId),
               description: getPackageDescription(packageId),
@@ -82,7 +111,7 @@ export async function createPayment(req: Request, res: Response) {
       transactionId: session.id,
       packageId,
       amount: packageConfig.price,
-      currency: 'BRL',
+      currency: 'USD',
       status: 'pending',
       paymentMethod: 'stripe',
       metadata: JSON.stringify({ sessionId: session.id }),
@@ -100,13 +129,50 @@ export async function createPayment(req: Request, res: Response) {
   }
 }
 
+// Helper to apply package benefits (used by webhook and simulated flows)
+async function applyPackageBenefits(userId: string, packageId: string, itemId: string, transactionId: string) {
+  const packageConfig = PACKAGES[packageId];
+  if (!packageConfig) return;
+
+  if (packageConfig.type === 'subscription' || packageConfig.type === 'premium') {
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + (packageConfig.proDuration || 30));
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    await db
+      .update(users)
+      .set({
+        isPro: true,
+        proExpiresAt: expiresAt,
+        premiumPurchases: (user?.premiumPurchases || 0) + 1,
+      })
+      .where(eq(users.id, userId));
+  } else if (packageConfig.type === 'coins') {
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    await db.update(users).set({ coins: (user?.coins || 0) + (packageConfig.coins || 0), premiumPurchases: (user?.premiumPurchases || 0) + 1 }).where(eq(users.id, userId));
+    await db.insert(coinTransactions).values({ userId, amount: packageConfig.coins || 0, type: 'earn', source: 'purchase', metadata: JSON.stringify({ packageId, transactionId }) });
+  } else if (packageConfig.type === 'micro') {
+    const item = itemId || packageId;
+    try {
+      await db.insert(storePurchases).values({ userId, itemId: String(item), itemType: 'micro', xpCost: 0, coinCost: 0 });
+    } catch (err) {
+      console.error('Failed to record simulated micro purchase:', err);
+    }
+  }
+}
+
 function getPackageName(packageId: string): string {
   const names: Record<string, string> = {
     pro_monthly: 'Code Flow Pro - Mensal',
     pro_yearly: 'Code Flow Pro - Anual',
     coins_100: '100 FlowCoins',
-    coins_500: '500 FlowCoins (+50 bônus)',
-    coins_1000: '1000 FlowCoins (+200 bônus)',
+    coins_500: '500 FlowCoins',
+    coins_1000: '1000 FlowCoins',
     premium_lifetime: 'Code Flow Pro - Vitalício',
     hint: 'Exercise Hint (single)',
     solution: 'Exercise Solution (single)',
@@ -119,8 +185,8 @@ function getPackageDescription(packageId: string): string {
     pro_monthly: 'Acesso ilimitado por 1 mês',
     pro_yearly: 'Acesso ilimitado por 1 ano (economize 40%)',
     coins_100: 'Compre hints, soluções e avatares',
-    coins_500: '550 FlowCoins com 10% de bônus',
-    coins_1000: '1200 FlowCoins com 20% de bônus',
+    coins_500: '500 FlowCoins',
+    coins_1000: '1000 FlowCoins',
     premium_lifetime: 'Acesso ilimitado para sempre',
     hint: 'Unlock one hint for an exercise',
     solution: 'Unlock the full solution for an exercise',
@@ -277,6 +343,13 @@ export async function confirmPurchase(req: Request, res: Response) {
   try {
     const sessionId = (req.body && req.body.sessionId) || (req.query && req.query.session_id);
     if (!sessionId) return res.status(400).json({ ok: false, error: 'sessionId required' });
+    // If Stripe not configured and this is a simulated session, look up our local record
+    if (!process.env.STRIPE_SECRET_KEY && String(sessionId).startsWith('sim_')) {
+      const [rec] = await db.select().from(infinityPayPurchases).where(eq(infinityPayPurchases.transactionId, String(sessionId))).limit(1);
+      if (!rec) return res.json({ ok: false, paid: false, metadata: {} });
+      return res.json({ ok: true, paid: rec.status === 'completed', metadata: rec.metadata ? JSON.parse(String(rec.metadata)) : {} });
+    }
+
     const session = await stripe.checkout.sessions.retrieve(String(sessionId));
     const paid = session.payment_status === 'paid' || session.status === 'complete';
     return res.json({ ok: true, paid, metadata: session.metadata || {} });
