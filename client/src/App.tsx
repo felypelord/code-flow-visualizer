@@ -21,6 +21,7 @@ import LeaderboardPage from "@/pages/leaderboard";
 import DailyChallengesPage from "@/pages/daily-challenges";
 import ChallengesPage from "@/pages/challenges";
 import MonetizationPage from "@/pages/monetization";
+import LibraryPage from "@/pages/library";
 
 function Router() {
   return (
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/tracks" component={TracksPage} />
       <Route path="/pro" component={ProPage} />
       <Route path="/pricing" component={PricingPage} />
+      <Route path="/library" component={LibraryPage} />
       {/* Gamification */}
       <Route path="/profile" component={ProfilePage} />
       <Route path="/history" component={HistoryPage} />

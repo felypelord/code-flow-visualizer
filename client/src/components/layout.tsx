@@ -144,6 +144,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </span>
               </span>
             </Link>
+            <NavLink href="/library" active={location.includes("/library")}> 
+              <BookOpen className="w-4 h-4 text-amber-400" />
+              <span className="ml-1">Library</span>
+            </NavLink>
             
 
             {/* Gamification dropdown */}
@@ -316,6 +320,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     )}>
                       <Crown className="w-4 h-4 text-amber-400" />
                       <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">Pricing</span>
+                    </span>
+                  </Link>
+
+                  <Link href="/library" onClick={() => setIsOpen(false)}>
+                    <span className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors",
+                      location.includes("/library") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                    )}>
+                      <BookOpen className="w-4 h-4 text-amber-400" />
+                      <span className="font-semibold">Library</span>
                     </span>
                   </Link>
 

@@ -39,6 +39,8 @@ export interface LessonVariant {
 
 export interface Lesson {
   id: string;
+  // Optional mapping to an exercise id for deterministic Practice/Check wiring
+  exerciseId?: string;
   title: string;
   description: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';

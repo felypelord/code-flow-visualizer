@@ -10,6 +10,7 @@ import CallStack from "@/components/visualizer/call-stack";
 import HeapMemory from "@/components/visualizer/heap-memory";
 import { StackFrame, HeapObject } from "@/lib/types";
 import { getPyodideInstance } from "@/lib/pyodide";
+import { runInWorker, createWorkerController } from "@/lib/sandbox";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@/hooks/use-user";
 import { checkAndConsumeExecution } from "@/lib/execution-limit";
@@ -61,6 +62,9 @@ export function ExercisesView() {
     heap: [],
     logs: [],
   });
+  const controllerRef = useRef<any>(null);
+  const autoStepIntervalRef = useRef<number | null>(null);
+  const executionPausedRef = useRef<boolean>(false);
   const [showUseSolutionConfirm, setShowUseSolutionConfirm] = useState(false);
   const [showEnableExecutionConfirm, setShowEnableExecutionConfirm] = useState(false);
   const [pendingExecutionAction, setPendingExecutionAction] = useState<"line" | "tests" | null>(null);
@@ -86,6 +90,10 @@ export function ExercisesView() {
   useEffect(() => {
     executionSpeedRef.current = executionSpeed;
   }, [executionSpeed]);
+
+  useEffect(() => {
+    executionPausedRef.current = executionState.isPaused;
+  }, [executionState.isPaused]);
 
   useEffect(() => {
     localStorage.setItem("executionSpeed", String(executionSpeed));
@@ -430,8 +438,8 @@ export function ExercisesView() {
     };
   }, [executionState.isExecuting, executionState.isPaused, executionState.currentLineIndex, executionSpeed]);
 
-  // Start line-by-line execution
-  const startLineByLine = () => {
+  // Start line-by-line execution using the sandbox worker controller
+  const startLineByLine = async () => {
     if (!allowExecution) {
       setPendingExecutionAction("line");
       setShowEnableExecutionConfirm(true);
@@ -441,6 +449,13 @@ export function ExercisesView() {
       setTestResults([{ passed: false, name: "Error", error: "Python requires server-side execution. Use JavaScript for quick in-browser tests." }]);
       return;
     }
+
+    // clear any existing controller/interval
+    try {
+      if (controllerRef.current?.terminate) controllerRef.current.terminate();
+    } catch {}
+    if (autoStepIntervalRef.current) { clearInterval(autoStepIntervalRef.current); autoStepIntervalRef.current = null; }
+
     const lines = code.split('\n');
     setExecutionState(prev => ({
       ...prev,
@@ -455,6 +470,47 @@ export function ExercisesView() {
       heap: [],
       logs: [],
     }));
+
+    const functionNameMatch = code.match(/function\s+(\w+)\s*\(/);
+    const functionName = functionNameMatch ? functionNameMatch[1] : undefined;
+
+    try {
+      const controller = createWorkerController(code, functionName, [], {
+        onStep: (line: number) => {
+          setExecutionState(prev => ({ ...prev, currentLineIndex: Math.max(0, (line || 1) - 1) }));
+        },
+        onSnapshot: (snapshot: any, line?: number) => {
+          setExecutionState(prev => ({ ...prev, variables: snapshot.vars || {}, stack: snapshot.stack || [], heap: snapshot.heap || [] }));
+        }
+      });
+
+      controllerRef.current = controller;
+
+      const stepOnce = () => {
+        try { controller.step(); } catch {}
+      };
+
+      // first immediate step
+      stepOnce();
+
+      // auto-step interval
+      autoStepIntervalRef.current = window.setInterval(() => {
+        if (!executionPausedRef.current) stepOnce();
+      }, executionSpeedRef.current);
+
+      controller.result.then(() => {
+        if (autoStepIntervalRef.current) { clearInterval(autoStepIntervalRef.current); autoStepIntervalRef.current = null; }
+        controllerRef.current = null;
+        setExecutionState(prev => ({ ...prev, isExecuting: false }));
+      }).catch((err: any) => {
+        if (autoStepIntervalRef.current) { clearInterval(autoStepIntervalRef.current); autoStepIntervalRef.current = null; }
+        controllerRef.current = null;
+        setExecutionState(prev => ({ ...prev, isExecuting: false, errorMessage: err?.message || String(err) }));
+      });
+    } catch (e) {
+      setTestResults([{ passed: false, name: "Error", error: String(e) }]);
+      setExecutionState(prev => ({ ...prev, isExecuting: false }));
+    }
   };
 
   const currentVariant = selectedExercise.variants[selectedLanguage];
@@ -658,7 +714,7 @@ export function ExercisesView() {
                           runTests();
                         }
                       }}
-                      disabled={executionState.isExecuting}
+                      // Allow editing while execution is running so users can type freely
                       className={`w-full h-72 md:h-[480px] lg:h-[560px] p-4 pl-20 text-base rounded border resize-vertical focus:outline-none focus:ring-2 transition-all font-mono ${editorProClass}`}
                       placeholder="Write your code here..."
                       aria-label={`Code editor (${selectedLanguage})`}
@@ -676,22 +732,45 @@ export function ExercisesView() {
                   {/* Barra de controles igual ao playground */}
                   <div className="flex items-center gap-2 mt-4 p-2 bg-slate-800/80 border border-slate-700 rounded-lg justify-center divide-x divide-slate-700">
                     <Button variant="ghost" size="icon" onClick={() => {
-                      setExecutionState((prev) => ({ ...prev, currentLineIndex: 0, errorLineIndex: null, errorMessage: null }));
+                      try { if (controllerRef.current?.terminate) controllerRef.current.terminate(); } catch {}
+                      if (autoStepIntervalRef.current) { clearInterval(autoStepIntervalRef.current); autoStepIntervalRef.current = null; }
+                      controllerRef.current = null;
+                      setExecutionState((prev) => ({ ...prev, currentLineIndex: 0, errorLineIndex: null, errorMessage: null, isExecuting: false }));
                     }} aria-label="Back to Start">
                       <SkipBack className="w-4 h-4" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => {
-                      setExecutionState((prev) => ({ ...prev, currentLineIndex: Math.max(0, prev.currentLineIndex - 1), errorLineIndex: null, errorMessage: null }));
+                      try {
+                        if (controllerRef.current) {
+                          try { controllerRef.current.terminate(); } catch {}
+                          controllerRef.current = null;
+                          if (autoStepIntervalRef.current) { clearInterval(autoStepIntervalRef.current); autoStepIntervalRef.current = null; }
+                        }
+                      } catch {}
+                      setExecutionState((prev) => ({ ...prev, currentLineIndex: Math.max(0, prev.currentLineIndex - 1), errorLineIndex: null, errorMessage: null, isExecuting: false }));
                     }} aria-label="Previous Step">
                       <SkipBack className="w-4 h-4" />
                     </Button>
-                    <Button size="icon" onClick={() => {
-                      setExecutionState((prev) => ({ ...prev, isPaused: !prev.isPaused }));
+                    <Button size="icon" onClick={async () => {
+                      if (!executionState.isExecuting) {
+                        await startLineByLine();
+                        return;
+                      }
+                      const newPaused = !executionState.isPaused;
+                      try {
+                        if (!newPaused && controllerRef.current?.resume) controllerRef.current.resume();
+                      } catch {}
+                      executionPausedRef.current = newPaused;
+                      setExecutionState((prev) => ({ ...prev, isPaused: newPaused }));
                     }} aria-pressed={executionState.isPaused} aria-label={executionState.isPaused ? "Run" : "Pause"}>
                       {executionState.isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => {
-                      setExecutionState((prev) => ({ ...prev, currentLineIndex: Math.min(prev.lines.length, prev.currentLineIndex + 1), errorLineIndex: null, errorMessage: null }));
+                      if (controllerRef.current?.step) {
+                        try { controllerRef.current.step(); } catch {}
+                      } else {
+                        setExecutionState((prev) => ({ ...prev, currentLineIndex: Math.min(prev.lines.length, prev.currentLineIndex + 1), errorLineIndex: null, errorMessage: null }));
+                      }
                     }} aria-label="Next Step">
                       <SkipForward className="w-4 h-4" />
                     </Button>
@@ -772,23 +851,7 @@ export function ExercisesView() {
                 {/* Action Buttons */}
                 <div className="my-4 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
                 <div className="flex gap-3 flex-wrap">
-                  <Button
-                    onClick={startLineByLine}
-                    disabled={executionState.isExecuting}
-                    className="flex-1 min-w-[120px] bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2 rounded-lg transition-all disabled:opacity-60"
-                  >
-                        {executionState.isExecuting ? (
-                      <>
-                        <Play className="w-4 h-4 mr-2 animate-pulse" />
-                        Running...
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-4 h-4 mr-2" />
-                        Run
-                      </>
-                    )}
-                  </Button>
+                  {/* Removed duplicate Run/Start buttons per user request; use Play/Pause control above */}
                   <Button
                     onClick={() => {
                       if (currentVariant?.solution) {
@@ -833,18 +896,23 @@ export function ExercisesView() {
                   )}
 
                   <Button
-                    onClick={() => setExecutionState({
-                      isExecuting: false,
-                      isPaused: false,
-                      currentLineIndex: -1,
-                      lines: [],
-                      errorLineIndex: null,
-                      errorMessage: null,
-                      variables: {},
-                      stack: [],
-                      heap: [],
-                      logs: [],
-                    })}
+                    onClick={() => {
+                      try { if (controllerRef.current?.terminate) controllerRef.current.terminate(); } catch {}
+                      if (autoStepIntervalRef.current) { clearInterval(autoStepIntervalRef.current); autoStepIntervalRef.current = null; }
+                      controllerRef.current = null;
+                      setExecutionState({
+                        isExecuting: false,
+                        isPaused: false,
+                        currentLineIndex: -1,
+                        lines: [],
+                        errorLineIndex: null,
+                        errorMessage: null,
+                        variables: {},
+                        stack: [],
+                        heap: [],
+                        logs: [],
+                      });
+                    }}
                     variant="outline"
                     className="border-slate-600 text-slate-200 hover:bg-slate-700"
                   >

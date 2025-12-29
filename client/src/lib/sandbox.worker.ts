@@ -30,6 +30,8 @@ function __createWait() {
 
 async function runAuto(src: string, functionName: string, args: any[]) {
   // same heuristic capture as before
+  // Make function declarations async so `await __wait()` inside them is valid
+  try { src = String(src).replace(/function\s+(\w+)\s*\(/g, 'async function $1('); } catch(e) {}
   const captureNames: string[] = [];
   const fnMatch = src.match(/function\s+\w+\s*\(([^)]*)\)/);
   if (fnMatch && fnMatch[1]) {
@@ -52,20 +54,31 @@ async function runAuto(src: string, functionName: string, args: any[]) {
   const lines = src.split('\n');
   const instrumented = lines.map((l, i) => {
     const lineNum = i + 1;
-    return `__stepHook(${lineNum});\ntry{${l}}catch(e){throw e;}\n__captureSnapshot(${lineNum});`;
+    return `${l}\n__stepHook(${lineNum});\n__captureSnapshot(${lineNum});`;
   }).join('\n');
 
-  const wrapper = `
+    const wrapper = `
     const __captureNames = ${JSON.stringify(uniqueNames)};
-    function __stepHook(line){ try { (self as any).postMessage({ type: 'step', line: line }); } catch(e){} }
+    function __stepHook(line){ try { self.postMessage({ type: 'step', line: line }); } catch(e){} }
+    function __serialize(val, depth){ try { if (depth <= 0) return (Array.isArray(val) ? '[Array]' : (val && typeof val === 'object' ? '[Object]' : val)); if (val && typeof val === 'object') { if (Array.isArray(val)) { return val.map(v => __serialize(v, depth - 1)); } const out = {}; for (const k in val) { try { out[k] = __serialize(val[k], depth - 1); } catch(e) { out[k] = String(val[k]); } } return out; } return val; } catch(e) { return null; } }
     function __captureSnapshot(line){ try {
         const obj = {};
-        for (let i=0;i<__captureNames.length;i++){ const n=__captureNames[i]; try { obj[n]=eval(n); } catch(e) {} }
-        // build stack (simple frame using functionName) and heap (shallow object snapshots)
+        for (let i=0;i<__captureNames.length;i++){ const n=__captureNames[i]; try { obj[n]=__serialize(eval(n), 2); } catch(e) {} }
+        // build stack (simple frame using functionName) and heap (deeper object snapshots)
         const __stack = [];
         try {
-          if (typeof ${functionName} === 'function') { __stack.push({ id: 'frame-1', name: '${functionName}', variables: obj }); }
-          else { __stack.push({ id: 'global', name: 'global', variables: obj }); }
+          const makeVars = (o) => {
+            const arr = [];
+            for (const k in o) {
+              try {
+                const v = o[k];
+                arr.push({ name: k, value: __serialize(v, 2), type: (v && typeof v === 'object') ? 'reference' : 'primitive', changed: true });
+              } catch(e) {}
+            }
+            return arr;
+          };
+          if (typeof ${functionName} === 'function') { __stack.push({ id: 'frame-1', name: '${functionName}', variables: makeVars(obj) }); }
+          else { __stack.push({ id: 'global', name: 'global', variables: makeVars(obj) }); }
         } catch(e){}
         const __heap = [];
         try {
@@ -73,32 +86,49 @@ async function runAuto(src: string, functionName: string, args: any[]) {
             try {
               const v = obj[k];
               if (v && typeof v === 'object') {
-                const shallow = {};
-                for (const p in v) { try { shallow[p] = v[p]; } catch(e){} }
-                __heap.push({ id: 'heap_' + k, ref: k, value: shallow });
+                const props = [];
+                try {
+                  for (const pk in v) {
+                    try { props.push({ name: pk, value: __serialize(v[pk], 2), type: (v[pk] && typeof v[pk] === 'object') ? 'reference' : 'primitive' }); } catch(e){}
+                  }
+                } catch(e){}
+                __heap.push({ id: 'heap_' + k, className: Array.isArray(v) ? 'Array' : 'Object', properties: props });
               }
             } catch(e){}
           }
         } catch(e){}
-        (self as any).postMessage({ type: 'snapshot', line: line, vars: obj, stack: __stack, heap: __heap });
+        self.postMessage({ type: 'snapshot', line: line, vars: obj, stack: __stack, heap: __heap });
       } catch(e){} }
     ${instrumented}
     ; (typeof ${functionName} === 'function') ? ${functionName} : null;
   `;
 
-  const getFn = new Function(wrapper);
-  const fn = getFn();
-  if (!fn) {
-    const msg = `Function not found: ${functionName}`;
-    (self as any).postMessage({ ok: false, error: msg } as WorkerResponse);
+  let fn: any;
+  try {
+    const getFn = new Function(wrapper);
+    fn = getFn();
+  } catch (err) {
+    try { self.postMessage({ type: 'wrapper-error', error: 'Wrapper SyntaxError: ' + (err && err.message), wrapper: wrapper.slice(0, 2000) }); } catch(e){}
     return;
   }
-  const result = fn(...(Array.isArray(args) ? args : []));
-  (self as any).postMessage({ ok: true, result } as WorkerResponse);
+  if (!fn) {
+    const msg = `Function not found: ${functionName}`;
+    self.postMessage({ ok: false, error: msg } as WorkerResponse);
+    return;
+  }
+  try {
+    let result: any = fn(...(Array.isArray(args) ? args : []));
+    if (result && typeof result.then === 'function') result = await result;
+    self.postMessage({ ok: true, result } as WorkerResponse);
+  } catch (err) {
+    self.postMessage({ ok: false, error: (err && err.message) || String(err) } as WorkerResponse);
+  }
 }
 
 async function runManual(src: string, functionName: string, args: any[]) {
   const captureNames: string[] = [];
+  // Make user-declared functions async so injected `await __wait()` is valid
+  try { src = String(src).replace(/function\s+(\w+)\s*\(/g, 'async function $1('); } catch(e) {}
   const fnMatch = src.match(/function\s+\w+\s*\(([^)]*)\)/);
   if (fnMatch && fnMatch[1]) {
     fnMatch[1].split(',').map(s => s.trim()).filter(Boolean).forEach(a => {
@@ -121,19 +151,30 @@ async function runManual(src: string, functionName: string, args: any[]) {
   // Build an async wrapper that yields (awaits) between lines
   const instrumented = lines.map((l, i) => {
     const lineNum = i + 1;
-    return `__stepHook(${lineNum});\ntry{${l}}catch(e){throw e;}\n__captureSnapshot(${lineNum});\nawait __wait();`;
+    return `${l}\n__stepHook(${lineNum});\n__captureSnapshot(${lineNum});\nawait __wait();`;
   }).join('\n');
 
-  const wrapper = `
+    const wrapper = `
     const __captureNames = ${JSON.stringify(uniqueNames)};
-    function __stepHook(line){ try { (self as any).postMessage({ type: 'step', line: line }); } catch(e){} }
+    function __stepHook(line){ try { self.postMessage({ type: 'step', line: line }); } catch(e){} }
+    function __serialize(val, depth){ try { if (depth <= 0) return (Array.isArray(val) ? '[Array]' : (val && typeof val === 'object' ? '[Object]' : val)); if (val && typeof val === 'object') { if (Array.isArray(val)) { return val.map(v => __serialize(v, depth - 1)); } const out = {}; for (const k in val) { try { out[k] = __serialize(val[k], depth - 1); } catch(e) { out[k] = String(val[k]); } } return out; } return val; } catch(e) { return null; } }
     function __captureSnapshot(line){ try {
         const obj = {};
-        for (let i=0;i<__captureNames.length;i++){ const n=__captureNames[i]; try { obj[n]=eval(n); } catch(e) {} }
+        for (let i=0;i<__captureNames.length;i++){ const n=__captureNames[i]; try { obj[n]=__serialize(eval(n), 2); } catch(e) {} }
         const __stack = [];
         try {
-          if (typeof ${functionName} === 'function') { __stack.push({ id: 'frame-1', name: '${functionName}', variables: obj }); }
-          else { __stack.push({ id: 'global', name: 'global', variables: obj }); }
+          const makeVars = (o) => {
+            const arr = [];
+            for (const k in o) {
+              try {
+                const v = o[k];
+                arr.push({ name: k, value: __serialize(v, 2), type: (v && typeof v === 'object') ? 'reference' : 'primitive', changed: true });
+              } catch(e) {}
+            }
+            return arr;
+          };
+          if (typeof ${functionName} === 'function') { __stack.push({ id: 'frame-1', name: '${functionName}', variables: makeVars(obj) }); }
+          else { __stack.push({ id: 'global', name: 'global', variables: makeVars(obj) }); }
         } catch(e){}
         const __heap = [];
         try {
@@ -141,33 +182,42 @@ async function runManual(src: string, functionName: string, args: any[]) {
             try {
               const v = obj[k];
               if (v && typeof v === 'object') {
-                const shallow = {};
-                for (const p in v) { try { shallow[p] = v[p]; } catch(e){} }
-                __heap.push({ id: 'heap_' + k, ref: k, value: shallow });
+                const props = [];
+                try {
+                  for (const pk in v) {
+                    try { props.push({ name: pk, value: __serialize(v[pk], 2), type: (v[pk] && typeof v[pk] === 'object') ? 'reference' : 'primitive' }); } catch(e){}
+                  }
+                } catch(e){}
+                __heap.push({ id: 'heap_' + k, className: Array.isArray(v) ? 'Array' : 'Object', properties: props });
               }
             } catch(e){}
           }
         } catch(e){}
-        (self as any).postMessage({ type: 'snapshot', line: line, vars: obj, stack: __stack, heap: __heap });
+        self.postMessage({ type: 'snapshot', line: line, vars: obj, stack: __stack, heap: __heap });
       } catch(e){} }
     var __res = [];
     function __wait(){ return new Promise(res=>{ __res.push(res); }); }
     (async function(){
       try {
         ${instrumented}
-        const res = (typeof ${functionName} === 'function') ? ${functionName}(...(Array.isArray(args) ? args : [])) : null;
-        (self as any).postMessage({ ok: true, result: res });
+        const res = (typeof ${functionName} === 'function') ? await ${functionName}(...(Array.isArray(args) ? args : [])) : null;
+        self.postMessage({ ok: true, result: res });
       } catch(e) {
-        (self as any).postMessage({ ok: false, error: (e && e.message) || String(e) });
+        self.postMessage({ ok: false, error: (e && e.message) || String(e) });
       }
     })();
     // expose resolver array access via global
-    (self as any).__resolveNext = function(){ try { if(__res && __res.length) { const r = __res.shift(); r(); } } catch(e){} };
-    (self as any).__resolveAll = function(){ try { while(__res && __res.length) { const r = __res.shift(); r(); } } catch(e){} };
+    self.__resolveNext = function(){ try { if(__res && __res.length) { const r = __res.shift(); r(); } } catch(e){} };
+    self.__resolveAll = function(){ try { while(__res && __res.length) { const r = __res.shift(); r(); } } catch(e){} };
   `;
 
-  const getFn = new Function(wrapper);
-  getFn();
+  try {
+    const getFn = new Function('args', wrapper);
+    getFn(args);
+  } catch (err) {
+    try { self.postMessage({ type: 'wrapper-error', error: 'Wrapper SyntaxError: ' + (err && err.message), wrapper: wrapper.slice(0, 2000) }); } catch(e){}
+    return;
+  }
 }
 
 self.onmessage = (evt: MessageEvent<any>) => {
@@ -187,19 +237,19 @@ self.onmessage = (evt: MessageEvent<any>) => {
 
     // command messages
     if (data && data.cmd === 'step') {
-      try { (self as any).__resolveNext && (self as any).__resolveNext(); } catch(e){}
+      try { self.__resolveNext && self.__resolveNext(); } catch(e){}
       return;
     }
     if (data && data.cmd === 'resume') {
-      try { (self as any).__resolveAll && (self as any).__resolveAll(); } catch(e){}
+      try { self.__resolveAll && self.__resolveAll(); } catch(e){}
       return;
     }
     if (data && data.cmd === 'terminate') {
-      try { (self as any).close(); } catch(e){}
+      try { self.close(); } catch(e){}
       return;
     }
   } catch (err: any) {
     const msg = err?.message || String(err);
-    (self as any).postMessage({ ok: false, error: msg } as WorkerResponse);
+    self.postMessage({ ok: false, error: msg } as WorkerResponse);
   }
 };

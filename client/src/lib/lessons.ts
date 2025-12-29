@@ -10,6 +10,7 @@ import { Lesson } from "./types";
 // ==========================================
 const functionLesson: Lesson = {
   id: "functions",
+  exerciseId: "sum-two-numbers",
   title: "How do Functions Work?",
   description: "Understand the concept of 'Scope' and 'Call Stack'. See how variables are created and destroyed.",
   difficulty: "Beginner",
@@ -323,6 +324,7 @@ int main() {
 // ==========================================
 const objectLesson: Lesson = {
   id: "objects",
+  exerciseId: "anagram",
   title: "References and Objects",
   description: "Discover the difference between the 'Stack' and the 'Heap' (Memory). Object variables only POINT to the real object.",
   difficulty: "Intermediate",
@@ -381,6 +383,7 @@ class Program {
 // ==========================================
 const recursionLesson: Lesson = {
     id: "recursion",
+  exerciseId: "factorial",
     title: "Recursion (Call Stack)",
     description: "Visualize how the call stack grows when a function calls itself.",
     difficulty: "Intermediate",
@@ -413,6 +416,7 @@ const result = factorial(3);`,
 // ==========================================
 const classLesson: Lesson = {
   id: "classes",
+  exerciseId: "matrix-transpose",
   title: "Classes and Instances",
   description: "Learn how the 'this' keyword works and how classes create objects.",
   difficulty: "Advanced",
@@ -449,6 +453,7 @@ c1.accelerate();`,
 // ==========================================
 const loopsArraysLesson: Lesson = {
   id: "loops-arrays",
+  exerciseId: "filter-even",
   title: "Loops & Arrays",
   description: "Understand how arrays are stored and how loops traverse them index by index.",
   difficulty: "Beginner",
@@ -489,6 +494,7 @@ for (let i = 0; i < numbers.length; i++) {
 // ==========================================
 const conditionalsLesson: Lesson = {
   id: "conditionals",
+  exerciseId: "even-or-odd",
   title: "Conditionals (If/Else)",
   description: "See how the computer makes decisions and chooses which path to follow in the code.",
   difficulty: "Beginner",
@@ -526,6 +532,7 @@ const resultado = verificarIdade(15);`,
 // ==========================================
 const closuresLesson: Lesson = {
   id: "closures",
+  exerciseId: "fibonacci",
   title: "Closures (Functions and Scope)",
   description: "Understand how functions remember variables from the scope where they were created.",
   difficulty: "Intermediate",
@@ -554,6 +561,7 @@ contador();`,
 
 const asyncLesson: Lesson = {
   id: "async-await",
+  exerciseId: "is-prime",
   title: "Asynchronous: Callbacks, Promises and async/await",
   description: "Shows the difference between synchronous and asynchronous execution and how the event loop works.",
   difficulty: "Intermediate",
@@ -576,6 +584,7 @@ console.log('D');`,
 
 const debuggingLesson: Lesson = {
   id: "debugging",
+  exerciseId: "binary-search",
   title: "Debugging and Console",
   description: "How to use logs and breakpoints to understand step by step what happens in the code.",
   difficulty: "Beginner",

@@ -1,0 +1,19 @@
+.cm-custom .cm-activeLine {
+  background-color: rgba(99,102,241,0.08) !important;
+  border-radius: 6px;
+}
+.cm-custom .cm-activeLineGutter,
+.cm-custom .cm-lineNumbers .cm-gutterElement.cm-activeLineGutter {
+  background-color: rgba(99,102,241,0.12) !important;
+  border-radius: 6px;
+}
+.cm-custom .cm-gutters {
+  background: transparent;
+  color: #94a3b8;
+}
+.cm-custom .cm-lineNumbers .cm-gutterElement {
+  padding-left: 8px;
+}
+.cm-custom .cm-editor {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;
+}

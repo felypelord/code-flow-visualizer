@@ -106,7 +106,7 @@ export default function LessonPage() {
     if (view === "playground") {
       return (
         <div className="h-full">
-          <Playground variant={variant} />
+          <Playground variant={variant} lessonId={lessonId} />
         </div>
       );
     }
