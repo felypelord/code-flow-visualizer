@@ -20,7 +20,7 @@ jobs:
           npm run build --if-present
       - name: Deploy to Vercel
         run: |
-          npx vercel --prod --confirm --token ${{ secrets.VERCEL_TOKEN }} --cwd .
+          npx vercel --prod --yes --token ${{ secrets.VERCEL_TOKEN }} --cwd .
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
