@@ -1,0 +1,9 @@
+api/**
+!api/index.ts
+node_modules/**
+dist/**
+.env.local
+.env
+/*.log
+/.vercel
+**/test/**

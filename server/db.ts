@@ -5,10 +5,14 @@ import { sql } from "drizzle-orm";
 
 const dbUrl = process.env.DATABASE_URL;
 
-// Allow serverless endpoints that don't need DB to function even if DATABASE_URL is missing.
-// Routes that use the DB will fail with connection errors until DATABASE_URL is set.
+// Require DATABASE_URL in production; allow a local default for development
+if (process.env.NODE_ENV === 'production' && !dbUrl) {
+  console.error('[FATAL] DATABASE_URL not set in production environment');
+  throw new Error('Missing DATABASE_URL in production');
+}
 
-const finalUrl = dbUrl || "postgresql://postgres:felype.BARRETO10@localhost:5432/codeflow";
+// Avoid embedding credentials in source; fall back to a localhost URL without credentials for local dev
+const finalUrl = dbUrl || "postgresql://localhost:5432/codeflow";
 const useSsl = process.env.PGSSL === "true" || process.env.NODE_ENV === "production";
 const client = postgres(finalUrl, {
   ...(useSsl ? { ssl: { rejectUnauthorized: process.env.PGSSL_REJECT_UNAUTHORIZED !== "false" } } : {}),

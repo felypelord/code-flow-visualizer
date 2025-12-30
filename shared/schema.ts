@@ -30,6 +30,8 @@ export const users = pgTable("users", {
   dailyGoal: integer("daily_goal").notNull().default(3),
   totalExercises: integer("total_exercises").notNull().default(0),
   totalTime: integer("total_time").notNull().default(0), // in seconds
+  // Optional address for user profile
+  address: text("address"),
   // Monetization
   freeUsageCount: integer("free_usage_count").notNull().default(10), // Free uses remaining
   adsWatched: integer("ads_watched").notNull().default(0), // Total ads watched
@@ -89,6 +91,15 @@ export const activityHistory = pgTable("activity_history", {
   timeSpent: integer("time_spent"), // in seconds
   score: integer("score"), // 0-100 for exercises
   metadata: text("metadata"), // JSON string for extra data
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Generic site analytics events (allows anonymous events)
+export const siteAnalytics = pgTable("site_analytics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
+  eventType: text("event_type").notNull(),
+  payload: text("payload"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -204,6 +215,7 @@ export type InsertProgress = z.infer<typeof insertProgressSchema>;
 export type WebhookEventRow = typeof webhookEvents.$inferSelect;
 export type StripeCustomerRow = typeof stripeCustomers.$inferSelect;
 export type ActivityHistory = typeof activityHistory.$inferSelect;
+export type SiteAnalytics = typeof siteAnalytics.$inferSelect;
 export type UserAchievement = typeof userAchievements.$inferSelect;
 export type JournalEntry = typeof journalEntries.$inferSelect;
 export type StorePurchase = typeof storePurchases.$inferSelect;

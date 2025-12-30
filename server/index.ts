@@ -3,6 +3,9 @@ import compression from "compression";
 import { createServer } from "http";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
+import { db } from "./db";
+import { users } from "../shared/schema";
+import { and, eq, or, lt, isNull } from "drizzle-orm";
 
 const app = express();
 const httpServer = createServer(app);
@@ -223,6 +226,33 @@ app.use((req, res, next) => {
   });
 
   tryListen(basePort);
+
+  // Cleanup job: remove free accounts inactive for > 60 days
+  const CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000; // daily
+  const INACTIVE_THRESHOLD_DAYS = 60;
+  async function cleanupInactiveFreeAccounts() {
+    try {
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - INACTIVE_THRESHOLD_DAYS);
+      const res = await db.delete(users).where(
+        and(
+          eq(users.isPro, false),
+          or(
+            lt(users.lastActivityDate, cutoff),
+            and(isNull(users.lastActivityDate), lt(users.createdAt, cutoff))
+          )
+        )
+      );
+      // log deletion count if available
+      console.log(`Cleanup: removed inactive free accounts older than ${INACTIVE_THRESHOLD_DAYS} days`);
+    } catch (err) {
+      console.warn('Cleanup job failed:', err);
+    }
+  }
+
+  // Run once at startup (dev) and then daily
+  cleanupInactiveFreeAccounts().catch(() => {});
+  setInterval(() => cleanupInactiveFreeAccounts().catch(() => {}), CLEANUP_INTERVAL_MS);
 })().catch(err => {
   console.error("[ASYNC IIFE ERROR]", err?.message || err);
   if (process.env.NODE_ENV === 'production') {

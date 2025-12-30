@@ -58,8 +58,18 @@ export async function buildApp() {
   app.use(compression({ threshold: 1024 }));
 
   // Stripe webhook requires raw body
-  const stripeWebhookPath = "/api/webhooks/stripe";
+  const stripeWebhookPath = "/api/monetization/stripe-webhook";
   app.use(stripeWebhookPath, express.raw({ type: "application/json", limit: JSON_LIMIT }));
+
+  // Ensure rawBody is populated for the Stripe webhook route so handlers
+  // can use `req.rawBody` (the json parser's verify hook doesn't run for raw).
+  app.use(stripeWebhookPath, (req: any, _res, next) => {
+    if (!req.rawBody) {
+      // express.raw sets req.body to a Buffer for application/json
+      req.rawBody = req.body;
+    }
+    next();
+  });
 
   // JSON parser for other routes
   const jsonParser = express.json({

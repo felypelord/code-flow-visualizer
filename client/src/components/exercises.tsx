@@ -475,7 +475,7 @@ export function ExercisesView() {
     const functionName = functionNameMatch ? functionNameMatch[1] : undefined;
 
     try {
-      const controller = createWorkerController(code, functionName, [], {
+      const controller = createWorkerController(code, functionName || '', [], {
         onStep: (line: number) => {
           setExecutionState(prev => ({ ...prev, currentLineIndex: Math.max(0, (line || 1) - 1) }));
         },

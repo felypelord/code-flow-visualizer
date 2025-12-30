@@ -88,7 +88,7 @@ export function ExercisesViewNew() {
   useEffect(() => {
     if (validationResult && validationResult.ok) {
       try {
-        toast({ title: 'All tests passed', description: validationResult.message || 'Well done!', variant: 'success' });
+        toast({ title: 'All tests passed', description: validationResult.message || 'Well done!', variant: 'default' });
       } catch (e) {}
       setShowSuccessBanner(true);
       // show confetti briefly, pulse Next button, and auto-hide banner after 6s
@@ -356,10 +356,9 @@ export function ExercisesViewNew() {
 
     for (const t of exDef.tests) {
       let lastLine: number | null = null;
-      try {
-        const res = await runInWorker(codeToRun, functionName || '', t.input || [], {
+        try {
+          const res = await runInWorker(codeToRun, functionName || '', t.input || [], {
           timeoutMs: 5000,
-          stepDelayMs: 50,
           onStep: (line: number) => { lastLine = line; },
         });
 

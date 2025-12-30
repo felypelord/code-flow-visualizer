@@ -3,13 +3,7 @@
   "outputDirectory": "dist/public",
   "devCommand": "npm run dev:env",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "webhook": {
-    "stripe": {
-      "url": "https://codeflowbr.site/api/pro/webhook",
-      "events": ["checkout.session.completed", "customer.subscription.updated", "customer.subscription.deleted", "invoice.payment_failed"]
-    }
-  }
+  ]
 }

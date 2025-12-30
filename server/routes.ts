@@ -11,6 +11,7 @@ import {
   webhookEvents, 
   stripeCustomers,
   activityHistory,
+  siteAnalytics,
   userAchievements,
   journalEntries,
   storePurchases,
@@ -19,18 +20,24 @@ import {
   infinityPayPurchases,
   adRewards
 } from "../shared/schema";
-import { createPayment, stripeWebhook, watchAd, checkUsage, consumeUsage, confirmPurchase } from "../api/monetization";
-import { getRoadmap, getRoadmapItem, getProgress, completeProgress } from "../api/roadmap";
-import { trackAdImpression, verifyAdWatch, getAdStats, skipAdForCoins } from "../api/analytics/ads";
+import { createPayment, stripeWebhook, watchAd, checkUsage, consumeUsage, confirmPurchase } from "./api/monetization";
+import { getRoadmap, getRoadmapItem, getProgress, completeProgress } from "./api/roadmap";
+import { trackAdImpression, verifyAdWatch, getAdStats, skipAdForCoins } from "./api/analytics/ads";
 import { storage } from "./storage";
 import { getStripe, getBaseUrl, STRIPE_PRICE_PRO_MONTHLY, STRIPE_PRICE_PRO_MONTHLY_USD, STRIPE_WEBHOOK_SECRET } from "./stripe";
 import Stripe from "stripe";
 import { Resend } from "resend";
 
-// JWT secret - must come from environment in all environments
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-do-not-use-in-prod";
-if (!process.env.JWT_SECRET) {
-  console.warn("[WARN] JWT_SECRET not set; using insecure dev fallback. Configure JWT_SECRET in production.");
+// JWT secret - must come from environment in production
+let JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('[FATAL] JWT_SECRET not set in production. Aborting startup.');
+    throw new Error('Missing JWT_SECRET in production');
+  } else {
+    console.warn('[WARN] JWT_SECRET not set; using insecure dev fallback. Configure JWT_SECRET in production.');
+    JWT_SECRET = 'dev-secret-do-not-use-in-prod';
+  }
 }
 const JWT_EXPIRY = "7d";
 const METRICS_TOKEN = process.env.METRICS_TOKEN || "";
@@ -38,9 +45,18 @@ const EMAIL_SEND_TIMEOUT_MS = Number(process.env.EMAIL_SEND_TIMEOUT_MS || 4000);
 const FORCE_PRO = process.env.FORCE_PRO === "true" || process.env.NODE_ENV === "development";
 
 const computeIsPro = (user: any) => {
-  const active = user?.isPro && (!user.proExpiresAt || new Date(user.proExpiresAt) > new Date());
-  return FORCE_PRO || active;
+  // Simplified: only `isPro` flag determines Pro status (or FORCE_PRO for dev)
+  return FORCE_PRO || Boolean(user?.isPro);
 };
+
+// Stripe webhook secret presence check
+if (!STRIPE_WEBHOOK_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('[FATAL] STRIPE_WEBHOOK_SECRET not set in production. Webhook handling will be disabled.');
+  } else {
+    console.warn('[WARN] STRIPE_WEBHOOK_SECRET not set; stripe webhooks disabled in this environment.');
+  }
+}
 
 // ============================================================================
 // GAMIFICATION HELPERS
@@ -215,6 +231,16 @@ function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+// Simple HTML escape to prevent injection in server-rendered templates
+function escapeHtml(input: string) {
+  return String(input)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // Resend email sending function
 async function sendVerificationEmail(email: string, code: string, firstName: string): Promise<boolean> {
   try {
@@ -230,10 +256,10 @@ async function sendVerificationEmail(email: string, code: string, firstName: str
       subject: "Verify your email address",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Welcome, ${firstName}!</h2>
+          <h2>Welcome, ${escapeHtml(firstName)}!</h2>
           <p>Thank you for signing up. To verify your email address and complete your registration, please enter the following code:</p>
           <div style="background: #f5f5f5; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-            <h1 style="letter-spacing: 5px; color: #333; margin: 0; font-family: monospace;">${code}</h1>
+            <h1 style="letter-spacing: 5px; color: #333; margin: 0; font-family: monospace;">${escapeHtml(code)}</h1>
           </div>
           <p style="color: #666; font-size: 14px;">This code will expire in 15 minutes.</p>
           <p style="color: #999; font-size: 12px;">If you didn't request this verification code, you can safely ignore this email.</p>
@@ -279,7 +305,7 @@ async function sendPasswordResetEmail(email: string, code: string): Promise<bool
           <h2>Password Reset Request</h2>
           <p>We received a request to reset the password for your account. To proceed, please enter the following code:</p>
           <div style="background: #f5f5f5; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-            <h1 style="letter-spacing: 5px; color: #333; margin: 0; font-family: monospace;">${code}</h1>
+            <h1 style="letter-spacing: 5px; color: #333; margin: 0; font-family: monospace;">${escapeHtml(code)}</h1>
           </div>
           <p style="color: #666; font-size: 14px;">This code will expire in 15 minutes.</p>
           <p style="color: #999; font-size: 12px;">If you didn't request a password reset, you can safely ignore this email.</p>
@@ -568,6 +594,38 @@ export async function registerRoutes(
     return res.status(409).json({ message: "Account already exists" });
   });
 
+  // Immediate register (no email verification) - creates account and returns token
+  app.post('/api/register', async (req: Request, res: Response) => {
+    if (!checkRateLimit(`register:${req.ip}`, 10, 60_000)) {
+      return res.status(429).json({ message: 'Too many requests' });
+    }
+
+    const parsed = sendVerificationCodeSchema.safeParse(req.body || {});
+    if (!parsed.success) return res.status(400).json({ message: 'invalid data', errors: parsed.error.errors });
+    const { email, password, firstName, lastName, dateOfBirth, country } = parsed.data;
+
+    try {
+      const existing = await storage.getUserByEmail(email);
+      if (existing) return res.status(409).json({ message: 'email already exists' });
+
+      const hashed = await bcryptjs.hash(password, 10);
+      const newUser = await storage.createUser({
+        email,
+        password: hashed,
+        firstName,
+        lastName,
+        dateOfBirth: new Date(dateOfBirth),
+        country,
+      });
+
+      const token = jwt.sign({ userId: newUser.id }, JWT_SECRET as string, { expiresIn: JWT_EXPIRY });
+      return res.json({ token, user: { id: newUser.id, email: newUser.email, firstName, lastName, isPro: Boolean(newUser.isPro) } });
+    } catch (err: any) {
+      console.error('[ERROR] /api/register', err);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
   // Login
   app.post("/api/login", async (req: Request, res: Response) => {
     if (!checkRateLimit(`login:${req.ip}`, 10, 60_000)) {
@@ -748,7 +806,7 @@ export async function registerRoutes(
   app.post("/api/profile/update", requireAuth, async (req: Request, res: Response) => {
     try {
       const userId = (req as any).userId as string;
-      const { firstName, lastName, country, bio, avatar, theme, dailyGoal, dateOfBirth } = req.body;
+      const { firstName, lastName, country, bio, avatar, theme, dailyGoal, dateOfBirth, address } = req.body;
 
       const updateData: any = {};
       if (firstName !== undefined) updateData.firstName = firstName;
@@ -759,6 +817,7 @@ export async function registerRoutes(
       if (theme !== undefined) updateData.theme = theme;
       if (dailyGoal !== undefined) updateData.dailyGoal = dailyGoal;
       if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
+      if (address !== undefined) updateData.address = address;
 
       await db.update(users).set(updateData).where(eq(users.id, userId));
 
@@ -1048,6 +1107,18 @@ export async function registerRoutes(
   });
 
   // Get store items
+  // Public listing for anonymous users to browse available items
+  app.get("/api/store/public", async (req: Request, res: Response) => {
+    try {
+      // Return catalog without ownership information
+      return res.json({ items: STORE_CATALOG });
+    } catch (error: any) {
+      console.error("Error fetching public store:", error);
+      return res.status(500).json({ message: "Failed to fetch public store" });
+    }
+  });
+
+  
   app.get("/api/store", requireAuth, async (req: Request, res: Response) => {
     try {
       const userId = (req as any).userId as string;
@@ -1190,6 +1261,7 @@ export async function registerRoutes(
         const xpAmount = xpMap[itemId] || 0;
         if (xpAmount > 0) {
           const user = await storage.getUser(userId);
+          if (!user) return res.status(404).json({ message: 'User not found' });
           const newXP = (user.xp || 0) + xpAmount;
           await db.update(users).set({ xp: newXP, level: calculateLevel(newXP) }).where(eq(users.id, userId));
           await db.insert(coinTransactions).values({ userId, amount: 0, type: 'earn', source: 'xp_pack', metadata: JSON.stringify({ itemId, xp: xpAmount }) });
@@ -1209,7 +1281,9 @@ export async function registerRoutes(
         }
         if (item.category === 'frame') {
           // frames treated as metadata on users.bio for simplicity (could be separate column)
-          await db.update(users).set({ bio: (await storage.getUser(userId)).bio }).where(eq(users.id, userId));
+          const frameUser = await storage.getUser(userId);
+          if (!frameUser) return res.status(404).json({ message: 'User not found' });
+          await db.update(users).set({ bio: frameUser.bio }).where(eq(users.id, userId));
           return res.json({ message: 'Frame applied', frame: itemId });
         }
       }
@@ -1482,9 +1556,9 @@ export async function registerRoutes(
   app.get("/api/monetization/purchases", requireAuth, async (req: Request, res: Response) => {
     try {
       const userId = (req as any).userId as string;
-      const purchases = await db.select().from(storePurchases).where(eq(storePurchases.userId, userId)).orderBy(desc(storePurchases.purchasedAt));
-      const items = purchases.map(p => p.itemId);
-      return res.json({ items });
+      const store = await db.select().from(storePurchases).where(eq(storePurchases.userId, userId)).orderBy(desc(storePurchases.purchasedAt));
+      const txs = await db.select().from(infinityPayPurchases).where(eq(infinityPayPurchases.userId, userId)).orderBy(desc(infinityPayPurchases.createdAt));
+      return res.json({ store, transactions: txs });
     } catch (error: any) {
       console.error('Error fetching monetization purchases:', error);
       return res.status(500).json({ message: 'Failed to fetch purchases' });
@@ -1499,6 +1573,26 @@ export async function registerRoutes(
   app.post("/api/analytics/verify-ad-watch", requireAuth, verifyAdWatch);
   app.get("/api/analytics/ad-stats", requireAuth, getAdStats);
   app.post("/api/monetization/skip-ad-cooldown", requireAuth, skipAdForCoins);
+
+  // Generic analytics event collector (can be called from client). Accepts optional user token.
+  app.post("/api/analytics/event", async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string | undefined;
+      const { eventType, payload } = req.body || {};
+      if (!eventType) return res.status(400).json({ message: "eventType required" });
+
+      await db.insert(siteAnalytics).values({
+        userId: userId || null,
+        eventType: String(eventType),
+        payload: payload ? JSON.stringify(payload) : null,
+      });
+
+      return res.json({ ok: true });
+    } catch (err: any) {
+      console.error("Error recording analytics event:", err?.message || err);
+      return res.status(500).json({ message: "Failed to record event" });
+    }
+  });
 
   // ============================================================================
   // END MONETIZATION ROUTES

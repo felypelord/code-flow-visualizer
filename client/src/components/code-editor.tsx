@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface CodeEditorProps {
@@ -11,6 +12,58 @@ interface CodeEditorProps {
 
 export default function CodeEditor({ code, activeLine, editable, onChange, errorLine }: CodeEditorProps) {
   const lines = code.split("\n");
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [overlayTop, setOverlayTop] = useState<number | null>(null);
+  const [measuredLineHeight, setMeasuredLineHeight] = useState<number>(18);
+  useEffect(() => {
+    if (!editable || typeof errorLine !== "number" || !textareaRef.current) return;
+    const target = Math.max(1, Math.min(errorLine, lines.length));
+    // compute character index for start of target line
+    let pos = 0;
+    for (let i = 0; i < target - 1; i++) {
+      pos += lines[i].length + 1; // include newline
+    }
+    const ta = textareaRef.current;
+    try {
+      ta.focus();
+      ta.selectionStart = pos;
+      ta.selectionEnd = pos;
+    } catch (e) {
+      // ignore if selection not supported
+    }
+    // ensure caret is visible in textarea (some browsers scroll to caret on focus)
+    setTimeout(() => {
+      if (!ta) return;
+      const lineHeight = parseFloat(getComputedStyle(ta).lineHeight || "18");
+      setMeasuredLineHeight(lineHeight || 18);
+      const top = Math.max(0, (target - 1) * lineHeight - ta.clientHeight / 2);
+      ta.scrollTop = top;
+      setOverlayTop(Math.max(0, (target - 1) * lineHeight - ta.scrollTop));
+    }, 20);
+  }, [errorLine, editable, code]);
+
+  // keep overlay position in sync with scrolling and changes
+  useEffect(() => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const update = () => {
+      if (typeof errorLine !== 'number') {
+        setOverlayTop(null);
+        return;
+      }
+      const target = Math.max(1, Math.min(errorLine, lines.length));
+      const lh = parseFloat(getComputedStyle(ta).lineHeight || String(measuredLineHeight)) || measuredLineHeight;
+      setMeasuredLineHeight(lh);
+      setOverlayTop((target - 1) * lh - ta.scrollTop);
+    };
+    ta.addEventListener('scroll', update);
+    window.addEventListener('resize', update);
+    update();
+    return () => {
+      ta.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [errorLine, code, measuredLineHeight]);
 
   return (
     <div className="code-editor bg-[#0a0f1e] rounded-lg border border-white/10 overflow-hidden shadow-2xl font-mono text-sm h-full flex flex-col">
@@ -30,9 +83,29 @@ export default function CodeEditor({ code, activeLine, editable, onChange, error
               <textarea
                 value={code}
                 onChange={(e) => onChange && onChange(e.target.value)}
+                ref={textareaRef}
                 className="w-full h-full bg-transparent resize-none outline-none text-gray-300 font-mono text-sm"
                 spellCheck={false}
               />
+              {/* overlay to visually highlight the error line behind the textarea */}
+              {typeof errorLine === 'number' && overlayTop !== null && (
+                <div className="pointer-events-none absolute inset-0">
+                  <div
+                    aria-hidden
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      right: 0,
+                      top: `${overlayTop}px`,
+                      height: `${measuredLineHeight}px`,
+                      background: 'linear-gradient(90deg, rgba(220,38,38,0.06), rgba(220,38,38,0.03))',
+                      borderLeft: '3px solid rgba(220,38,38,0.35)',
+                      transition: 'top 120ms ease',
+                      borderRadius: 2,
+                    }}
+                  />
+                </div>
+              )}
               {typeof errorLine === 'number' && (
                 <div className="absolute left-3 bottom-3 text-xs text-red-300 bg-red-900/20 px-2 py-1 rounded">
                   Error: line {errorLine}

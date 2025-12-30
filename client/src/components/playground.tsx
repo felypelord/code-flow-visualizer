@@ -59,7 +59,7 @@ export default function Playground({ variant, lessonId }: { variant: any; lesson
     }
     if (bestScore > 0) {
       matchedExercise = best;
-      try { console.log('Playground matched exercise by heuristic', { lessonId, matched: matchedExercise.id, score: bestScore }); } catch(e){}
+      try { console.log('Playground matched exercise by heuristic', { lessonId, matched: matchedExercise?.id, score: bestScore }); } catch(e){}
     }
   }
   const exerciseVariant = matchedExercise ? (matchedExercise.variants as any)["javascript"] || Object.values(matchedExercise.variants || {})[0] : undefined;
@@ -151,7 +151,7 @@ export default function Playground({ variant, lessonId }: { variant: any; lesson
                   const res = await runInWorker(practiceCode, (function getFnName(){
                     const m = (practiceCode||'').match(/function\s+(\w+)\s*\(/);
                     return m ? m[1] : '__cf_main';
-                  })(), t.input || [], { timeoutMs: 5000, stepDelayMs: 0, onStep: (line:number)=>{ lastLine = line; setActiveLine(line); }, onSnapshot: (s:any)=>{ setSnapshot(s); } });
+                  })(), t.input || [], { timeoutMs: 5000, onStep: (line:number)=>{ lastLine = line; setActiveLine(line); }, onSnapshot: (s:any)=>{ setSnapshot(s); } });
                   const ok = JSON.stringify(res) === JSON.stringify(t.expected);
                   if (!ok) {
                     setValidationResult({ ok: false, message: `Test failed: ${t.name}`, expected: t.expected, actual: res, errorLine: lastLine });

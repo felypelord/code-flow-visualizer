@@ -128,7 +128,7 @@ export default function RoadmapPath(): React.ReactElement {
               {selectedLocked ? (
                 <div>
                   <div className="mb-3">Conteúdo Pro — bloqueado.</div>
-                  <div className="mb-4"><ReactMarkdown>{selectedItem.contentPreview || selectedItem.summary || ''}</ReactMarkdown></div>
+                  <div className="mb-4"><ReactMarkdown skipHtml>{selectedItem.contentPreview || selectedItem.summary || ''}</ReactMarkdown></div>
                   <div className="flex gap-2">
                     <button className="bg-amber-500 text-black px-3 py-2 rounded" onClick={() => startPurchase(`roadmap:${selectedItem.slug}`)}>Comprar Pro</button>
                     <a className="px-3 py-2 border rounded" href="/signup">Criar conta</a>
@@ -136,7 +136,7 @@ export default function RoadmapPath(): React.ReactElement {
                 </div>
               ) : (
                 <div>
-                  <div className="prose max-w-none"><ReactMarkdown>{selectedItem.content || selectedItem.summary || ''}</ReactMarkdown></div>
+                  <div className="prose max-w-none"><ReactMarkdown skipHtml>{selectedItem.content || selectedItem.summary || ''}</ReactMarkdown></div>
                   <div className="mt-4">
                     <button className="bg-emerald-500 text-black px-3 py-2 rounded" onClick={() => setShowPractice(true)}>Praticar</button>
                   </div>

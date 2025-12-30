@@ -39,7 +39,8 @@ export default defineConfig({
     // Proxy API calls to the backend server so the dev client can use relative `/api` paths
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:5000',
+        // Respect BACKEND_PORT env var falling back to 5000 (allows backend to run on 5001)
+        target: `http://127.0.0.1:${process.env.BACKEND_PORT || 5000}`,
         changeOrigin: true,
         secure: false,
       },

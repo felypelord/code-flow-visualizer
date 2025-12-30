@@ -88,18 +88,69 @@ export default function PricingPage() {
   const [coins, setCoins] = useState<number>(user?.coins || 0);
   const [loadingStore, setLoadingStore] = useState(false);
   const [storeRequiresAuth, setStoreRequiresAuth] = useState(false);
+  const [storePublicView, setStorePublicView] = useState(false);
 
   const loadStore = async () => {
     setLoadingStore(true);
     try {
+      // If user is anonymous, directly request the public listing to avoid 401 -> fallback flow
+      if (!token) {
+        try {
+          const pub = await fetch('/api/store/public');
+          if (pub.ok) {
+            const d = await pub.json();
+            const parsedPub = Array.isArray(d) ? d : (d?.items ?? d ?? []);
+            setStoreItems(parsedPub);
+            setStoreRequiresAuth(false);
+            setStorePublicView(true);
+            return;
+          }
+        } catch (e) {
+          // fallthrough to original flow which will show demo items
+        }
+        // public listing unavailable
+        setStoreItems([]);
+        setStoreRequiresAuth(true);
+        setLoadingStore(false);
+        return;
+      }
+
       const res = await fetch('/api/store', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (res.ok) {
         const data = await res.json();
-        setStoreItems(data.items || []);
+        const parsed = Array.isArray(data) ? data : (data?.items ?? data ?? []);
+        setStoreItems(parsed);
         setStoreRequiresAuth(false);
+        // If there's no token, the server returned a public listing — show as public view
+        setStorePublicView(!token);
       } else if (res.status === 401 || res.status === 403) {
-        setStoreItems([]);
-        setStoreRequiresAuth(true);
+        // Try to fetch a public listing so anonymous/free users can browse items
+        try {
+          const pub = await fetch('/api/store/public');
+          if (pub.ok) {
+            const d = await pub.json();
+            const parsedPub = Array.isArray(d) ? d : (d?.items ?? d ?? []);
+            setStoreItems(parsedPub);
+            setStoreRequiresAuth(false);
+            setStorePublicView(true);
+          } else {
+            // As a fallback, try fetching the store without auth header (some servers expose public items on same endpoint)
+            const fallback = await fetch('/api/store');
+            if (fallback.ok) {
+              const f = await fallback.json();
+              const parsedF = Array.isArray(f) ? f : (f?.items ?? f ?? []);
+              setStoreItems(parsedF);
+              setStoreRequiresAuth(false);
+              setStorePublicView(true);
+            } else {
+              setStoreItems([]);
+              setStoreRequiresAuth(true);
+            }
+          }
+        } catch (e) {
+          setStoreItems([]);
+          setStoreRequiresAuth(true);
+        }
       } else {
         console.error('Failed to load store');
       }
@@ -140,6 +191,13 @@ export default function PricingPage() {
     if (user) loadCoins();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, token]);
+
+  // Demo items to show to anonymous/free users so they can browse the store
+  const demoStoreItems = useMemo(() => [
+    { id: 'demo_hat', name: 'Golden Hat', description: 'Shiny cosmetic hat (demo view)', price: 150, type: 'cosmetic', icon: '🎩' },
+    { id: 'demo_theme', name: 'Midnight Theme', description: 'Editor color theme (demo view)', price: 200, type: 'cosmetic', icon: '🌙' },
+    { id: 'demo_boost', name: 'XP Boost (demo)', description: 'Temporary XP boost (demo view)', price: 300, type: 'utility', icon: '⚡' },
+  ], []);
 
   const handleCoinPurchase = async (itemId: string) => {
     if (!token) { toast({ title: 'Sign in', description: 'Please sign in to purchase.' }); return; }
@@ -201,18 +259,48 @@ export default function PricingPage() {
   // Roadmap item fetching removed — handled only on Tracks page.
 
   function renderMarkdownToHtml(md: string) {
-    if (!md) return '';
-    // very small lightweight markdown -> html conversion for headings and paragraphs
-    let html = md.replace(/^### (.*$)/gim, '<h4>$1</h4>');
-    html = html.replace(/^## (.*$)/gim, '<h3>$1</h3>');
-    html = html.replace(/^# (.*$)/gim, '<h2>$1</h2>');
-    html = html.replace(/\n\n+/g, '</p><p>');
-    html = '<p>' + html + '</p>';
-    // code fences
-    html = html.replace(/```([\s\S]*?)```/g, '<pre class="rounded bg-black/60 p-3 font-mono text-sm overflow-auto">$1</pre>');
-    // inline code
-    html = html.replace(/`([^`]+)`/g, '<code class="bg-black/30 px-1 rounded">$1</code>');
-    return html;
+    if (!md) return "";
+
+    // Escape HTML to avoid injection
+    const escapeHtml = (s: string) =>
+      String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+    // Extract code fences and replace with placeholders so inner text isn't interpreted
+    const codeBlocks: string[] = [];
+    const placeholderPrefix = "__CODEBLOCK_";
+    const withPlaceholders = md.replace(/```([\s\S]*?)```/g, (_m, code) => {
+      const idx = codeBlocks.push(code) - 1;
+      return `${placeholderPrefix}${idx}__`;
+    });
+
+    // Work on escaped text safely
+    let safe = escapeHtml(withPlaceholders);
+
+    // Headings
+    safe = safe.replace(/^### (.*$)/gim, "<h4>$1</h4>");
+    safe = safe.replace(/^## (.*$)/gim, "<h3>$1</h3>");
+    safe = safe.replace(/^# (.*$)/gim, "<h2>$1</h2>");
+
+    // Paragraphs
+    safe = safe.replace(/\n\n+/g, "</p><p>");
+    safe = "<p>" + safe + "</p>";
+
+    // Inline code (escaped already)
+    safe = safe.replace(/`([^`]+)`/g, (_m, c) => `<code class=\"bg-black/30 px-1 rounded\">${c}</code>`);
+
+    // Restore code blocks (escape their content and wrap in <pre>)
+    const final = safe.replace(new RegExp(placeholderPrefix + "(\\d+)__", "g"), (_m, idx) => {
+      const code = codeBlocks[Number(idx)] || "";
+      const esc = escapeHtml(code);
+      return `<pre class=\"rounded bg-black/60 p-3 font-mono text-sm overflow-auto\">${esc}</pre>`;
+    });
+
+    return final;
   }
 
   const proFeatureCards = useMemo(
@@ -691,13 +779,23 @@ export default function PricingPage() {
                         <p className="text-xs text-gray-500">{formatUSD(pkg.priceCents)}</p>
                       </div>
                       <div>
-                        <Button
-                          onClick={() => handleStorePurchase(pkg.id)}
-                          disabled={!user?.isPro || Boolean(purchaseLoading)}
-                          className={`${!user?.isPro ? 'bg-slate-700 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'}`}
-                        >
-                          {!user?.isPro ? 'Pro only' : purchaseLoading === pkg.id ? 'Processing...' : `Buy ${formatUSD(pkg.priceCents)}`}
-                        </Button>
+                        {(() => {
+                          const coinBtnDisabled = Boolean(purchaseLoading) || (user ? !user.isPro : false);
+                          const coinLabel = !user ? 'Sign in to buy' : (!user?.isPro ? 'Pro only' : purchaseLoading === pkg.id ? 'Processing...' : `Buy ${formatUSD(pkg.priceCents)}`);
+                          return (
+                            <Button
+                              onClick={() => {
+                                if (!user) { setLocation('/signup'); return; }
+                                if (!user?.isPro) return;
+                                handleStorePurchase(pkg.id);
+                              }}
+                              disabled={coinBtnDisabled}
+                              className={`${coinBtnDisabled ? 'bg-slate-700 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'}`}
+                            >
+                              {coinLabel}
+                            </Button>
+                          );
+                        })()}
                       </div>
                     </div>
                   </Card>
@@ -710,8 +808,33 @@ export default function PricingPage() {
               {loadingStore ? (
                 <div className="text-center text-gray-400 py-8">Loading store...</div>
               ) : storeItems.length === 0 ? (
+                // If the server requires auth to view personalized store items, show a demo/browse-only list
                 storeRequiresAuth ? (
-                  <div className="text-center text-gray-400 py-8">Sign in to view store items</div>
+                  <div>
+                    <div className="text-center text-gray-400 py-4">Sign in to buy items — browse demo items below</div>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {demoStoreItems.map((item) => (
+                        <Card key={item.id} className={`p-6 transition-all bg-slate-900 border-slate-700 opacity-80`}>
+                          <div className="flex items-start gap-4 mb-4">
+                            <div className={`text-5xl`}>{item.icon}</div>
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between mb-2">
+                                <h3 className="font-bold text-white">{item.name}</h3>
+                              </div>
+                              <p className="text-sm text-gray-400 mb-3">{item.description}</p>
+                              <span className={`text-xs px-2 py-1 rounded-full bg-purple-600/30 text-purple-400`}>Demo</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between pt-4 border-t border-slate-700">
+                            <div className="flex items-center gap-2 text-amber-400 font-bold"><Zap className="w-5 h-5" />{item.price} FlowCoins</div>
+                            <div className="flex items-center gap-2">
+                              <Button disabled className="bg-slate-700 cursor-not-allowed">Sign in to buy</Button>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
                 ) : (
                   <div className="text-center text-gray-400 py-8">No items available</div>
                 )
@@ -720,6 +843,8 @@ export default function PricingPage() {
                   {storeItems.map((item) => {
                     const owned = !!item.owned;
                     const canAfford = (coins || 0) >= item.price;
+                    const btnDisabled = user ? (!user.isPro || !canAfford) : false;
+                    const btnLabel = !user ? 'Sign in to buy' : (!user?.isPro ? 'Pro only' : !canAfford ? 'Not enough coins' : 'Buy');
                     return (
                       <Card key={item.id} className={`p-6 transition-all ${owned ? 'bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-600/50' : canAfford ? 'bg-slate-900 border-slate-700 hover:border-amber-500 hover:scale-105' : 'bg-slate-900/50 border-slate-800 opacity-60'}`}>
                         <div className="flex items-start gap-4 mb-4">
@@ -741,10 +866,18 @@ export default function PricingPage() {
                               <Button onClick={() => handleEquip(item.id)} className="bg-amber-600 hover:bg-amber-700">Equip</Button>
                             )}
                             {!owned && (
-                            <Button onClick={() => handleCoinPurchase(item.id)} disabled={!canAfford || !user?.isPro} className={`${!canAfford || !user?.isPro ? 'bg-slate-700 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'}`}>
-                                          {!user?.isPro ? 'Pro only' : !canAfford ? 'Not enough coins' : 'Buy' }
-                                        </Button>
-                              )}
+                              <Button
+                                onClick={() => {
+                                  if (!user) { setLocation('/signup'); return; }
+                                  if (!user?.isPro) return;
+                                  handleCoinPurchase(item.id);
+                                }}
+                                disabled={btnDisabled}
+                                className={`${btnDisabled ? 'bg-slate-700 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'}`}
+                              >
+                                {btnLabel}
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </Card>

@@ -108,7 +108,7 @@ async function runAuto(src: string, functionName: string, args: any[]) {
     const getFn = new Function(wrapper);
     fn = getFn();
   } catch (err) {
-    try { self.postMessage({ type: 'wrapper-error', error: 'Wrapper SyntaxError: ' + (err && err.message), wrapper: wrapper.slice(0, 2000) }); } catch(e){}
+    try { self.postMessage({ type: 'wrapper-error', error: 'Wrapper SyntaxError: ' + String(err), wrapper: wrapper.slice(0, 2000) }); } catch(e){}
     return;
   }
   if (!fn) {
@@ -121,7 +121,7 @@ async function runAuto(src: string, functionName: string, args: any[]) {
     if (result && typeof result.then === 'function') result = await result;
     self.postMessage({ ok: true, result } as WorkerResponse);
   } catch (err) {
-    self.postMessage({ ok: false, error: (err && err.message) || String(err) } as WorkerResponse);
+    self.postMessage({ ok: false, error: String(err) } as WorkerResponse);
   }
 }
 
@@ -203,19 +203,19 @@ async function runManual(src: string, functionName: string, args: any[]) {
         const res = (typeof ${functionName} === 'function') ? await ${functionName}(...(Array.isArray(args) ? args : [])) : null;
         self.postMessage({ ok: true, result: res });
       } catch(e) {
-        self.postMessage({ ok: false, error: (e && e.message) || String(e) });
+        self.postMessage({ ok: false, error: String(e) });
       }
     })();
     // expose resolver array access via global
-    self.__resolveNext = function(){ try { if(__res && __res.length) { const r = __res.shift(); r(); } } catch(e){} };
-    self.__resolveAll = function(){ try { while(__res && __res.length) { const r = __res.shift(); r(); } } catch(e){} };
+    (self as any).__resolveNext = function(){ try { if(__res && __res.length) { const r = __res.shift(); r(); } } catch(e){} };
+    (self as any).__resolveAll = function(){ try { while(__res && __res.length) { const r = __res.shift(); r(); } } catch(e){} };
   `;
 
   try {
     const getFn = new Function('args', wrapper);
     getFn(args);
   } catch (err) {
-    try { self.postMessage({ type: 'wrapper-error', error: 'Wrapper SyntaxError: ' + (err && err.message), wrapper: wrapper.slice(0, 2000) }); } catch(e){}
+    try { self.postMessage({ type: 'wrapper-error', error: 'Wrapper SyntaxError: ' + String(err), wrapper: wrapper.slice(0, 2000) }); } catch(e){}
     return;
   }
 }
@@ -237,11 +237,11 @@ self.onmessage = (evt: MessageEvent<any>) => {
 
     // command messages
     if (data && data.cmd === 'step') {
-      try { self.__resolveNext && self.__resolveNext(); } catch(e){}
+      try { (self as any).__resolveNext && (self as any).__resolveNext(); } catch(e){}
       return;
     }
     if (data && data.cmd === 'resume') {
-      try { self.__resolveAll && self.__resolveAll(); } catch(e){}
+      try { (self as any).__resolveAll && (self as any).__resolveAll(); } catch(e){}
       return;
     }
     if (data && data.cmd === 'terminate') {

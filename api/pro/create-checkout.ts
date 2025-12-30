@@ -14,17 +14,17 @@ function pickPriceId(plan?: string, currency?: string) {
   const p = (plan || "monthly").toLowerCase();
   const c = (currency || "BRL").toUpperCase();
   const m = {
-    MONTHLY_USD: process.env.STRIPE_PRICE_PRO_MONTHLY_USD,
-    MONTHLY_BRL: process.env.STRIPE_PRICE_PRO_MONTHLY_BRL,
-    ANNUAL_USD: process.env.STRIPE_PRICE_PRO_ANNUAL_USD,
-    ANNUAL_BRL: process.env.STRIPE_PRICE_PRO_ANNUAL_BRL,
+    MONTHLY_USD: process.env.STRIPE_PRICE_PRO_MONTHLY_USD || "",
+    MONTHLY_BRL: process.env.STRIPE_PRICE_PRO_MONTHLY_BRL || "",
+    ANNUAL_USD: process.env.STRIPE_PRICE_PRO_ANNUAL_USD || "",
+    ANNUAL_BRL: process.env.STRIPE_PRICE_PRO_ANNUAL_BRL || "",
   };
   if (p === "annual" && c === "USD" && m.ANNUAL_USD) return m.ANNUAL_USD;
   if (p === "annual" && c === "BRL" && m.ANNUAL_BRL) return m.ANNUAL_BRL;
   if (p === "monthly" && c === "USD" && m.MONTHLY_USD) return m.MONTHLY_USD;
   if (p === "monthly" && c === "BRL" && m.MONTHLY_BRL) return m.MONTHLY_BRL;
-  // Fallback to generic monthly
-  return process.env.STRIPE_PRICE_PRO_MONTHLY || "";
+  // Fallback to generic monthly env var names used elsewhere in the project
+  return process.env.STRIPE_PRICE_PRO_MONTHLY || process.env.STRIPE_PRICE_PRO_MONTHLY_USD || process.env.STRIPE_PRICE_PRO_MONTHLY_BRL || "";
 }
 
 export default async function (req: Req, res: Res) {
@@ -39,7 +39,7 @@ export default async function (req: Req, res: Res) {
   const stripeKey = process.env.STRIPE_SECRET_KEY;
   if (!stripeKey) {
     res.statusCode = 503;
-    res.end(JSON.stringify({ ok: false, error: "Stripe not configured" }));
+    res.end(JSON.stringify({ ok: false, error: "Stripe not configured (STRIPE_SECRET_KEY missing)" }));
     return;
   }
 
@@ -50,12 +50,14 @@ export default async function (req: Req, res: Res) {
     const currency = (body.currency as string | undefined) || "BRL";
     const price = pickPriceId(plan, currency);
     if (!price) {
+      const hint = "Set STRIPE_PRICE_PRO_MONTHLY_BRL / STRIPE_PRICE_PRO_MONTHLY_USD or STRIPE_PRICE_PRO_MONTHLY in environment.";
+      console.error("[ERROR] /api/pro/create-checkout: no price configured for plan=", plan, "currency=", currency);
       res.statusCode = 500;
-      res.end(JSON.stringify({ ok: false, error: "No Stripe price configured" }));
+      res.end(JSON.stringify({ ok: false, error: "No Stripe price configured", hint }));
       return;
     }
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2024-12-18.acacia" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const baseUrl = getBaseUrl(req);
 
     const session = await stripe.checkout.sessions.create({
