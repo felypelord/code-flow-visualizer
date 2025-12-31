@@ -88,7 +88,7 @@ async function getApp() {
       try {
         // mount POST /api/pro/create-checkout if present as a serverless-style handler
         try {
-          const checkoutMod = await import('./pro/create-checkout');
+          const checkoutMod = await import('./pro/create-checkout.ts');
           if (checkoutMod && typeof checkoutMod.default === 'function') {
             app.post('/api/pro/create-checkout', adaptServerlessHandler(checkoutMod.default));
           }
@@ -98,7 +98,7 @@ async function getApp() {
 
         // mount monetization webhook and confirm endpoints if available
         try {
-          const monet = await import('./monetization/index');
+          const monet = await import('./monetization/index.ts');
           if (monet) {
             if (typeof monet.stripeWebhook === 'function') {
               app.post('/api/monetization/stripe-webhook', monet.stripeWebhook);
