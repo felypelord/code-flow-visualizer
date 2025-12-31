@@ -36,18 +36,16 @@ jobs:
         working-directory: ${{ steps.detect.outputs.subdir }}
         run: |
           npm run build --if-present
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          # Run deploy from the repository root so Vercel's configured Root Directory
-          # (Code-Flow-Visualizer) is resolved correctly relative to the workspace.
-          working-directory: .
-          prod: true
-          wait-for-completion: true
+      - name: Deploy to Vercel (CLI)
+        run: |
+          set -e
+          echo "Deploying from: ${{ steps.detect.outputs.subdir }}"
+          cd "${{ steps.detect.outputs.subdir }}"
+          echo "PWD: $(pwd)"
+          npx --yes vercel --prod --confirm --token "${{ secrets.VERCEL_TOKEN }}" || true
         env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
