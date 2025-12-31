@@ -42,7 +42,7 @@ export default async function (req: Req & any, res: Res) {
   try {
     const buf = await bufferize(req);
     const sig = req.headers['stripe-signature'] as string;
-    const stripe = new Stripe(stripeKey, { apiVersion: '2024-12-18.acacia' });
+    const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' });
     const event = stripe.webhooks.constructEvent(buf, sig, webhookSecret);
 
     const client = postgres(process.env.DATABASE_URL!, {

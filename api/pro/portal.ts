@@ -31,7 +31,7 @@ export default async function (req: Req, res: Res) {
       res.end(JSON.stringify({ ok: false, error: "email is required" }));
       return;
     }
-    const stripe = new Stripe(stripeKey, { apiVersion: "2024-12-18.acacia" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const list = await stripe.customers.list({ email, limit: 1 });
     const customer = list.data[0];
     if (!customer) {

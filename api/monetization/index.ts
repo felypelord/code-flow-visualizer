@@ -313,7 +313,7 @@ export async function stripeWebhook(req: Request, res: Response) {
           metadata: JSON.stringify({ packageId, sessionId: session.id }),
         });
       
-      } else if (packageConfig.type === 'micro') {
+      } else if (packageConfig && packageConfig.type === 'micro') {
         // Micro purchase (hint/solution). We expect session.metadata.itemId to indicate which item/exercise.
         const itemId = (session.metadata && (session.metadata.itemId || session.metadata.item)) || packageId;
         try {

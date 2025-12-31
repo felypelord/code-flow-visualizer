@@ -34,7 +34,7 @@ export default async function (req: Req, res: Res) {
       return;
     }
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2024-12-18.acacia" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     const paid = session.payment_status === "paid" || session.status === "complete";
     const email = session.customer_details?.email || (session.customer as any)?.email || undefined;
