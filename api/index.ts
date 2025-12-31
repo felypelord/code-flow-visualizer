@@ -67,6 +67,25 @@ async function getApp() {
         try {
           const { createRequire } = await import('module');
           const req = createRequire(import.meta.url);
+
+          // Try absolute path first (handles cases where CWD contains `dist` after build)
+          try {
+            const pathMod = await import('path');
+            const fs = await import('fs');
+            const abs = pathMod.resolve(process.cwd(), 'dist', 'index.cjs');
+            if (fs.existsSync(abs)) {
+              const compiledCjs = req(abs);
+              const registerRoutes = compiledCjs && (compiledCjs.registerRoutes || compiledCjs.default?.registerRoutes);
+              if (typeof registerRoutes === 'function') {
+                await registerRoutes(httpServer as any, app as any);
+                return app;
+              }
+            }
+          } catch (ee) {
+            // ignore path/fs errors
+          }
+
+          // Fallback: require relative to this module
           const compiledCjs = req('../dist/index.cjs');
           const registerRoutes = compiledCjs && (compiledCjs.registerRoutes || compiledCjs.default?.registerRoutes);
           if (typeof registerRoutes === 'function') {
