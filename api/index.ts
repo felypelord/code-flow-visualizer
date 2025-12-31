@@ -63,8 +63,23 @@ async function getApp() {
           return app;
         }
       } catch (e) {
+        // Try requiring the compiled CommonJS bundle as a fallback (handles CJS/Esm interop on some deploy targets)
+        try {
+          const { createRequire } = await import('module');
+          const req = createRequire(import.meta.url);
+          const compiledCjs = req('../dist/index.cjs');
+          const registerRoutes = compiledCjs && (compiledCjs.registerRoutes || compiledCjs.default?.registerRoutes);
+          if (typeof registerRoutes === 'function') {
+            await registerRoutes(httpServer as any, app as any);
+            return app;
+          }
+        } catch (e2) {
+          // ignore
+          console.info('[api/index] no compiled `dist/index.cjs` found or failed to load (cjs require):', e2 && (e2.message || e2));
+        }
+
         // ignore - we'll continue to fallback handlers below
-        console.info('[api/index] no compiled `dist/index.cjs` found or failed to load:', e && (e.message || e));
+        console.info('[api/index] no compiled `dist/index.cjs` found or failed to load (import):', e && (e.message || e));
       }
 
       // Fallback: try to mount standalone API handlers that live under the `api/` folder
