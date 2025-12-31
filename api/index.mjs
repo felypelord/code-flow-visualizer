@@ -35,23 +35,35 @@ async function getApp() {
 		try {
 			const pathMod = await import('path');
 			const fs = await import('fs');
-			const abs = pathMod.resolve(process.cwd(), 'dist', 'index.cjs');
-			const exists = fs.existsSync(abs);
-			console.info('[api/index.mjs] checking for dist bundle at', abs, 'exists=', exists);
-			if (exists) {
+			const candidates = [];
+			candidates.push(pathMod.resolve(process.cwd(), 'dist', 'index.cjs'));
+			candidates.push(pathMod.resolve(process.cwd(), '..', 'dist', 'index.cjs'));
+			try {
+				const thisFile = new URL(import.meta.url).pathname;
+				candidates.push(pathMod.resolve(pathMod.dirname(thisFile), '..', 'dist', 'index.cjs'));
+			} catch (e) { /* ignore */ }
+			candidates.push('/var/task/dist/index.cjs');
+			for (const abs of candidates) {
 				try {
-					const compiled = require(abs);
-					const registerRoutes = compiled && (compiled.registerRoutes || compiled.default?.registerRoutes);
-					if (typeof registerRoutes === 'function') {
-						console.info('[api/index.mjs] calling registerRoutes from dist bundle');
-						await registerRoutes(httpServer, app);
-						console.info('[api/index.mjs] loaded routes from dist/index.cjs');
-						return app;
-					} else {
-						console.info('[api/index.mjs] dist bundle loaded but registerRoutes not found');
+					const exists = fs.existsSync(abs);
+					console.info('[api/index.mjs] checking for dist bundle at', abs, 'exists=', exists);
+					if (!exists) continue;
+					try {
+						const compiled = require(abs);
+						const registerRoutes = compiled && (compiled.registerRoutes || compiled.default?.registerRoutes);
+						if (typeof registerRoutes === 'function') {
+							console.info('[api/index.mjs] calling registerRoutes from dist bundle at', abs);
+							await registerRoutes(httpServer, app);
+							console.info('[api/index.mjs] loaded routes from', abs);
+							return app;
+						} else {
+							console.info('[api/index.mjs] dist bundle loaded but registerRoutes not found at', abs);
+						}
+					} catch (e) {
+						console.error('[api/index.mjs] failed to require', abs, e && (e.stack || e.message || e));
 					}
 				} catch (e) {
-					console.error('[api/index.mjs] failed to require dist/index.cjs:', e && (e.stack || e.message || e));
+					console.info('[api/index.mjs] error checking path', abs, e && (e.message || e));
 				}
 			}
 		} catch (e) {
