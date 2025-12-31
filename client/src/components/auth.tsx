@@ -59,7 +59,7 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [proToken, setProToken] = useState('');
+  // proToken removed — free signup supported
   
   // Form 2: Profile data
   const [firstName, setFirstName] = useState('');
@@ -150,11 +150,7 @@ export default function Auth() {
         return;
       }
 
-      if (!proToken.trim()) {
-        setError('Pro code required');
-        setIsLoading(false);
-        return;
-      }
+      // proToken no longer required for free signup
 
       if (!validatePassword(password)) {
         setError('Password must be 10+ chars with letters and numbers');
@@ -173,7 +169,7 @@ export default function Auth() {
           dateOfBirth: new Date(dateOfBirth).toISOString(),
           country,
           password,
-          proToken,
+          // proToken removed for free signup
         }),
       });
 
@@ -525,18 +521,9 @@ export default function Auth() {
             ) : step === 'signup-form' ? (
               // SIGNUP FORM
               <form onSubmit={handleSendVerificationCode} className="space-y-3 mt-6 max-h-[70vh] overflow-y-auto">
-                <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-100 text-xs leading-relaxed">
-                  Signup available <strong>only for Pro customers</strong>. Click "Pay Pro" to generate the Pro code and paste it below to create the account.
+                <div className="p-2 rounded-lg border border-slate-700 bg-slate-900/40 text-slate-300 text-xs leading-relaxed">
+                  Create a free account to get started. Upgrade to Pro anytime from the Pricing page.
                 </div>
-
-                <Button
-                  type="button"
-                  onClick={startProCheckout}
-                  disabled={checkoutLoading || isLoading}
-                  className="w-full bg-gradient-to-r from-amber-400 to-amber-600 text-black font-semibold"
-                >
-                  {checkoutLoading ? 'Opening checkout...' : 'Pay Pro and generate code'}
-                </Button>
 
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-slate-200 block">
@@ -603,18 +590,7 @@ export default function Auth() {
                   </select>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-200 block">Pro Code Label</label>
-                  <input
-                    type="text"
-                    value={proToken}
-                    onChange={(e) => setProToken(e.target.value)}
-                    placeholder="Pro Code Placeholder"
-                    className="w-full px-3 py-2 bg-slate-900 border border-amber-500/50 rounded text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/60 text-sm"
-                    disabled={isLoading}
-                  />
-                  <p className="text-[11px] text-amber-200/80">Pro Code Note</p>
-                </div>
+                {/* No pro-code required for free accounts */}
 
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-slate-200 block">Password Label</label>

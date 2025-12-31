@@ -17,8 +17,8 @@ const signupSchema = z.object({
   dateOfBirth: z.string().datetime(),
   country: z.string().min(1).max(100),
   password: strongPassword,
-  // Pro-gating: require a token proving payment or admin invite
-  proToken: z.string().min(6, "Missing pro token").max(200),
+  // Pro-gating: optional token proving payment or admin invite
+  proToken: z.string().min(6, "Missing pro token").max(200).optional(),
 });
 
 // Simple inline schema definitions for serverless context
@@ -66,40 +66,31 @@ export default async function (req: any, res: any) {
     });
 
     try {
-      // Pro-only gating: allow only if token is valid
-      let proAllowed = false;
-
-      // 1) Check DB entitlement if table exists
-      try {
-        const entitlements = await client`
-          SELECT id, email, token, status, used_at
-          FROM pro_signup_entitlements
-          WHERE token = ${proToken}
-          LIMIT 1
-        `;
-        if (entitlements.length > 0) {
-          const e = entitlements[0] as any;
-          if ((e.status === 'paid' || e.status === 'granted') && !e.used_at && e.email === email) {
-            proAllowed = true;
+      // Determine if this signup should grant Pro access.
+      let isPro = false;
+      if (proToken) {
+        // 1) Check DB entitlement if table exists
+        try {
+          const entitlements = await client`
+            SELECT id, email, token, status, used_at
+            FROM pro_signup_entitlements
+            WHERE token = ${proToken}
+            LIMIT 1
+          `;
+          if (entitlements.length > 0) {
+            const e = entitlements[0] as any;
+            if ((e.status === 'paid' || e.status === 'granted') && !e.used_at && e.email === email) {
+              isPro = true;
+            }
           }
+        } catch (_) {
+          // Table might not exist yet; fall back to env code check below
         }
-      } catch (_) {
-        // Table might not exist yet; fall back to env code check below
-      }
 
-      // 2) Fallback: allow with admin env code
-      if (!proAllowed && process.env.PRO_SIGNUP_CODE && proToken === process.env.PRO_SIGNUP_CODE) {
-        proAllowed = true;
-      }
-
-      if (!proAllowed) {
-        res.statusCode = 402;
-        res.end(JSON.stringify({
-          ok: false,
-          message: "Pro required to create an account. Please purchase a plan.",
-        }));
-        await client.end();
-        return;
+        // 2) Fallback: allow with admin env code
+        if (!isPro && process.env.PRO_SIGNUP_CODE && proToken === process.env.PRO_SIGNUP_CODE) {
+          isPro = true;
+        }
       }
       // Check if user already exists
       const existingUsers = await client`
@@ -119,19 +110,21 @@ export default async function (req: any, res: any) {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Create user with Pro access (since they passed pro-gating)
+      // Create user; set is_pro according to whether proToken was validated
       await client`
         INSERT INTO users (email, password, first_name, last_name, date_of_birth, country, email_verified, is_pro) 
-        VALUES (${email}, ${hashedPassword}, ${firstName}, ${lastName}, ${new Date(dateOfBirth)}, ${country}, false, true)
+        VALUES (${email}, ${hashedPassword}, ${firstName}, ${lastName}, ${new Date(dateOfBirth)}, ${country}, false, ${isPro})
       `;
 
-      // If entitlement exists, mark as used
+      // If entitlement exists and proToken was used, mark as used
       try {
-        await client`
-          UPDATE pro_signup_entitlements
-          SET used_at = NOW()
-          WHERE token = ${proToken} AND email = ${email} AND used_at IS NULL
-        `;
+        if (proToken && isPro) {
+          await client`
+            UPDATE pro_signup_entitlements
+            SET used_at = NOW()
+            WHERE token = ${proToken} AND email = ${email} AND used_at IS NULL
+          `;
+        }
       } catch (_) {}
 
       // Generate verification code
