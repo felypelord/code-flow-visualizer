@@ -87,19 +87,34 @@ async function getApp() {
 			try {
 				const pathMod = await import('path');
 				const fs = await import('fs');
-				const abs = pathMod.resolve(process.cwd(), 'dist', 'index.cjs');
-				const exists = fs.existsSync(abs);
-				let loadError = null;
-				let registerFound = false;
-				if (exists) {
+				const candidates = [];
+				candidates.push(pathMod.resolve(process.cwd(), 'dist', 'index.cjs'));
+				candidates.push(pathMod.resolve(process.cwd(), '..', 'dist', 'index.cjs'));
+				try {
+					const thisFile = new URL(import.meta.url).pathname;
+					candidates.push(pathMod.resolve(pathMod.dirname(thisFile), '..', 'dist', 'index.cjs'));
+				} catch (e) { }
+				candidates.push('/var/task/dist/index.cjs');
+				const results = [];
+				for (const abs of candidates) {
 					try {
-						const compiled = require(abs);
-						registerFound = !!(compiled && (compiled.registerRoutes || compiled.default?.registerRoutes));
+						const exists = fs.existsSync(abs);
+						let registerFound = false;
+						let loadError = null;
+						if (exists) {
+							try {
+								const compiled = require(abs);
+								registerFound = !!(compiled && (compiled.registerRoutes || compiled.default?.registerRoutes));
+							} catch (e) {
+								loadError = e && (e.stack || e.message || String(e));
+							}
+						}
+						results.push({ path: abs, exists, registerFound, loadError });
 					} catch (e) {
-						loadError = e && (e.stack || e.message || String(e));
+						results.push({ path: abs, error: e && (e.stack || e.message) });
 					}
 				}
-				return res.json({ ok: true, exists, registerFound, loadError });
+				return res.json({ ok: true, results });
 			} catch (e) {
 				return res.status(500).json({ ok: false, error: 'diag_failed', message: e && (e.stack || e.message) });
 			}
