@@ -13,9 +13,11 @@ jobs:
         with:
           node-version: 20.19.0
       - name: Install dependencies
+        working-directory: Code-Flow-Visualizer
         run: |
           npm install --no-audit --prefer-offline
       - name: Build
+        working-directory: Code-Flow-Visualizer
         run: |
           npm run build --if-present
       - name: Deploy to Vercel
@@ -24,7 +26,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: .
+          working-directory: Code-Flow-Visualizer
           prod: true
           wait-for-completion: true
         env:
