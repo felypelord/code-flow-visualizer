@@ -12,13 +12,24 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.19.0
-      - name: Detect project subdirectory
+      - name: Detect project directory containing package.json
         id: detect
         run: |
-          if [ -d "Code-Flow-Visualizer" ]; then
-            echo "subdir=Code-Flow-Visualizer" >> $GITHUB_OUTPUT
+          echo "Searching for package.json to determine project root..."
+          # If root has package.json use it, otherwise search up to depth 3
+          if [ -f "$GITHUB_WORKSPACE/package.json" ]; then
+            echo "root=." >> $GITHUB_OUTPUT
           else
-            echo "subdir=." >> $GITHUB_OUTPUT
+            pkgpath=$(find "$GITHUB_WORKSPACE" -maxdepth 3 -type f -name package.json -print -quit || true)
+            if [ -n "$pkgpath" ]; then
+              pkgdir=$(dirname "$pkgpath")
+              # strip leading $GITHUB_WORKSPACE/ if present
+              root=${pkgdir#${GITHUB_WORKSPACE}/}
+              if [ -z "$root" ]; then root="."; fi
+              echo "root=$root" >> $GITHUB_OUTPUT
+            else
+              echo "root=." >> $GITHUB_OUTPUT
+            fi
           fi
       - name: Debug workspace
         run: |
@@ -29,15 +40,15 @@ jobs:
           echo "Detected subdir: '${{ steps.detect.outputs.subdir }}'";
           ls -la "${{ steps.detect.outputs.subdir }}" || true
       - name: Install dependencies
-        working-directory: ${{ steps.detect.outputs.subdir }}
+        working-directory: ${{ steps.detect.outputs.root }}
         run: |
           npm install --no-audit --prefer-offline
       - name: Build
-        working-directory: ${{ steps.detect.outputs.subdir }}
+        working-directory: ${{ steps.detect.outputs.root }}
         run: |
           npm run build --if-present
       - name: Show build output
-        working-directory: ${{ steps.detect.outputs.subdir }}
+        working-directory: ${{ steps.detect.outputs.root }}
         run: |
           echo "PWD: $(pwd)"
           echo "Listing working directory:"; ls -la
@@ -45,16 +56,21 @@ jobs:
           echo "Listing dist/public (subdir):"; ls -la dist/public || true
           echo "Listing repo-root/dist (if present):"; ls -la "$GITHUB_WORKSPACE/dist" || true
       - name: Prepare dist for deploy
-        working-directory: ${{ steps.detect.outputs.subdir }}
+        working-directory: ${{ steps.detect.outputs.root }}
         run: |
           echo "Preparing dist in repo root for Vercel upload"
-          if [ -d dist ]; then
+          # copy from the detected project root's dist into repo root
+          SRC="$GITHUB_WORKSPACE/${{ steps.detect.outputs.root }}/dist"
+          if [ -d "$SRC" ]; then
             rm -rf "$GITHUB_WORKSPACE/dist" || true
-            cp -r dist "$GITHUB_WORKSPACE/dist"
-            echo "Copied dist to $GITHUB_WORKSPACE/dist"
+            mkdir -p "$GITHUB_WORKSPACE/dist"
+            cp -r "$SRC"/* "$GITHUB_WORKSPACE/dist/" || true
+            echo "Copied $SRC to $GITHUB_WORKSPACE/dist"
             ls -la "$GITHUB_WORKSPACE/dist" || true
           else
-            echo "No dist directory to copy from ${PWD}"
+            echo "No dist directory to copy from $SRC"
+            ls -la "${{ steps.detect.outputs.root }}" || true
+            exit 0
           fi
       - name: Ensure Vercel Project Root Directory
         run: |
