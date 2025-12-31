@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "if [ -d Code-Flow-Visualizer ]; then cd Code-Flow-Visualizer; fi && npm install --no-audit --prefer-offline && npm run build && if [ -d dist ]; then mkdir -p ../dist && cp -r dist/* ../dist/ || true; fi",
   "outputDirectory": "dist/public",
   "devCommand": "npm run dev:env",
   "rewrites": [

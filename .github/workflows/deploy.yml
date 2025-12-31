@@ -36,6 +36,14 @@ jobs:
         working-directory: ${{ steps.detect.outputs.subdir }}
         run: |
           npm run build --if-present
+      - name: Show build output
+        working-directory: ${{ steps.detect.outputs.subdir }}
+        run: |
+          echo "PWD: $(pwd)"
+          echo "Listing working directory:"; ls -la
+          echo "Listing dist (subdir):"; ls -la dist || true
+          echo "Listing dist/public (subdir):"; ls -la dist/public || true
+          echo "Listing repo-root/dist (if present):"; ls -la "$GITHUB_WORKSPACE/dist" || true
       - name: Ensure Vercel Project Root Directory
         run: |
           echo "Ensuring Vercel project rootDirectory is empty (so deploy from repo root works)"
@@ -47,14 +55,13 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       - name: Deploy to Vercel (CLI)
+        working-directory: ${{ steps.detect.outputs.subdir }}
         run: |
           set -e
-          echo "Deploying from repo root to match Vercel Root Directory setting"
+          echo "Deploying from '${{ steps.detect.outputs.subdir }}' to match Vercel Root Directory setting"
           echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
-          cd "$GITHUB_WORKSPACE"
           echo "PWD: $(pwd)"
-          # Run vercel from repo root so Vercel's configured Root Directory (Code-Flow-Visualizer)
-          # is resolved correctly (it will look for that subfolder inside the repo root).
+          # Run vercel from the detected subdirectory (or repo root) so Vercel resolves paths correctly.
           npx --yes vercel --prod --confirm --token "${{ secrets.VERCEL_TOKEN }}"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
