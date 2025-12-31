@@ -36,6 +36,16 @@ jobs:
         working-directory: ${{ steps.detect.outputs.subdir }}
         run: |
           npm run build --if-present
+      - name: Ensure Vercel Project Root Directory
+        run: |
+          echo "Ensuring Vercel project rootDirectory is empty (so deploy from repo root works)"
+          curl -s -X PATCH "https://api.vercel.com/v1/projects/${{ secrets.VERCEL_PROJECT_ID }}" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"rootDirectory":""}' | jq '.' || true
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       - name: Deploy to Vercel (CLI)
         run: |
           set -e
