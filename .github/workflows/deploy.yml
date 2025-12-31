@@ -44,6 +44,18 @@ jobs:
           echo "Listing dist (subdir):"; ls -la dist || true
           echo "Listing dist/public (subdir):"; ls -la dist/public || true
           echo "Listing repo-root/dist (if present):"; ls -la "$GITHUB_WORKSPACE/dist" || true
+      - name: Prepare dist for deploy
+        working-directory: ${{ steps.detect.outputs.subdir }}
+        run: |
+          echo "Preparing dist in repo root for Vercel upload"
+          if [ -d dist ]; then
+            rm -rf "$GITHUB_WORKSPACE/dist" || true
+            cp -r dist "$GITHUB_WORKSPACE/dist"
+            echo "Copied dist to $GITHUB_WORKSPACE/dist"
+            ls -la "$GITHUB_WORKSPACE/dist" || true
+          else
+            echo "No dist directory to copy from ${PWD}"
+          fi
       - name: Ensure Vercel Project Root Directory
         run: |
           echo "Ensuring Vercel project rootDirectory is empty (so deploy from repo root works)"
@@ -55,14 +67,14 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       - name: Deploy to Vercel (CLI)
-        working-directory: ${{ steps.detect.outputs.subdir }}
+        # run from repo root so the copied `dist` is uploaded; use --prebuilt to skip remote build
+        working-directory: ${{ github.workspace }}
         run: |
           set -e
-          echo "Deploying from '${{ steps.detect.outputs.subdir }}' to match Vercel Root Directory setting"
+          echo "Deploying from repo root (prebuilt)"
           echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
           echo "PWD: $(pwd)"
-          # Run vercel from the detected subdirectory (or repo root) so Vercel resolves paths correctly.
-          npx --yes vercel --prod --confirm --token "${{ secrets.VERCEL_TOKEN }}"
+          npx --yes vercel --prod --yes --prebuilt --token "${{ secrets.VERCEL_TOKEN }}"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
