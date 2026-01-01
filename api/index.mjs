@@ -200,6 +200,98 @@ async function getApp() {
 			return res.json({ ok: true, balance: 0 });
 		});
 
+		// Parse token that may be either legacy base64 "id:email" or JSON payload
+		function parseFallbackToken(req) {
+			const hdr = req.headers && (req.headers.authorization || req.headers.Authorization || req.headers.Auth);
+			let token = null;
+			if (hdr && String(hdr).startsWith('Bearer ')) token = String(hdr).slice(7).trim();
+			if (!token && req.query && req.query.token) token = req.query.token;
+			if (!token) return null;
+			try {
+				const raw = Buffer.from(String(token), 'base64').toString('utf8');
+				// Try JSON first
+				try {
+					const obj = JSON.parse(raw);
+					return obj;
+				} catch (e) {
+					const parts = raw.split(':');
+					return { id: parts[0], email: parts.slice(1).join(':'), pro: false, coins: 0 };
+				}
+			} catch (e) {
+				return null;
+			}
+		}
+
+		function makeFallbackToken(obj) {
+			const json = JSON.stringify(obj);
+			return Buffer.from(json).toString('base64');
+		}
+
+		app.post('/api/signup', express.json(), (req, res) => {
+			try {
+				const body = req.body || {};
+				const email = body.email || body.username || ('user_' + Date.now() + '@example.com');
+				const id = `user_${Date.now()}`;
+				const user = { id, email, pro: false, coins: 0 };
+				const token = makeFallbackToken(user);
+				return res.json({ ok: true, token, user });
+			} catch (err) {
+				return res.status(500).json({ error: 'signup_failed' });
+			}
+		});
+
+		app.post('/api/login', express.json(), (req, res) => {
+			try {
+				const body = req.body || {};
+				const email = body.email || body.username;
+				if (!email) return res.status(400).json({ error: 'missing_email' });
+				const id = `user_${Date.now()}`;
+				const user = { id, email, pro: false, coins: 0 };
+				const token = makeFallbackToken(user);
+				return res.json({ ok: true, token, user });
+			} catch (err) {
+				return res.status(500).json({ error: 'login_failed' });
+			}
+		});
+
+		app.post('/api/purchase', express.json(), (req, res) => {
+			const body = req.body || {};
+			const itemId = body.itemId || body.productId;
+			let user = parseFallbackToken(req) || { id: `user_${Date.now()}`, email: 'unknown@example.com', pro: false, coins: 0 };
+			if (!itemId) return res.status(400).json({ error: 'missing_itemId' });
+			// Simulate purchases
+			if (String(itemId).startsWith('flowcoins_')) {
+				// format flowcoins_100
+				const n = parseInt(String(itemId).split('_')[1] || '0', 10) || 0;
+				user.coins = (user.coins || 0) + n;
+				const token = makeFallbackToken(user);
+				return res.json({ ok: true, itemId, coins: user.coins, token });
+			}
+			if (itemId === 'pro_monthly' || String(itemId).startsWith('pro_')) {
+				// grant pro for 30 days
+				const now = new Date();
+				now.setDate(now.getDate() + 30);
+				user.pro = true;
+				user.proExpiresAt = now.toISOString();
+				const token = makeFallbackToken(user);
+				return res.json({ ok: true, itemId, proExpiresAt: user.proExpiresAt, token });
+			}
+			return res.status(400).json({ error: 'unknown_item' });
+		});
+
+		app.get('/api/pro/content', (req, res) => {
+			const user = parseFallbackToken(req);
+			if (!user || !user.pro) return res.status(403).json({ error: 'pro_required' });
+			return res.json({ ok: true, content: [{ id: 'pro_course_1', title: 'Pro Course: Advanced Flow' }] });
+		});
+
+		app.get('/api/learning/path', (req, res) => {
+			const user = parseFallbackToken(req);
+			if (!user) return res.status(401).json({ error: 'not_authenticated' });
+			const path = [{ slug: 'start', title: 'Get Started' }, { slug: 'advanced', title: 'Advanced Path', proOnly: true }];
+			return res.json({ ok: true, path });
+		});
+
 		app.get('/api/health', (_req, res) => res.json({ ok: false, error: 'server bundle missing' }));
 		app.use((req, res) => {
 			res.setHeader('Content-Type', 'application/json');
