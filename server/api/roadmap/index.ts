@@ -1,8 +1,8 @@
 import type { Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs/promises';
-import { db } from '../../db';
-import { roadmapProgress, storePurchases, users } from '../../../shared/schema';
+import { db } from '../../db.js';
+import { roadmapProgress, storePurchases, users } from '../../../shared/schema.js';
 import { eq } from 'drizzle-orm';
 
 const ROADMAP_FILE = path.join(process.cwd(), 'server', 'data', 'roadmap.json');

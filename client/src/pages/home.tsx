@@ -54,11 +54,8 @@ export default function Home() {
           </div>
 
           {/* Hero Image / Graphic */}
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 h-full hidden lg:block pointer-events-none opacity-40 mix-blend-screen mask-image-gradient">
-            <picture>
-              <source srcSet={generatedImage.replace('.png', '.webp')} type="image/webp" />
-              <img src={generatedImage} alt="Blueprint visualization" loading="lazy" className="w-full h-full object-cover" />
-            </picture>
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 h-full hidden lg:block pointer-events-none opacity-30">
+            <img src={generatedImage} alt="Blueprint visualization" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-l from-background to-transparent" />
           </div>
         </section>

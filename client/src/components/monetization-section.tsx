@@ -43,16 +43,26 @@ export default function MonetizationSection() {
 
   const handlePurchase = async (packageId: string) => {
     if (!user) {
-      toast({ title: 'Login required', description: 'Please log in to make purchases', variant: 'destructive' });
+      const authButton = document.querySelector('[data-auth-trigger]') as HTMLButtonElement;
+      if (authButton) authButton.click();
       return;
     }
 
     setLoading(packageId);
 
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        const authButton = document.querySelector('[data-auth-trigger]') as HTMLButtonElement;
+        if (authButton) authButton.click();
+        return;
+      }
       const response = await fetch('/api/monetization/create-payment', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         credentials: 'include',
         body: JSON.stringify({ packageId }),
       });
@@ -76,7 +86,11 @@ export default function MonetizationSection() {
   useEffect(() => { initAdSense(); }, []);
 
   const handleWatchAd = async () => {
-    if (!user) { toast({ title: 'Login required', description: 'Please log in to watch ads', variant: 'destructive' }); return; }
+    if (!user) { 
+      const authButton = document.querySelector('[data-auth-trigger]') as HTMLButtonElement;
+      if (authButton) authButton.click();
+      return; 
+    }
     setShowAdModal(true);
   };
 

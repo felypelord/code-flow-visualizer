@@ -4,7 +4,7 @@ import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { eq, and, desc } from "drizzle-orm";
-import { db } from "./db";
+import { db } from "./db.js";
 import { 
   progress, 
   users, 
@@ -19,12 +19,12 @@ import {
   coinTransactions,
   infinityPayPurchases,
   adRewards
-} from "../shared/schema";
-import { createPayment, stripeWebhook, watchAd, checkUsage, consumeUsage, confirmPurchase } from "./api/monetization";
-import { getRoadmap, getRoadmapItem, getProgress, completeProgress } from "./api/roadmap";
-import { trackAdImpression, verifyAdWatch, getAdStats, skipAdForCoins } from "./api/analytics/ads";
-import { storage } from "./storage";
-import { getStripe, getBaseUrl, STRIPE_PRICE_PRO_MONTHLY, STRIPE_PRICE_PRO_MONTHLY_USD, STRIPE_WEBHOOK_SECRET } from "./stripe";
+} from "../shared/schema.js";
+import { createPayment, stripeWebhook, watchAd, checkUsage, consumeUsage, confirmPurchase } from "./api/monetization/index.js";
+import { getRoadmap, getRoadmapItem, getProgress, completeProgress } from "./api/roadmap/index.js";
+import { trackAdImpression, verifyAdWatch, getAdStats, skipAdForCoins } from "./api/analytics/ads.js";
+import { storage } from "./storage.js";
+import { getStripe, getBaseUrl, STRIPE_PRICE_PRO_MONTHLY, STRIPE_PRICE_PRO_MONTHLY_USD, STRIPE_WEBHOOK_SECRET } from "./stripe.js";
 import Stripe from "stripe";
 import { Resend } from "resend";
 
@@ -509,30 +509,25 @@ export async function registerRoutes(
         return res.status(400).json({ message: "invalid signup data", errors: parsed.error.errors });
       }
       const { email, firstName, lastName, dateOfBirth, country, password } = parsed.data;
-      console.log("[DEBUG] checking if email exists:", email);
-      
+      console.log("[DEBUG] immediate signup requested for:", email);
       const existing = await storage.getUserByEmail(email);
-      console.log("[DEBUG] existing user:", existing ? "YES" : "NO");
       if (existing) return res.status(409).json({ message: "email already exists" });
-      
-      // Generate verification code
-      const code = generateVerificationCode();
-      console.log("[DEBUG] creating email verification for:", email);
-      await storage.createEmailVerification(email, code);
-      console.log("[DEBUG] email verification created, code:", code);
-      
-      // Send email (mock for now) with timeout in background (do not block response)
-      // We intentionally do not await here to avoid request timeouts
-      sendVerificationEmailWithTimeout(email, code, firstName)
-        .then((sent) => {
-          if (!sent) console.warn(`verification email send timed out for ${email}`);
-        })
-        .catch((err) => {
-          console.warn(`verification email send failed for ${email}: ${err?.message || err}`);
-        });
 
-      console.log("[DEBUG] /api/signup returning success");
-      return res.json({ message: "Verification code sent to your email" });
+      // Create the user immediately (no verification step)
+      const hashedPassword = await bcryptjs.hash(password, 10);
+      const newUser = await storage.createUser({
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+        country,
+      });
+      // Mark email as verified since we no longer require verification
+      try { await storage.markEmailAsVerified(email); } catch (_) {}
+
+      const token = jwt.sign({ userId: newUser.id }, JWT_SECRET as string, { expiresIn: JWT_EXPIRY });
+      return res.json({ token, user: { id: newUser.id, email: newUser.email, firstName, lastName } });
     } catch (err: any) {
       console.error("[ERROR] /api/signup exception:", err?.message || err, "\nStack:", err?.stack);
       return res.status(500).json({ message: "Internal server error", error: err?.message || String(err) });
@@ -544,23 +539,8 @@ export async function registerRoutes(
     if (!checkRateLimit(`verify:${req.ip}`, 10, 60_000)) {
       return res.status(429).json({ message: "Too many verification attempts" });
     }
-    const parsed = verifyCodeSchema.safeParse(req.body || {});
-    if (!parsed.success) return res.status(400).json({ message: "invalid verification data" });
-    const { email, code } = parsed.data;
-    
-    // Verify the code
-    const isValid = await storage.verifyEmail(email, code);
-    if (!isValid) {
-      const verification = await storage.getEmailVerification(email);
-      if (verification && verification.attempts >= 5) {
-        await storage.deleteEmailVerification(email);
-        return res.status(429).json({ message: "Too many failed attempts, please request a new code" });
-      }
-      return res.status(400).json({ message: "Invalid or expired code" });
-    }
-    // If we get here, email is verified, we should have stored the signup data somewhere
-    // For now, we'll return success and expect the client to send full signup data again
-    return res.json({ message: "Email verified successfully" });
+    // Verification is no longer required — accept any code and return success.
+    return res.json({ message: 'Email verification disabled; proceeding' });
   });
 
   // Complete signup with all data
@@ -571,27 +551,26 @@ export async function registerRoutes(
     const parsed = sendVerificationCodeSchema.safeParse(req.body || {});
     if (!parsed.success) return res.status(400).json({ message: "invalid signup data" });
     const { email, firstName, lastName, dateOfBirth, country, password } = parsed.data;
-    
-    // Check if email is verified
-    const user = await storage.getUserByEmail(email);
-    if (!user) {
-      // Email should be verified before this, so we create the account
-      const hashedPassword = await bcryptjs.hash(password, 10);
-      const newUser = await storage.createUser({
-        email,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        dateOfBirth: new Date(dateOfBirth),
-        country,
-      });
-      
-      // Generate JWT token
-      const token = jwt.sign({ userId: newUser.id }, JWT_SECRET as string, { expiresIn: JWT_EXPIRY });
-      return res.json({ token, user: { id: newUser.id, email: newUser.email, firstName, lastName } });
+    // We no longer require prior verification. If the user exists, return token (login-like behavior).
+    const existing = await storage.getUserByEmail(email);
+    if (existing) {
+      const token = jwt.sign({ userId: existing.id }, JWT_SECRET as string, { expiresIn: JWT_EXPIRY });
+      return res.json({ token, user: { id: existing.id, email: existing.email, firstName: existing.firstName, lastName: existing.lastName } });
     }
-    
-    return res.status(409).json({ message: "Account already exists" });
+
+    // Create new user
+    const hashedPassword = await bcryptjs.hash(password, 10);
+    const newUser = await storage.createUser({
+      email,
+      password: hashedPassword,
+      firstName,
+      lastName,
+      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+      country,
+    });
+    try { await storage.markEmailAsVerified(email); } catch (_) {}
+    const token = jwt.sign({ userId: newUser.id }, JWT_SECRET as string, { expiresIn: JWT_EXPIRY });
+    return res.json({ token, user: { id: newUser.id, email: newUser.email, firstName, lastName } });
   });
 
   // Immediate register (no email verification) - creates account and returns token
@@ -1544,7 +1523,7 @@ export async function registerRoutes(
   // MONETIZATION ROUTES
   // ============================================================================
   
-  app.post("/api/monetization/create-payment", requireAuth, createPayment);
+  app.post("/api/monetization/create-payment", authenticateToken, createPayment);
   app.post("/api/monetization/confirm", confirmPurchase);
   app.post("/api/monetization/stripe-webhook", stripeWebhook);
   // Roadmap endpoints
@@ -1564,15 +1543,15 @@ export async function registerRoutes(
       return res.status(500).json({ message: 'Failed to fetch purchases' });
     }
   });
-  app.post("/api/monetization/watch-ad", requireAuth, watchAd);
-  app.get("/api/monetization/check-usage", requireAuth, checkUsage);
-  app.post("/api/monetization/consume-usage", requireAuth, consumeUsage);
+  app.post("/api/monetization/watch-ad", authenticateToken, watchAd);
+  app.get("/api/monetization/check-usage", authenticateToken, checkUsage);
+  app.post("/api/monetization/consume-usage", authenticateToken, consumeUsage);
   
   // Ad Analytics & Tracking
   app.post("/api/analytics/ad-impression", trackAdImpression);
-  app.post("/api/analytics/verify-ad-watch", requireAuth, verifyAdWatch);
-  app.get("/api/analytics/ad-stats", requireAuth, getAdStats);
-  app.post("/api/monetization/skip-ad-cooldown", requireAuth, skipAdForCoins);
+  app.post("/api/analytics/verify-ad-watch", authenticateToken, verifyAdWatch);
+  app.get("/api/analytics/ad-stats", authenticateToken, getAdStats);
+  app.post("/api/monetization/skip-ad-cooldown", authenticateToken, skipAdForCoins);
 
   // Generic analytics event collector (can be called from client). Accepts optional user token.
   app.post("/api/analytics/event", async (req: Request, res: Response) => {

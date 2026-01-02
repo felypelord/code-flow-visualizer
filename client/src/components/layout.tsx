@@ -241,7 +241,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 Manage Subscription
               </Button>
             )}
-            <Auth />
+            <div data-auth-trigger>
+              <Auth />
+            </div>
           </div>
 
           {/* Mobile Nav */}
@@ -253,10 +255,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <Menu className="w-6 h-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] border-l border-white/10 bg-[#0f172a]">
+              <SheetContent side="right" className="w-[300px] border-l border-white/10 bg-[#0f172a] overflow-y-auto">
                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <SheetDescription className="sr-only">Browse available options</SheetDescription>
-                <div className="flex flex-col gap-2 mt-8">
+                <div className="flex flex-col gap-2 mt-8 pb-8">
                   <Link href="/" onClick={() => setIsOpen(false)}>
                     <span className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors",
@@ -405,7 +407,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </div>
                   )}
 
-                  <div className="mt-4 pt-4 border-t border-white/10">
+                  <div className="mt-4 pt-4 border-t border-white/10" data-auth-trigger>
                     <Auth />
                   </div>
                 </div>

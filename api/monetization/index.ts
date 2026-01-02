@@ -5,11 +5,22 @@ import { users, infinityPayPurchases, coinTransactions, adRewards, storePurchase
 import { eq, sql } from 'drizzle-orm';
 
 // Stripe configuration
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16',
-});
+let stripe: Stripe;
+try {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+    apiVersion: '2023-10-16',
+  });
+  if (process.env.STRIPE_SECRET_KEY) {
+    console.log('[STRIPE] Initialized successfully');
+  } else {
+    console.log('[STRIPE] Not configured - will use simulation mode');
+  }
+} catch (error) {
+  console.error('[STRIPE] Initialization error:', error);
+  stripe = null as any;
+}
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
-const APP_URL = process.env.APP_URL || 'http://localhost:5000';
+const APP_URL = process.env.APP_URL || process.env.PUBLIC_BASE_URL || 'http://localhost:5000';
 
 interface PackageConfig {
   price: number;
@@ -37,18 +48,26 @@ const PACKAGES: Record<string, PackageConfig> = {
 
 export async function createPayment(req: Request, res: Response) {
   try {
+    console.log('[CREATE-PAYMENT] Request received');
+    console.log('[CREATE-PAYMENT] User:', (req as any).user?.email);
+    console.log('[CREATE-PAYMENT] Body:', req.body);
+    
     const { packageId, itemId, returnUrl } = req.body;
     const userId = (req as any).user?.id;
     const userEmail = (req as any).user?.email;
 
     if (!userId) {
+      console.error('[CREATE-PAYMENT] No userId found in request');
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
     const packageConfig = PACKAGES[packageId];
     if (!packageConfig) {
+      console.error('[CREATE-PAYMENT] Invalid packageId:', packageId);
       return res.status(400).json({ error: 'Invalid package' });
     }
+    
+    console.log('[CREATE-PAYMENT] Package config:', packageConfig);
 
     // Load current user to decide behavior.
     const [currentUser] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
@@ -61,7 +80,8 @@ export async function createPayment(req: Request, res: Response) {
     }
 
     // If Stripe is not configured (dev), simulate a checkout session and apply benefits immediately.
-    if (!process.env.STRIPE_SECRET_KEY) {
+    if (!process.env.STRIPE_SECRET_KEY || !stripe) {
+      console.log('[CREATE-PAYMENT] Stripe not configured, using simulation mode');
       const simId = `sim_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       // record as completed for convenience in dev
       await db.insert(infinityPayPurchases).values({
@@ -77,14 +97,17 @@ export async function createPayment(req: Request, res: Response) {
 
       // apply package benefits immediately (same logic as webhook)
       await applyPackageBenefits(userId, packageId, itemId || '', simId);
+      
+      console.log('[CREATE-PAYMENT] Simulation complete, session:', simId);
 
       return res.json({
         sessionId: simId,
-        checkoutUrl: `${APP_URL}/monetization/simulated?session_id=${simId}`,
+        checkoutUrl: `${APP_URL}/pricing?session_id=${simId}&success=true`,
         simulated: true,
       });
     }
 
+    console.log('[CREATE-PAYMENT] Creating Stripe checkout session...');
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -128,14 +151,19 @@ export async function createPayment(req: Request, res: Response) {
     });
 
     // If a micro purchase (itemId) was provided, also return that info in response
+    
+    console.log('[CREATE-PAYMENT] Stripe session created:', session.id);
+    console.log('[CREATE-PAYMENT] Checkout URL:', session.url);
 
     res.json({
       sessionId: session.id,
       checkoutUrl: session.url,
     });
   } catch (error) {
-    console.error('Create payment error:', error);
-    res.status(500).json({ error: 'Failed to create payment' });
+    console.error('[CREATE-PAYMENT] Error:', error);
+    console.error('[CREATE-PAYMENT] Error stack:', (error as Error).stack);
+    console.error('[CREATE-PAYMENT] Error message:', (error as Error).message);
+    res.status(500).json({ error: 'Failed to create payment', details: (error as Error).message });
   }
 }
 
@@ -208,8 +236,8 @@ export async function stripeWebhook(req: Request, res: Response) {
     const sig = req.headers['stripe-signature'] as string;
     const rawBody = (req as any).rawBody;
 
-    if (!sig || !STRIPE_WEBHOOK_SECRET) {
-      return res.status(400).json({ error: 'Missing signature or webhook secret' });
+    if (!sig || !STRIPE_WEBHOOK_SECRET || !stripe) {
+      return res.status(400).json({ error: 'Missing signature, webhook secret, or Stripe not initialized' });
     }
 
     let event: Stripe.Event;

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { db } from '../../db';
-import { users, adRewards, coinTransactions } from '../../../shared/schema';
+import { db } from '../../db.js';
+import { users, adRewards, coinTransactions } from '../../../shared/schema.js';
 import { eq } from 'drizzle-orm';
 
 export async function trackAdImpression(req: Request, res: Response) {

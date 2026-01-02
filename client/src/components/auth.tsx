@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { trackSignup, trackLogin } from '@/lib/analytics';
 
 
 const COUNTRIES = [
@@ -36,6 +37,7 @@ function useAuth() {
     localStorage.setItem('token', data.token);
     setToken(data.token);
     setUser(data.user);
+    trackLogin(data.user?.id || 'unknown');
     // sync local progress to server
     const keys = Object.keys(localStorage).filter(k => k.startsWith('progress:'));
     for (const k of keys) {
@@ -158,8 +160,8 @@ export default function Auth() {
         return;
       }
 
-      // Send verification code
-      const res = await fetch('/api/signup', {
+      // Create account immediately (email verification disabled)
+      const res = await fetch('/api/complete-signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -169,17 +171,29 @@ export default function Auth() {
           dateOfBirth: new Date(dateOfBirth).toISOString(),
           country,
           password,
-          // proToken removed for free signup
         }),
       });
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.message || 'Failed to send code');
+        throw new Error(data.message || 'Failed to create account');
       }
 
-      setStep('signup-verify');
-      setVerificationCode('');
+      // Auto-login and close dialog
+      const data = await res.json();
+      if (data?.token) {
+        localStorage.setItem('token', data.token);
+        trackSignup(data.user?.id || 'unknown', email);
+        await login(email, password);
+      }
+      setOpen(false);
+      setEmail('');
+      setPassword('');
+      setFirstName('');
+      setLastName('');
+      setDateOfBirth('');
+      setCountry('');
+      setStep('login');
     } catch (err: any) {
       setError(err.message || 'Failed to send verification code');
     } finally {
@@ -392,7 +406,7 @@ export default function Auth() {
       {user ? (
         <div className="flex items-center gap-3">
           <div className="flex flex-col items-end">
-            <span className="text-sm font-medium">Hello, {user.firstName || user.email.split('@')[0]}</span>
+            <span className="text-sm font-medium">Hello, {user.firstName || (user.email ? user.email.split('@')[0] : 'User')}</span>
             <span className="text-xs text-slate-400">{user.isPro ? 'Pro' : 'Free'}</span>
           </div>
           <Button variant="outline" size="sm" onClick={logout} className="text-xs">

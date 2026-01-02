@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import Stripe from 'stripe';
-import { db } from '../../db';
-import { users, infinityPayPurchases, coinTransactions, adRewards, storePurchases } from '../../../shared/schema';
+import { db } from '../../db.js';
+import { users, infinityPayPurchases, coinTransactions, adRewards, storePurchases } from '../../../shared/schema.js';
 import { eq, sql } from 'drizzle-orm';
 
 // Stripe configuration
@@ -111,9 +111,11 @@ export async function createPayment(req: Request, res: Response) {
       sessionId: session.id,
       checkoutUrl: session.url,
     });
-  } catch (error) {
-    console.error('Create payment error:', error);
-    res.status(500).json({ error: 'Failed to create payment' });
+  } catch (error: any) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error('Create payment error:', errorMsg);
+    console.error('Full error:', error);
+    res.status(500).json({ error: 'Failed to create payment', details: errorMsg });
   }
 }
 

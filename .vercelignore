@@ -1,12 +1,10 @@
 api/**
-!api/index.mjs
+!api/index.ts
+!api/[...all].ts
 node_modules/**
 .env.local
 .env
 /*.log
 /.vercel
 **/test/**
-!api/index.js
-!api/index.mjs
 !dist/**
-!api/dist/**

@@ -36,6 +36,13 @@
       "when": 1766038000000,
       "tag": "0004_add_password_reset_table",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1767226532003,
+      "tag": "20260101001531_initial_schema_custom",
+      "breakpoints": true
     }
   ]
 }

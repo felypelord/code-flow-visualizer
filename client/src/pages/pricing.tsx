@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Check, Crown, Sparkles, Cpu, BarChart3, Lightbulb, Layers, GitBranch, Database, Zap, ShoppingBag, Gift } from "lucide-react";
 import { useLocation } from "wouter";
 import { useEffect, useState, useMemo, ReactNode } from "react";
+import { trackInitiateCheckout, trackPurchase } from "@/lib/analytics";
 import {
   Dialog,
   DialogContent,
@@ -200,7 +201,11 @@ export default function PricingPage() {
   ], []);
 
   const handleCoinPurchase = async (itemId: string) => {
-    if (!token) { toast({ title: 'Sign in', description: 'Please sign in to purchase.' }); return; }
+    if (!token) { 
+      const authButton = document.querySelector('[data-auth-trigger]') as HTMLButtonElement;
+      if (authButton) authButton.click();
+      return; 
+    }
     setPurchaseLoading(itemId);
     try {
       const res = await fetch('/api/store/purchase', {
@@ -468,15 +473,33 @@ export default function PricingPage() {
   // Central store purchase handler: create payment then redirect
   const handleStorePurchase = async (packageId: string, itemId?: string) => {
     if (!user) {
-      // send to signup / login
-      setLocation('/signup');
+      // Open auth dialog directly instead of showing toast
+      const authButton = document.querySelector('[data-auth-trigger]') as HTMLButtonElement;
+      if (authButton) authButton.click();
       return;
     }
+    
+    // Track checkout initiation
+    const packageConfig = coinPackages.find(p => p.id === packageId);
+    if (packageConfig) {
+      trackInitiateCheckout(packageId, packageConfig.priceCents / 100);
+    }
+    
     setPurchaseLoading(packageId);
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        // Open auth dialog directly
+        const authButton = document.querySelector('[data-auth-trigger]') as HTMLButtonElement;
+        if (authButton) authButton.click();
+        return;
+      }
       const res = await fetch('/api/monetization/create-payment', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         credentials: 'include',
         body: JSON.stringify(itemId ? { packageId, itemId } : { packageId }),
       });
@@ -534,18 +557,32 @@ export default function PricingPage() {
       const dobIso = dateOfBirth && dateOfBirth.length <= 10
         ? new Date(dateOfBirth + "T00:00:00.000Z").toISOString()
         : dateOfBirth;
-      const res = await fetch("/api/signup", {
+      // Create account immediately (email verification disabled)
+      const res = await fetch("/api/complete-signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, firstName, lastName, dateOfBirth: dobIso, country, password }),
       });
       const data = await res.json();
-      if (!res.ok || !data?.ok) throw new Error(data?.error || "Error");
-      // Persist pending signup so we can complete after payment
-      const pending = { firstName, lastName, country, dateOfBirth, email, password };
-      sessionStorage.setItem("pendingSignup", JSON.stringify(pending));
-      setVipStep("verify");
-      toast({ title: "VIP code sent", description: "Check your email for the VIP code." });
+      if (!res.ok || !data?.token) throw new Error(data?.error || "Error creating account");
+
+      // Store token and proceed to checkout
+      localStorage.setItem('token', data.token);
+      // Immediately create checkout for Pro
+      const cres = await fetch("/api/pro/create-checkout", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${data.token}`,
+        },
+        body: JSON.stringify({ plan: billingPlan, currency: "BRL", email }),
+      });
+      const cdata = await cres.json();
+      if (cres.ok && cdata?.url) {
+        window.location.href = cdata.url;
+        return;
+      }
+      throw new Error(cdata?.error || 'Could not open checkout');
     } catch (err: any) {
       toast({ title: "Error", description: err?.message || String(err) });
     } finally {
@@ -569,9 +606,13 @@ export default function PricingPage() {
       const vdata = await vres.json();
       if (!vres.ok || !vdata?.ok) throw new Error(vdata?.error || "Error");
 
+      const token = localStorage.getItem('token');
       const cres = await fetch("/api/pro/create-checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` }),
+        },
         body: JSON.stringify({ plan: billingPlan, currency: "BRL", email }),
       });
       const cdata = await cres.json();
@@ -718,10 +759,9 @@ export default function PricingPage() {
             <Card className="p-4 bg-slate-800/60 border-slate-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-semibold text-white">Billing / Stripe</h4>
-                  <p className="text-xs text-gray-300">If checkout fails in development, ensure the server has STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET and price IDs set. Without them the server returns a 503 and checkout cannot start.</p>
+                  <h4 className="text-sm font-semibold text-white">Billing</h4>
+                  <p className="text-xs text-gray-300">Payments are handled by a third-party provider. If checkout fails, please contact the site administrator or check server logs — sensitive configuration details are not shown here.</p>
                 </div>
-                <div className="text-right text-xs text-gray-400">Dev hint: set env vars and restart server</div>
               </div>
             </Card>
           </div>
