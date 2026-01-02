@@ -5,8 +5,8 @@
   "trailingSlash": false,
   "functions": {
     "api/index.ts": {
-      "memory": 1024,
-      "maxDuration": 30
+      "memory": 512,
+      "maxDuration": 60
     }
   },
   "rewrites": [
