@@ -1703,7 +1703,10 @@ export async function registerRoutes(
   app.post("/api/billing/checkout", requireAuth, async (req: Request, res: Response) => {
     try {
       const stripe = getStripe();
-      if (!stripe) return res.status(503).json({ message: "Billing not configured" });
+      if (!stripe) {
+        console.error('[CHECKOUT] Stripe not configured');
+        return res.status(503).json({ message: "Billing not configured" });
+      }
       const userId = (req as any).userId as string;
       const { product } = req.body; // "pro" or "battle_pass"
       const baseUrl = getBaseUrl(req);
@@ -1718,9 +1721,24 @@ export async function registerRoutes(
         price = STRIPE_PRICE_BATTLE_PASS;
         successUrl = `${baseUrl}/battle-pass?session_id={CHECKOUT_SESSION_ID}`;
         cancelUrl = `${baseUrl}/battle-pass`;
-        if (!price) return res.status(503).json({ message: "Battle Pass price not configured" });
+        
+        console.log('[BATTLE_PASS_CHECKOUT]', { 
+          product, 
+          price, 
+          successUrl, 
+          cancelUrl,
+          userId 
+        });
+        
+        if (!price) {
+          console.error('[CHECKOUT] STRIPE_PRICE_BATTLE_PASS not configured:', STRIPE_PRICE_BATTLE_PASS);
+          return res.status(503).json({ message: "Battle Pass price not configured. Check environment: STRIPE_PRICE_BATTLE_PASS" });
+        }
       } else {
-        if (!price) return res.status(503).json({ message: "Pro price not configured" });
+        if (!price) {
+          console.error('[CHECKOUT] STRIPE_PRICE_PRO_MONTHLY_USD or STRIPE_PRICE_PRO_MONTHLY not configured');
+          return res.status(503).json({ message: "Pro price not configured. Contact support." });
+        }
       }
 
       const sessionConfig: any = {
@@ -1738,11 +1756,13 @@ export async function registerRoutes(
         sessionConfig.allow_promotion_codes = true;
       }
 
+      console.log('[CHECKOUT] Creating session with config:', sessionConfig);
       const session = await stripe.checkout.sessions.create(sessionConfig);
+      console.log('[CHECKOUT] Session created:', { id: session.id, url: session.url });
       return res.json({ url: session.url });
     } catch (err: any) {
-      console.error("Checkout error:", err);
-      return res.status(500).json({ message: "Failed to create checkout" });
+      console.error("[CHECKOUT] Error:", err.message, err.code);
+      return res.status(500).json({ message: "Failed to create checkout: " + err.message });
     }
   });
 
@@ -1796,6 +1816,8 @@ export async function registerRoutes(
           const session = event.data.object as Stripe.Checkout.Session;
           const userId = (session.client_reference_id as string) || (session.metadata?.userId as string);
           const customerId = (session.customer as string) || "";
+          const product = (session.metadata?.product as string) || "pro";
+          
           if (userId && customerId) {
             // upsert mapping
             const existing = await db.select().from(stripeCustomers).where(eq(stripeCustomers.userId, userId)).limit(1);
@@ -1803,6 +1825,22 @@ export async function registerRoutes(
               // nothing to do, or update if changed
             } else {
               await db.insert(stripeCustomers).values({ userId, customerId });
+            }
+          }
+          
+          // Activate Battle Pass if purchased
+          if (userId && product === "battle_pass") {
+            try {
+              const user = await storage.getUser(userId);
+              if (user && !user.battlePassActive) {
+                await db.update(users).set({
+                  battlePassActive: true,
+                  battlePassSeason: user.battlePassSeason || 1,
+                }).where(eq(users.id, userId));
+                console.log(`[BATTLE_PASS] Activated for user ${userId}`);
+              }
+            } catch (err: any) {
+              console.error(`[BATTLE_PASS] Failed to activate for user ${userId}:`, err.message);
             }
           }
           break;
@@ -1875,6 +1913,25 @@ export async function registerRoutes(
       data: data,
       apiKeyConfigured: !!RESEND_API_KEY,
       fromEmail: RESEND_FROM_EMAIL
+    });
+  });
+
+  // Debug endpoint to check Stripe configuration
+  app.get("/api/debug/stripe-config", async (req: Request, res: Response) => {
+    const stripe = getStripe();
+    return res.json({
+      stripeConfigured: !!stripe,
+      stripeSecretKey: process.env.STRIPE_SECRET_KEY ? "configured" : "missing",
+      stripePrices: {
+        STRIPE_PRICE_PRO_MONTHLY: STRIPE_PRICE_PRO_MONTHLY,
+        STRIPE_PRICE_PRO_ANNUAL: STRIPE_PRICE_PRO_ANNUAL,
+        STRIPE_PRICE_PRO_MONTHLY_USD: STRIPE_PRICE_PRO_MONTHLY_USD,
+        STRIPE_PRICE_PRO_MONTHLY_BRL: STRIPE_PRICE_PRO_MONTHLY_BRL,
+        STRIPE_PRICE_PRO_ANNUAL_USD: STRIPE_PRICE_PRO_ANNUAL_USD,
+        STRIPE_PRICE_PRO_ANNUAL_BRL: STRIPE_PRICE_PRO_ANNUAL_BRL,
+        STRIPE_PRICE_BATTLE_PASS: STRIPE_PRICE_BATTLE_PASS,
+      },
+      stripeWebhook: STRIPE_WEBHOOK_SECRET ? "configured" : "missing",
     });
   });
 
@@ -1956,6 +2013,67 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error("Error awarding XP:", error);
       return res.status(500).json({ message: "Failed to award XP" });
+    }
+  });
+
+  // Claim reward for completing exercises/lessons (grants XP)
+  app.post("/api/activity/grant-xp", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const { activityType, xpAmount, lessonId } = req.body;
+
+      if (!xpAmount || xpAmount <= 0 || xpAmount > 500) {
+        return res.status(400).json({ message: "Invalid XP amount (1-500)" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const newXP = (user.xp || 0) + xpAmount;
+      const newLevel = calculateLevel(newXP);
+
+      await db.update(users).set({
+        xp: newXP,
+        level: newLevel,
+        totalExercises: (user.totalExercises || 0) + 1,
+      }).where(eq(users.id, userId));
+
+      // Record activity
+      await db.insert(activityHistory).values({
+        userId,
+        type: activityType || "exercise",
+        title: `Exercício completado (${lessonId || "Unknown"})`,
+        xpEarned: xpAmount,
+        timeSpent: 0,
+      });
+
+      // Award coins based on XP (1 coin per 5 XP)
+      const coinReward = Math.floor(xpAmount / 5);
+      if (coinReward > 0) {
+        await db.update(users).set({
+          coins: (user.coins || 0) + coinReward,
+        }).where(eq(users.id, userId));
+
+        await db.insert(coinTransactions).values({
+          userId,
+          amount: coinReward,
+          type: "earn",
+          source: "exercise_complete",
+          metadata: JSON.stringify({ lessonId, xpEarned: xpAmount }),
+        });
+      }
+
+      return res.json({
+        message: "XP awarded",
+        xpEarned: xpAmount,
+        coinsEarned: coinReward,
+        newXP,
+        newLevel,
+        tierFromXp: Math.min(50, Math.max(1, Math.floor(newXP / 200) + 1)),
+      });
+    } catch (error: any) {
+      console.error("Error granting XP:", error);
+      return res.status(500).json({ message: "Failed to grant XP" });
     }
   });
 

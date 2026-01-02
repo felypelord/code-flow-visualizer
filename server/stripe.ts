@@ -35,3 +35,12 @@ export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 // Battle Pass (one-time $5 purchase)
 export const STRIPE_PRICE_BATTLE_PASS = process.env.STRIPE_PRICE_BATTLE_PASS || "";
+
+// Helper to get Battle Pass price with validation
+export function getBattlePassPrice(): string {
+  const price = process.env.STRIPE_PRICE_BATTLE_PASS || "";
+  if (!price) {
+    console.warn('[WARN] STRIPE_PRICE_BATTLE_PASS not configured. Set in environment.');
+  }
+  return price;
+}

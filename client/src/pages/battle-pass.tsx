@@ -19,11 +19,28 @@ const tiers = [
 
 const rewardsLegend = [
   { label: "Coins", color: "from-amber-400 to-yellow-300" },
-  { label: "Avatares", color: "from-purple-500 to-fuchsia-500" },
-  { label: "Molduras", color: "from-orange-500 to-amber-500" },
-  { label: "Efeitos de Nome", color: "from-emerald-400 to-teal-400" },
-  { label: "Boosts", color: "from-sky-400 to-cyan-400" },
+  { label: "Avatares", color: "from-purple-500 to-fuchsia-500", icon: "🦊" },
+  { label: "Molduras", color: "from-orange-500 to-amber-500", icon: "🖼️" },
+  { label: "Efeitos de Nome", color: "from-emerald-400 to-teal-400", icon: "✨" },
+  { label: "Boosts", color: "from-sky-400 to-cyan-400", icon: "⚡" },
 ];
+
+// Cosmetics display data
+const COSMETICS_SHOWCASE = {
+  avatars: [
+    { tier: 5, name: "Avatar 🦊", rarity: "common" },
+    { tier: 10, name: "Avatar 🦄 (Épico)", rarity: "epic" },
+    { tier: 35, name: "Avatar 🐉 (Lendário)", rarity: "legendary" },
+  ],
+  frames: [
+    { tier: 15, name: "Moldura Dourada Animada", rarity: "rare" },
+    { tier: 50, name: "Moldura Flamejante", rarity: "legendary" },
+  ],
+  nameEffects: [
+    { tier: 20, name: "Efeito de Nome: Gold", rarity: "rare" },
+    { tier: 25, name: "Efeito de Nome: Rainbow", rarity: "epic" },
+  ],
+};
 
 export default function BattlePassPage() {
   const { user } = useUser();
@@ -52,16 +69,31 @@ export default function BattlePassPage() {
       return;
     }
     try {
+      console.log("[BATTLE_PASS] Iniciando compra...");
       const res = await fetch("/api/billing/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ product: "battle_pass" }),
       });
+      
+      console.log("[BATTLE_PASS] Response status:", res.status);
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else alert("Erro ao criar checkout: " + (data.message || "Desconhecido"));
+      console.log("[BATTLE_PASS] Response data:", data);
+      
+      if (!res.ok) {
+        alert(`Erro ${res.status}: ${data.message || "Desconhecido"}`);
+        return;
+      }
+      
+      if (data.url) {
+        console.log("[BATTLE_PASS] Redirecionando para:", data.url);
+        window.location.href = data.url;
+      } else {
+        alert("Erro ao criar checkout: " + (data.message || "Desconhecido"));
+      }
     } catch (err: any) {
+      console.error("[BATTLE_PASS] Error:", err);
       alert("Erro: " + err.message);
     }
   };
@@ -153,9 +185,93 @@ export default function BattlePassPage() {
           {/* Rewards Legend */}
           <div className="grid md:grid-cols-5 gap-3">
             {rewardsLegend.map((item) => (
-              <div key={item.label} className={`p-3 rounded-xl border border-white/10 bg-gradient-to-r ${item.color} text-slate-950 font-semibold text-center shadow-lg`}>{item.label}</div>
+              <div key={item.label} className={`p-3 rounded-xl border border-white/10 bg-gradient-to-r ${item.color} text-slate-950 font-semibold text-center shadow-lg`}>
+                <div className="text-xl mb-1">{item.icon}</div>
+                {item.label}
+              </div>
             ))}
           </div>
+
+          {/* Cosmetics Showcase */}
+          <Card className="bg-slate-900/70 border-white/10 shadow-2xl">
+            <div className="p-6 border-b border-white/10">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Destaques Cosméticos</p>
+              <h2 className="text-2xl font-bold text-purple-100">Customize Seu Perfil</h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6 p-6">
+              {/* Avatars */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-purple-300 flex items-center gap-2">
+                  <span className="text-2xl">🦊</span> Avatares
+                </h3>
+                <div className="space-y-2">
+                  {COSMETICS_SHOWCASE.avatars.map((item, idx) => (
+                    <div key={idx} className="p-3 rounded-lg bg-purple-500/10 border border-purple-400/30 hover:border-purple-400/60 transition">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-purple-100">{item.name}</span>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          item.rarity === 'legendary' ? 'bg-orange-500/20 text-orange-200' :
+                          item.rarity === 'epic' ? 'bg-purple-500/20 text-purple-200' :
+                          'bg-blue-500/20 text-blue-200'
+                        }`}>
+                          {item.rarity.toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="text-xs text-purple-300/70">Tier {item.tier}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Frames */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-orange-300 flex items-center gap-2">
+                  <span className="text-2xl">🖼️</span> Molduras
+                </h3>
+                <div className="space-y-2">
+                  {COSMETICS_SHOWCASE.frames.map((item, idx) => (
+                    <div key={idx} className="p-3 rounded-lg bg-orange-500/10 border border-orange-400/30 hover:border-orange-400/60 transition">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-orange-100">{item.name}</span>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          item.rarity === 'legendary' ? 'bg-orange-500/20 text-orange-200' :
+                          item.rarity === 'epic' ? 'bg-purple-500/20 text-purple-200' :
+                          'bg-blue-500/20 text-blue-200'
+                        }`}>
+                          {item.rarity.toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="text-xs text-orange-300/70">Tier {item.tier}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Name Effects */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-emerald-300 flex items-center gap-2">
+                  <span className="text-2xl">✨</span> Efeitos de Nome
+                </h3>
+                <div className="space-y-2">
+                  {COSMETICS_SHOWCASE.nameEffects.map((item, idx) => (
+                    <div key={idx} className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-400/30 hover:border-emerald-400/60 transition">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-emerald-100">{item.name}</span>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          item.rarity === 'legendary' ? 'bg-orange-500/20 text-orange-200' :
+                          item.rarity === 'epic' ? 'bg-purple-500/20 text-purple-200' :
+                          'bg-blue-500/20 text-blue-200'
+                        }`}>
+                          {item.rarity.toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="text-xs text-emerald-300/70">Tier {item.tier}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Card>
 
           {/* Tier Grid */}
           <Card className="bg-slate-900/70 border-white/10 shadow-2xl">

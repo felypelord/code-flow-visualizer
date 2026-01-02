@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs/promises';
 import { db } from '../../db.js';
-import { roadmapProgress, storePurchases, users } from '../../../shared/schema.js';
+import { roadmapProgress, storePurchases, users, activityHistory } from '../../../shared/schema.js';
 import { eq } from 'drizzle-orm';
 
 const ROADMAP_FILE = path.join(process.cwd(), 'server', 'data', 'roadmap.json');
@@ -11,6 +11,16 @@ async function loadRoadmap() {
   const raw = await fs.readFile(ROADMAP_FILE, 'utf-8');
   const items = JSON.parse(raw);
   return items;
+}
+
+// Calculate level from XP (same as in routes.ts)
+function calculateLevel(xp: number): number {
+  if (xp < 100) return 1; // Rookie
+  if (xp < 500) return 2; // Coder
+  if (xp < 1500) return 3; // Developer
+  if (xp < 3000) return 4; // Engineer
+  if (xp < 10000) return 5; // Architect
+  return 6; // Legend
 }
 
 export async function getRoadmap(req: Request, res: Response) {
@@ -79,7 +89,39 @@ export async function completeProgress(req: Request, res: Response) {
     const { pathId, itemSlug } = req.body;
     if (!pathId || !itemSlug) return res.status(400).json({ error: 'Missing pathId or itemSlug' });
 
+    // Mark exercise as completed
     await db.insert(roadmapProgress).values({ userId, pathId, itemSlug, status: 'completed' });
+
+    // Get user and award XP
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (user) {
+      const baseXP = 25; // Base XP per exercise
+      const newXP = (user.xp || 0) + baseXP;
+      const newLevel = calculateLevel(newXP);
+      
+      // Update user XP and level
+      await db.update(users).set({
+        xp: newXP,
+        level: newLevel,
+        totalExercises: (user.totalExercises || 0) + 1,
+      }).where(eq(users.id, userId));
+      
+      // Record activity
+      await db.insert(activityHistory).values({
+        userId,
+        type: 'exercise',
+        title: `Exercício completado: ${itemSlug}`,
+        xpEarned: baseXP,
+        timeSpent: 0,
+      });
+
+      return res.json({ 
+        success: true,
+        xpAwarded: baseXP,
+        newXP,
+        newLevel,
+      });
+    }
 
     return res.json({ success: true });
   } catch (err: any) {
