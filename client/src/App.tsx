@@ -23,6 +23,7 @@ import DailyChallengesPage from "@/pages/daily-challenges";
 import ChallengesPage from "@/pages/challenges";
 import MonetizationPage from "@/pages/monetization";
 import LibraryPage from "@/pages/library";
+import BattlePassPage from "@/pages/battle-pass";
 
 function Router() {
   return (
@@ -44,6 +45,7 @@ function Router() {
       <Route path="/daily-challenges" component={DailyChallengesPage} />
       <Route path="/challenges" component={ChallengesPage} />
       <Route path="/monetization" component={MonetizationPage} />
+      <Route path="/battle-pass" component={BattlePassPage} />
       <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>

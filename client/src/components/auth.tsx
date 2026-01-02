@@ -419,18 +419,23 @@ export default function Auth() {
     <div>
       {user ? (
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => { window.location.href = '/profile'; }}
+            className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-amber-400/60 rounded-lg px-2 py-1 hover:bg-white/5 transition"
+            title="Abrir perfil"
+          >
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-xl">
               {getAvatarEmoji(user.avatar)}
             </div>
-            <div className="flex flex-col items-start">
+            <div className="flex flex-col items-start text-left">
               <span className="text-sm font-medium flex items-center gap-1.5">
                 {user.firstName || (user.email ? user.email.split('@')[0] : 'User')}
                 <span className="text-xs text-yellow-400 font-bold">Lv. {user.level || 1}</span>
               </span>
               <span className="text-xs text-slate-400">{user.isPro ? 'Pro' : 'Free'}</span>
             </div>
-          </div>
+          </button>
           <Button variant="outline" size="sm" onClick={logout} className="text-xs">
             Logout
           </Button>

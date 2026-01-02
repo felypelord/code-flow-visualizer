@@ -26,28 +26,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   };
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const { user, token } = useUser();
+  const { user } = useUser();
   const showPricingBanner = location.includes("/pricing");
-
-  const openPortal = async () => {
-    if (!token) return;
-    try {
-      const res = await fetch("/api/billing/portal", {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.url) {
-          window.location.href = data.url;
-          return;
-        }
-      }
-      alert("Unable to open billing portal");
-    } catch {
-      alert("Error opening portal");
-    }
-  };
 
   const lessons = [
     { href: "/lesson/functions", labelKey: "lessonFunctions", icon: Code },
@@ -172,6 +152,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
+                  <Link href="/battle-pass">
+                    <div className={cn("flex items-center gap-3 w-full cursor-pointer py-2", location.includes("/battle-pass") ? "text-amber-400" : "")}> 
+                      <Crown className="w-4 h-4 text-amber-400" />
+                      <span className="font-semibold">Battle Pass</span>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/challenges">
                     <div className={cn("flex items-center gap-3 w-full cursor-pointer py-2", location.includes("/challenges") ? "text-blue-400" : "")}> 
                       <Code2 className="w-4 h-4 text-blue-400" />
@@ -236,11 +224,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           <div className="hidden md:flex items-center gap-4">
             <LanguageSelector />
-            {user?.isPro && (
-              <Button size="sm" variant="secondary" onClick={openPortal}>
-                Manage Subscription
-              </Button>
-            )}
             <div data-auth-trigger>
               <Auth />
             </div>
@@ -353,6 +336,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       Profile
                     </span>
                   </Link>
+                  <Link href="/battle-pass" onClick={() => setIsOpen(false)}>
+                    <span className={cn("flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-bold transition-colors", location.includes("/battle-pass") ? "bg-amber-500/10 text-amber-300" : "text-muted-foreground hover:text-foreground hover:bg-white/5")}> 
+                      <Crown className="w-4 h-4 text-amber-400" />
+                      <span className="bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">Battle Pass</span>
+                    </span>
+                  </Link>
                   <Link href="/challenges" onClick={() => setIsOpen(false)}>
                     <span className={cn("flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-bold transition-colors", location.includes("/challenges") ? "bg-blue-500/10 text-blue-400" : "text-muted-foreground hover:text-foreground hover:bg-white/5")}> 
                       <Code2 className="w-4 h-4 text-blue-400" />
@@ -398,14 +387,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       Upgrade
                     </span>
                   </Link>
-
-                  {user?.isPro && (
-                    <div className="mt-4">
-                      <Button className="w-full" variant="secondary" onClick={() => { setIsOpen(false); openPortal(); }}>
-                        Manage subscription
-                      </Button>
-                    </div>
-                  )}
 
                   <div className="mt-4 pt-4 border-t border-white/10" data-auth-trigger>
                     <Auth />
