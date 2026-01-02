@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Crown, Flame, Trophy, Sparkles, Star, Shield, Gift, Zap } from "lucide-react";
 import { useMemo } from "react";
+import { useUser } from "@/hooks/use-user";
 
 const tiers = [
   { tier: 1, xp: 0, free: "50 Coins", premium: "150 Coins" },
@@ -25,13 +26,24 @@ const rewardsLegend = [
 ];
 
 export default function BattlePassPage() {
+  const { user } = useUser();
+  const xp = user?.xp ?? 0;
+  const level = user?.level ?? 1;
+
+  // Simple mapping: every 200 XP = +1 tier; 50 tiers max
+  const tierFromXP = Math.min(50, Math.max(1, Math.floor(xp / 200) + 1));
+  const xpForCurrentTier = (tierFromXP - 1) * 200;
+  const xpForNextTier = tierFromXP * 200;
+  const completion = Math.min(100, Math.round(((xp - xpForCurrentTier) / (xpForNextTier - xpForCurrentTier || 1)) * 100));
+
   const progress = useMemo(() => ({
-    currentTier: 12,
-    currentXP: 8200,
-    nextTierXP: 10000,
-    completion: Math.min(100, Math.round((8200 / 10000) * 100)),
-    isPremium: true,
-  }), []);
+    currentTier: tierFromXP,
+    currentXP: xp,
+    nextTierXP: xpForNextTier,
+    completion,
+    isPremium: true, // premium track toggled by purchase; placeholder
+    level,
+  }), [tierFromXP, xp, xpForNextTier, completion, level]);
 
   return (
     <Layout>
@@ -60,6 +72,11 @@ export default function BattlePassPage() {
                     <Crown className="w-5 h-5 text-amber-300" />
                     Passe Premium garante todos os prêmios dourados.
                   </div>
+                  {!user && (
+                    <div className="text-sm text-amber-100/80 bg-white/5 px-3 py-2 rounded-lg border border-white/10">
+                      Faça login para salvar seu progresso de tiers.
+                    </div>
+                  )}
                 </div>
               </div>
 
