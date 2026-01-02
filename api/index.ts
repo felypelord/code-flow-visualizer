@@ -5,6 +5,7 @@ import { createServer } from 'http';
 
 // Create and reuse the Express app across invocations to reduce cold starts
 let appPromise: Promise<any> | null = null;
+const bootedAt = new Date().toISOString();
 async function getApp() {
   if (appPromise) return appPromise;
 
@@ -58,7 +59,20 @@ async function getApp() {
 
     // Diagnostics to verify whether routing is registered in serverless
     app.get('/api/_bundle_status', (_req, res) => {
-      res.json({ ok: true, registeredFromRoutes, compiledExists: false, compiledPath: null, registrationError });
+      res.json({
+        ok: true,
+        registeredFromRoutes,
+        compiledExists: false,
+        compiledPath: null,
+        registrationError,
+        bootedAt,
+        vercel: {
+          gitCommitSha: process.env.VERCEL_GIT_COMMIT_SHA || null,
+          gitCommitRef: process.env.VERCEL_GIT_COMMIT_REF || null,
+          gitRepoSlug: process.env.VERCEL_GIT_REPO_SLUG || null,
+          environment: process.env.VERCEL_ENV || null,
+        },
+      });
     });
 
     app.get('/api/_routes', (_req, res) => {
