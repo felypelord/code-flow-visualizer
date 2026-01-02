@@ -16,10 +16,25 @@ const finalUrl = dbUrl || "postgresql://localhost:5432/codeflow";
 const useSsl = process.env.PGSSL === "true" || process.env.NODE_ENV === "production";
 const client = postgres(finalUrl, {
   ...(useSsl ? { ssl: { rejectUnauthorized: process.env.PGSSL_REJECT_UNAUTHORIZED !== "false" } } : {}),
-  connect_timeout: 10,
-  idle_timeout: 30,
-  max_lifetime: 60 * 30,
-  max: 20,
+  connect_timeout: 30,
+  idle_timeout: 60,
+  max_lifetime: 60 * 60,
+  max: 50,
+  debug: (con, query, params, types) => {
+    // Log slow queries (> 500ms) in production
+    if (process.env.NODE_ENV === 'production') {
+      const start = Date.now();
+      return {
+        start,
+        query: (err) => {
+          const duration = Date.now() - start;
+          if (duration > 500) {
+            console.log(`[SLOW_QUERY] ${duration}ms - ${query.substring(0, 100)}`);
+          }
+        }
+      };
+    }
+  },
 });
 
 // Create drizzle instance

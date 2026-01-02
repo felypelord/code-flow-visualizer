@@ -611,35 +611,56 @@ export async function registerRoutes(
 
   // Login
   app.post("/api/login", async (req: Request, res: Response) => {
-    if (!checkRateLimit(`login:${req.ip}`, 10, 60_000)) {
-      return res.status(429).json({ message: "Too many login attempts" });
+    const startTime = Date.now();
+    try {
+      if (!checkRateLimit(`login:${req.ip}`, 10, 60_000)) {
+        return res.status(429).json({ message: "Too many login attempts" });
+      }
+      const parsed = loginSchema.safeParse(req.body || {});
+      if (!parsed.success) return res.status(400).json({ message: "email and password required" });
+      const { email, password } = parsed.data;
+      
+      console.log(`[LOGIN] Attempting login for ${email}`);
+      
+      // Add timeout to prevent hanging
+      const userPromise = storage.getUserByEmail(email);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database query timeout')), 25000)
+      );
+      
+      const user = await Promise.race([userPromise, timeoutPromise]);
+      if (!user) {
+        console.log(`[LOGIN] User not found: ${email}`);
+        return res.status(401).json({ message: "invalid credentials" });
+      }
+      
+      // Compare password with hashed version
+      const isValid = await bcryptjs.compare(password, user.password);
+      if (!isValid) {
+        console.log(`[LOGIN] Invalid password for ${email}`);
+        return res.status(401).json({ message: "invalid credentials" });
+      }
+      
+      // Generate JWT token (expires in 7 days)
+      const token = jwt.sign({ userId: user.id }, JWT_SECRET as string, { expiresIn: JWT_EXPIRY });
+      
+      const isPro = computeIsPro(user);
+      console.log(`[LOGIN] Successful login for ${email} (${Date.now() - startTime}ms)`);
+      return res.json({
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          isPro,
+          proExpiresAt: user.proExpiresAt,
+        },
+      });
+    } catch (err: any) {
+      console.error(`[LOGIN] Error:`, err.message);
+      return res.status(500).json({ message: "Login failed: " + err.message });
     }
-    const parsed = loginSchema.safeParse(req.body || {});
-    if (!parsed.success) return res.status(400).json({ message: "email and password required" });
-    const { email, password } = parsed.data;
-    
-    const user = await storage.getUserByEmail(email);
-    if (!user) return res.status(401).json({ message: "invalid credentials" });
-    
-    // Compare password with hashed version
-    const isValid = await bcryptjs.compare(password, user.password);
-    if (!isValid) return res.status(401).json({ message: "invalid credentials" });
-    
-    // Generate JWT token (expires in 7 days)
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET as string, { expiresIn: JWT_EXPIRY });
-    
-    const isPro = computeIsPro(user);
-    return res.json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        isPro,
-        proExpiresAt: user.proExpiresAt,
-      },
-    });
   });
 
   // Forgot password - send reset code
@@ -1701,6 +1722,7 @@ export async function registerRoutes(
 
   // Create Stripe Checkout session
   app.post("/api/billing/checkout", requireAuth, async (req: Request, res: Response) => {
+    const startTime = Date.now();
     try {
       const stripe = getStripe();
       if (!stripe) {
@@ -1758,7 +1780,7 @@ export async function registerRoutes(
 
       console.log('[CHECKOUT] Creating session with config:', sessionConfig);
       const session = await stripe.checkout.sessions.create(sessionConfig);
-      console.log('[CHECKOUT] Session created:', { id: session.id, url: session.url });
+      console.log('[CHECKOUT] Session created:', { id: session.id, url: session.url, duration: Date.now() - startTime });
       return res.json({ url: session.url });
     } catch (err: any) {
       console.error("[CHECKOUT] Error:", err.message, err.code);
