@@ -24,7 +24,18 @@ import { createPayment, stripeWebhook, watchAd, checkUsage, consumeUsage, confir
 import { getRoadmap, getRoadmapItem, getProgress, completeProgress } from "./api/roadmap/index.js";
 import { trackAdImpression, verifyAdWatch, getAdStats, skipAdForCoins } from "./api/analytics/ads.js";
 import { storage } from "./storage.js";
-import { getStripe, getBaseUrl, STRIPE_PRICE_PRO_MONTHLY, STRIPE_PRICE_PRO_MONTHLY_USD, STRIPE_WEBHOOK_SECRET, STRIPE_PRICE_BATTLE_PASS } from "./stripe.js";
+import {
+  getStripe,
+  getBaseUrl,
+  STRIPE_PRICE_PRO_MONTHLY,
+  STRIPE_PRICE_PRO_ANNUAL,
+  STRIPE_PRICE_PRO_MONTHLY_USD,
+  STRIPE_PRICE_PRO_MONTHLY_BRL,
+  STRIPE_PRICE_PRO_ANNUAL_USD,
+  STRIPE_PRICE_PRO_ANNUAL_BRL,
+  STRIPE_WEBHOOK_SECRET,
+  STRIPE_PRICE_BATTLE_PASS,
+} from "./stripe.js";
 import Stripe from "stripe";
 import { Resend } from "resend";
 
@@ -45,7 +56,7 @@ const EMAIL_SEND_TIMEOUT_MS = Number(process.env.EMAIL_SEND_TIMEOUT_MS || 4000);
 const FORCE_PRO = process.env.FORCE_PRO === "true" || process.env.NODE_ENV === "development";
 
 const computeIsPro = (user: any) => {
-  // Simplified: only `isPro` flag determines Pro status (or FORCE_PRO for dev)
+  // Drizzle maps DB snake_case columns to camelCase properties
   return FORCE_PRO || Boolean(user?.isPro);
 };
 
@@ -628,7 +639,7 @@ export async function registerRoutes(
         setTimeout(() => reject(new Error('Database query timeout')), 25000)
       );
       
-      const user = await Promise.race([userPromise, timeoutPromise]);
+      const user = (await Promise.race([userPromise, timeoutPromise])) as any;
       if (!user) {
         console.log(`[LOGIN] User not found: ${email}`);
         return res.status(401).json({ message: "invalid credentials" });
