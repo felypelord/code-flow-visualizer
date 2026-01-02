@@ -499,17 +499,17 @@ export async function registerRoutes(
   // Send verification code (step 1 of signup)
   app.post("/api/signup", async (req: Request, res: Response) => {
     try {
-      console.log("[DEBUG] /api/signup called with body:", JSON.stringify(req.body));
+      // SECURITY: Removed sensitive data logging
       if (!checkRateLimit(`signup:${req.ip}`, 5, 60_000)) {
         return res.status(429).json({ message: "Too many signup attempts" });
       }
       const parsed = sendVerificationCodeSchema.safeParse(req.body || {});
       if (!parsed.success) {
-        console.warn("[DEBUG] Schema validation failed:", parsed.error.errors);
+        console.warn("[SIGNUP] Validation failed");
         return res.status(400).json({ message: "invalid signup data", errors: parsed.error.errors });
       }
       const { email, firstName, lastName, dateOfBirth, country, password } = parsed.data;
-      console.log("[DEBUG] immediate signup requested for:", email);
+      console.log("[SIGNUP] Request for:", email);
       const existing = await storage.getUserByEmail(email);
       if (existing) return res.status(409).json({ message: "email already exists" });
 

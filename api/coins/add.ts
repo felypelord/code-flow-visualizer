@@ -20,10 +20,14 @@ export default (router: Router) => {
         return res.status(400).json({ error: 'Invalid userId or amount' });
       }
 
-      // For now, only allow self-service additions (can be restricted to admin later)
-      // Change this check if you want admin-only access
-      if (currentUserId !== userId) {
-        return res.status(403).json({ error: 'You can only add coins to your own account' });
+      // SECURITY: Check if user is admin
+      const currentUser = await db.query.users.findFirst({
+        where: eq(users.id, currentUserId),
+      });
+
+      if (!currentUser?.isAdmin) {
+        console.warn(`[SECURITY] Unauthorized coin addition attempt by ${currentUserId}`);
+        return res.status(403).json({ error: 'Forbidden: Admin access required' });
       }
 
       // Get user and update coins

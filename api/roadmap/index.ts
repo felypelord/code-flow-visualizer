@@ -30,27 +30,8 @@ export async function getRoadmapItem(req: Request, res: Response) {
     const item = items.find((i: any) => i.slug === slug);
     if (!item) return res.status(404).json({ error: 'Not found' });
 
-    // If item is proOnly, check entitlement
-    if (item.proOnly) {
-      const userId = (req as any).userId || (req as any).user?.id;
-      if (!userId) {
-        // Return limited preview
-        const preview = { ...item, content: undefined };
-        return res.json({ item: preview, locked: true });
-      }
-
-      // Check if user is Pro or purchased this roadmap item
-      const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-      if (user?.isPro) return res.json({ item, locked: false });
-
-      const purchases = await db.select().from(storePurchases).where(eq(storePurchases.userId, String(userId)));
-      const has = purchases.some(p => p.itemId === `roadmap:${slug}`);
-      if (has) return res.json({ item, locked: false });
-
-      const preview = { ...item, content: undefined };
-      return res.json({ item: preview, locked: true });
-    }
-
+    // Learning paths are now FREE for everyone!
+    // No Pro restriction - democratizing education
     return res.json({ item, locked: false });
   } catch (err: any) {
     console.error('getRoadmapItem error:', err);
