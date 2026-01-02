@@ -24,7 +24,7 @@ import { createPayment, stripeWebhook, watchAd, checkUsage, consumeUsage, confir
 import { getRoadmap, getRoadmapItem, getProgress, completeProgress } from "./api/roadmap/index.js";
 import { trackAdImpression, verifyAdWatch, getAdStats, skipAdForCoins } from "./api/analytics/ads.js";
 import { storage } from "./storage.js";
-import { getStripe, getBaseUrl, STRIPE_PRICE_PRO_MONTHLY, STRIPE_PRICE_PRO_MONTHLY_USD, STRIPE_WEBHOOK_SECRET } from "./stripe.js";
+import { getStripe, getBaseUrl, STRIPE_PRICE_PRO_MONTHLY, STRIPE_PRICE_PRO_MONTHLY_USD, STRIPE_WEBHOOK_SECRET, STRIPE_PRICE_BATTLE_PASS } from "./stripe.js";
 import Stripe from "stripe";
 import { Resend } from "resend";
 
@@ -132,6 +132,10 @@ const STORE_CATALOG = [
   { id: 'frame_gold', name: 'Gold Frame', description: 'Premium golden border', type: 'cosmetic', category: 'frame', price: 250, icon: '🥇' },
   { id: 'frame_silver', name: 'Silver Frame', description: 'Elegant silver border', type: 'cosmetic', category: 'frame', price: 150, icon: '🥈' },
   { id: 'frame_rainbow', name: 'Rainbow Frame', description: 'Colorful rainbow border', type: 'cosmetic', category: 'frame', price: 200, icon: '🌈' },
+  // Name effects
+  { id: 'name_effect_gold', name: 'Golden Name', description: 'Gold glow name effect', type: 'cosmetic', category: 'name_effect', price: 400, icon: '✨' },
+  { id: 'name_effect_rainbow', name: 'Rainbow Name', description: 'Animated rainbow text', type: 'cosmetic', category: 'name_effect', price: 600, icon: '🌈' },
+  { id: 'name_effect_flame', name: 'Flame Name', description: 'Flame flicker text', type: 'cosmetic', category: 'name_effect', price: 700, icon: '🔥' },
   
   // Utilities
   { id: 'hint_token', name: 'Hint Token', description: 'Get one free hint', type: 'utility', category: 'hint', price: 10, icon: '💡' },
@@ -1261,11 +1265,12 @@ export async function registerRoutes(
           return res.json({ message: 'Theme applied', theme: itemId });
         }
         if (item.category === 'frame') {
-          // frames treated as metadata on users.bio for simplicity (could be separate column)
-          const frameUser = await storage.getUser(userId);
-          if (!frameUser) return res.status(404).json({ message: 'User not found' });
-          await db.update(users).set({ bio: frameUser.bio }).where(eq(users.id, userId));
+          await db.update(users).set({ equippedFrame: itemId }).where(eq(users.id, userId));
           return res.json({ message: 'Frame applied', frame: itemId });
+        }
+        if (item.category === 'name_effect') {
+          await db.update(users).set({ equippedNameEffect: itemId }).where(eq(users.id, userId));
+          return res.json({ message: 'Name effect applied', nameEffect: itemId });
         }
       }
 
@@ -1700,24 +1705,43 @@ export async function registerRoutes(
       const stripe = getStripe();
       if (!stripe) return res.status(503).json({ message: "Billing not configured" });
       const userId = (req as any).userId as string;
-      // Lock to USD $2 monthly price; card/bank handles FX conversion
-      const price = STRIPE_PRICE_PRO_MONTHLY_USD || STRIPE_PRICE_PRO_MONTHLY;
-      if (!price) return res.status(503).json({ message: "Price not configured" });
+      const { product } = req.body; // "pro" or "battle_pass"
       const baseUrl = getBaseUrl(req);
 
-      const session = await stripe.checkout.sessions.create({
-        mode: "subscription",
+      let mode: "subscription" | "payment" = "subscription";
+      let price = STRIPE_PRICE_PRO_MONTHLY_USD || STRIPE_PRICE_PRO_MONTHLY;
+      let successUrl = `${baseUrl}/pricing?session_id={CHECKOUT_SESSION_ID}`;
+      let cancelUrl = `${baseUrl}/pricing`;
+
+      if (product === "battle_pass") {
+        mode = "payment";
+        price = STRIPE_PRICE_BATTLE_PASS;
+        successUrl = `${baseUrl}/battle-pass?session_id={CHECKOUT_SESSION_ID}`;
+        cancelUrl = `${baseUrl}/battle-pass`;
+        if (!price) return res.status(503).json({ message: "Battle Pass price not configured" });
+      } else {
+        if (!price) return res.status(503).json({ message: "Pro price not configured" });
+      }
+
+      const sessionConfig: any = {
+        mode,
         line_items: [{ price, quantity: 1 }],
-        success_url: `${baseUrl}/pricing?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${baseUrl}/pricing`,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
         client_reference_id: userId,
-        allow_promotion_codes: true,
-        subscription_data: { metadata: { userId } },
-        metadata: { userId },
+        metadata: { userId, product: product || "pro" },
         automatic_tax: { enabled: true },
-      });
+      };
+
+      if (mode === "subscription") {
+        sessionConfig.subscription_data = { metadata: { userId } };
+        sessionConfig.allow_promotion_codes = true;
+      }
+
+      const session = await stripe.checkout.sessions.create(sessionConfig);
       return res.json({ url: session.url });
     } catch (err: any) {
+      console.error("Checkout error:", err);
       return res.status(500).json({ message: "Failed to create checkout" });
     }
   });
@@ -1852,6 +1876,288 @@ export async function registerRoutes(
       apiKeyConfigured: !!RESEND_API_KEY,
       fromEmail: RESEND_FROM_EMAIL
     });
+  });
+
+  // ============================================================================
+  // BATTLE PASS ROUTES
+  // ============================================================================
+
+  // Get Battle Pass info (includes user tier/xp/premium status)
+  app.get("/api/battle-pass/status", async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string | undefined;
+      if (!userId) {
+        return res.json({
+          user: null,
+          season: 1,
+          tierFromXp: 1,
+          hasPremium: false,
+          message: "User not logged in"
+        });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const tierFromXp = Math.min(50, Math.max(1, Math.floor((user.xp || 0) / 200) + 1));
+      const hasPremium = user.battlePassActive || false;
+
+      return res.json({
+        userId,
+        xp: user.xp || 0,
+        level: user.level || 1,
+        currentTier: tierFromXp,
+        season: user.battlePassSeason || 1,
+        hasPremium,
+        createdAt: user.createdAt,
+      });
+    } catch (error: any) {
+      console.error("Error getting battle pass status:", error);
+      return res.status(500).json({ message: "Failed to get battle pass status" });
+    }
+  });
+
+  // Complete exercise/lesson and award XP (for Battle Pass progression)
+  app.post("/api/battle-pass/award-xp", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const { xpAmount, source } = req.body;
+
+      if (!xpAmount || xpAmount <= 0) {
+        return res.status(400).json({ message: "xpAmount must be positive" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const newXP = (user.xp || 0) + xpAmount;
+      const newLevel = calculateLevel(newXP);
+
+      await db.update(users).set({
+        xp: newXP,
+        level: newLevel,
+      }).where(eq(users.id, userId));
+
+      // Record activity
+      await db.insert(activityHistory).values({
+        userId,
+        type: source || "exercise",
+        title: `Exercício completado (+${xpAmount} XP)`,
+        xpEarned: xpAmount,
+        timeSpent: 0,
+      });
+
+      return res.json({
+        message: "XP awarded",
+        newXP,
+        newLevel,
+        tierFromXp: Math.min(50, Math.max(1, Math.floor(newXP / 200) + 1)),
+      });
+    } catch (error: any) {
+      console.error("Error awarding XP:", error);
+      return res.status(500).json({ message: "Failed to award XP" });
+    }
+  });
+
+  // Activate Battle Pass after Stripe purchase
+  app.post("/api/battle-pass/activate", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      if (user.battlePassActive) {
+        return res.json({ message: "Battle Pass already active", season: user.battlePassSeason });
+      }
+
+      await db.update(users).set({
+        battlePassActive: true,
+        battlePassSeason: user.battlePassSeason || 1,
+      }).where(eq(users.id, userId));
+
+      return res.json({
+        message: "Battle Pass activated",
+        season: user.battlePassSeason || 1,
+      });
+    } catch (error: any) {
+      console.error("Error activating battle pass:", error);
+      return res.status(500).json({ message: "Failed to activate battle pass" });
+    }
+  });
+
+  // ============================================================================
+  // ENHANCED COSMETICS ROUTES
+  // ============================================================================
+
+  // Get all cosmetics inventory for a user (what they own)
+  app.get("/api/cosmetics/inventory", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      // Get all purchases for this user
+      const purchases = await db.select().from(storePurchases)
+        .where(eq(storePurchases.userId, userId));
+
+      const ownedItemIds = purchases.map(p => p.itemId);
+      const ownedItems = STORE_CATALOG.filter(item => ownedItemIds.includes(item.id));
+
+      return res.json({
+        owned: ownedItems,
+        count: ownedItems.length,
+        equipped: {
+          avatar: user.avatar || "default",
+          frame: user.equippedFrame || null,
+          nameEffect: user.equippedNameEffect || null,
+        },
+      });
+    } catch (error: any) {
+      console.error("Error fetching cosmetics inventory:", error);
+      return res.status(500).json({ message: "Failed to fetch inventory" });
+    }
+  });
+
+  // Get cosmetics catalog with user ownership info
+  app.get("/api/cosmetics/catalog", async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string | undefined;
+
+      if (!userId) {
+        return res.json({
+          items: STORE_CATALOG.filter(item => item.type === "cosmetic"),
+          owned: [],
+        });
+      }
+
+      const purchases = await db.select().from(storePurchases)
+        .where(eq(storePurchases.userId, userId));
+      const ownedItemIds = purchases.map(p => p.itemId);
+
+      const cosmetics = STORE_CATALOG.filter(item => item.type === "cosmetic");
+      const catalogWithOwnership = cosmetics.map(item => ({
+        ...item,
+        owned: ownedItemIds.includes(item.id),
+      }));
+
+      return res.json({
+        items: catalogWithOwnership,
+        owned: ownedItemIds,
+      });
+    } catch (error: any) {
+      console.error("Error fetching cosmetics catalog:", error);
+      return res.status(500).json({ message: "Failed to fetch catalog" });
+    }
+  });
+
+  // Purchase cosmetic with coins
+  app.post("/api/cosmetics/buy-with-coins", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const { itemId } = req.body;
+
+      if (!itemId) return res.status(400).json({ message: "itemId required" });
+
+      const item = STORE_CATALOG.find(i => i.id === itemId);
+      if (!item) return res.status(404).json({ message: "Item not found" });
+      if (item.type !== "cosmetic") return res.status(400).json({ message: "Not a cosmetic" });
+
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const coinCost = item.price || 500;
+      if (user.coins < coinCost) {
+        return res.status(400).json({ message: "Insufficient coins", needed: coinCost, have: user.coins });
+      }
+
+      // Check if already owned
+      const existing = await db.select().from(storePurchases)
+        .where(and(eq(storePurchases.userId, userId), eq(storePurchases.itemId, itemId)))
+        .limit(1);
+      if (existing.length > 0) return res.status(400).json({ message: "Item already owned" });
+
+      const newCoins = user.coins - coinCost;
+      await db.update(users).set({ coins: newCoins }).where(eq(users.id, userId));
+
+      await db.insert(storePurchases).values({
+        userId,
+        itemId: item.id,
+        itemType: "cosmetic",
+        xpCost: 0,
+        coinCost,
+      });
+
+      await db.insert(coinTransactions).values({
+        userId,
+        amount: -coinCost,
+        type: "spend",
+        source: "cosmetic_purchase",
+        metadata: JSON.stringify({ itemId: item.id, itemName: item.name }),
+      });
+
+      return res.json({
+        message: "Cosmetic purchased",
+        item: item.name,
+        newCoins,
+      });
+    } catch (error: any) {
+      console.error("Error purchasing cosmetic:", error);
+      return res.status(500).json({ message: "Failed to purchase cosmetic" });
+    }
+  });
+
+  // Equip cosmetic with better handling
+  app.post("/api/cosmetics/equip", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const { itemId } = req.body;
+
+      if (!itemId) return res.status(400).json({ message: "itemId required" });
+
+      const owned = await db.select().from(storePurchases)
+        .where(and(eq(storePurchases.userId, userId), eq(storePurchases.itemId, itemId)))
+        .limit(1);
+      if (owned.length === 0) return res.status(403).json({ message: "Item not owned" });
+
+      const item = STORE_CATALOG.find(i => i.id === itemId);
+      if (!item) return res.status(404).json({ message: "Item not found" });
+
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const updates: any = {};
+
+      if (item.category === "avatar") {
+        updates.avatar = itemId.replace("avatar_", "");
+      } else if (item.category === "frame") {
+        updates.equippedFrame = itemId;
+      } else if (item.category === "name_effect") {
+        updates.equippedNameEffect = itemId;
+      } else if (item.category === "theme") {
+        updates.theme = itemId;
+      }
+
+      if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ message: "Cannot equip this item" });
+      }
+
+      await db.update(users).set(updates).where(eq(users.id, userId));
+
+      return res.json({
+        message: "Cosmetic equipped",
+        item: item.name,
+        equipped: {
+          avatar: updates.avatar || user.avatar,
+          frame: updates.equippedFrame || user.equippedFrame,
+          nameEffect: updates.equippedNameEffect || user.equippedNameEffect,
+        },
+      });
+    } catch (error: any) {
+      console.error("Error equipping cosmetic:", error);
+      return res.status(500).json({ message: "Failed to equip cosmetic" });
+    }
   });
 
   return httpServer;

@@ -29,6 +29,7 @@ export default function BattlePassPage() {
   const { user } = useUser();
   const xp = user?.xp ?? 0;
   const level = user?.level ?? 1;
+  const hasBattlePass = user?.battlePassActive ?? false;
 
   // Simple mapping: every 200 XP = +1 tier; 50 tiers max
   const tierFromXP = Math.min(50, Math.max(1, Math.floor(xp / 200) + 1));
@@ -41,9 +42,29 @@ export default function BattlePassPage() {
     currentXP: xp,
     nextTierXP: xpForNextTier,
     completion,
-    isPremium: true, // premium track toggled by purchase; placeholder
+    isPremium: hasBattlePass,
     level,
-  }), [tierFromXP, xp, xpForNextTier, completion, level]);
+  }), [tierFromXP, xp, xpForNextTier, completion, hasBattlePass, level]);
+
+  const handlePurchaseBattlePass = async () => {
+    if (!user) {
+      alert("Faça login para comprar o Battle Pass");
+      return;
+    }
+    try {
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ product: "battle_pass" }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else alert("Erro ao criar checkout: " + (data.message || "Desconhecido"));
+    } catch (err: any) {
+      alert("Erro: " + err.message);
+    }
+  };
 
   return (
     <Layout>
@@ -64,10 +85,20 @@ export default function BattlePassPage() {
                   Desbloqueie 50 tiers de recompensas premium, avatares lendários, molduras douradas e efeitos de nome animados. Progrida enquanto estuda e pratique desafios diários.
                 </p>
                 <div className="flex flex-wrap items-center gap-4">
-                  <Button size="lg" className="bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold hover:from-amber-300 hover:to-orange-400 shadow-[0_10px_40px_rgba(255,193,7,0.35)]"
-                    onClick={() => { window.location.href = "/pricing?product=battle_pass"; }}>
-                    Comprar por $5
-                  </Button>
+                  {hasBattlePass ? (
+                    <div className="inline-flex items-center gap-2 px-4 py-3 rounded-lg bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 font-bold shadow-lg">
+                      <Shield className="w-5 h-5" /> Battle Pass Ativo
+                    </div>
+                  ) : (
+                    <Button 
+                      size="lg" 
+                      className="bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-bold hover:from-amber-300 hover:to-orange-400 shadow-[0_10px_40px_rgba(255,193,7,0.35)]"
+                      onClick={handlePurchaseBattlePass}
+                    >
+                      <Crown className="w-5 h-5 mr-2" />
+                      Comprar Battle Pass - $5
+                    </Button>
+                  )}
                   <div className="flex items-center gap-3 text-sm text-amber-100/90">
                     <Crown className="w-5 h-5 text-amber-300" />
                     Passe Premium garante todos os prêmios dourados.
@@ -91,7 +122,7 @@ export default function BattlePassPage() {
                         <span className="text-xs font-medium text-slate-400">{progress.currentXP} XP</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-200 text-xs font-semibold">
+                    <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${progress.isPremium ? 'bg-amber-500/15 border-amber-400/30 text-amber-200' : 'bg-white/5 border-white/10 text-slate-300'} border text-xs font-semibold`}>
                       <Shield className="w-4 h-4" /> {progress.isPremium ? "Premium" : "Gratuito"}
                     </div>
                   </div>
@@ -169,23 +200,26 @@ export default function BattlePassPage() {
           </Card>
 
           {/* CTA */}
-          <Card className="bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-yellow-500/20 border border-amber-400/40 shadow-[0_20px_40px_rgba(255,193,7,0.25)]">
-            <div className="p-6 lg:p-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.25em] text-amber-200">Premium Pass</p>
-                <h3 className="text-2xl font-black text-amber-50">Todas as recompensas douradas por apenas $5</h3>
-                <p className="text-amber-100/80 max-w-2xl">Inclui 50 tiers, avatares lendários, molduras animadas, efeitos de nome e 25k+ coins em recompensas. Sem assinatura, compra única da temporada.</p>
-              </div>
-              <div className="flex flex-col items-start gap-3">
-                <div className="flex items-center gap-2 text-amber-100 font-semibold">
-                  <Trophy className="w-5 h-5" /> Valor total estimado: $40 em itens
+          {!hasBattlePass && (
+            <Card className="bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-yellow-500/20 border border-amber-400/40 shadow-[0_20px_40px_rgba(255,193,7,0.25)]">
+              <div className="p-6 lg:p-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <div className="space-y-2">
+                  <p className="text-xs uppercase tracking-[0.25em] text-amber-200">Premium Pass</p>
+                  <h3 className="text-2xl font-black text-amber-50">Todas as recompensas douradas por apenas $5</h3>
+                  <p className="text-amber-100/80 max-w-2xl">Inclui 50 tiers, avatares lendários, molduras animadas, efeitos de nome e 25k+ coins em recompensas. Sem assinatura, compra única da temporada.</p>
                 </div>
-                <Button size="lg" className="bg-slate-950 text-amber-300 border border-amber-400/40 hover:bg-slate-900" onClick={() => { window.location.href = "/pricing?product=battle_pass"; }}>
-                  Comprar na Pricing ($5)
-                </Button>
+                <div className="flex flex-col items-start gap-3">
+                  <div className="flex items-center gap-2 text-amber-100 font-semibold">
+                    <Trophy className="w-5 h-5" /> Valor total estimado: $40 em itens
+                  </div>
+                  <Button size="lg" className="bg-slate-950 text-amber-300 border border-amber-400/40 hover:bg-slate-900" onClick={handlePurchaseBattlePass}>
+                    <Crown className="w-5 h-5 mr-2" />
+                    Comprar Battle Pass - $5
+                  </Button>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          )}
         </div>
       </div>
     </Layout>

@@ -32,3 +32,6 @@ export const STRIPE_PRICE_PRO_MONTHLY_BRL = process.env.STRIPE_PRICE_PRO_MONTHLY
 export const STRIPE_PRICE_PRO_ANNUAL_USD = process.env.STRIPE_PRICE_PRO_ANNUAL_USD || "";
 export const STRIPE_PRICE_PRO_ANNUAL_BRL = process.env.STRIPE_PRICE_PRO_ANNUAL_BRL || "";
 export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
+
+// Battle Pass (one-time $5 purchase)
+export const STRIPE_PRICE_BATTLE_PASS = process.env.STRIPE_PRICE_BATTLE_PASS || "";

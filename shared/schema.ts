@@ -30,6 +30,10 @@ export const users = pgTable("users", {
   dailyGoal: integer("daily_goal").notNull().default(3),
   totalExercises: integer("total_exercises").notNull().default(0),
   totalTime: integer("total_time").notNull().default(0), // in seconds
+  equippedFrame: text("equipped_frame"),
+  equippedNameEffect: text("equipped_name_effect"),
+  battlePassActive: boolean("battle_pass_active").notNull().default(false),
+  battlePassSeason: integer("battle_pass_season").notNull().default(1),
   // Optional address for user profile
   address: text("address"),
   // Monetization
