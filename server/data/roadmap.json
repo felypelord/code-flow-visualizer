@@ -5,6 +5,22 @@
     "title": "Two Sum (Algorithms)",
     "summary": "Learn a common array/hashmap technique to solve Two Sum.",
     "content": "# Two Sum\n\nUse a hashmap to store seen values and their indices. Iterate once and check for complement.",
+    "quiz": {
+      "title": "Quick Quiz",
+      "questions": [
+        {
+          "id": "two-sum-q1",
+          "prompt": "What is the key idea behind the optimal Two Sum solution?",
+          "options": [
+            "Sort the array and use binary search for every element",
+            "Use a hashmap to remember seen values and look up complements",
+            "Use recursion to try all pairs"
+          ],
+          "answerIndex": 1,
+          "explanation": "A hashmap lets you check the complement in O(1) average time, giving O(n) overall."
+        }
+      ]
+    },
     "starterCode": "function twoSum(nums, target) {\n  // your code here\n}",
     "tests": [{ "input": [2,7,11,15], "target": 9, "expected": [0,1] }, { "input": [3,2,4], "target": 6, "expected": [1,2] }],
     "proOnly": false,
@@ -17,6 +33,22 @@
     "title": "Binary Search (Algorithms)",
     "summary": "Binary search fundamentals for sorted arrays.",
     "content": "# Binary Search\n\nDivide and conquer using low/high pointers.",
+    "quiz": {
+      "title": "Quick Quiz",
+      "questions": [
+        {
+          "id": "binary-search-q1",
+          "prompt": "What must be true for binary search to work correctly?",
+          "options": [
+            "The array must be sorted",
+            "The array must contain unique values",
+            "The array must be small enough to fit in memory"
+          ],
+          "answerIndex": 0,
+          "explanation": "Binary search relies on ordering to discard half the search space each step."
+        }
+      ]
+    },
     "starterCode": "function binarySearch(arr, target) {\n  // your code here\n}",
     "tests": [{ "input": [1,3,5,7,9], "target": 7, "expected": 3 }, { "input": [1,3,5,7,9], "target": 2, "expected": -1 }],
     "proOnly": true,
@@ -29,6 +61,22 @@
     "title": "Debounce (Frontend)",
     "summary": "Implement debounce to batch rapid events.",
     "content": "# Debounce\n\nUse a timer and closure to delay execution.",
+    "quiz": {
+      "title": "Quick Quiz",
+      "questions": [
+        {
+          "id": "debounce-q1",
+          "prompt": "What does debounce do?",
+          "options": [
+            "Runs a function at most once per interval",
+            "Delays a function until events stop firing for a period",
+            "Runs a function in a separate thread"
+          ],
+          "answerIndex": 1,
+          "explanation": "Debounce waits until there is a pause in events, then runs the function once."
+        }
+      ]
+    },
     "starterCode": "function debounce(fn, wait) {\n  // your code here\n}",
     "tests": [],
     "proOnly": false,

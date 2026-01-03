@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { useUser } from '@/hooks/use-user';
 import { Trophy, Lock, Zap, Target, Calendar, Flame, Brain, Star, Award, Medal } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Achievement {
   id: string;
@@ -23,6 +24,7 @@ const ACHIEVEMENTS_CATALOG: Omit<Achievement, 'unlocked' | 'unlockedAt' | 'progr
 
 export default function AchievementsPage() {
   const { user } = useUser();
+  const { t } = useLanguage();
     const [achievements, setAchievements] = useState<Achievement[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<string>('all');
@@ -51,7 +53,7 @@ export default function AchievementsPage() {
     if (!user) {
       return (
         <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-          <div className="text-white text-xl">Please sign in to view achievements</div>
+          <div className="text-white text-xl">{t('achievements.gate.signIn', 'Please sign in to view achievements')}</div>
         </div>
       );
     }
@@ -71,10 +73,10 @@ export default function AchievementsPage() {
           <div className="flex items-center justify-between">
             <h1 className="text-4xl font-bold text-white flex items-center gap-3">
               <Trophy className="w-10 h-10 text-amber-400" />
-              Achievements
+              {t('achievements.header.title', 'Achievements')}
             </h1>
             <a href="/profile" className="text-blue-400 hover:text-blue-300">
-              ← Back to Profile
+              {t('common.backToProfile', '← Back to Profile')}
             </a>
           </div>
 
@@ -82,7 +84,7 @@ export default function AchievementsPage() {
           <Card className="p-6 bg-gradient-to-r from-amber-900/30 to-orange-900/30 border-amber-700">
             <div className="flex items-center gap-6">
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-white mb-2">Progress</h2>
+                <h2 className="text-2xl font-bold text-white mb-2">{t('achievements.progress.title', 'Progress')}</h2>
                 <div className="h-4 bg-slate-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
@@ -90,7 +92,7 @@ export default function AchievementsPage() {
                   />
                 </div>
                 <p className="text-sm text-amber-200 mt-2">
-                  {completionPercent.toFixed(1)}% Complete
+                  {t('achievements.progress.percentComplete', '{{percent}}% Complete', { percent: completionPercent.toFixed(1) })}
                 </p>
               </div>
               <div className="text-6xl">
@@ -111,7 +113,7 @@ export default function AchievementsPage() {
                     : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
                 }`}
               >
-                {f.charAt(0).toUpperCase() + f.slice(1)}
+                {t(`achievements.filters.${f}`, f.charAt(0).toUpperCase() + f.slice(1))}
               </button>
             ))}
           </div>
@@ -119,10 +121,10 @@ export default function AchievementsPage() {
           {/* Achievements Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {loading ? (
-              <div className="col-span-full text-center text-gray-400 py-8">Loading achievements...</div>
+              <div className="col-span-full text-center text-gray-400 py-8">{t('achievements.loading', 'Loading achievements...')}</div>
             ) : filteredAchievements.length === 0 ? (
               <div className="col-span-full text-center text-gray-400 py-8">
-                No achievements in this category yet
+                {t('achievements.empty', 'No achievements in this category yet')}
               </div>
             ) :
               filteredAchievements.map((achievement) => {
@@ -158,7 +160,7 @@ export default function AchievementsPage() {
                       {!achievement.unlocked && achievement.progress !== undefined && achievement.total !== undefined && (
                         <div className="space-y-1">
                           <div className="flex justify-between text-xs text-gray-500">
-                            <span>Progress</span>
+                            <span>{t('achievements.card.progress', 'Progress')}</span>
                             <span>{achievement.progress} / {achievement.total}</span>
                           </div>
                           <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
@@ -173,7 +175,7 @@ export default function AchievementsPage() {
                       {/* Unlocked Date */}
                       {achievement.unlocked && achievement.unlockedAt && (
                         <p className="text-xs text-amber-400 mt-2">
-                          Unlocked {new Date(achievement.unlockedAt).toLocaleDateString()}
+                          {t('achievements.card.unlockedOn', 'Unlocked {{date}}', { date: new Date(achievement.unlockedAt).toLocaleDateString() })}
                         </p>
                       )}
                     </div>

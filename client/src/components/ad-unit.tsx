@@ -19,6 +19,11 @@ export function AdUnit({ slot, format = 'responsive', className = '' }: AdUnitPr
   const { user } = useUser();
   const adRef = useRef<HTMLDivElement>(null);
 
+  const adClientId =
+    (import.meta as any)?.env?.VITE_ADSENSE_CLIENT_ID ||
+    (import.meta as any)?.env?.ADSENSE_CLIENT_ID ||
+    'PLACEHOLDER';
+
   useEffect(() => {
     // Push ads script only after component mounts
     if (adRef.current && window.adsbygoogle) {
@@ -59,7 +64,7 @@ export function AdUnit({ slot, format = 'responsive', className = '' }: AdUnitPr
           display: 'block',
           minHeight: format === 'vertical' ? '600px' : 'auto',
         }}
-        data-ad-client={`ca-pub-${process.env.REACT_APP_ADSENSE_CLIENT_ID || 'PLACEHOLDER'}`}
+        data-ad-client={`ca-pub-${adClientId}`}
         data-ad-slot={slot}
         data-ad-format={format === 'responsive' ? 'auto' : 'rectangle'}
         data-full-width-responsive={format === 'responsive' ? 'true' : 'false'}

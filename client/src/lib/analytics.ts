@@ -1,6 +1,12 @@
 // Google Analytics 4 + Facebook Pixel Configuration
 // This file handles all tracking for marketing and analytics
 
+declare global {
+  interface Window {
+    dataLayer?: any[];
+  }
+}
+
 // Google Analytics 4
 export const GA_TRACKING_ID = 'G-CYwCTCG1T7'; // ✅ Configurado!
 
@@ -17,9 +23,9 @@ export const initGA = () => {
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`;
   document.head.appendChild(script);
 
-  window.dataLayer = window.dataLayer || [];
+  window.dataLayer ||= [];
   function gtag(...args: any[]) {
-    window.dataLayer.push(args);
+    (window.dataLayer ||= []).push(args);
   }
   (window as any).gtag = gtag;
   
@@ -32,8 +38,8 @@ export const initGA = () => {
 // Initialize Facebook Pixel
 export const initFBPixel = () => {
   if (typeof window === 'undefined') return;
-  
-  !(function(f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
+
+  (function(f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
     if (f.fbq) return;
     n = f.fbq = function() {
       n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);

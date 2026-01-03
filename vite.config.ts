@@ -4,8 +4,27 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import { metaImagesPlugin } from "./vite-plugin-meta-images";
+import fs from "fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+function detectBackendPort() {
+  const fromEnv = process.env.BACKEND_PORT || process.env.PORT;
+  if (fromEnv) return Number(fromEnv);
+
+  try {
+    const p = path.resolve(__dirname, ".backend-port");
+    const txt = fs.readFileSync(p, "utf-8").trim();
+    const num = Number(txt);
+    if (Number.isFinite(num) && num > 0) return num;
+  } catch {
+    // ignore
+  }
+
+  return 5000;
+}
+
+const backendPort = detectBackendPort();
 
 export default defineConfig({
   plugins: [
@@ -40,7 +59,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         // Respect BACKEND_PORT env var falling back to 5000 (allows backend to run on 5001)
-        target: `http://127.0.0.1:${process.env.BACKEND_PORT || 5000}`,
+        target: `http://127.0.0.1:${backendPort}`,
         changeOrigin: true,
         secure: false,
       },

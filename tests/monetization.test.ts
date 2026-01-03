@@ -8,6 +8,8 @@ let monetization: any = null;
 beforeEach(async () => {
   // Ensure webhook secret is present for webhook handling
   process.env.STRIPE_WEBHOOK_SECRET = 'test_secret';
+  // Force Stripe mode (not simulation) so we exercise mocked Stripe checkout.
+  process.env.STRIPE_SECRET_KEY = 'sk_test_123';
   // Set up runtime mocks (avoid hoisting issues)
   vi.doMock('stripe', () => {
     return {
@@ -41,10 +43,18 @@ beforeEach(async () => {
   const DB_PATH = path.resolve(process.cwd(), 'server', 'db.js');
   const SCHEMA_PATH = path.resolve(process.cwd(), 'shared', 'schema.js');
   vi.doMock(DB_PATH, () => {
+    const mockUser = { id: 'user_test', isPro: false, proExpiresAt: new Date(0), premiumPurchases: 0, coins: 0 };
     const dbMock = {
       insert: vi.fn(() => ({ values: async () => ({}) })),
       update: vi.fn(() => ({ set: () => ({ where: async () => ({}) }) })),
-      select: vi.fn(() => ({ from: () => ({ where: () => ({ orderBy: () => ({}) }) }) })),
+      select: vi.fn(() => ({
+        from: () => ({
+          where: () => ({
+            limit: async () => [mockUser],
+            orderBy: () => ({}),
+          }),
+        }),
+      })),
       query: {
         users: {
           findFirst: async () => ({ freeUsageCount: 0, isPro: false }),

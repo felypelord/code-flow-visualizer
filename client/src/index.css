@@ -52,12 +52,30 @@
   }
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    background-image: 
-      linear-gradient(rgba(30, 41, 59, 0.3) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
+    background-image:
+      linear-gradient(var(--bg-grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid-line) 1px, transparent 1px);
     background-size: 40px 40px;
   }
 }
+
+/* Theme-driven background grid (MVP)
+   Uses existing theme primitives and avoids introducing new design tokens. */
+:root {
+  --bg-grid-line: hsl(217 33% 17% / 0.35);
+}
+
+html[data-theme="theme_neon"] { --bg-grid-line: hsl(190 90% 50% / 0.10); }
+html[data-theme="theme_ocean"] { --bg-grid-line: hsl(190 90% 50% / 0.07); }
+html[data-theme="theme_forest"] { --bg-grid-line: hsl(160 84% 39% / 0.08); }
+html[data-theme="theme_cyberpunk"] { --bg-grid-line: hsl(280 70% 60% / 0.08); }
+html[data-theme="theme_matrix"] { --bg-grid-line: hsl(160 84% 39% / 0.11); }
+
+html[data-theme="theme_vip_gold"] { --bg-grid-line: hsl(30 90% 50% / 0.12); }
+html[data-theme="theme_aurora"] { --bg-grid-line: hsl(340 75% 55% / 0.06); }
+html[data-theme="theme_sunset"] { --bg-grid-line: hsl(30 90% 50% / 0.07); }
+html[data-theme="theme_rose"] { --bg-grid-line: hsl(340 75% 55% / 0.09); }
+html[data-theme="theme_obsidian"] { --bg-grid-line: hsl(217 33% 17% / 0.22); }
 
 .blueprint-grid {
   background-image: 
@@ -103,4 +121,145 @@ select:focus-visible,
 textarea:focus-visible,
 a:focus-visible {
   box-shadow: 0 0 0 4px rgba(6,182,212,0.06), 0 0 0 2px rgba(6,182,212,0.14);
+}
+
+@layer utilities {
+  .avatar-frame-wrap {
+    @apply relative inline-flex rounded-full p-1;
+  }
+
+  .avatar-halo {
+    @apply absolute -inset-2 rounded-full pointer-events-none blur-md opacity-30;
+    @apply bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400;
+  }
+
+  .avatar-frame-ring {
+    @apply absolute inset-0 rounded-full;
+  }
+
+  .avatar-frame-inner {
+    @apply relative rounded-full bg-slate-900 flex items-center justify-center;
+  }
+
+  .avatar-frame--gold {
+    @apply bg-gradient-to-br from-yellow-400 to-amber-500;
+  }
+  .avatar-frame--silver {
+    @apply bg-gradient-to-br from-slate-300 to-slate-500;
+  }
+  .avatar-frame--rainbow {
+    @apply bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400;
+  }
+  .avatar-frame--neon {
+    @apply bg-gradient-to-br from-cyan-400 to-blue-500;
+  }
+  .avatar-frame--onyx {
+    @apply bg-gradient-to-br from-slate-700 to-slate-950;
+  }
+
+  .avatar-frame--animated {
+    @apply bg-gradient-to-r from-amber-400 via-purple-400 to-cyan-400;
+    background-size: 200% 200%;
+  }
+
+  .frame-anim-rotate {
+    animation: frameRotate 2.4s linear infinite;
+    transform-origin: center;
+  }
+  .frame-anim-pulse {
+    animation: framePulse 1.8s ease-in-out infinite;
+  }
+  .frame-anim-shimmer {
+    animation: frameShimmer 2.2s ease-in-out infinite;
+  }
+  .frame-anim-glow {
+    animation: frameGlow 2.4s ease-in-out infinite;
+  }
+  .frame-anim-wave {
+    animation: frameWave 1.9s ease-in-out infinite;
+  }
+  .frame-anim-bounce {
+    animation: frameBounce 1.4s ease-in-out infinite;
+  }
+  .frame-anim-wobble {
+    animation: frameWobble 1.6s ease-in-out infinite;
+  }
+  .frame-anim-tilt {
+    animation: frameTilt 2.0s ease-in-out infinite;
+  }
+  .frame-anim-zoom {
+    animation: frameZoom 1.7s ease-in-out infinite;
+  }
+  .frame-anim-flicker {
+    animation: frameFlicker 1.3s steps(2, end) infinite;
+  }
+}
+
+@keyframes frameRotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes framePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+}
+
+@keyframes frameShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes frameGlow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.25); }
+}
+
+@keyframes frameWave {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(18deg); }
+}
+
+@keyframes frameBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes frameWobble {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+@keyframes frameTilt {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+
+@keyframes frameZoom {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+@keyframes frameFlicker {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.35); }
+  100% { filter: brightness(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame-anim-rotate,
+  .frame-anim-pulse,
+  .frame-anim-shimmer,
+  .frame-anim-glow,
+  .frame-anim-wave,
+  .frame-anim-bounce,
+  .frame-anim-wobble,
+  .frame-anim-tilt,
+  .frame-anim-zoom,
+  .frame-anim-flicker {
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
 }

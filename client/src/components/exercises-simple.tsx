@@ -387,7 +387,7 @@ export function ExercisesView() {
       } catch (e) {
         toast({
           title: "❌ Error loading Python",
-          description: "Falha ao carregar o interpretador Python: " + ((e as any).message || String(e)),
+          description: "Failed to load the Python interpreter: " + ((e as any).message || String(e)),
           variant: "destructive",
         });
         return;

@@ -1,13 +1,15 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { StackFrame } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function CallStack({ stack }: { stack: StackFrame[] }) {
+  const { t } = useLanguage();
   return (
     <div className="flex flex-col h-full">
       <h3 className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3 flex items-center gap-2">
         <div className="w-2 h-2 rounded-full bg-blue-500" />
-        Call Stack (Pilha)
+        {t("visualizer.callStack", "Call Stack")}
       </h3>
       
       <div className="flex-1 overflow-auto flex flex-col-reverse gap-2 p-1">
@@ -34,7 +36,11 @@ export default function CallStack({ stack }: { stack: StackFrame[] }) {
                 <span className={cn("font-bold", frame.active ? "text-blue-400" : "text-gray-400")}>
                   {frame.name}
                 </span>
-                {frame.active && <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded">ACTIVE</span>}
+                {frame.active && (
+                  <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded">
+                    {t("visualizer.active", "ACTIVE")}
+                  </span>
+                )}
               </div>
 
               <div className="space-y-1">
@@ -51,7 +57,7 @@ export default function CallStack({ stack }: { stack: StackFrame[] }) {
                   </div>
                 ))}
                 {frame.variables.length === 0 && (
-                  <span className="text-xs text-white/20 italic">vazio</span>
+                  <span className="text-xs text-white/20 italic">{t("visualizer.empty", "empty")}</span>
                 )}
               </div>
             </motion.div>
@@ -60,7 +66,7 @@ export default function CallStack({ stack }: { stack: StackFrame[] }) {
         
         {stack.length === 0 && (
           <div className="flex-1 flex items-center justify-center text-white/10 text-sm italic border-2 border-dashed border-white/5 rounded-lg m-2">
-            Pilha Vazia
+            {t("visualizer.emptyStack", "Empty stack")}
           </div>
         )}
       </div>

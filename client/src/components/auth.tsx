@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { trackSignup, trackLogin } from '@/lib/analytics';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { UILanguageSelector } from '@/components/ui-language-selector';
 
 
 const COUNTRIES = [
@@ -12,16 +14,41 @@ const COUNTRIES = [
 ];
 
 function useAuth() {
-  const [user, setUser] = useState<{ id: string; email: string; firstName?: string; isPro?: boolean; avatar?: string; level?: number } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; firstName?: string; isPro?: boolean; avatar?: string; level?: number; equippedBadge?: string | null } | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
 
   useEffect(() => {
-    if (token) {
-      fetch('/api/me', { headers: { Authorization: `Bearer ${token}` } })
-        .then((r) => r.ok ? r.json() : Promise.reject())
-        .then((data) => setUser(data))
-        .catch(() => { setUser(null); setToken(null); localStorage.removeItem('token'); });
-    }
+    if (!token) return;
+    let cancelled = false;
+
+    fetch('/api/me', { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (r) => {
+        if (r.ok) return r.json();
+        const text = await r.text().catch(() => '');
+        const err: any = new Error(`${r.status}: ${text || r.statusText}`);
+        err.status = r.status;
+        throw err;
+      })
+      .then((data) => {
+        if (cancelled) return;
+        setUser(data);
+      })
+      .catch((err: any) => {
+        if (cancelled) return;
+        const status = Number(err?.status);
+        // Only clear token on explicit unauthorized; keep session on transient/server errors.
+        if (status === 401 || status === 403) {
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem('token');
+          return;
+        }
+        console.warn('Auth: /api/me failed (keeping token)', err);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [token]);
 
   const logout = () => {
@@ -53,6 +80,7 @@ function useAuth() {
 
 export default function Auth() {
   const { user, token, login, logout } = useAuth();
+  const { t } = useLanguage();
 
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<'login' | 'signup-form' | 'signup-verify' | 'forgot-email' | 'forgot-verify' | 'forgot-password'>('login');
@@ -236,7 +264,6 @@ export default function Auth() {
           dateOfBirth: new Date(dateOfBirth).toISOString(),
           country,
           password,
-          proToken,
         }),
       });
 
@@ -252,7 +279,6 @@ export default function Auth() {
       setOpen(false);
       setEmail('');
       setPassword('');
-      setProToken('');
       setFirstName('');
       setLastName('');
       setDateOfBirth('');
@@ -365,7 +391,6 @@ export default function Auth() {
       setEmail('');
       setPassword('');
       setNewPassword('');
-      setProToken('');
       setVerificationCode('');
       setStep('login');
     } catch (err: any) {
@@ -395,7 +420,7 @@ export default function Auth() {
 
       setError('Could not open Pro checkout. Please try again.');
     } catch (err: any) {
-      setError('Falha ao iniciar o pagamento Pro.');
+      setError('Failed to start Pro payment.');
     } finally {
       setCheckoutLoading(false);
     }
@@ -423,10 +448,14 @@ export default function Auth() {
             type="button"
             onClick={() => { window.location.href = '/profile'; }}
             className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-amber-400/60 rounded-lg px-2 py-1 hover:bg-white/5 transition"
-            title="Abrir perfil"
+            title="Open profile"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-xl">
-              {getAvatarEmoji(user.avatar)}
+            <div className="avatar-frame-wrap w-8 h-8">
+              {user.equippedBadge === 'badge_vip_halo' ? <div className="avatar-halo" /> : null}
+              <div className="avatar-frame-ring bg-gradient-to-br from-purple-500 to-pink-600" />
+              <div className="avatar-frame-inner w-full h-full text-xl">
+                {getAvatarEmoji(user.avatar)}
+              </div>
             </div>
             <div className="flex flex-col items-start text-left">
               <span className="text-sm font-medium flex items-center gap-1.5">
@@ -437,45 +466,47 @@ export default function Auth() {
             </div>
           </button>
           <Button variant="outline" size="sm" onClick={logout} className="text-xs">
-            Logout
+            {t('auth.logout', 'Logout')}
           </Button>
+          <UILanguageSelector />
         </div>
       ) : (
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-              {"Sign in"}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md bg-slate-950 border-slate-800">
-            <DialogHeader>
-              <DialogTitle className="text-xl text-white">
-                {step === 'login' 
-                  ? ("Sign in")
-                  : step === 'signup-form' ? ("Create Account")
-                  : step === 'signup-verify' ? `📧 $Verify Email`
-                  : step === 'forgot-email' ? `🔑 $Reset Password`
-                  : step === 'forgot-verify' ? `📧 $Verify Code`
-                  : `🔐 $New Password`}
-              </DialogTitle>
-              <DialogDescription className="text-slate-400 text-sm">
-                {step === 'login'
-                  ? 'Enter your email and password to sign in.'
-                  : step === 'signup-form'
-                    ? 'Create your account — enter details to get started.'
-                    : step === 'signup-verify' ? 'Enter the 6-digit code sent to your email.'
-                    : step === 'forgot-email' ? 'Enter your account email to receive a reset code.'
-                    : step === 'forgot-verify' ? 'Enter the verification code sent to your email.'
-                    : 'Choose a new secure password.'}
-              </DialogDescription>
-            </DialogHeader>
+        <div className="flex items-center gap-2">
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                {t('auth.signIn', 'Sign in')}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md bg-slate-950 border-slate-800">
+              <DialogHeader>
+                <DialogTitle className="text-xl text-white">
+                  {step === 'login' 
+                    ? t('auth.signIn', 'Sign in')
+                    : step === 'signup-form' ? t('auth.createAccount', 'Create Account')
+                    : step === 'signup-verify' ? `📧 $Verify Email`
+                    : step === 'forgot-email' ? `🔑 $Reset Password`
+                    : step === 'forgot-verify' ? `📧 $Verify Code`
+                    : `🔐 $New Password`}
+                </DialogTitle>
+                <DialogDescription className="text-slate-400 text-sm">
+                  {step === 'login'
+                    ? t('auth.dialog.loginDesc', 'Enter your email and password to sign in.')
+                    : step === 'signup-form'
+                      ? 'Create your account — enter details to get started.'
+                      : step === 'signup-verify' ? 'Enter the 6-digit code sent to your email.'
+                      : step === 'forgot-email' ? 'Enter your account email to receive a reset code.'
+                      : step === 'forgot-verify' ? 'Enter the verification code sent to your email.'
+                      : 'Choose a new secure password.'}
+                </DialogDescription>
+              </DialogHeader>
 
             {step === 'login' ? (
               // LOGIN FORM
               <form onSubmit={handleLogin} className="space-y-4 mt-6">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-200 block">
-                    Email
+                    {t('auth.fields.email', 'Email')}
                   </label>
                   <input
                     type="email"
@@ -489,7 +520,7 @@ export default function Auth() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-200 block">
-                    Password
+                    {t('auth.fields.password', 'Password')}
                   </label>
                   <div className="relative">
                     <input
@@ -523,7 +554,7 @@ export default function Auth() {
                   disabled={isLoading}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-2.5 rounded-lg transition-all disabled:opacity-60"
                 >
-                  {isLoading ? '...' : 'Sign In'}
+                  {isLoading ? '...' : t('auth.signIn', 'Sign in')}
                 </Button>
 
                 <div className="flex items-center justify-center gap-2 pt-2 border-t border-slate-800">
@@ -539,7 +570,7 @@ export default function Auth() {
                     disabled={isLoading}
                     className="text-xs text-blue-400 hover:text-blue-300 font-semibold transition-colors disabled:opacity-60"
                   >
-                    {"Create Account"}
+                    {t('auth.createAccount', 'Create Account')}
                   </button>
                 </div>
 
@@ -878,8 +909,10 @@ export default function Auth() {
                 </button>
               </form>
             )}
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+          <UILanguageSelector />
+        </div>
       )}
     </div>
   );

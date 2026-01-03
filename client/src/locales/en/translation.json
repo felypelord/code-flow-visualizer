@@ -1,0 +1,715 @@
+{
+  "seo": {
+    "title": "CodeFlowBR — Learn to Code Visually | Free Interactive Lessons",
+    "description": "Learn programming visually and interactively with CodeFlowBR. Free lessons and exercises for Python, JavaScript, C++ and more. Start now."
+  },
+  "nav": {
+    "home": "Home",
+    "learn": "Learn",
+    "exercises": "Exercises",
+    "sandbox": "Sandbox",
+    "learning": "Learning",
+    "pro": "Pro",
+    "pricing": "Pricing",
+    "library": "Library",
+    "gamification": "Gamification",
+    "profile": "Profile",
+    "battlePass": "Battle Pass",
+    "cosmetics": "Cosmetics",
+    "challenges": "Challenges",
+    "leaderboard": "Leaderboard",
+    "dailyChallenges": "Daily Challenges",
+    "history": "History",
+    "journal": "Journal",
+    "achievements": "Achievements",
+    "upgrade": "Upgrade"
+  },
+  "auth": {
+    "logout": "Logout",
+    "signIn": "Sign in",
+    "createAccount": "Create Account",
+    "dialog": {
+      "loginDesc": "Enter your email and password to sign in."
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Password"
+    },
+    "sessionExpired": {
+      "title": "Session expired",
+      "desc": "Please sign in again to continue."
+    }
+  },
+  "banner": {
+    "proCosts": "Pro costs $2/month (USD); your bank will convert to local currency."
+  },
+  "common": {
+    "start": "Start",
+    "analyze": "Analyze",
+    "viewPricing": "View Pricing",
+    "copy": "Copy",
+    "clear": "Clear",
+    "cancel": "Cancel",
+    "backToProfile": "← Back to Profile",
+    "loading": "Loading",
+    "analyzing": "Analyzing",
+    "processing": "Processing...",
+    "redirecting": "Redirecting",
+    "active": "Active",
+    "error": "Error",
+    "errorWithCode": "Error {{status}}",
+    "pleaseTryAgain": "Please try again.",
+    "tryAgainSoon": "Please try again in a moment.",
+    "somethingWentWrongTryAgain": "Something went wrong. Please try again.",
+    "unexpectedError": "Unexpected error.",
+    "copied": "Copied!",
+    "copyFailed": "Copy failed",
+    "alreadyPro": {
+      "title": "Already Pro",
+      "desc": "Your account already has Pro features."
+    }
+  },
+  "home": {
+    "badge": {
+      "languageSupport": "Language Support"
+    },
+    "hero": {
+      "titleTop": "Learn to Code Visually",
+      "titleAccent": "with Interactive Lessons",
+      "subtitle": "Master programming concepts step by step.",
+      "getStarted": "Get Started",
+      "exploreObjects": "Explore Objects"
+    },
+    "sections": {
+      "learningModules": "Learning Modules"
+    },
+    "lessons": {
+      "functions": {
+        "title": "Functions",
+        "desc": "Learn how to define and use functions."
+      },
+      "conditionals": {
+        "title": "Conditionals",
+        "desc": "Understand if/else and switch statements."
+      },
+      "loopsArrays": {
+        "title": "Loops & Arrays",
+        "desc": "Work with loops and arrays in code."
+      },
+      "objects": {
+        "title": "Objects",
+        "desc": "Explore object-oriented programming."
+      },
+      "classes": {
+        "title": "Classes",
+        "desc": "Learn about classes and inheritance."
+      },
+      "recursion": {
+        "title": "Recursion",
+        "desc": "Understand recursive functions."
+      }
+    },
+    "lessonCard": {
+      "start": "Start"
+    }
+  },
+  "pricing": {
+    "header": {
+      "title": "Pricing Plans",
+      "subtitle": "Choose a plan that fits you",
+      "proPrice": "Pro: $2.00/mo",
+      "currency": "USD"
+    },
+    "flashOffer": {
+      "title": "Flash Offer",
+      "subtitle": "Limited-time discount"
+    },
+    "value": {
+      "premiumBadge": "Premium Badge",
+      "premiumTitle": "Premium Tools for Faster Debugging",
+      "premiumDesc": "Advanced debugging, AI-assisted fixes, snapshots, and curated learning tracks to accelerate development.",
+      "proTracksBadge": "Pro Tracks Badge",
+      "proTracksDesc": "Curated tracks to level up"
+    },
+    "everythingPro": {
+      "title": "Everything Pro: Faster debugging, smarter code",
+      "desc": "Subscribe to Pro and get the full suite: advanced debugger, AI-powered fixes, snapshots, profiler, private playgrounds, and curated learning tracks to accelerate your development."
+    },
+    "billing": {
+      "title": "Billing",
+      "desc": "Payments are handled by a third-party provider. If checkout fails, please contact the site administrator or check server logs — sensitive configuration details are not shown here."
+    },
+    "store": {
+      "title": "Store",
+      "subtitle": "Centralized purchases for items and extras",
+      "xpStoreSubtitle": "Spend your hard-earned FlowCoins on power-ups and cosmetics."
+    },
+    "plans": {
+      "free": {
+        "name": "Free",
+        "period": "per month",
+        "description": "Limited access to basic features.",
+        "features": {
+          "basicAccess": "Basic editor and exercise access",
+          "communityChallenges": "Community challenges",
+          "limitedAi": "Limited AI suggestions (trial)",
+          "publicExamples": "Public examples and docs",
+          "basicDebugging": "Basic debugging tools"
+        },
+        "notIncluded": {
+          "unlimitedAi": "Unlimited AI suggestions",
+          "snapshots": "Snapshots & versioning",
+          "privatePlaygrounds": "Private playgrounds",
+          "prioritySupport": "Priority support"
+        },
+        "cta": "Current Plan"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Full access to Pro features, tools and premium content.",
+        "badge": "Pro",
+        "cta": "Activate Pro"
+      }
+    },
+    "toast": {
+      "signInToEquip": "Please sign in to equip."
+    }
+  },
+  "store": {
+    "gate": {
+      "signIn": "Please sign in to access the store"
+    },
+    "header": {
+      "title": "XP Store",
+      "subtitle": "Spend your hard-earned XP on cool items!",
+      "backToProfile": "← Back to Profile"
+    },
+    "balance": {
+      "subtitle": "Your current balance • Earn 1 coin per 50 XP",
+      "level": "Level"
+    },
+    "filters": {
+      "all": "All",
+      "cosmetic": "Cosmetic",
+      "utility": "Utility",
+      "boost": "Boost",
+      "avatar": "Avatar",
+      "badge": "Badge",
+      "theme": "Theme",
+      "frame": "Frame"
+    },
+    "loading": "Loading store...",
+    "emptyCategory": "No items in this category",
+    "item": {
+      "owned": "Owned",
+      "notEnough": "Not enough coins",
+      "buy": "Buy"
+    },
+    "earn": {
+      "title": "How to Earn FlowCoins",
+      "completeExercises": {
+        "title": "Complete Exercises",
+        "desc": "Earn 1 FlowCoin per 50 XP (10-50 XP per exercise)"
+      },
+      "dailyStreak": {
+        "title": "Daily Streak",
+        "desc": "Bonus XP for streaks = more FlowCoins"
+      },
+      "achievements": {
+        "title": "Unlock Achievements",
+        "desc": "Each achievement gives 25-500 XP"
+      }
+    },
+    "toast": {
+      "notEnough": {
+        "title": "Not enough FlowCoins",
+        "desc": "You need {{price}} FlowCoins to purchase this item."
+      },
+      "purchaseSuccess": {
+        "title": "Purchase successful!",
+        "desc": "You bought {{name}}"
+      },
+      "purchaseFailed": {
+        "title": "Purchase failed"
+      }
+    },
+    "confirm": {
+      "purchase": "Purchase {{name}} for {{price}} FlowCoins?"
+    }
+  },
+  "battlePass": {
+    "actions": {
+      "buy": "Buy Battle Pass - $5"
+    },
+    "badge": {
+      "premium": "Premium",
+      "free": "Free"
+    },
+    "hero": {
+      "seasonRemaining": "Season 1 • 45 days remaining",
+      "title": "Battle Pass CodeFlow",
+      "subtitle": "Unlock 50 tiers of premium rewards, legendary avatars, golden frames, and animated name effects. Progress as you study and practice daily challenges.",
+      "active": "Battle Pass Active",
+      "premiumIncludes": "Premium pass includes all gold rewards.",
+      "signInToSave": "Sign in to save your tier progress."
+    },
+    "progress": {
+      "label": "Progress",
+      "tierOf": "Tier {{current}}/50"
+    },
+    "stats": {
+      "coinsInRewards": "Coins in rewards",
+      "avatarsFrames": "Avatars/frames",
+      "xpBoosts": "XP boosts"
+    },
+    "cosmeticsHighlights": {
+      "label": "Cosmetics Highlights",
+      "title": "Customize Your Profile"
+    },
+    "tierGrid": {
+      "season": "Season 1",
+      "title": "Tier Map (1-50)",
+      "premiumUnlocks": "Premium track unlocks all gold items",
+      "tierLabel": "Tier"
+    },
+    "cta": {
+      "premiumPassLabel": "Premium Pass",
+      "title": "All gold rewards for only $5",
+      "desc": "Includes 50 tiers, legendary avatars, animated frames, name effects, and 25k+ coins in rewards. No subscription — one-time seasonal purchase.",
+      "estimatedValue": "Estimated total value: $40 in items"
+    },
+    "toast": {
+      "activationFailedWithCode": "Battle Pass activation failed ({{status}})",
+      "couldNotConfirmPurchase": "Could not confirm purchase.",
+      "activated": {
+        "title": "Battle Pass activated",
+        "desc": "Your premium rewards are now unlocked."
+      },
+      "activationFailed": {
+        "title": "Battle Pass activation failed"
+      },
+      "mustSignInToBuy": "You must be signed in to buy the Battle Pass.",
+      "failedStartCheckout": "Failed to start checkout.",
+      "openingCheckout": "Opening Battle Pass checkout...",
+      "couldNotCreateCheckout": {
+        "title": "Could not create checkout"
+      },
+      "unexpectedStartCheckout": "Unexpected error while starting checkout."
+    }
+  },
+  "pro": {
+    "header": {
+      "title": "Pro Learning",
+      "subtitle": "Hands-on advanced problems with guided solutions and expert explanations."
+    },
+    "shortcuts": {
+      "proChallenges": {
+        "badge": "Pro Challenges",
+        "title": "Pro Challenges",
+        "desc": "Hands-on advanced problems with guided solutions and expert explanations."
+      },
+      "aiInspector": {
+        "badge": "AI Code Inspector",
+        "title": "AI Code Inspector",
+        "desc": "Automatic analysis with optimization suggestions, warnings, and algorithm explanations."
+      },
+      "debugger": {
+        "badge": "Debugger",
+        "title": "Premium Badge",
+        "desc": "Pro Debugger Requires Text"
+      }
+    },
+    "playground": {
+      "badge": "Pro Playground",
+      "title": "Pro Playground",
+      "desc": "A private, fast playground to prototype ideas and reproduce bugs.",
+      "placeholder": "Write or paste code to experiment.",
+      "bullets": {
+        "quickExperiments": "Quick experiments",
+        "testSnippets": "Test code snippets",
+        "shareIterate": "Share and iterate"
+      }
+    },
+    "exercises": {
+      "badge": "Pro Challenges",
+      "searchPlaceholder": "Search Pro content...",
+      "categories": {
+        "all": "All",
+        "algorithms": "Algorithms",
+        "data-structures": "Data Structures",
+        "async": "Async",
+        "performance": "Performance",
+        "design-patterns": "Design Patterns"
+      },
+      "difficulty": {
+        "all": "All",
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced"
+      },
+      "sort": {
+        "recommended": "Recommended",
+        "difficulty": "Difficulty",
+        "time": "Time"
+      },
+      "completed": "Completed",
+      "solve": "Solve Challenge",
+      "unlock": "Unlock with Pro",
+      "empty": "No exercises found",
+      "locked": {
+        "title": "Pro Exercises Locked",
+        "desc": "Upgrade to Pro to unlock all exercises.",
+        "cta": "Activate Pro Now"
+      },
+      "points": "Points",
+      "pointsShort": "Pts",
+      "complexity": "Complexity",
+      "complexityShort": "Big-O"
+    },
+    "labs": {
+      "badge": "Mini Demos",
+      "subtitle": "Quick interactive demos that showcase Pro features and workflows.",
+      "profiler": {
+        "title": "Code Profiler",
+        "steps": "Profiler Steps",
+        "hint": "Use the profiler to measure function performance.",
+        "realtimeToggle": "Profiler Realtime Toggle",
+        "config": {
+          "runs": "Profiler Config Runs",
+          "warmup": "Profiler Config Warmup"
+        },
+        "runLabel": "Run {{run}}",
+        "whatToWatch": {
+          "title": "What to Watch",
+          "item1": "Long-running functions and recursive hotspots.",
+          "item2": "Heavy allocations and memory churn that cause pauses.",
+          "item3": "CPU-bound hotspots and I/O wait queues to optimize."
+        }
+      },
+      "breakpoints": {
+        "title": "Breakpoint Manager",
+        "conditionPlaceholder": "Condition",
+        "add": "Add Breakpoint"
+      },
+      "inspector": {
+        "title": "Variable Inspector",
+        "guide": "Inspector Guide",
+        "hint": "Use the inspector to explore object structure, values and metadata.",
+        "searchPlaceholder": "Search inspector...",
+        "pastePlaceholder": "Paste JSON or object to inspect.",
+        "analyze": "Pro Inspector Analyze",
+        "focus": "Focus",
+        "focusFallback": "Select a value in the tree to inspect it",
+        "length": "Length",
+        "keys": "Keys",
+        "previewFallback": "Select a path in the inspector tree to preview its value.",
+        "howToUse": {
+          "title": "How to Use the Inspector",
+          "item1": "Click keys or indices to explore nested values.",
+          "item2": "Use the search box to find properties or values quickly.",
+          "item3": "Tip: paste JSON to inspect objects or debug API responses."
+        },
+        "interpreter": {
+          "title": "Interpreter",
+          "item1": "Shows the selected value and its type.",
+          "item2": "Quickly copy values or paths for debugging.",
+          "item3": "Use the inspector to reproduce and diagnose issues faster."
+        }
+      }
+    },
+    "debugger": {
+      "loading": "Pro Debugger Loading",
+      "badge": "Pro Debugger",
+      "desc": "The Pro debugger is available to subscribers — try one free use to see its value."
+    },
+    "editor": {
+      "writeCodeFirst": "Write code first",
+      "tests": {
+        "allPassed": "All tests passed!",
+        "someFailed": "Some tests failed."
+      },
+      "js": {
+        "noFunction": "Could not find a function to test."
+      },
+      "python": {
+        "syntaxErrorTitle": "Syntax Error",
+        "useDef": "Use 'def' keyword",
+        "loadErrorTitle": "Python Load Error",
+        "loadErrorDesc": "Failed to load Python"
+      }
+    },
+    "toast": {
+      "checkoutCanceled": {
+        "title": "Checkout canceled",
+        "desc": "No payment was made."
+      },
+      "subscriptionActivated": {
+        "title": "Pro activated",
+        "desc": "Your Pro subscription is now active."
+      },
+      "firstUseUnlocked": {
+        "title": "First use unlocked",
+        "desc": "Try this Pro feature free — subscribe for unlimited access."
+      },
+      "proFeature": {
+        "title": "Pro feature",
+        "desc": "This feature requires a Pro subscription. Upgrade to unlock everything."
+      },
+      "codeCopied": "Code copied to clipboard.",
+      "vipCreated": {
+        "title": "VIP Created",
+        "login": "Login to access your VIP features.",
+        "checkEmail": "Check your email for confirmation."
+      },
+      "proFeatureWithTitle": "Pro Feature: {{title}}",
+      "openChallengeToLearnMore": "Open this Pro challenge to learn more."
+    }
+  },
+  "cosmetics": {
+    "toast": {
+      "mustSignInToBuy": "You must be signed in to buy cosmetics.",
+      "mustSignInToEquip": "You must be signed in to equip cosmetics."
+    }
+  },
+  "profile": {
+    "toast": {
+      "signInToSaveTheme": "Please sign in to save your custom theme.",
+      "signInToEquipThemes": "Please sign in to equip themes.",
+      "signInToUseSocial": "Please sign in to use social features.",
+      "signInToEquipAvatars": "Please sign in to equip avatars."
+    }
+  },
+  "leaderboard": {
+    "toast": {
+      "loginRequired": {
+        "title": "Login required",
+        "addFriends": "Sign in to add friends.",
+        "acceptRequests": "Sign in to accept requests.",
+        "followUsers": "Sign in to follow users."
+      }
+    }
+  },
+  "dailyChallenges": {
+    "gate": {
+      "signIn": "Please sign in to view daily challenges"
+    },
+    "header": {
+      "title": "Daily Challenges",
+      "subtitle": "Complete challenges to earn bonus XP and FlowCoins"
+    },
+    "progress": {
+      "title": "Today's Progress",
+      "completed": "completed",
+      "earned": "earned",
+      "streak": "Streak"
+    },
+    "difficulty": {
+      "easy": "EASY",
+      "medium": "MEDIUM",
+      "hard": "HARD"
+    },
+    "challenge": {
+      "progress": "Progress: {{current}} / {{total}}",
+      "completed": "✓ Completed! +{{xp}} XP earned"
+    },
+    "reward": {
+      "xp": "XP"
+    },
+    "about": {
+      "title": "About Daily Challenges",
+      "item1": "Challenges reset every day at midnight UTC",
+      "item2": "Complete challenges to earn bonus XP and FlowCoins",
+      "item3": "Higher difficulty challenges give more rewards",
+      "item4": "Keep your streak alive to unlock special achievements",
+      "item5": "Pro members get exclusive challenges with 2x rewards"
+    },
+    "items": {
+      "daily1": {
+        "title": "Complete 3 Exercises",
+        "desc": "Solve any 3 coding exercises today"
+      },
+      "daily2": {
+        "title": "Maintain Your Streak",
+        "desc": "Keep your daily streak alive"
+      },
+      "daily3": {
+        "title": "Study for 30 Minutes",
+        "desc": "Spend at least 30 minutes learning"
+      },
+      "daily4": {
+        "title": "Perfect Score",
+        "desc": "Get 100% on any exercise"
+      },
+      "daily5": {
+        "title": "Speed Demon",
+        "desc": "Complete an exercise in under 60 seconds"
+      }
+    }
+  },
+  "achievements": {
+    "gate": {
+      "signIn": "Please sign in to view achievements"
+    },
+    "header": {
+      "title": "Achievements"
+    },
+    "progress": {
+      "title": "Progress",
+      "percentComplete": "{{percent}}% Complete"
+    },
+    "filters": {
+      "all": "All",
+      "streak": "Streak",
+      "exercises": "Exercises",
+      "speed": "Speed",
+      "accuracy": "Accuracy",
+      "learning": "Learning",
+      "special": "Special"
+    },
+    "loading": "Loading achievements...",
+    "empty": "No achievements in this category yet",
+    "card": {
+      "progress": "Progress",
+      "unlockedOn": "Unlocked {{date}}"
+    }
+  },
+  "history": {
+    "gate": {
+      "signIn": "Please sign in to view history"
+    },
+    "header": {
+      "title": "Activity History"
+    },
+    "stats": {
+      "exercises": "Exercises",
+      "avgScore": "Avg Score",
+      "avgTime": "Avg Time",
+      "totalXp": "Total XP",
+      "streak": "Streak",
+      "streakDays": "{{count}} days"
+    },
+    "heatmap": {
+      "title": "Activity Heatmap (Last 90 Days)",
+      "tooltipOne": "{{date}}: {{count}} activity",
+      "tooltipMany": "{{date}}: {{count}} activities",
+      "less": "Less",
+      "more": "More"
+    },
+    "filters": {
+      "all": "All",
+      "exercise": "Exercise",
+      "lesson": "Lesson",
+      "profiler": "Profiler",
+      "inspector": "Inspector",
+      "debugger": "Debugger"
+    },
+    "recent": {
+      "title": "Recent Activities",
+      "empty": "No activities yet. Start coding to build your history!"
+    }
+  },
+  "journal": {
+    "gate": {
+      "signIn": "Please sign in to view journal"
+    },
+    "header": {
+      "title": "Learning Journal",
+      "backToProfile": "← Profile"
+    },
+    "actions": {
+      "new": "New Entry",
+      "save": "Save Entry"
+    },
+    "form": {
+      "editTitle": "Edit Entry",
+      "newTitle": "New Entry",
+      "titleLabel": "Title (optional)",
+      "titlePlaceholder": "Today's Learning...",
+      "contentLabel": "Content *",
+      "contentPlaceholder": "What did you learn today? Any insights or 'aha' moments?",
+      "tagsLabel": "Tags (comma-separated)",
+      "tagsPlaceholder": "algorithms, recursion, debugging",
+      "codeLabel": "Code Snippet (optional)"
+    },
+    "loading": "Loading journal...",
+    "empty": {
+      "title": "Your journal is empty",
+      "desc": "Start documenting your coding journey! Reflect on what you learn, track your progress, and save useful snippets."
+    },
+    "entry": {
+      "codeSnippet": "Code Snippet"
+    },
+    "confirm": {
+      "delete": "Delete this entry?"
+    },
+    "toast": {
+      "created": {
+        "title": "Entry created!"
+      },
+      "updated": {
+        "title": "Entry updated!"
+      },
+      "saved": {
+        "desc": "Your journal has been saved."
+      },
+      "saveFailed": "Failed to save entry",
+      "deleted": {
+        "title": "Entry deleted",
+        "desc": "Journal entry removed."
+      },
+      "deleteFailed": "Failed to delete entry"
+    }
+  },
+  "sandbox": {
+    "title": "Sandbox",
+    "subtitle": "Paste your full code and see how it runs line by line.",
+    "reset": "Reset",
+    "play": "Play",
+    "pause": "Pause",
+    "step": "Step",
+    "speed": "Speed",
+    "syntaxErrorTitle": "Syntax issue",
+    "syntaxErrorDesc": "Fix the code first: {{details}}",
+    "suggestionsLabel": "Suggestions",
+    "suggestion": {
+      "removeDebug": "Remove debug output before sharing (e.g., console.log / print).",
+      "strictEq": "Prefer === over == in JavaScript.",
+      "avoidVar": "Prefer let/const over var.",
+      "semicolon": "This line looks like it might be missing a semicolon.",
+      "unusedVar": "Variable \"{{name}}\" is assigned but never used."
+    },
+    "nonJsNote": "JavaScript is fully supported for real execution now. For other languages we will add an engine (static checks + step simulation) next.",
+    "notSupported": "Real step-by-step execution is currently available only for JavaScript. For other languages, we will add an engine next.",
+    "doneTitle": "Execution finished",
+    "doneDesc": "Reached the end of your program.",
+    "errorTitle": "Execution error",
+    "narration": "Narration",
+    "narrationEmpty": "Press Step or Play to start.",
+    "output": "Output",
+    "outputEmpty": "No output yet.",
+    "outputNonJsNote": "Output is shown for JavaScript execution. Other languages are simulated for now.",
+    "explain": {
+      "blank": "Blank line.",
+      "comment": "Comment.",
+      "import": "Import / include statement.",
+      "class": "Class / type definition.",
+      "function": "Function definition.",
+      "conditional": "Conditional branch evaluation.",
+      "loop": "Loop evaluation.",
+      "return": "Return statement.",
+      "output": "Output statement.",
+      "declaration": "Variable declaration.",
+      "assignment": "Assignment / evaluation.",
+      "executing": "Executing line."
+    }
+  }
+  ,
+  "visualizer": {
+    "callStack": "Call Stack",
+    "heap": "Heap Memory",
+    "active": "ACTIVE",
+    "empty": "empty",
+    "emptyStack": "Empty stack",
+    "emptyHeap": "Heap memory empty"
+  }
+}

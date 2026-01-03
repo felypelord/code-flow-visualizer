@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { useUser } from '@/hooks/use-user';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { TrendingUp, Clock, Trophy, Target, Calendar, BarChart3, Zap } from 'lucide-react';
 
@@ -16,6 +17,7 @@ interface Activity {
 
 export default function HistoryPage() {
   const { user } = useUser();
+  const { t } = useLanguage();
 
   const [activities, setActivities] = useState<Activity[]>([]);
   const [stats, setStats] = useState({
@@ -53,7 +55,7 @@ export default function HistoryPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="text-white text-xl">Please sign in to view history</div>
+        <div className="text-white text-xl">{t('history.gate.signIn', 'Please sign in to view history')}</div>
       </div>
     );
   }
@@ -72,10 +74,10 @@ export default function HistoryPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-4xl font-bold text-white flex items-center gap-3">
             <TrendingUp className="w-10 h-10 text-blue-400" />
-            Activity History
+            {t('history.header.title', 'Activity History')}
           </h1>
           <a href="/profile" className="text-blue-400 hover:text-blue-300">
-            ← Back to Profile
+            {t('common.backToProfile', '← Back to Profile')}
           </a>
         </div>
 
@@ -84,7 +86,7 @@ export default function HistoryPage() {
           <Card className="p-4 bg-slate-900/80 border-slate-700">
             <div className="flex items-center gap-2 mb-2">
               <Trophy className="w-5 h-5 text-amber-400" />
-              <span className="text-xs text-gray-400">Exercises</span>
+              <span className="text-xs text-gray-400">{t('history.stats.exercises', 'Exercises')}</span>
             </div>
             <div className="text-3xl font-bold text-white">{stats.totalExercises}</div>
           </Card>
@@ -92,7 +94,7 @@ export default function HistoryPage() {
           <Card className="p-4 bg-slate-900/80 border-slate-700">
             <div className="flex items-center gap-2 mb-2">
               <Target className="w-5 h-5 text-green-400" />
-              <span className="text-xs text-gray-400">Avg Score</span>
+              <span className="text-xs text-gray-400">{t('history.stats.avgScore', 'Avg Score')}</span>
             </div>
             <div className="text-3xl font-bold text-white">{stats.avgScore}%</div>
           </Card>
@@ -100,7 +102,7 @@ export default function HistoryPage() {
           <Card className="p-4 bg-slate-900/80 border-slate-700">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="w-5 h-5 text-blue-400" />
-              <span className="text-xs text-gray-400">Avg Time</span>
+              <span className="text-xs text-gray-400">{t('history.stats.avgTime', 'Avg Time')}</span>
             </div>
             <div className="text-3xl font-bold text-white">{formatTime(stats.avgTime)}</div>
           </Card>
@@ -108,7 +110,7 @@ export default function HistoryPage() {
           <Card className="p-4 bg-slate-900/80 border-slate-700">
             <div className="flex items-center gap-2 mb-2">
               <Zap className="w-5 h-5 text-yellow-400" />
-              <span className="text-xs text-gray-400">Total XP</span>
+              <span className="text-xs text-gray-400">{t('history.stats.totalXp', 'Total XP')}</span>
             </div>
             <div className="text-3xl font-bold text-white">{stats.totalXP}</div>
           </Card>
@@ -116,9 +118,9 @@ export default function HistoryPage() {
           <Card className="p-4 bg-slate-900/80 border-slate-700">
             <div className="flex items-center gap-2 mb-2">
               <Calendar className="w-5 h-5 text-purple-400" />
-              <span className="text-xs text-gray-400">Streak</span>
+              <span className="text-xs text-gray-400">{t('history.stats.streak', 'Streak')}</span>
             </div>
-            <div className="text-3xl font-bold text-white">{stats.streak} days</div>
+            <div className="text-3xl font-bold text-white">{t('history.stats.streakDays', '{{count}} days', { count: stats.streak })}</div>
           </Card>
         </div>
 
@@ -126,26 +128,32 @@ export default function HistoryPage() {
         <Card className="p-6 bg-slate-900/90 border-slate-700">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-green-400" />
-            Activity Heatmap (Last 90 Days)
+            {t('history.heatmap.title', 'Activity Heatmap (Last 90 Days)')}
           </h2>
           <div className="flex flex-wrap gap-1">
             {heatmapData.map((day, idx) => (
               <div
                 key={idx}
                 className="group relative"
-                title={`${day.date}: ${day.count} activities`}
+                title={
+                  day.count === 1
+                    ? t('history.heatmap.tooltipOne', '{{date}}: {{count}} activity', { date: day.date, count: day.count })
+                    : t('history.heatmap.tooltipMany', '{{date}}: {{count}} activities', { date: day.date, count: day.count })
+                }
               >
                 <div
                   className={`w-3 h-3 rounded-sm ${getHeatmapColor(day.count)}`}
                 />
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-10">
-                  {day.date}: {day.count} {day.count === 1 ? 'activity' : 'activities'}
+                  {day.count === 1
+                    ? t('history.heatmap.tooltipOne', '{{date}}: {{count}} activity', { date: day.date, count: day.count })
+                    : t('history.heatmap.tooltipMany', '{{date}}: {{count}} activities', { date: day.date, count: day.count })}
                 </div>
               </div>
             ))}
           </div>
           <div className="flex items-center gap-4 mt-4 text-xs text-gray-400">
-            <span>Less</span>
+            <span>{t('history.heatmap.less', 'Less')}</span>
             <div className="flex gap-1">
               <div className="w-3 h-3 bg-slate-800 rounded-sm" />
               <div className="w-3 h-3 bg-green-900/50 rounded-sm" />
@@ -153,7 +161,7 @@ export default function HistoryPage() {
               <div className="w-3 h-3 bg-green-500 rounded-sm" />
               <div className="w-3 h-3 bg-green-400 rounded-sm" />
             </div>
-            <span>More</span>
+            <span>{t('history.heatmap.more', 'More')}</span>
           </div>
         </Card>
 
@@ -169,19 +177,19 @@ export default function HistoryPage() {
                   : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
               }`}
             >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
+              {t(`history.filters.${f}`, f.charAt(0).toUpperCase() + f.slice(1))}
             </button>
           ))}
         </div>
 
         {/* Activity List */}
         <Card className="p-6 bg-slate-900/90 border-slate-700">
-          <h2 className="text-xl font-bold text-white mb-4">Recent Activities</h2>
+          <h2 className="text-xl font-bold text-white mb-4">{t('history.recent.title', 'Recent Activities')}</h2>
           {loading ? (
-            <div className="text-center text-gray-400 py-8">Loading...</div>
+            <div className="text-center text-gray-400 py-8">{t('common.loading', 'Loading')}</div>
           ) : filteredActivities.length === 0 ? (
             <div className="text-center text-gray-400 py-8">
-              No activities yet. Start coding to build your history!
+              {t('history.recent.empty', 'No activities yet. Start coding to build your history!')}
             </div>
           ) : (
             <div className="space-y-3">

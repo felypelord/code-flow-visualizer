@@ -13,6 +13,7 @@ import { Slider } from "@/components/ui/slider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from "@/hooks/use-user";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageBadge } from '@/components/language-selector';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
@@ -37,6 +38,7 @@ function makeTrackActivities(_level: 'basic' | 'medium' | 'advanced', lang: stri
 
 export function ExercisesViewNew() {
   const isMobile = useIsMobile();
+  const { user } = useUser();
   const { progLang } = useLanguage();
   const lang = (progLang || 'javascript') as string;
   const { toast } = useToast();
@@ -92,14 +94,16 @@ export function ExercisesViewNew() {
       } catch (e) {}
       setShowSuccessBanner(true);
       // show confetti briefly, pulse Next button, and auto-hide banner after 6s
-      try { setShowConfetti(true); } catch(e){}
+      if (user?.particleEffects) {
+        try { setShowConfetti(true); } catch(e){}
+      }
       try { setShowNextPulse(true); } catch(e){}
       const tPulse = setTimeout(() => { try { setShowNextPulse(false); } catch(e){} }, 2000);
       const t1 = setTimeout(() => { try { setShowConfetti(false); } catch(e){} }, 2500);
       const t2 = setTimeout(() => { try { setShowSuccessBanner(false); } catch(e){} }, 6000);
       return () => { clearTimeout(tPulse); clearTimeout(t1); clearTimeout(t2); };
     }
-  }, [validationResult]);
+  }, [validationResult, user?.particleEffects]);
 
   useEffect(() => {
     if (validationResult && validationResult.ok === false) {
@@ -477,7 +481,7 @@ export function ExercisesViewNew() {
                             <div className="mt-2 flex items-center gap-4">
                               <div className="text-xs">Possible error at line: <span className="font-mono ml-1">{validationResult.errorLine ?? '—'}</span></div>
                               <div>
-                                <Button size="sm" variant="ghost" onClick={() => { try { setActiveLine(validationResult.errorLine ?? undefined); const el = document.querySelector('.code-editor'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e){} }}>Ir para linha</Button>
+                                <Button size="sm" variant="ghost" onClick={() => { try { setActiveLine(validationResult.errorLine ?? undefined); const el = document.querySelector('.code-editor'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e){} }}>Go to line</Button>
                               </div>
                             </div>
                           )}
@@ -514,17 +518,17 @@ export function ExercisesViewNew() {
         {showSuccessBanner && (
           <div className="w-full bg-emerald-600 text-white px-6 py-3 flex items-center justify-between gap-4 relative overflow-hidden">
             <div>
-              <div className="font-bold">Parabéns — exercício aprovado!</div>
-              <div className="text-sm opacity-90">{validationResult?.message || 'Você passou nos testes.'}</div>
+              <div className="font-bold">Congrats — exercise passed!</div>
+              <div className="text-sm opacity-90">{validationResult?.message || 'You passed the tests.'}</div>
             </div>
             <div className="flex items-center gap-3">
-              <Button onClick={() => { setShowSuccessBanner(false); }} variant="ghost" className="text-white/90">Fechar</Button>
+              <Button onClick={() => { setShowSuccessBanner(false); }} variant="ghost" className="text-white/90">Close</Button>
               <Button onClick={() => {
                 // advance to next activity if available
                 const idx = allActivities.findIndex(a => a.id === selectedActivityId);
                 if (idx >= 0 && idx < allActivities.length - 1) setSelectedActivityId(allActivities[idx + 1].id);
                 setShowSuccessBanner(false);
-              }} className={"bg-white text-black transform transition-all duration-300 ease-out " + (showNextPulse ? 'scale-105 shadow-2xl' : '')}>Próximo</Button>
+              }} className={"bg-white text-black transform transition-all duration-300 ease-out " + (showNextPulse ? 'scale-105 shadow-2xl' : '')}>Next</Button>
             </div>
             {showConfetti && (
               <div className="absolute inset-0 pointer-events-none">

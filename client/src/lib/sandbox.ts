@@ -6,6 +6,8 @@ export type SandboxOptions = {
   onStep?: (line: number) => void;
   // optional snapshot callback to receive full snapshots { vars, stack, heap }
   onSnapshot?: (snapshot: { vars: Record<string, any>; stack?: any[]; heap?: any[] }, line?: number) => void;
+  // optional stdout callback to receive console/print output
+  onStdout?: (entry: { stream: 'stdout' | 'stderr'; text: string; line?: number }) => void;
 };
 
 export async function runInWorker(
@@ -42,7 +44,9 @@ export async function runInWorker(
         try { worker.terminate(); } catch {}
         const errMsg = (data && data.error) || 'Wrapper SyntaxError';
         const wrapperSnippet = data && data.wrapper ? String(data.wrapper).slice(0, 2000) : '';
-        reject(new Error(errMsg + '\n' + wrapperSnippet));
+        const err: any = new Error(errMsg + '\n' + wrapperSnippet);
+        if (data && typeof data.line === 'number') err.line = data.line;
+        reject(err);
         return;
       }
       // Step events are forwarded to the callback and do not settle the promise
@@ -61,6 +65,14 @@ export async function runInWorker(
         return;
       }
 
+      // Stdout events from console.log / console.error
+      if (data && data.type === 'stdout') {
+        try {
+          opts.onStdout?.({ stream: data.stream === 'stderr' ? 'stderr' : 'stdout', text: String(data.text || ''), line: typeof data.line === 'number' ? data.line : undefined });
+        } catch {}
+        return;
+      }
+
       // Final result/error message
       settled = true;
       clearTimeout(timer);
@@ -71,7 +83,9 @@ export async function runInWorker(
         resolve(data.result);
       } else {
         const msg = (data && data.error) || 'Unknown error';
-        reject(new Error(msg));
+        const err: any = new Error(msg);
+        if (data && typeof data.line === 'number') err.line = data.line;
+        reject(err);
       }
     };
 
@@ -161,7 +175,9 @@ export function createWorkerController(
       try { console.error('Sandbox worker wrapper error:', data.error); console.error(data.wrapper); } catch(e) {}
       settled = true;
       if (!_readyResolved) { _readyResolved = true; try { readyResolve(); } catch(e){} }
-      resultReject(new Error((data && data.error) || 'Wrapper SyntaxError'));
+      const err: any = new Error((data && data.error) || 'Wrapper SyntaxError');
+      if (data && typeof data.line === 'number') err.line = data.line;
+      resultReject(err);
       return;
     }
     if (data && data.type === 'step') {
@@ -175,10 +191,22 @@ export function createWorkerController(
       return;
     }
 
+    if (data && data.type === 'stdout') {
+      try {
+        opts.onStdout?.({ stream: data.stream === 'stderr' ? 'stderr' : 'stdout', text: String(data.text || ''), line: typeof data.line === 'number' ? data.line : undefined });
+      } catch {}
+      if (!_readyResolved) { _readyResolved = true; try { readyResolve(); } catch(e){} }
+      return;
+    }
+
     // final
     settled = true;
     if (data && data.ok) resultResolve(data.result);
-    else resultReject(new Error((data && data.error) || 'Unknown error'));
+    else {
+      const err: any = new Error((data && data.error) || 'Unknown error');
+      if (data && typeof data.line === 'number') err.line = data.line;
+      resultReject(err);
+    }
   };
 
   worker.onerror = (evt) => {

@@ -631,7 +631,7 @@ export const exercises: Exercise[] = [
   {
     id: "longest-substr",
     title: "Longest Substr",
-    description: "Encontre a Longest Substr sem caracteres repetidos.",
+    description: "Find the longest substring without repeating characters.",
     difficulty: "Advanced",
     variants: {
       javascript: {

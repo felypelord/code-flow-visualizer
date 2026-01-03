@@ -1,4 +1,4 @@
-export type Language = 'javascript' | 'csharp' | 'java' | 'c';
+export type Language = 'javascript' | 'python' | 'csharp' | 'java' | 'c';
 
 export interface Variable {
   name: string;
@@ -37,6 +37,14 @@ export interface LessonVariant {
   steps: Step[];
 }
 
+export interface QuizQuestion {
+  id: string;
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
 export interface Lesson {
   id: string;
   // Optional mapping to an exercise id for deterministic Practice/Check wiring
@@ -44,5 +52,10 @@ export interface Lesson {
   title: string;
   description: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  // Learning metadata (optional)
+  estimatedMinutes?: number;
+  prerequisites?: string[];
+  outcomes?: string[];
+  quiz?: QuizQuestion[];
   variants: Partial<Record<Language, LessonVariant>>; // Not all lessons might exist for all languages
 }

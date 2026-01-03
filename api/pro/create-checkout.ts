@@ -7,7 +7,7 @@ function getBaseUrl(req: Req) {
   const origin = (req.headers["origin"] || req.headers["x-forwarded-origin"]) as string | undefined;
   const host = (req.headers["x-forwarded-host"] || req.headers["host"]) as string | undefined;
   const proto = (req.headers["x-forwarded-proto"] as string | undefined) || "https";
-  return origin || (host ? `${proto}://${host}` : "https://codeflowbr.site");
+  return origin || (host ? `${proto}://${host}` : "https://www.codeflowbr.site");
 }
 
 function pickPriceId(plan?: string, currency?: string) {

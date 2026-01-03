@@ -2,7 +2,23 @@ import { Router, Request, Response } from 'express';
 import { eq } from 'drizzle-orm';
 import { db } from '@/server/db';
 import { users } from '@/shared/schema';
-import { authenticateToken } from '@/server/auth';
+import jwt from 'jsonwebtoken';
+
+// Minimal auth middleware for this router (expects Bearer token with JWT_SECRET)
+const authenticateToken = (req: Request, res: Response, next: any) => {
+  try {
+    const auth = String(req.headers.authorization || '');
+    const token = auth.startsWith('Bearer ') ? auth.slice('Bearer '.length) : '';
+    if (!token) return res.status(401).json({ error: 'Missing Authorization' });
+
+    const secret = process.env.JWT_SECRET || 'dev-secret-do-not-use-in-prod';
+    const decoded = jwt.verify(token, secret);
+    (req as any).user = decoded;
+    return next();
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+};
 
 export default (router: Router) => {
   /**
@@ -13,7 +29,7 @@ export default (router: Router) => {
   router.post('/coins/add', authenticateToken, async (req: Request, res: Response) => {
     try {
       const { userId, amount, reason } = req.body;
-      const currentUserId = req.user?.id;
+      const currentUserId = (req as any).user?.id;
 
       // Verify request body
       if (!userId || !amount || typeof amount !== 'number' || amount <= 0) {

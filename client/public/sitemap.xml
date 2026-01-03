@@ -9,107 +9,157 @@
   <!-- Homepage -->
   <url>
     <loc>https://www.codeflowbr.site/</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.codeflowbr.site/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.codeflowbr.site/?lng=en" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://www.codeflowbr.site/?lng=pt-BR" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.codeflowbr.site/?lng=es" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.codeflowbr.site/?lng=zh-CN" />
+    <xhtml:link rel="alternate" hreflang="hi-IN" href="https://www.codeflowbr.site/?lng=hi-IN" />
   </url>
 
   <!-- Main Pages -->
   <url>
     <loc>https://www.codeflowbr.site/pricing</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.codeflowbr.site/pricing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.codeflowbr.site/pricing?lng=en" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://www.codeflowbr.site/pricing?lng=pt-BR" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.codeflowbr.site/pricing?lng=es" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.codeflowbr.site/pricing?lng=zh-CN" />
+    <xhtml:link rel="alternate" hreflang="hi-IN" href="https://www.codeflowbr.site/pricing?lng=hi-IN" />
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/pro</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.codeflowbr.site/pro" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.codeflowbr.site/pro?lng=en" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://www.codeflowbr.site/pro?lng=pt-BR" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.codeflowbr.site/pro?lng=es" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.codeflowbr.site/pro?lng=zh-CN" />
+    <xhtml:link rel="alternate" hreflang="hi-IN" href="https://www.codeflowbr.site/pro?lng=hi-IN" />
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/exercises</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.codeflowbr.site/exercises" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.codeflowbr.site/exercises?lng=en" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://www.codeflowbr.site/exercises?lng=pt-BR" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.codeflowbr.site/exercises?lng=es" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.codeflowbr.site/exercises?lng=zh-CN" />
+    <xhtml:link rel="alternate" hreflang="hi-IN" href="https://www.codeflowbr.site/exercises?lng=hi-IN" />
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/tracks</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.codeflowbr.site/tracks" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.codeflowbr.site/tracks?lng=en" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://www.codeflowbr.site/tracks?lng=pt-BR" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.codeflowbr.site/tracks?lng=es" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.codeflowbr.site/tracks?lng=zh-CN" />
+    <xhtml:link rel="alternate" hreflang="hi-IN" href="https://www.codeflowbr.site/tracks?lng=hi-IN" />
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/library</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.codeflowbr.site/library" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.codeflowbr.site/library?lng=en" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://www.codeflowbr.site/library?lng=pt-BR" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.codeflowbr.site/library?lng=es" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.codeflowbr.site/library?lng=zh-CN" />
+    <xhtml:link rel="alternate" hreflang="hi-IN" href="https://www.codeflowbr.site/library?lng=hi-IN" />
+  </url>
+
+  <!-- Battle Pass -->
+  <url>
+    <loc>https://www.codeflowbr.site/battle-pass</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.codeflowbr.site/battle-pass" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.codeflowbr.site/battle-pass?lng=en" />
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://www.codeflowbr.site/battle-pass?lng=pt-BR" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.codeflowbr.site/battle-pass?lng=es" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://www.codeflowbr.site/battle-pass?lng=zh-CN" />
+    <xhtml:link rel="alternate" hreflang="hi-IN" href="https://www.codeflowbr.site/battle-pass?lng=hi-IN" />
   </url>
 
   <!-- Lessons -->
   <url>
     <loc>https://www.codeflowbr.site/lesson/functions</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/lesson/conditionals</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/lesson/loops-arrays</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/lesson/objects</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/lesson/classes</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/lesson/recursion</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/lesson/closures</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/lesson/async-await</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/lesson/debugging</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -117,28 +167,28 @@
   <!-- Gamification -->
   <url>
     <loc>https://www.codeflowbr.site/profile</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/challenges</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/leaderboard</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://www.codeflowbr.site/achievements</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

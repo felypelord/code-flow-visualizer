@@ -14,6 +14,28 @@ const functionLesson: Lesson = {
   title: "How do Functions Work?",
   description: "Understand the concept of 'Scope' and 'Call Stack'. See how variables are created and destroyed.",
   difficulty: "Beginner",
+  estimatedMinutes: 8,
+  prerequisites: [],
+  outcomes: [
+    "Understand what a function call is",
+    "See how stack frames are created and removed",
+    "Track local variables across calls",
+  ],
+  quiz: [
+    {
+      id: 'fn-stack-frame',
+      prompt: 'What happens when a function is called?'
+        + '',
+      options: [
+        'A new stack frame is pushed onto the call stack',
+        'The heap is cleared',
+        'All variables become global',
+        'The program restarts from line 1',
+      ],
+      correctIndex: 0,
+      explanation: 'A function call allocates a new stack frame (activation record) for its local variables and parameters. It is pushed to the call stack and popped when the function returns.',
+    },
+  ],
   variants: {
     javascript: {
       code: `function add(a, b) {
@@ -328,6 +350,28 @@ const objectLesson: Lesson = {
   title: "References and Objects",
   description: "Discover the difference between the 'Stack' and the 'Heap' (Memory). Object variables only POINT to the real object.",
   difficulty: "Intermediate",
+  estimatedMinutes: 10,
+  prerequisites: ["Functions basics"],
+  outcomes: [
+    "Understand stack vs heap at a high level",
+    "See how references point to heap objects",
+    "Recognize when values are copied vs referenced",
+  ],
+  quiz: [
+    {
+      id: 'ref-copy',
+      prompt: 'When you do `u2 = u1` and `u1` points to an object, what is copied?'
+        + '',
+      options: [
+        'A copy of the entire object',
+        'Only the reference/address (both point to the same object)',
+        'Nothing (u2 stays undefined)',
+        'The object moves from heap to stack',
+      ],
+      correctIndex: 1,
+      explanation: 'Assigning one object variable to another copies the reference, not the object. Both variables point to the same heap object, so mutations are visible through either reference.',
+    },
+  ],
   variants: {
     javascript: {
       code: `function createUser(name) {
@@ -387,6 +431,28 @@ const recursionLesson: Lesson = {
     title: "Recursion (Call Stack)",
     description: "Visualize how the call stack grows when a function calls itself.",
     difficulty: "Intermediate",
+  estimatedMinutes: 12,
+  prerequisites: ["Functions basics"],
+  outcomes: [
+    "Understand base case vs recursive case",
+    "Visualize stack growth during recursion",
+    "See how results return while unwinding",
+  ],
+  quiz: [
+    {
+      id: 'base-case',
+      prompt: 'Why is a base case necessary in recursion?'
+        + '',
+      options: [
+        'It makes the code run faster by default',
+        'It stops infinite recursion by providing a termination condition',
+        'It allocates more heap memory',
+        'It converts recursion into a loop automatically',
+      ],
+      correctIndex: 1,
+      explanation: 'Without a base case, the function would keep calling itself forever (until a stack overflow). The base case is the condition that ends the recursion.',
+    },
+  ],
     variants: {
         javascript: {
             code: `function factorial(n) {
@@ -420,6 +486,13 @@ const classLesson: Lesson = {
   title: "Classes and Instances",
   description: "Learn how the 'this' keyword works and how classes create objects.",
   difficulty: "Advanced",
+  estimatedMinutes: 12,
+  prerequisites: ["Objects & references"],
+  outcomes: [
+    "Understand classes vs instances",
+    "See how the constructor initializes state",
+    "Follow method calls and state mutation",
+  ],
   variants: {
       javascript: {
           code: `class Car {
@@ -457,6 +530,28 @@ const loopsArraysLesson: Lesson = {
   title: "Loops & Arrays",
   description: "Understand how arrays are stored and how loops traverse them index by index.",
   difficulty: "Beginner",
+  estimatedMinutes: 10,
+  prerequisites: ["Variables basics"],
+  outcomes: [
+    "Understand loop iteration and index variables",
+    "Track array access step-by-step",
+    "Recognize common loop patterns",
+  ],
+  quiz: [
+    {
+      id: 'loop-condition',
+      prompt: 'In `for (let i = 0; i < numbers.length; i++)`, what stops the loop?'
+        + '',
+      options: [
+        '`i` becomes negative',
+        'The condition `i < numbers.length` becomes false',
+        '`numbers` becomes empty',
+        '`sum` reaches 0',
+      ],
+      correctIndex: 1,
+      explanation: 'A `for` loop continues while its condition is true. It stops when `i < numbers.length` becomes false (e.g. when `i` reaches `numbers.length`).',
+    },
+  ],
   variants: {
     javascript: {
       code: `const numbers = [10, 20, 30];
@@ -498,6 +593,13 @@ const conditionalsLesson: Lesson = {
   title: "Conditionals (If/Else)",
   description: "See how the computer makes decisions and chooses which path to follow in the code.",
   difficulty: "Beginner",
+  estimatedMinutes: 7,
+  prerequisites: ["Variables basics"],
+  outcomes: [
+    "Understand conditional branching (if/else)",
+    "Track which branch runs and why",
+    "See how control flow affects state",
+  ],
   variants: {
     javascript: {
       code: `function verificarIdade(idade) {
@@ -536,6 +638,13 @@ const closuresLesson: Lesson = {
   title: "Closures (Functions and Scope)",
   description: "Understand how functions remember variables from the scope where they were created.",
   difficulty: "Intermediate",
+  estimatedMinutes: 14,
+  prerequisites: ["Functions basics"],
+  outcomes: [
+    "Understand lexical scope",
+    "See variable capture in closures",
+    "Reason about state held across calls",
+  ],
   variants: {
     javascript: {
       code: `function criarContador() {
@@ -565,6 +674,28 @@ const asyncLesson: Lesson = {
   title: "Asynchronous: Callbacks, Promises and async/await",
   description: "Shows the difference between synchronous and asynchronous execution and how the event loop works.",
   difficulty: "Intermediate",
+  estimatedMinutes: 15,
+  prerequisites: ["Functions basics"],
+  outcomes: [
+    "Understand sync vs async scheduling",
+    "See microtasks vs macrotasks ordering",
+    "Reason about the event loop at a high level",
+  ],
+  quiz: [
+    {
+      id: 'microtasks-first',
+      prompt: 'In JavaScript, which runs first: Promise callbacks or setTimeout(…, 0)?'
+        + '',
+      options: [
+        'setTimeout callbacks',
+        'Promise callbacks (microtasks)',
+        'They always run at the same time',
+        'It depends only on CPU speed',
+      ],
+      correctIndex: 1,
+      explanation: 'Promise `.then()` callbacks run in the microtask queue, which is processed before the macrotask queue (e.g. `setTimeout`) after the current call stack finishes.',
+    },
+  ],
   variants: {
     javascript: {
       code: `console.log('A');
@@ -588,6 +719,13 @@ const debuggingLesson: Lesson = {
   title: "Debugging and Console",
   description: "How to use logs and breakpoints to understand step by step what happens in the code.",
   difficulty: "Beginner",
+  estimatedMinutes: 9,
+  prerequisites: ["Loops basics"],
+  outcomes: [
+    "Use logs to inspect program state",
+    "Identify where execution diverges",
+    "Adopt a repeatable debugging approach",
+  ],
   variants: {
     javascript: {
       code: `function busca(arr, target) {

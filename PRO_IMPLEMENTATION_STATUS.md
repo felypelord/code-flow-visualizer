@@ -161,6 +161,69 @@
 
 ## 🧪 Testes Necessários
 
+Status: as funcionalidades Pro estão implementadas, mas os itens abaixo ainda são **pendências de validação** (manual e/ou E2E). Ou seja: não é “feature faltando” — é **QA faltando**.
+
+### Pré-requisitos (local)
+
+- Instalar deps: `npm install`
+- Subir app:
+  - Com `.env` (recomendado): `npm run dev:env`
+  - Sem `.env` (pode falhar se DB/Stripe não estiverem OK): `npm run dev`
+
+> Observação: se o Postgres estiver com “password authentication failed”, vários endpoints DB-backed podem falhar. Por isso, a suíte E2E proposta abaixo **mocka auth + Pro** para evitar flakiness.
+
+### Segurança / Vulnerabilidades (npm audit)
+
+- Produção (sem dependências de dev): `npm audit --omit=dev` → **0 vulnerabilities**.
+- Dev-only (ferramentas de build/DB): `npm audit` → **4 moderate** (cadeia: `drizzle-kit` → `@esbuild-kit/core-utils` → `esbuild@0.18.20`, advisory GHSA-67mh-4wv8-2f99).
+
+Opções:
+- Aceitar como risco de tooling (não-runtime) e acompanhar upstream.
+- Se você não usa os comandos `db:*` localmente, remover `drizzle-kit`.
+- Rodar `npm audit fix --force` (pode ser breaking) e revalidar `npm run check`, `npm run build` e `db:*`.
+
+### Checklist manual (executável)
+
+**Debugger**
+- [ ] Abrir `/pro` como **não-Pro** → deve exibir CTA de pricing (ex.: “View Pricing”)
+- [ ] Ativar Pro (via billing real, ou grant interno quando disponível) → `/pro` deve renderizar o Debugger (UI com “Execution State”)
+- [ ] Clicar em “Run”/executar um exemplo simples → deve produzir frames/stack e output
+- [ ] Criar breakpoint e executar → deve pausar no breakpoint
+- [ ] Breakpoint condicional → deve pausar apenas quando condição for verdadeira
+- [ ] Heap tracking com objeto/lista grande → UI não deve travar
+- [ ] Profiler persistence (recarregar página) → runs salvas devem permanecer
+
+**Exercises**
+- [ ] Abrir `/exercises` como **não-Pro** → cards devem mostrar lock/CTA (ex.: “Unlock with Pro” / “Pro Exercises Locked”)
+- [ ] Clicar em um card Pro como não-Pro → deve redirecionar para `/pro`
+- [ ] Abrir `/exercises` como **Pro** → botão “Solve Challenge” abre o editor
+- [ ] No editor: “Execute” em código válido → aba “Tests” deve mostrar resultados
+- [ ] “Hint” → deve retornar dica (mesmo que mock) sem crash
+
+**IA Inspector**
+- [ ] Abrir `/pro` como Pro e localizar o Inspector
+- [ ] Rodar análise em código pequeno → deve retornar diagnóstico
+- [ ] Rodar análise em código inválido → deve mostrar erro controlado (sem crash)
+- [ ] Código grande → deve responder em tempo aceitável
+
+**Billing**
+- [ ] Pricing → iniciar checkout → redireciona para Stripe (somente com env Stripe ok)
+- [ ] Webhook → confirmar atualização de status Pro
+- [ ] Portal → abrir portal de assinatura sem erro
+
+### Checklist E2E (Playwright) — suíte mínima
+
+- Objetivo: validar **gating + navegação Pro** de forma determinística, mesmo com DB instável.
+- Execução:
+  - `npm run e2e` (headless)
+  - `npm run e2e:ui` (modo UI)
+
+O que a suíte cobre (MVP):
+- Login via UI com respostas mockadas (`/api/login`, `/api/me`)
+- Upgrade Pro via endpoint interno mockado (`/api/pro/upgrade`)
+- `/pro`: não-Pro vê CTA; Pro renderiza Debugger (assert “Execution State”)
+- `/exercises`: Pro abre um exercício e renderiza editor (assert no `h1` do exercício)
+
 ### Debugger:
 - [ ] Testar breakpoint hit em Python
 - [ ] Testar condições de breakpoint
@@ -186,6 +249,10 @@
 - [ ] Testar cancelamento/reativação
 - [ ] Verificar portal de assinatura
 
+Notas rápidas:
+- Existe script de verificação de auth/checkout no repo (ex.: `script/test-auth-checkout.mjs`).
+- Se o ambiente de DB estiver instável, os testes de billing/assinatura podem falhar por motivo externo (não necessariamente bug do fluxo).
+
 ---
 
 ## 🚀 Próximos Passos
@@ -194,6 +261,11 @@
 1. **Testes E2E** - Validar todos os fluxos Pro
 2. **Refinamentos UI** - Ajustes de responsividade
 3. **Documentação** - Guias de uso do Debugger
+
+Status atual:
+- E2E: pendente (há testes manuais/scripts pontuais, mas não suíte E2E cobrindo todos os fluxos).
+- Refinos UI: pendente (principalmente mobile/responsivo).
+- Documentação do debugger: pendente (guia de uso completo e exemplos).
 
 ### Médio Prazo (Fev 2026):
 1. **Flamegraph** - Visualização de performance

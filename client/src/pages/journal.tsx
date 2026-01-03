@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/use-user';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { BookOpen, Plus, Edit, Trash2, Save, X, Code, Tag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +21,7 @@ interface JournalEntry {
 
 export default function JournalPage() {
   const { user } = useUser();
+  const { t } = useLanguage();
 
   const { toast } = useToast();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
@@ -73,8 +75,10 @@ export default function JournalPage() {
       if (!res.ok) throw new Error('Failed to save entry');
 
       toast({
-        title: editingId ? 'Entry updated!' : 'Entry created!',
-        description: 'Your journal has been saved.',
+        title: editingId
+          ? t('journal.toast.updated.title', 'Entry updated!')
+          : t('journal.toast.created.title', 'Entry created!'),
+        description: t('journal.toast.saved.desc', 'Your journal has been saved.'),
       });
 
       setFormData({ title: '', content: '', tags: '', code: '' });
@@ -83,8 +87,8 @@ export default function JournalPage() {
       loadEntries();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to save entry',
+        title: t('common.error', 'Error'),
+        description: t('journal.toast.saveFailed', 'Failed to save entry'),
         variant: 'destructive',
       });
     }
@@ -102,7 +106,7 @@ export default function JournalPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this entry?')) return;
+    if (!confirm(t('journal.confirm.delete', 'Delete this entry?'))) return;
 
     try {
       const token = localStorage.getItem('token');
@@ -113,17 +117,24 @@ export default function JournalPage() {
 
       if (!res.ok) throw new Error('Failed to delete');
 
-      toast({ title: 'Entry deleted', description: 'Journal entry removed.' });
+      toast({
+        title: t('journal.toast.deleted.title', 'Entry deleted'),
+        description: t('journal.toast.deleted.desc', 'Journal entry removed.'),
+      });
       loadEntries();
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to delete entry', variant: 'destructive' });
+      toast({
+        title: t('common.error', 'Error'),
+        description: t('journal.toast.deleteFailed', 'Failed to delete entry'),
+        variant: 'destructive',
+      });
     }
   };
 
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="text-white text-xl">Please sign in to view journal</div>
+        <div className="text-white text-xl">{t('journal.gate.signIn', 'Please sign in to view journal')}</div>
       </div>
     );
   }
@@ -135,11 +146,11 @@ export default function JournalPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-4xl font-bold text-white flex items-center gap-3">
             <BookOpen className="w-10 h-10 text-purple-400" />
-            Learning Journal
+            {t('journal.header.title', 'Learning Journal')}
           </h1>
           <div className="flex gap-2">
             <a href="/profile" className="text-blue-400 hover:text-blue-300">
-              ← Profile
+              {t('journal.header.backToProfile', '← Profile')}
             </a>
           </div>
         </div>
@@ -155,7 +166,7 @@ export default function JournalPage() {
             className="w-full bg-purple-600 hover:bg-purple-700"
           >
             <Plus className="w-5 h-5 mr-2" />
-            New Entry
+            {t('journal.actions.new', 'New Entry')}
           </Button>
         )}
 
@@ -164,7 +175,9 @@ export default function JournalPage() {
           <Card className="p-6 bg-slate-900/90 border-slate-700">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white">
-                {editingId ? 'Edit Entry' : 'New Entry'}
+                {editingId
+                  ? t('journal.form.editTitle', 'Edit Entry')
+                  : t('journal.form.newTitle', 'New Entry')}
               </h2>
               <button onClick={() => { setIsCreating(false); setEditingId(null); }}>
                 <X className="w-6 h-6 text-gray-400 hover:text-white" />
@@ -174,26 +187,26 @@ export default function JournalPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Title (optional)
+                  {t('journal.form.titleLabel', 'Title (optional)')}
                 </label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
-                  placeholder="Today's Learning..."
+                  placeholder={t('journal.form.titlePlaceholder', "Today's Learning...")}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Content *
+                  {t('journal.form.contentLabel', 'Content *')}
                 </label>
                 <textarea
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
-                  placeholder="What did you learn today? Any insights or 'aha' moments?"
+                  placeholder={t('journal.form.contentPlaceholder', "What did you learn today? Any insights or 'aha' moments?")}
                   rows={6}
                 />
               </div>
@@ -201,21 +214,21 @@ export default function JournalPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                   <Tag className="w-4 h-4" />
-                  Tags (comma-separated)
+                  {t('journal.form.tagsLabel', 'Tags (comma-separated)')}
                 </label>
                 <input
                   type="text"
                   value={formData.tags}
                   onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                   className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
-                  placeholder="algorithms, recursion, debugging"
+                  placeholder={t('journal.form.tagsPlaceholder', 'algorithms, recursion, debugging')}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                   <Code className="w-4 h-4" />
-                  Code Snippet (optional)
+                  {t('journal.form.codeLabel', 'Code Snippet (optional)')}
                 </label>
                 <textarea
                   value={formData.code}
@@ -233,13 +246,13 @@ export default function JournalPage() {
                   className="flex-1 bg-purple-600 hover:bg-purple-700"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  Save Entry
+                  {t('journal.actions.save', 'Save Entry')}
                 </Button>
                 <Button
                   onClick={() => { setIsCreating(false); setEditingId(null); }}
                   variant="outline"
                 >
-                  Cancel
+                  {t('common.cancel', 'Cancel')}
                 </Button>
               </div>
             </div>
@@ -249,13 +262,13 @@ export default function JournalPage() {
         {/* Entries List */}
         <div className="space-y-4">
           {loading ? (
-            <div className="text-center text-gray-400 py-8">Loading journal...</div>
+            <div className="text-center text-gray-400 py-8">{t('journal.loading', 'Loading journal...')}</div>
           ) : entries.length === 0 ? (
             <Card className="p-8 bg-slate-900/90 border-slate-700 text-center">
               <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400 mb-2">Your journal is empty</p>
+              <p className="text-gray-400 mb-2">{t('journal.empty.title', 'Your journal is empty')}</p>
               <p className="text-sm text-gray-500">
-                Start documenting your coding journey! Reflect on what you learn, track your progress, and save useful snippets.
+                {t('journal.empty.desc', 'Start documenting your coding journey! Reflect on what you learn, track your progress, and save useful snippets.')}
               </p>
             </Card>
           ) : (
@@ -310,7 +323,7 @@ export default function JournalPage() {
                   <div className="mt-4">
                     <div className="flex items-center gap-2 mb-2 text-sm text-gray-400">
                       <Code className="w-4 h-4" />
-                      <span>Code Snippet</span>
+                      <span>{t('journal.entry.codeSnippet', 'Code Snippet')}</span>
                     </div>
                     <pre className="bg-slate-950 border border-slate-700 rounded-lg p-4 text-sm text-gray-300 overflow-x-auto">
                       <code>{entry.code}</code>

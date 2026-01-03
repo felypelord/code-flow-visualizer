@@ -24,6 +24,8 @@ import { useUser } from "@/hooks/use-user";
 import { LanguageBadge } from '@/components/language-selector';
 import { ProExercise } from "@/lib/pro-exercises";
 import { getPyodideInstance } from "@/lib/pyodide";
+import { extractFunctionName } from "@/lib/testRunner";
+import { runInWorker } from "@/lib/sandbox";
 
 interface TestResult {
   name: string;
@@ -62,7 +64,7 @@ interface ProExerciseEditorProps {
 }
 
 export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps) {
-  const t: any = {};
+  const { t, progLang } = useLanguage();
   const { user } = useUser();
 
   // Disable body scroll when editor is open
@@ -73,7 +75,6 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
     };
   }, []);
 
-  const { progLang } = useLanguage();
   const initialLang = exercise.languages.includes(progLang) ? progLang : (exercise.languages[0] || 'javascript');
   const [language, setLanguage] = useState<string>(initialLang);
   const [code, setCode] = useState(
@@ -117,7 +118,11 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
 
   const executeCode = async () => {
     if (!code.trim()) {
-      toast({ title: "⚠️", description: "Write code first", variant: "destructive" });
+      toast({
+        title: t('common.warning', 'Warning'),
+        description: t('pro.editor.writeCodeFirst', 'Write code first'),
+        variant: "destructive",
+      });
       return;
     }
 
@@ -160,7 +165,11 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
         executeLineByLineJavaScript();
       }
     } catch (err: any) {
-      toast({ title: `❌ Error`, description: String(err?.message || err), variant: "destructive" });
+      toast({
+        title: t('common.error', 'Error'),
+        description: String(err?.message || err),
+        variant: "destructive",
+      });
     } finally {
       setExecuting(false);
     }
@@ -170,7 +179,11 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
     try {
       const functionNameMatch = code.match(/def\s+(\w+)\s*\(/);
       if (!functionNameMatch) {
-        toast({ title: `❌ Syntax Error`, description: "Use 'def' keyword", variant: "destructive" });
+        toast({
+          title: t('pro.editor.python.syntaxErrorTitle', 'Syntax Error'),
+          description: t('pro.editor.python.useDef', "Use 'def' keyword"),
+          variant: "destructive",
+        });
         return;
       }
 
@@ -179,7 +192,11 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
       try {
         py = await getPyodideInstance();
       } catch (e) {
-        toast({ title: `❌ Python Load Error`, description: "Failed to load Python", variant: "destructive" });
+        toast({
+          title: t('pro.editor.python.loadErrorTitle', 'Python Load Error'),
+          description: t('pro.editor.python.loadErrorDesc', 'Failed to load Python'),
+          variant: "destructive",
+        });
         return;
       }
 
@@ -228,7 +245,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
 
       setTestResults(results);
       const passed = results.filter(r => r.passed).length;
-      setOutput(passed === results.length ? "All tests passed!" : "Some tests failed.");
+      setOutput(passed === results.length ? t('pro.editor.tests.allPassed', 'All tests passed!') : t('pro.editor.tests.someFailed', 'Some tests failed.'));
 
       const newAttempt: AttemptHistory = {
         id: Date.now().toString(),
@@ -245,65 +262,76 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
   };
 
   const executeLineByLineJavaScript = () => {
-    try {
-      const results: TestResult[] = [];
-      const startTime = performance.now();
-
-      for (const test of exercise.tests) {
-        try {
-          const testCode = `
-            ${code}
-            function __test() {
-              try {
-                const fn = Object.values(this).find(v => typeof v === 'function');
-                if (!fn) throw new Error('No function found');
-                return fn(...${JSON.stringify(test.input)});
-              } catch (e) {
-                throw e;
-              }
-            }
-            __test();
-          `;
-
-          const result = eval(`(function() { ${testCode} })()`);
-          const passed = JSON.stringify(result) === JSON.stringify(test.expected);
-
-          results.push({
-            name: test.name,
-            passed,
-            input: JSON.stringify(test.input),
-            expected: JSON.stringify(test.expected),
-            received: JSON.stringify(result),
-            time: performance.now() - startTime,
+    // JS execution must never run in the main thread.
+    // Use the existing sandbox worker to execute the user's function for each test case.
+    (async () => {
+      try {
+        const fnName = extractFunctionName(code);
+        if (!fnName) {
+          toast({
+            title: t('common.error', 'Error'),
+            description: t('pro.editor.js.noFunction', 'Could not find a function to test.'),
+            variant: 'destructive',
           });
-        } catch (e) {
-          results.push({
-            name: test.name,
-            passed: false,
-            input: JSON.stringify(test.input),
-            expected: JSON.stringify(test.expected),
-            received: "Error: " + String(e),
-            time: performance.now() - startTime,
-          });
+          return;
         }
+
+        const results: TestResult[] = [];
+        const startTime = performance.now();
+
+        for (const test of exercise.tests) {
+          const testStart = performance.now();
+          try {
+            const args = Array.isArray((test as any).input)
+              ? (test as any).input
+              : Array.isArray((test as any).args)
+                ? (test as any).args
+                : ((test as any).input !== undefined && (test as any).target !== undefined)
+                  ? [(test as any).input, (test as any).target]
+                  : [(test as any)];
+
+            const result = await runInWorker(code, fnName, args, { timeoutMs: 2500 });
+            const passed = JSON.stringify(result) === JSON.stringify((test as any).expected);
+            results.push({
+              name: (test as any).name,
+              passed,
+              input: JSON.stringify((test as any).input ?? (test as any).args ?? test),
+              expected: JSON.stringify((test as any).expected),
+              received: JSON.stringify(result),
+              time: performance.now() - testStart,
+            });
+          } catch (e: any) {
+            results.push({
+              name: (test as any).name,
+              passed: false,
+              input: JSON.stringify((test as any).input ?? (test as any).args ?? test),
+              expected: JSON.stringify((test as any).expected),
+              received: "Error: " + String(e?.message || e),
+              time: performance.now() - testStart,
+            });
+          }
+        }
+
+        setTestResults(results);
+        const passed = results.filter((r) => r.passed).length;
+        setOutput(passed === results.length ? t('pro.editor.tests.allPassed', 'All tests passed!') : t('pro.editor.tests.someFailed', 'Some tests failed.'));
+
+        const newAttempt: AttemptHistory = {
+          id: Date.now().toString(),
+          timestamp: new Date(),
+          code,
+          language,
+          testsCount: results.length,
+          passedCount: passed,
+        };
+        setAttempts((prev) => [newAttempt, ...prev].slice(0, 10));
+
+        // keep the old behavior of showing total time in stats
+        void startTime;
+      } catch (err: any) {
+        setOutput(`${t('common.error', 'Error')}: ${err?.message || String(err)}`);
       }
-
-      setTestResults(results);
-      const passed = results.filter(r => r.passed).length;
-      setOutput(passed === results.length ? "All tests passed!" : "Some tests failed.");
-
-      const newAttempt: AttemptHistory = {
-        id: Date.now().toString(),
-        timestamp: new Date(),
-        code,
-        language,
-        testsCount: results.length,
-        passedCount: results.filter((t) => t.passed).length,
-      };
-      setAttempts((prev) => [newAttempt, ...prev].slice(0, 10));
-    } catch (err: any) {
-      setOutput(`Error: ${err.message}`);
-    }
+    })();
   };
 
   const getAiHint = async () => {
@@ -397,7 +425,7 @@ export function ProExerciseEditor({ exercise, onClose }: ProExerciseEditorProps)
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 className="w-full h-96 p-4 bg-black/60 text-purple-50 border border-purple-500/30 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-purple-400/60"
-                placeholder="Write code first"
+                placeholder={t('pro.editor.writeCodeFirst', 'Write code first')}
               />
             </Card>
 

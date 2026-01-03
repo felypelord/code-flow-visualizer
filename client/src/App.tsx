@@ -25,6 +25,9 @@ import MonetizationPage from "@/pages/monetization";
 import LibraryPage from "@/pages/library";
 import BattlePassPage from "@/pages/battle-pass";
 import CosmeticsPage from "@/pages/cosmetics";
+import SandboxPage from "@/pages/sandbox";
+import { useUser } from "@/hooks/use-user";
+import { useEffect } from "react";
 
 function Router() {
   return (
@@ -32,6 +35,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/lesson/:id" component={LessonPage} />
       <Route path="/exercises" component={ExercisesPage} />
+      <Route path="/sandbox" component={SandboxPage} />
       <Route path="/tracks" component={TracksPage} />
       <Route path="/pro" component={ProPage} />
       <Route path="/pricing" component={PricingPage} />
@@ -55,6 +59,32 @@ function Router() {
 }
 
 function App() {
+  const { user } = useUser();
+
+  useEffect(() => {
+    const theme = user?.theme || 'dark';
+    try {
+      document.documentElement.setAttribute('data-theme', theme);
+      // Best-effort light/dark toggle for shadcn/tailwind variants.
+      if (theme === 'light') document.documentElement.classList.remove('dark');
+      else document.documentElement.classList.add('dark');
+
+      // Apply custom theme (MVP): customize the background grid line color.
+      if (theme === 'theme_custom' && user?.customTheme?.gridColor) {
+        const hex = user.customTheme.gridColor;
+        const opacity = typeof user.customTheme.gridOpacity === 'number' ? Math.max(0, Math.min(1, user.customTheme.gridOpacity)) : 0.1;
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        document.documentElement.style.setProperty('--bg-grid-line', `rgba(${r}, ${g}, ${b}, ${opacity})`);
+      } else {
+        document.documentElement.style.removeProperty('--bg-grid-line');
+      }
+    } catch {
+      // ignore
+    }
+  }, [user?.theme, user?.customTheme?.gridColor, user?.customTheme?.gridOpacity]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>

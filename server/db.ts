@@ -26,7 +26,7 @@ const client = postgres(finalUrl, {
       const start = Date.now();
       return {
         start,
-        query: (err) => {
+        query: (err: unknown) => {
           const duration = Date.now() - start;
           if (duration > 500) {
             console.log(`[SLOW_QUERY] ${duration}ms - ${query.substring(0, 100)}`);
@@ -44,6 +44,33 @@ export { schema };
 
 // Best-effort ensure auxiliary tables exist (idempotent)
 async function ensureAuxTables() {
+  try {
+    await db.execute(sql`alter table users add column if not exists username_color text`);
+  } catch {}
+  try {
+    await db.execute(sql`alter table users add column if not exists featured_until timestamp`);
+  } catch {}
+  try {
+    await db.execute(sql`alter table users add column if not exists equipped_badge text`);
+  } catch {}
+  try {
+    await db.execute(sql`alter table users add column if not exists particle_effects boolean default false`);
+  } catch {}
+  try {
+    await db.execute(sql`alter table users add column if not exists trophy_case text`);
+  } catch {}
+  try {
+    await db.execute(sql`alter table users add column if not exists custom_theme text`);
+  } catch {}
+  try {
+    await db.execute(sql`alter table users add column if not exists custom_watermark boolean default false`);
+  } catch {}
+  try {
+    await db.execute(sql`alter table users add column if not exists watermark_text text`);
+  } catch {}
+  try {
+    await db.execute(sql`alter table users add column if not exists frame_animation text`);
+  } catch {}
   try {
     await db.execute(sql`create table if not exists webhook_events (
       id text primary key,

@@ -43,7 +43,7 @@ export async function getRoadmapItem(req: Request, res: Response) {
     if (item.proOnly) {
       const userId = (req as any).userId || (req as any).user?.id;
       if (!userId) {
-        const preview = { ...item, content: undefined };
+        const preview = { ...item, content: undefined, quiz: undefined };
         return res.json({ item: preview, locked: true });
       }
 
@@ -54,7 +54,7 @@ export async function getRoadmapItem(req: Request, res: Response) {
       const has = purchases.some(p => p.itemId === `roadmap:${slug}`);
       if (has) return res.json({ item, locked: false });
 
-      const preview = { ...item, content: undefined };
+      const preview = { ...item, content: undefined, quiz: undefined };
       return res.json({ item: preview, locked: true });
     }
 

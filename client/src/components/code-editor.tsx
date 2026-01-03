@@ -12,8 +12,11 @@ interface CodeEditorProps {
 
 export default function CodeEditor({ code, activeLine, editable, onChange, errorLine }: CodeEditorProps) {
   const lines = code.split("\n");
+  const totalLines = Math.max(1, lines.length);
+  const progressPct = Math.max(0, Math.min(100, (Math.max(1, activeLine) / totalLines) * 100));
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const [overlayTop, setOverlayTop] = useState<number | null>(null);
+  const [errorOverlayTop, setErrorOverlayTop] = useState<number | null>(null);
+  const [activeOverlayTop, setActiveOverlayTop] = useState<number | null>(null);
   const [measuredLineHeight, setMeasuredLineHeight] = useState<number>(18);
   useEffect(() => {
     if (!editable || typeof errorLine !== "number" || !textareaRef.current) return;
@@ -38,7 +41,7 @@ export default function CodeEditor({ code, activeLine, editable, onChange, error
       setMeasuredLineHeight(lineHeight || 18);
       const top = Math.max(0, (target - 1) * lineHeight - ta.clientHeight / 2);
       ta.scrollTop = top;
-      setOverlayTop(Math.max(0, (target - 1) * lineHeight - ta.scrollTop));
+      setErrorOverlayTop(Math.max(0, (target - 1) * lineHeight - ta.scrollTop));
     }, 20);
   }, [errorLine, editable, code]);
 
@@ -47,14 +50,22 @@ export default function CodeEditor({ code, activeLine, editable, onChange, error
     const ta = textareaRef.current;
     if (!ta) return;
     const update = () => {
-      if (typeof errorLine !== 'number') {
-        setOverlayTop(null);
-        return;
-      }
-      const target = Math.max(1, Math.min(errorLine, lines.length));
       const lh = parseFloat(getComputedStyle(ta).lineHeight || String(measuredLineHeight)) || measuredLineHeight;
       setMeasuredLineHeight(lh);
-      setOverlayTop((target - 1) * lh - ta.scrollTop);
+
+      if (typeof errorLine === 'number') {
+        const target = Math.max(1, Math.min(errorLine, lines.length || 1));
+        setErrorOverlayTop((target - 1) * lh - ta.scrollTop);
+      } else {
+        setErrorOverlayTop(null);
+      }
+
+      if (typeof activeLine === 'number') {
+        const target = Math.max(1, Math.min(activeLine, lines.length || 1));
+        setActiveOverlayTop((target - 1) * lh - ta.scrollTop);
+      } else {
+        setActiveOverlayTop(null);
+      }
     };
     ta.addEventListener('scroll', update);
     window.addEventListener('resize', update);
@@ -63,7 +74,7 @@ export default function CodeEditor({ code, activeLine, editable, onChange, error
       ta.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
     };
-  }, [errorLine, code, measuredLineHeight]);
+  }, [errorLine, activeLine, code, measuredLineHeight]);
 
   return (
     <div className="code-editor bg-[#0a0f1e] rounded-lg border border-white/10 overflow-hidden shadow-2xl font-mono text-sm h-full flex flex-col">
@@ -74,6 +85,13 @@ export default function CodeEditor({ code, activeLine, editable, onChange, error
           <div className="w-3 h-3 rounded-full bg-green-500/50" />
         </div>
         <span className="ml-2 text-xs text-muted-foreground">script.js</span>
+      </div>
+
+      {/* Timeline / progress bar */}
+      <div className="px-4 py-1.5 border-b border-white/10 bg-white/5">
+        <div className="h-1.5 w-full rounded bg-white/10 overflow-hidden" aria-label="Execution progress">
+          <div className="h-full bg-primary/60" style={{ width: `${progressPct}%` }} />
+        </div>
       </div>
       
       <div className="p-4 overflow-auto flex-1 relative">
@@ -87,33 +105,63 @@ export default function CodeEditor({ code, activeLine, editable, onChange, error
                 className="w-full h-full bg-transparent resize-none outline-none text-gray-300 font-mono text-sm"
                 spellCheck={false}
               />
-              {/* overlay to visually highlight the error line behind the textarea */}
-              {typeof errorLine === 'number' && overlayTop !== null && (
+
+              {/* Active-line pointer (editable) */}
+              {typeof activeLine === "number" && activeOverlayTop !== null && (
+                <div
+                  className="pointer-events-none absolute left-1 text-primary text-xs font-bold"
+                  style={{ top: `${activeOverlayTop + measuredLineHeight / 2}px`, transform: "translateY(-50%)" }}
+                  aria-hidden
+                >
+                  ▶
+                </div>
+              )}
+
+              {/* Active line highlight (editable) */}
+              {typeof activeLine === "number" && activeOverlayTop !== null && (
                 <div className="pointer-events-none absolute inset-0">
                   <div
                     aria-hidden
                     style={{
-                      position: 'absolute',
+                      position: "absolute",
                       left: 0,
                       right: 0,
-                      top: `${overlayTop}px`,
+                      top: `${activeOverlayTop}px`,
                       height: `${measuredLineHeight}px`,
-                      background: 'linear-gradient(90deg, rgba(220,38,38,0.06), rgba(220,38,38,0.03))',
-                      borderLeft: '3px solid rgba(220,38,38,0.35)',
-                      transition: 'top 120ms ease',
-                      borderRadius: 2,
+                      transition: "top 120ms ease",
                     }}
+                    className="rounded-sm bg-primary/10 border-l-2 border-primary/60"
                   />
                 </div>
               )}
-              {typeof errorLine === 'number' && (
+
+              {/* Error line highlight (editable) */}
+              {typeof errorLine === "number" && errorOverlayTop !== null && (
+                <div className="pointer-events-none absolute inset-0">
+                  <div
+                    aria-hidden
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      right: 0,
+                      top: `${errorOverlayTop}px`,
+                      height: `${measuredLineHeight}px`,
+                      transition: "top 120ms ease",
+                    }}
+                    className="rounded-sm bg-destructive/10 border-l-2 border-destructive/70"
+                  />
+                </div>
+              )}
+
+              {typeof errorLine === "number" && (
                 <div className="absolute left-3 bottom-3 text-xs text-red-300 bg-red-900/20 px-2 py-1 rounded">
                   Error: line {errorLine}
                 </div>
               )}
-              {typeof activeLine === 'number' && (
+
+              {typeof activeLine === "number" && (
                 <div className="absolute right-3 top-3 text-xs text-primary bg-white/5 px-2 py-1 rounded">
-                  Line {activeLine} ← Running
+                  Line {activeLine}/{totalLines} ← Running
                 </div>
               )}
             </div>
@@ -121,41 +169,35 @@ export default function CodeEditor({ code, activeLine, editable, onChange, error
             lines.map((line, i) => {
               const lineNumber = i + 1;
               const isActive = lineNumber === activeLine;
-
-              const isError = typeof errorLine === 'number' && lineNumber === errorLine;
+              const isError = typeof errorLine === "number" && lineNumber === errorLine;
               return (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className={cn(
                     "relative flex",
                     isActive && "bg-primary/10 -mx-4 px-4 border-l-2 border-primary",
-                    isError && "bg-red-600/10 -mx-4 px-4 border-l-2 border-red-500"
+                    isError && "bg-destructive/10 -mx-4 px-4 border-l-2 border-destructive",
                   )}
                 >
-                <span className="text-white/20 select-none w-8 text-right mr-4 flex-shrink-0">
-                  {lineNumber}
-                </span>
-                <span className={cn(
-                  "whitespace-pre text-gray-300",
-                  isActive && "text-white font-medium"
-                )}>
-                  {line || " "}
-                </span>
-                
-                {isActive && (
-                  <motion.div 
-                    layoutId="active-line-indicator"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-primary text-xs font-bold"
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                  >
-                    ← Running
-                  </motion.div>
-                )}
-              </div>
-            );
-          })
-        )}
+                  {/* Active-line pointer (read-only) */}
+                  <span className={cn("select-none w-5 mr-1 flex-shrink-0 text-xs", isActive ? "text-primary" : "text-transparent")}>▶</span>
+                  <span className="text-white/20 select-none w-8 text-right mr-4 flex-shrink-0">{lineNumber}</span>
+                  <span className={cn("whitespace-pre text-gray-300", isActive && "text-white font-medium")}>{line || " "}</span>
+
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-line-indicator"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-primary text-xs font-bold"
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                    >
+                      ← Running
+                    </motion.div>
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>

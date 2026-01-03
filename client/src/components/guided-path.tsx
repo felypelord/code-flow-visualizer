@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useUser } from "@/hooks/use-user";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,7 +55,26 @@ export function GuidedPath({ id, title, steps, onComplete }: GuidedPathProps) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [lastSavedSlug, setLastSavedSlug] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const confettiTimerRef = useRef<number | null>(null);
   const t: any = {};
+
+  const triggerConfetti = () => {
+    if (!user?.particleEffects) return;
+    try {
+      if (confettiTimerRef.current) window.clearTimeout(confettiTimerRef.current);
+      setShowConfetti(true);
+      confettiTimerRef.current = window.setTimeout(() => {
+        try { setShowConfetti(false); } catch {}
+      }, 2500);
+    } catch {}
+  };
+
+  useEffect(() => {
+    return () => {
+      if (confettiTimerRef.current) window.clearTimeout(confettiTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => { setCurrentIdx(progress); }, [progress]);
 
@@ -76,6 +95,7 @@ export function GuidedPath({ id, title, steps, onComplete }: GuidedPathProps) {
       const r = maybe && typeof (maybe as any).then === 'function' ? await maybe : maybe;
       setResult(r as any);
       if ((r as any)?.ok) {
+        triggerConfetti();
         const next = Math.min(steps.length, progress + 1);
         if (isAnonymous) {
           setSessionProgress(next);
@@ -107,6 +127,19 @@ export function GuidedPath({ id, title, steps, onComplete }: GuidedPathProps) {
         credentials: 'include',
       });
       if (!res.ok) throw new Error('save failed');
+
+      // After recording progress/activity, ask the server to unlock any newly earned achievements.
+      // Non-blocking: ignore errors so progress saving remains the primary success signal.
+      try {
+        await fetch('/api/achievements/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({}),
+        });
+      } catch (e) {
+        // ignore
+      }
+
       setSaveStatus('saved');
       setTimeout(() => setSaveStatus('idle'), 2000);
     } catch (e) {
@@ -141,7 +174,29 @@ export function GuidedPath({ id, title, steps, onComplete }: GuidedPathProps) {
   }, [user?.id]);
 
   return (
-    <Card className="p-4 bg-slate-900/70 border border-white/10">
+    <Card className="p-4 bg-slate-900/70 border border-white/10 relative overflow-hidden">
+      {showConfetti && (
+        <div className="absolute inset-0 pointer-events-none">
+          <style>{`
+            @keyframes cfFall { 0% { transform: translateY(-10%) rotate(0deg); opacity:1 } 100% { transform: translateY(120%) rotate(360deg); opacity:0 } }
+          `}</style>
+          {['🎉','✨','🎈','🥳','💫','🎊'].map((emoji, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                left: `${10 + i * 14}%`,
+                top: 0,
+                fontSize: 20 + (i % 3) * 6,
+                animation: `cfFall ${1.6 + (i % 3) * 0.4}s linear forwards`,
+                opacity: 0.95,
+              }}
+            >
+              {emoji}
+            </div>
+          ))}
+        </div>
+      )}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 text-white font-semibold">
           <Sparkles className="w-4 h-4 text-amber-300" />

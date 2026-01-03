@@ -21,6 +21,40 @@ interface DailyChallenge {
 export default function DailyChallengesPage() {
   const { user, refreshUser } = useUser();
   const { t } = useLanguage();
+
+  const getChallengeTitle = (id: string, fallback: string) => {
+    switch (id) {
+      case 'daily-1':
+        return t('dailyChallenges.items.daily1.title', 'Complete 3 Exercises');
+      case 'daily-2':
+        return t('dailyChallenges.items.daily2.title', 'Maintain Your Streak');
+      case 'daily-3':
+        return t('dailyChallenges.items.daily3.title', 'Study for 30 Minutes');
+      case 'daily-4':
+        return t('dailyChallenges.items.daily4.title', 'Perfect Score');
+      case 'daily-5':
+        return t('dailyChallenges.items.daily5.title', 'Speed Demon');
+      default:
+        return fallback;
+    }
+  };
+
+  const getChallengeDescription = (id: string, fallback: string) => {
+    switch (id) {
+      case 'daily-1':
+        return t('dailyChallenges.items.daily1.desc', 'Solve any 3 coding exercises today');
+      case 'daily-2':
+        return t('dailyChallenges.items.daily2.desc', 'Keep your daily streak alive');
+      case 'daily-3':
+        return t('dailyChallenges.items.daily3.desc', 'Spend at least 30 minutes learning');
+      case 'daily-4':
+        return t('dailyChallenges.items.daily4.desc', 'Get 100% on any exercise');
+      case 'daily-5':
+        return t('dailyChallenges.items.daily5.desc', 'Complete an exercise in under 60 seconds');
+      default:
+        return fallback;
+    }
+  };
   const [challenges, setChallenges] = useState<DailyChallenge[]>([
     {
       id: 'daily-1',
@@ -135,7 +169,7 @@ export default function DailyChallengesPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="text-white text-xl">Please sign in to view daily challenges</div>
+        <div className="text-white text-xl">{t('dailyChallenges.gate.signIn', 'Please sign in to view daily challenges')}</div>
       </div>
     );
   }
@@ -147,10 +181,10 @@ export default function DailyChallengesPage() {
         <div className="text-center">
           <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600 bg-clip-text text-transparent flex items-center justify-center gap-3">
             <Target className="w-12 h-12 text-yellow-400" />
-            Daily Challenges
+            {t('dailyChallenges.header.title', 'Daily Challenges')}
           </h1>
           <p className="text-blue-300 text-lg">
-            Complete challenges to earn bonus XP and FlowCoins
+            {t('dailyChallenges.header.subtitle', 'Complete challenges to earn bonus XP and FlowCoins')}
           </p>
         </div>
 
@@ -158,23 +192,23 @@ export default function DailyChallengesPage() {
         <Card className="p-6 bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-blue-600">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-white mb-2">Today's Progress</h2>
+              <h2 className="text-2xl font-bold text-white mb-2">{t('dailyChallenges.progress.title', "Today's Progress")}</h2>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <Trophy className="w-5 h-5 text-yellow-400" />
                   <span className="text-white font-bold">{completedCount} / {challenges.length}</span>
-                  <span className="text-gray-400 text-sm">completed</span>
+                  <span className="text-gray-400 text-sm">{t('dailyChallenges.progress.completed', 'completed')}</span>
                 </div>
                 <div className="h-6 w-px bg-gray-600"></div>
                 <div className="flex items-center gap-2">
                   <Flame className="w-5 h-5 text-orange-400" />
                   <span className="text-white font-bold">{totalXP} XP</span>
-                  <span className="text-gray-400 text-sm">earned</span>
+                  <span className="text-gray-400 text-sm">{t('dailyChallenges.progress.earned', 'earned')}</span>
                 </div>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-400">Streak</p>
+              <p className="text-sm text-gray-400">{t('dailyChallenges.progress.streak', 'Streak')}</p>
               <p className="text-3xl font-bold text-orange-400 flex items-center gap-2">
                 <Flame className="w-8 h-8" />
                 {user.dailyStreak || 0}
@@ -211,23 +245,23 @@ export default function DailyChallengesPage() {
                     {/* Content */}
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-bold text-white">{challenge.title}</h3>
+                        <h3 className="text-xl font-bold text-white">{getChallengeTitle(challenge.id, challenge.title)}</h3>
                         <span
                           className={`px-3 py-1 text-xs font-bold rounded-full ${getDifficultyColor(
                             challenge.difficulty
                           )}`}
                         >
-                          {challenge.difficulty.toUpperCase()}
+                          {t(`dailyChallenges.difficulty.${challenge.difficulty}`, challenge.difficulty.toUpperCase())}
                         </span>
                       </div>
-                      <p className="text-gray-400 mb-3">{challenge.description}</p>
+                      <p className="text-gray-400 mb-3">{getChallengeDescription(challenge.id, challenge.description)}</p>
 
                       {/* Progress bar */}
                       {!challenge.completed && (
                         <div className="mb-2">
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-sm text-gray-400">
-                              Progress: {challenge.progress} / {challenge.target}
+                              {t('dailyChallenges.challenge.progress', 'Progress: {{current}} / {{total}}', { current: challenge.progress, total: challenge.target })}
                             </span>
                             <span className="text-sm text-gray-400">{progressPercent}%</span>
                           </div>
@@ -242,7 +276,7 @@ export default function DailyChallengesPage() {
 
                       {challenge.completed && (
                         <div className="text-green-400 font-semibold text-sm">
-                          ✓ Completed! +{challenge.xpReward} XP earned
+                          {t('dailyChallenges.challenge.completed', '✓ Completed! +{{xp}} XP earned', { xp: challenge.xpReward })}
                         </div>
                       )}
                     </div>
@@ -254,7 +288,7 @@ export default function DailyChallengesPage() {
                       <Trophy className="w-5 h-5" />
                       +{challenge.xpReward}
                     </div>
-                    <p className="text-gray-500 text-xs">XP</p>
+                    <p className="text-gray-500 text-xs">{t('dailyChallenges.reward.xp', 'XP')}</p>
                   </div>
                 </div>
               </Card>
@@ -266,14 +300,14 @@ export default function DailyChallengesPage() {
         <Card className="p-6 bg-slate-900/90 border-slate-700">
           <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
             <Flame className="w-5 h-5 text-orange-400" />
-            About Daily Challenges
+            {t('dailyChallenges.about.title', 'About Daily Challenges')}
           </h3>
           <ul className="space-y-2 text-gray-400 text-sm">
-            <li>• Challenges reset every day at midnight UTC</li>
-            <li>• Complete challenges to earn bonus XP and FlowCoins</li>
-            <li>• Higher difficulty challenges give more rewards</li>
-            <li>• Keep your streak alive to unlock special achievements</li>
-            <li className="text-yellow-400 font-semibold">• Pro members get exclusive challenges with 2x rewards</li>
+            <li>• {t('dailyChallenges.about.item1', 'Challenges reset every day at midnight UTC')}</li>
+            <li>• {t('dailyChallenges.about.item2', 'Complete challenges to earn bonus XP and FlowCoins')}</li>
+            <li>• {t('dailyChallenges.about.item3', 'Higher difficulty challenges give more rewards')}</li>
+            <li>• {t('dailyChallenges.about.item4', 'Keep your streak alive to unlock special achievements')}</li>
+            <li className="text-yellow-400 font-semibold">• {t('dailyChallenges.about.item5', 'Pro members get exclusive challenges with 2x rewards')}</li>
           </ul>
         </Card>
       </div>

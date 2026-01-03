@@ -6,11 +6,20 @@
  */
 
 import { describe, it, expect, beforeAll } from 'vitest';
-import fetch from 'node-fetch';
+
+const fetchFn = globalThis.fetch;
+const shouldRun = process.env.RUN_STRIPE_INTEGRATION === '1';
+const describeIf = shouldRun ? describe : describe.skip;
 
 const BASE_URL = process.env.PUBLIC_BASE_URL || 'http://localhost:5000';
 
-describe('🧪 Stripe Integration Tests', () => {
+describeIf('🧪 Stripe Integration Tests', () => {
+
+  beforeAll(() => {
+    if (!fetchFn) {
+      throw new Error('Global fetch is not available in this Node runtime. Use Node 18+.' );
+    }
+  });
   
   describe('Configuration', () => {
     it('should have STRIPE_SECRET_KEY configured', () => {
@@ -46,7 +55,7 @@ describe('🧪 Stripe Integration Tests', () => {
 
   describe('Debug Endpoints', () => {
     it('should return stripe config from /api/debug/stripe-config', async () => {
-      const response = await fetch(`${BASE_URL}/api/debug/stripe-config`);
+      const response = await fetchFn!(`${BASE_URL}/api/debug/stripe-config`);
       const data = await response.json() as any;
       
       expect(data.stripeConfigured).toBe(true);
@@ -55,7 +64,7 @@ describe('🧪 Stripe Integration Tests', () => {
     });
 
     it('should have all required prices in response', async () => {
-      const response = await fetch(`${BASE_URL}/api/debug/stripe-config`);
+      const response = await fetchFn!(`${BASE_URL}/api/debug/stripe-config`);
       const data = await response.json() as any;
       
       const prices = data.stripePrices;
@@ -66,7 +75,7 @@ describe('🧪 Stripe Integration Tests', () => {
 
   describe('Battle Pass', () => {
     it('should have battle pass data on GET /api/battle-pass/status', async () => {
-      const response = await fetch(`${BASE_URL}/api/battle-pass/status`);
+      const response = await fetchFn!(`${BASE_URL}/api/battle-pass/status`);
       const data = await response.json() as any;
       
       expect(data.season).toBe(1);
@@ -96,7 +105,7 @@ describe('🧪 Stripe Integration Tests', () => {
   });
 });
 
-describe('📊 Integration Checklist', () => {
+describeIf('📊 Integration Checklist', () => {
   it('All critical configs are present', () => {
     const configs = {
       stripe_secret: !!process.env.STRIPE_SECRET_KEY,

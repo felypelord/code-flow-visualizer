@@ -20,42 +20,44 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { toast } from "@/hooks/use-toast";
 import MonetizationSection from '@/components/monetization-section';
 // Roadmap moved to Exercises page
+import { useLanguage } from "@/contexts/LanguageContext";
 
 
 export default function PricingPage() {
   const { user, token, refreshUser } = useUser();
+  const { t } = useLanguage();
 
   const [, setLocation] = useLocation();
   
   const plans = [
     {
-      name: "Free",
+      name: t('pricing.plans.free.name', 'Free'),
       price: "$0",
-      period: "per month",
-      description: "Limited access to basic features.",
+      period: t('pricing.plans.free.period', 'per month'),
+      description: t('pricing.plans.free.description', 'Limited access to basic features.'),
       features: [
-        "Basic editor and exercise access",
-        "Community challenges",
-        "Limited AI suggestions (trial)",
-        "Public examples and docs",
-        "Basic debugging tools",
+        t('pricing.plans.free.features.basicAccess', 'Basic editor and exercise access'),
+        t('pricing.plans.free.features.communityChallenges', 'Community challenges'),
+        t('pricing.plans.free.features.limitedAi', 'Limited AI suggestions (trial)'),
+        t('pricing.plans.free.features.publicExamples', 'Public examples and docs'),
+        t('pricing.plans.free.features.basicDebugging', 'Basic debugging tools'),
       ],
       notIncluded: [
-        "Unlimited AI suggestions",
-        "Snapshots & versioning",
-        "Private playgrounds",
-        "Priority support",
+        t('pricing.plans.free.notIncluded.unlimitedAi', 'Unlimited AI suggestions'),
+        t('pricing.plans.free.notIncluded.snapshots', 'Snapshots & versioning'),
+        t('pricing.plans.free.notIncluded.privatePlaygrounds', 'Private playgrounds'),
+        t('pricing.plans.free.notIncluded.prioritySupport', 'Priority support'),
       ],
-      cta: "Current Plan",
+      cta: t('pricing.plans.free.cta', 'Current Plan'),
       ctaVariant: "secondary" as const,
       isFree: true,
     },
     {
-      name: "Pro",
+      name: t('pricing.plans.pro.name', 'Pro'),
       price: "$2.00",
       period: "/month",
-      description: "Full access to Pro features, tools and premium content.",
-      badge: "Pro",
+      description: t('pricing.plans.pro.description', 'Full access to Pro features, tools and premium content.'),
+      badge: t('pricing.plans.pro.badge', 'Pro'),
       features: [
         "Advanced visual debugger (breakpoints, step, inspect)",
         "Unlimited AI code suggestions & automated fixes",
@@ -67,7 +69,7 @@ export default function PricingPage() {
         "Priority email support",
       ],
       notIncluded: [],
-      cta: "Activate Pro",
+      cta: t('pricing.plans.pro.cta', 'Activate Pro'),
       ctaVariant: "default" as const,
       isPro: true,
     },
@@ -228,7 +230,13 @@ export default function PricingPage() {
   };
 
   const handleEquip = async (itemId: string) => {
-    if (!token) { toast({ title: 'Sign in', description: 'Please sign in to equip.' }); return; }
+    if (!token) {
+      toast({
+        title: t('auth.signIn', 'Sign in'),
+        description: t('pricing.toast.signInToEquip', 'Please sign in to equip.'),
+      });
+      return;
+    }
     try {
       const res = await fetch('/api/store/equip', {
         method: 'POST',
@@ -660,18 +668,18 @@ export default function PricingPage() {
       <div className="min-h-screen bg-gradient-to-br from-amber-950 via-slate-900 to-slate-950 py-12 px-4">
         {/* Header */}
         <div className="max-w-4xl mx-auto text-center mb-12">
-          <h1 className="text-5xl font-bold text-white mb-4">Pricing Plans</h1>
+          <h1 className="text-5xl font-bold text-white mb-4">{t('pricing.header.title', 'Pricing Plans')}</h1>
           <p className="text-xl text-gray-400">
-            Choose a plan that fits you
+            {t('pricing.header.subtitle', 'Choose a plan that fits you')}
           </p>
             <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-200">
-            <span className="font-semibold text-white">Pro: $2.00/mo</span>
-            <span className="text-gray-300">USD</span>
+            <span className="font-semibold text-white">{t('pricing.header.proPrice', 'Pro: $2.00/mo')}</span>
+            <span className="text-gray-300">{t('pricing.header.currency', 'USD')}</span>
           </div>
 
           <div className="mt-4 inline-flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-red-600/80 to-orange-500/80 border border-red-500/50 text-sm text-white shadow-lg shadow-red-500/30">
-            <span className="font-bold text-base">Flash Offer</span>
-            <span className="text-white/90">Limited-time discount</span>
+            <span className="font-bold text-base">{t('pricing.flashOffer.title', 'Flash Offer')}</span>
+            <span className="text-white/90">{t('pricing.flashOffer.subtitle', 'Limited-time discount')}</span>
             <span className="px-2 py-1 rounded bg-black/40 font-mono text-sm tracking-wide">{minutes}:{seconds}</span>
           </div>
         </div>
@@ -681,17 +689,17 @@ export default function PricingPage() {
           <Card className="p-6 border-amber-400/30 bg-amber-500/5">
             <div className="flex items-center gap-2 text-amber-300 font-semibold mb-2">
               <Crown className="w-4 h-4" />
-              Premium Badge
+              {t('pricing.value.premiumBadge', 'Premium Badge')}
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">Premium Tools for Faster Debugging</h3>
-            <p className="text-sm text-gray-300">Advanced debugging, AI-assisted fixes, snapshots, and curated learning tracks to accelerate development.</p>
+            <h3 className="text-xl font-bold text-white mb-2">{t('pricing.value.premiumTitle', 'Premium Tools for Faster Debugging')}</h3>
+            <p className="text-sm text-gray-300">{t('pricing.value.premiumDesc', 'Advanced debugging, AI-assisted fixes, snapshots, and curated learning tracks to accelerate development.')}</p>
           </Card>
           <Card className="p-6 border-amber-400/20 bg-slate-800/60">
             <div className="flex items-center gap-2 text-amber-200 font-semibold mb-2">
               <Sparkles className="w-4 h-4" />
-              Pro Tracks Badge
+              {t('pricing.value.proTracksBadge', 'Pro Tracks Badge')}
             </div>
-            <p className="text-sm text-gray-300">Curated tracks to level up</p>
+            <p className="text-sm text-gray-300">{t('pricing.value.proTracksDesc', 'Curated tracks to level up')}</p>
           </Card>
         </div>
 
@@ -700,10 +708,10 @@ export default function PricingPage() {
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-400/30 mb-3">
               <Crown className="w-5 h-5 text-amber-300" />
-              <span className="text-sm font-semibold text-amber-200">Premium Badge</span>
+              <span className="text-sm font-semibold text-amber-200">{t('pricing.value.premiumBadge', 'Premium Badge')}</span>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-3">Everything Pro: Faster debugging, smarter code</h2>
-            <p className="text-sm text-gray-300 max-w-3xl mx-auto">Subscribe to Pro and get the full suite: advanced debugger, AI-powered fixes, snapshots, profiler, private playgrounds, and curated learning tracks to accelerate your development.</p>
+            <h2 className="text-3xl font-bold text-white mb-3">{t('pricing.everythingPro.title', 'Everything Pro: Faster debugging, smarter code')}</h2>
+            <p className="text-sm text-gray-300 max-w-3xl mx-auto">{t('pricing.everythingPro.desc', 'Subscribe to Pro and get the full suite: advanced debugger, AI-powered fixes, snapshots, profiler, private playgrounds, and curated learning tracks to accelerate your development.')}</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -724,9 +732,9 @@ export default function PricingPage() {
           <div className="flex items-center gap-2 mb-6">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-semibold">
               <Sparkles className="w-4 h-4" />
-              Pro Tracks Badge
+              {t('pricing.value.proTracksBadge', 'Pro Tracks Badge')}
             </span>
-            <p className="text-sm text-gray-400">Curated tracks to level up</p>
+            <p className="text-sm text-gray-400">{t('pricing.value.proTracksDesc', 'Curated tracks to level up')}</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-4">
@@ -760,8 +768,8 @@ export default function PricingPage() {
             <Card className="p-4 bg-slate-800/60 border-slate-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-semibold text-white">Billing</h4>
-                  <p className="text-xs text-gray-300">Payments are handled by a third-party provider. If checkout fails, please contact the site administrator or check server logs — sensitive configuration details are not shown here.</p>
+                  <h4 className="text-sm font-semibold text-white">{t('pricing.billing.title', 'Billing')}</h4>
+                  <p className="text-xs text-gray-300">{t('pricing.billing.desc', 'Payments are handled by a third-party provider. If checkout fails, please contact the site administrator or check server logs — sensitive configuration details are not shown here.')}</p>
                 </div>
               </div>
             </Card>
@@ -775,8 +783,8 @@ export default function PricingPage() {
           {/* Store: centralized purchases for small products and roadmap items */}
         <div className="max-w-6xl mx-auto px-4 mb-12">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-white">Store</h3>
-            <p className="text-sm text-gray-400">Centralized purchases for items and extras</p>
+            <h3 className="text-lg font-semibold text-white">{t('pricing.store.title', 'Store')}</h3>
+            <p className="text-sm text-gray-400">{t('pricing.store.subtitle', 'Centralized purchases for items and extras')}</p>
           </div>
 
           {/* Inline FlowCoins store UI copied from the dedicated Store page so all purchases live on Pricing */}
@@ -787,9 +795,9 @@ export default function PricingPage() {
                 <div>
                   <h1 className="text-2xl font-bold text-white flex items-center gap-3">
                     <ShoppingBag className="w-8 h-8 text-amber-400" />
-                    XP Store
+                    {t('store.header.title', 'XP Store')}
                   </h1>
-                  <p className="text-gray-400 mt-2">Spend your hard-earned FlowCoins on power-ups and cosmetics.</p>
+                  <p className="text-gray-400 mt-2">{t('pricing.store.xpStoreSubtitle', 'Spend your hard-earned FlowCoins on power-ups and cosmetics.')}</p>
                 </div>
               </div>
             </div>
@@ -803,11 +811,11 @@ export default function PricingPage() {
                       <Zap className="w-6 h-6 text-yellow-400" />
                       {coins} FlowCoins
                     </h2>
-                    <p className="text-amber-200 text-sm">Your current balance • Earn 1 coin per 50 XP</p>
+                    <p className="text-amber-200 text-sm">{t('store.balance.subtitle', 'Your current balance • Earn 1 coin per 50 XP')}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-amber-300">Level {user?.level || 1}</p>
+                  <p className="text-sm text-amber-300">{t('store.balance.level', 'Level')} {user?.level || 1}</p>
                   <p className="text-xs text-amber-200/70">{user?.xp || 0} XP</p>
                 </div>
               </div>

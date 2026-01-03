@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, asc, gt, sql } from "drizzle-orm";
 import { db } from "./db.js";
 import { 
   progress, 
@@ -18,7 +18,9 @@ import {
   dailyChallenges,
   coinTransactions,
   infinityPayPurchases,
-  adRewards
+  adRewards,
+  userFollows,
+  friendRequests
 } from "../shared/schema.js";
 import { createPayment, stripeWebhook, watchAd, checkUsage, consumeUsage, confirmPurchase } from "./api/monetization/index.js";
 import { getRoadmap, getRoadmapItem, getProgress, completeProgress } from "./api/roadmap/index.js";
@@ -128,25 +130,62 @@ const STORE_CATALOG = [
   { id: 'avatar_alien', name: 'Alien Avatar', description: 'Code from outer space', type: 'cosmetic', category: 'avatar', price: 75, icon: '👽' },
   { id: 'avatar_pirate', name: 'Pirate Avatar', description: 'Sail the code seas', type: 'cosmetic', category: 'avatar', price: 100, icon: '🏴‍☠️' },
   { id: 'avatar_astronaut', name: 'Astronaut Avatar', description: 'Code in zero gravity', type: 'cosmetic', category: 'avatar', price: 150, icon: '👨‍🚀' },
+  { id: 'avatar_cat', name: 'Cat Avatar', description: 'A purr-fect coding companion', type: 'cosmetic', category: 'avatar', price: 75, icon: '🐱' },
+  { id: 'avatar_fox', name: 'Fox Avatar', description: 'Clever and quick', type: 'cosmetic', category: 'avatar', price: 100, icon: '🦊' },
+  { id: 'avatar_octopus', name: 'Octopus Avatar', description: 'Multi-task like a pro', type: 'cosmetic', category: 'avatar', price: 150, icon: '🐙' },
   
   // Badges (cosmetics)
   { id: 'badge_fire', name: 'Fire Badge', description: 'Show your burning passion', type: 'cosmetic', category: 'badge', price: 100, icon: '🔥' },
   { id: 'badge_diamond', name: 'Diamond Badge', description: 'Shine bright', type: 'cosmetic', category: 'badge', price: 200, icon: '💎' },
   { id: 'badge_crown', name: 'Crown Badge', description: 'Rule the leaderboard', type: 'cosmetic', category: 'badge', price: 300, icon: '👑' },
+  { id: 'badge_premium', name: 'Premium Badge', description: 'Special premium badge for your profile', type: 'cosmetic', category: 'badge', price: 800, icon: '🏅' },
+  { id: 'badge_vip_halo', name: 'VIP Badge + Halo', description: 'Exclusive VIP badge with golden halo effect', type: 'cosmetic', category: 'badge', price: 5000, icon: '✨' },
   
   // Themes (cosmetics)
   { id: 'theme_neon', name: 'Neon Theme', description: 'Vibrant neon colors', type: 'cosmetic', category: 'theme', price: 200, icon: '🌈' },
   { id: 'theme_ocean', name: 'Ocean Theme', description: 'Calming blue waves', type: 'cosmetic', category: 'theme', price: 200, icon: '🌊' },
   { id: 'theme_forest', name: 'Forest Theme', description: 'Natural green tones', type: 'cosmetic', category: 'theme', price: 200, icon: '🌲' },
+  { id: 'theme_cyberpunk', name: 'Cyberpunk Theme', description: 'Neon nights and dark UI', type: 'cosmetic', category: 'theme', price: 250, icon: '🟣' },
+  { id: 'theme_matrix', name: 'Matrix Theme', description: 'Green code rain vibes', type: 'cosmetic', category: 'theme', price: 250, icon: '🟩' },
+  { id: 'theme_vip_gold', name: 'VIP Gold Theme', description: 'Premium golden grid background', type: 'cosmetic', category: 'theme', price: 5000, icon: '✨' },
+  { id: 'theme_aurora', name: 'Aurora Theme', description: 'Soft aurora glow background', type: 'cosmetic', category: 'theme', price: 300, icon: '🌌' },
+  { id: 'theme_sunset', name: 'Sunset Theme', description: 'Warm sunset grid background', type: 'cosmetic', category: 'theme', price: 300, icon: '🌅' },
+  { id: 'theme_rose', name: 'Rose Theme', description: 'Pink accent grid background', type: 'cosmetic', category: 'theme', price: 300, icon: '🌸' },
+  { id: 'theme_obsidian', name: 'Obsidian Theme', description: 'Ultra subtle dark grid background', type: 'cosmetic', category: 'theme', price: 300, icon: '🖤' },
   
   // Profile frames (cosmetics)
   { id: 'frame_gold', name: 'Gold Frame', description: 'Premium golden border', type: 'cosmetic', category: 'frame', price: 250, icon: '🥇' },
   { id: 'frame_silver', name: 'Silver Frame', description: 'Elegant silver border', type: 'cosmetic', category: 'frame', price: 150, icon: '🥈' },
   { id: 'frame_rainbow', name: 'Rainbow Frame', description: 'Colorful rainbow border', type: 'cosmetic', category: 'frame', price: 200, icon: '🌈' },
+  { id: 'frame_neon', name: 'Neon Frame', description: 'Electric neon border', type: 'cosmetic', category: 'frame', price: 250, icon: '💡' },
+  { id: 'frame_onyx', name: 'Onyx Frame', description: 'Minimal dark border', type: 'cosmetic', category: 'frame', price: 150, icon: '⬛' },
+  { id: 'frame_animated', name: 'Animated Avatar Frame', description: 'Frame animado em volta do avatar (10 animações)', type: 'cosmetic', category: 'frame', price: 3500, icon: '🌀' },
   // Name effects
   { id: 'name_effect_gold', name: 'Golden Name', description: 'Gold glow name effect', type: 'cosmetic', category: 'name_effect', price: 400, icon: '✨' },
   { id: 'name_effect_rainbow', name: 'Rainbow Name', description: 'Animated rainbow text', type: 'cosmetic', category: 'name_effect', price: 600, icon: '🌈' },
   { id: 'name_effect_flame', name: 'Flame Name', description: 'Flame flicker text', type: 'cosmetic', category: 'name_effect', price: 700, icon: '🔥' },
+  { id: 'name_effect_glitch', name: 'Glitch Name', description: 'Glitchy cyber effect', type: 'cosmetic', category: 'name_effect', price: 600, icon: '🧩' },
+  { id: 'name_effect_ice', name: 'Ice Name', description: 'Cool icy glow', type: 'cosmetic', category: 'name_effect', price: 400, icon: '❄️' },
+
+  // Profile: Custom username color (entitlement)
+  { id: 'username_color_custom', name: 'Custom Username Color', description: 'Choose a custom color for your username', type: 'cosmetic', category: 'username_color', price: 1000, icon: '🎨' },
+
+  // Effects: Particle effects (entitlement)
+  { id: 'particle_effects', name: 'Particle Effects', description: 'Confetti effect when completing exercises', type: 'cosmetic', category: 'effect', price: 1200, icon: '🎉' },
+
+  // Trophy case / achievements display (entitlement)
+  { id: 'trophy_case', name: 'Trophy Case', description: 'Showcase up to 3 achievements on your profile', type: 'cosmetic', category: 'trophy_case', price: 2500, icon: '🏆' },
+
+  // Themes: Custom theme creator (entitlement)
+  { id: 'custom_theme_creator', name: 'Custom Theme Creator', description: 'Create and save your own theme', type: 'cosmetic', category: 'theme_creator', price: 3000, icon: '🛠️' },
+
+  // Emotes/Stickers (collectibles)
+  { id: 'emote_pack_1', name: 'Emotes Pack V1', description: 'Pack of 10 fun emotes', type: 'cosmetic', category: 'emote', price: 150, icon: '😄' },
+  { id: 'sticker_pack_1', name: 'Stickers Pack V1', description: 'Pack of stickers for your profile', type: 'cosmetic', category: 'emote', price: 150, icon: '🏷️' },
+
+  // Pets/Mascots (collectibles)
+  { id: 'pet_dog', name: 'Virtual Dog Pet', description: 'A loyal coding buddy', type: 'cosmetic', category: 'pet', price: 300, icon: '🐶' },
+  { id: 'pet_cat', name: 'Virtual Cat Pet', description: 'A calm and curious companion', type: 'cosmetic', category: 'pet', price: 300, icon: '🐱' },
   
   // Utilities
   { id: 'hint_token', name: 'Hint Token', description: 'Get one free hint', type: 'utility', category: 'hint', price: 10, icon: '💡' },
@@ -162,6 +201,10 @@ const STORE_CATALOG = [
   
   // Weekly Challenge
   { id: 'boss_challenge', name: 'Boss Challenge (Weekly)', description: 'Unlock a special weekly challenge', type: 'utility', category: 'challenge', price: 200, icon: '🏆' },
+  // Profile visibility (time-limited)
+  { id: 'featured_profile_30d', name: 'Featured Profile (30 days)', description: 'Showcase your profile in the Featured section for 30 days', type: 'utility', category: 'profile', price: 8000, icon: '⭐' },
+  // Export / sharing
+  { id: 'custom_watermark', name: 'Custom Watermark', description: 'Add a custom watermark to printed/exported pages', type: 'utility', category: 'export', price: 10000, icon: '🏷️' },
   // Legendary / special items
   { id: 'avatar_dragon_legend', name: 'Legendary Dragon Avatar', description: 'Mythical dragon avatar (unique)', type: 'cosmetic', category: 'avatar', price: 800, icon: '🐉' },
   // XP Packs (convert to XP when purchased)
@@ -419,6 +462,24 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });
   }
+}
+
+// Optional auth: if a valid Bearer token exists, attaches req.userId. Never blocks the request.
+function optionalAuth(req: Request, _res: Response, next: NextFunction) {
+  const auth = req.headers.authorization;
+  if (!auth) return next();
+
+  const [type, token] = auth.split(" ");
+  if (type !== "Bearer" || !token) return next();
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string };
+    (req as any).userId = decoded.userId;
+  } catch {
+    // ignore invalid/expired tokens
+  }
+
+  next();
 }
 
 function requirePro(req: Request, res: Response, next: NextFunction) {
@@ -768,11 +829,41 @@ export async function registerRoutes(
     
     const isPro = computeIsPro(user);
     
+    const trophyCase = (() => {
+      try {
+        const raw = (user as any).trophyCase;
+        if (!raw) return [];
+        const parsed = JSON.parse(String(raw));
+        if (!Array.isArray(parsed)) return [];
+        return parsed.map((v: any) => String(v)).map((s: string) => s.trim()).filter(Boolean).slice(0, 3);
+      } catch {
+        return [];
+      }
+    })();
+
+    const customTheme = (() => {
+      try {
+        const raw = (user as any).customTheme;
+        if (!raw) return null;
+        const parsed = JSON.parse(String(raw));
+        if (!parsed || typeof parsed !== 'object') return null;
+        const gridColor = typeof (parsed as any).gridColor === 'string' ? String((parsed as any).gridColor) : '';
+        const gridOpacityNum = Number((parsed as any).gridOpacity);
+        const gridOpacity = Number.isFinite(gridOpacityNum) ? Math.max(0, Math.min(1, gridOpacityNum)) : 0.1;
+        if (!/^#[0-9a-fA-F]{6}$/.test(gridColor)) return null;
+        return { gridColor, gridOpacity };
+      } catch {
+        return null;
+      }
+    })();
+
     return res.json({ 
       id: user.id, 
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      featuredUntil: (user as any).featuredUntil ?? null,
+      usernameColor: user.usernameColor ?? null,
       isAdmin: user.isAdmin,
       isPro,
       proExpiresAt: user.proExpiresAt ?? null,
@@ -784,6 +875,14 @@ export async function registerRoutes(
       avatar: user.avatar ?? null,
       bio: user.bio ?? null,
       theme: user.theme ?? null,
+      equippedBadge: user.equippedBadge ?? null,
+      equippedFrame: user.equippedFrame ?? null,
+      frameAnimation: (user as any).frameAnimation ?? null,
+      particleEffects: user.particleEffects ?? false,
+      trophyCase,
+      customTheme,
+      customWatermark: (user as any).customWatermark ?? false,
+      watermarkText: (user as any).watermarkText ?? null,
       language: user.language ?? null,
       dailyStreak: user.dailyStreak ?? 0,
       lastActivityDate: user.lastActivityDate ?? null,
@@ -793,6 +892,56 @@ export async function registerRoutes(
       country: user.country ?? null,
       dateOfBirth: user.dateOfBirth ?? null,
     });
+  });
+
+  // Featured profiles (public listing)
+  app.get("/api/featured-profiles", async (req: Request, res: Response) => {
+    try {
+      const limitRaw = Number((req.query as any)?.limit);
+      const limit = Number.isFinite(limitRaw) ? Math.max(1, Math.min(50, Math.floor(limitRaw))) : 10;
+      const now = new Date();
+
+      const rows = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          usernameColor: users.usernameColor,
+          equippedBadge: users.equippedBadge,
+          equippedFrame: users.equippedFrame,
+          frameAnimation: users.frameAnimation,
+          avatar: users.avatar,
+          xp: users.xp,
+          level: users.level,
+          isPro: users.isPro,
+          proExpiresAt: users.proExpiresAt,
+          featuredUntil: users.featuredUntil,
+        })
+        .from(users)
+        .where(gt(users.featuredUntil, now))
+        .orderBy(desc(users.featuredUntil))
+        .limit(limit);
+
+      const featured = rows.map((u: any) => ({
+        id: u.id,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        usernameColor: u.usernameColor ?? null,
+        equippedBadge: u.equippedBadge ?? null,
+        equippedFrame: u.equippedFrame ?? null,
+        frameAnimation: u.frameAnimation ?? null,
+        avatar: u.avatar ?? null,
+        xp: u.xp ?? 0,
+        level: u.level ?? 1,
+        isPro: computeIsPro(u),
+        featuredUntil: u.featuredUntil ?? null,
+      }));
+
+      return res.json({ featured });
+    } catch (error: any) {
+      console.error("Error fetching featured profiles:", error);
+      return res.status(500).json({ message: "Failed to fetch featured profiles" });
+    }
   });
 
   // Alias for legacy clients
@@ -821,7 +970,16 @@ export async function registerRoutes(
   app.post("/api/profile/update", requireAuth, async (req: Request, res: Response) => {
     try {
       const userId = (req as any).userId as string;
-      const { firstName, lastName, country, bio, avatar, theme, dailyGoal, dateOfBirth, address } = req.body;
+      const { firstName, lastName, country, bio, avatar, theme, dailyGoal, dateOfBirth, address, usernameColor, trophyCase, customTheme, watermarkText } = req.body;
+
+      const normalizeUsernameColor = (value: unknown): string | null | undefined => {
+        if (value === undefined) return undefined;
+        if (value === null) return null;
+        const s = String(value).trim();
+        if (s === '') return null;
+        if (/^#[0-9a-fA-F]{6}$/.test(s) || /^#[0-9a-fA-F]{3}$/.test(s)) return s.toLowerCase();
+        return undefined;
+      };
 
       const updateData: any = {};
       if (firstName !== undefined) updateData.firstName = firstName;
@@ -829,10 +987,164 @@ export async function registerRoutes(
       if (country !== undefined) updateData.country = country;
       if (bio !== undefined) updateData.bio = bio;
       if (avatar !== undefined) updateData.avatar = avatar;
-      if (theme !== undefined) updateData.theme = theme;
+      if (usernameColor !== undefined) {
+        const normalized = normalizeUsernameColor(usernameColor);
+        if (normalized === undefined) {
+          return res.status(400).json({ message: 'Invalid usernameColor' });
+        }
+
+        // Setting a custom color requires owning the entitlement item.
+        if (normalized !== null) {
+          const owned = await db.select().from(storePurchases)
+            .where(and(eq(storePurchases.userId, userId), eq(storePurchases.itemId, 'username_color_custom')))
+            .limit(1);
+          if (owned.length === 0) {
+            return res.status(403).json({ message: 'Custom username color not owned' });
+          }
+        }
+        updateData.usernameColor = normalized;
+      }
+      if (theme !== undefined) {
+        const nextTheme = String(theme || '');
+        // Allow base themes freely; store themes require ownership.
+        const isBaseTheme = nextTheme === '' || nextTheme === 'dark' || nextTheme === 'light';
+        const isStoreTheme = nextTheme.startsWith('theme_');
+
+        if (isStoreTheme) {
+          const owned = await db.select().from(storePurchases)
+            .where(and(eq(storePurchases.userId, userId), eq(storePurchases.itemId, nextTheme)))
+            .limit(1);
+          if (owned.length === 0) {
+            return res.status(403).json({ message: 'Theme not owned' });
+          }
+          updateData.theme = nextTheme;
+        } else if (isBaseTheme) {
+          updateData.theme = nextTheme || 'dark';
+        } else {
+          // Unknown theme values are not accepted via profile update.
+          return res.status(400).json({ message: 'Invalid theme' });
+        }
+      }
       if (dailyGoal !== undefined) updateData.dailyGoal = dailyGoal;
       if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
       if (address !== undefined) updateData.address = address;
+
+      const normalizeCustomTheme = (value: unknown): { gridColor: string; gridOpacity: number } | null | undefined => {
+        if (value === undefined) return undefined;
+        if (value === null) return null;
+        if (!value || typeof value !== 'object') return undefined;
+        const gridColor = String((value as any).gridColor || '').trim();
+        const gridOpacityNum = Number((value as any).gridOpacity);
+        if (!/^#[0-9a-fA-F]{6}$/.test(gridColor)) return undefined;
+        if (!Number.isFinite(gridOpacityNum)) return undefined;
+        const gridOpacity = Math.max(0, Math.min(1, gridOpacityNum));
+        return { gridColor, gridOpacity };
+      };
+
+      if (customTheme !== undefined) {
+        const owned = await db.select().from(storePurchases)
+          .where(and(eq(storePurchases.userId, userId), eq(storePurchases.itemId, 'custom_theme_creator')))
+          .limit(1);
+        if (owned.length === 0) {
+          return res.status(403).json({ message: 'Custom theme creator not owned' });
+        }
+
+        const parsed = normalizeCustomTheme(customTheme);
+        if (parsed === undefined) return res.status(400).json({ message: 'Invalid customTheme' });
+        updateData.customTheme = parsed ? JSON.stringify(parsed) : null;
+      }
+
+      const normalizeWatermarkText = (value: unknown): string | null | undefined => {
+        if (value === undefined) return undefined;
+        if (value === null) return null;
+        const s = String(value).trim();
+        if (s === '') return null;
+        if (s.length > 48) return undefined;
+        return s;
+      };
+
+      if (watermarkText !== undefined) {
+        const normalized = normalizeWatermarkText(watermarkText);
+        if (normalized === undefined) return res.status(400).json({ message: 'Invalid watermarkText' });
+
+        // Updating watermark requires owning the entitlement item.
+        const owned = await db.select().from(storePurchases)
+          .where(and(eq(storePurchases.userId, userId), eq(storePurchases.itemId, 'custom_watermark')))
+          .limit(1);
+        if (owned.length === 0) {
+          return res.status(403).json({ message: 'Custom watermark not owned' });
+        }
+
+        updateData.watermarkText = normalized;
+      }
+
+      // Setting theme to custom requires owning creator and having a saved customTheme.
+      if (theme === 'theme_custom') {
+        const owned = await db.select().from(storePurchases)
+          .where(and(eq(storePurchases.userId, userId), eq(storePurchases.itemId, 'custom_theme_creator')))
+          .limit(1);
+        if (owned.length === 0) {
+          return res.status(403).json({ message: 'Custom theme creator not owned' });
+        }
+        const existingUser = await storage.getUser(userId);
+        const themeToUse = customTheme !== undefined ? updateData.customTheme : ((existingUser as any)?.customTheme || null);
+        if (!themeToUse) {
+          return res.status(400).json({ message: 'Save a custom theme first' });
+        }
+      }
+
+      if (trophyCase !== undefined) {
+        // Updating trophy case requires owning the entitlement item.
+        const owned = await db.select().from(storePurchases)
+          .where(and(eq(storePurchases.userId, userId), eq(storePurchases.itemId, 'trophy_case')))
+          .limit(1);
+        if (owned.length === 0) {
+          return res.status(403).json({ message: 'Trophy case not owned' });
+        }
+
+        const normalizeArray = (value: unknown): string[] | null | undefined => {
+          if (value === undefined) return undefined;
+          if (value === null) return null;
+          if (!Array.isArray(value)) return undefined;
+          const next = value
+            .map((v) => String(v))
+            .map((s) => s.trim())
+            .filter(Boolean);
+          return next;
+        };
+
+        const next = normalizeArray(trophyCase);
+        if (next === undefined) {
+          return res.status(400).json({ message: 'Invalid trophyCase' });
+        }
+
+        const chosen = (next || []).slice(0, 3);
+        if (chosen.length > 3) {
+          return res.status(400).json({ message: 'Too many trophy case achievements' });
+        }
+        if (new Set(chosen).size !== chosen.length) {
+          return res.status(400).json({ message: 'Duplicate trophy case achievements' });
+        }
+
+        const knownIds = new Set(ACHIEVEMENTS_CATALOG.map((a) => a.id));
+        for (const id of chosen) {
+          if (!knownIds.has(id)) {
+            return res.status(400).json({ message: `Unknown achievement: ${id}` });
+          }
+        }
+
+        const unlockedRows = await db.select({ achievementId: userAchievements.achievementId })
+          .from(userAchievements)
+          .where(eq(userAchievements.userId, userId));
+        const unlockedSet = new Set(unlockedRows.map((r) => r.achievementId));
+        for (const id of chosen) {
+          if (!unlockedSet.has(id)) {
+            return res.status(400).json({ message: `Achievement not unlocked: ${id}` });
+          }
+        }
+
+        updateData.trophyCase = chosen.length ? JSON.stringify(chosen) : null;
+      }
 
       await db.update(users).set(updateData).where(eq(users.id, userId));
 
@@ -1138,10 +1450,13 @@ export async function registerRoutes(
     try {
       const userId = (req as any).userId as string;
       const purchases = await db.select().from(storePurchases).where(eq(storePurchases.userId, userId));
+
+      const user = await storage.getUser(userId);
+      const featuredActive = Boolean((user as any)?.featuredUntil && new Date((user as any).featuredUntil).getTime() > Date.now());
       
       const itemsWithOwnership = STORE_CATALOG.map(item => ({
         ...item,
-        owned: purchases.some(p => p.itemId === item.id),
+        owned: item.id === 'featured_profile_30d' ? featuredActive : purchases.some(p => p.itemId === item.id),
       }));
 
       return res.json({ items: itemsWithOwnership });
@@ -1194,13 +1509,16 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Item not found" });
       }
 
-      // Check if already owned
-      const existing = await db.select().from(storePurchases).where(
-        and(eq(storePurchases.userId, userId), eq(storePurchases.itemId, itemId))
-      ).limit(1);
-      
-      if (existing.length > 0) {
-        return res.status(400).json({ message: "Item already owned" });
+      // Check if already owned (some items are time-limited and can be purchased repeatedly)
+      const isRepeatable = itemId === 'featured_profile_30d';
+      if (!isRepeatable) {
+        const existing = await db.select().from(storePurchases).where(
+          and(eq(storePurchases.userId, userId), eq(storePurchases.itemId, itemId))
+        ).limit(1);
+        
+        if (existing.length > 0) {
+          return res.status(400).json({ message: "Item already owned" });
+        }
       }
 
       // Check if user has enough coins
@@ -1242,6 +1560,27 @@ export async function registerRoutes(
             achievementId: 'boss_challenger',
           });
         }
+      }
+
+      // Grant particle effects entitlement
+      if (item.id === 'particle_effects') {
+        await db.update(users).set({ particleEffects: true }).where(eq(users.id, userId));
+      }
+
+      // Grant featured profile time window (extend if already active)
+      if (item.id === 'featured_profile_30d') {
+        const now = new Date();
+        const current = (user as any).featuredUntil ? new Date((user as any).featuredUntil) : null;
+        const base = current && current.getTime() > now.getTime() ? current : now;
+        const next = new Date(base.getTime() + 30 * 24 * 60 * 60 * 1000);
+        await db.update(users).set({ featuredUntil: next }).where(eq(users.id, userId));
+      }
+
+      // Grant custom watermark entitlement
+      if (item.id === 'custom_watermark') {
+        const existingText = String((user as any).watermarkText || '').trim();
+        const fallback = `${String(user.firstName || '').trim()} ${String(user.lastName || '').trim()}`.trim() || String(user.email || '').trim();
+        await db.update(users).set({ customWatermark: true, watermarkText: existingText || fallback || null }).where(eq(users.id, userId));
       }
 
       return res.json({ message: "Purchase successful", newCoins });
@@ -1304,6 +1643,10 @@ export async function registerRoutes(
           await db.update(users).set({ equippedNameEffect: itemId }).where(eq(users.id, userId));
           return res.json({ message: 'Name effect applied', nameEffect: itemId });
         }
+        if (item.category === 'badge') {
+          await db.update(users).set({ equippedBadge: itemId }).where(eq(users.id, userId));
+          return res.json({ message: 'Badge applied', badge: itemId });
+        }
       }
 
       return res.status(400).json({ message: 'Nothing to equip for this item' });
@@ -1321,9 +1664,9 @@ export async function registerRoutes(
       if (!user) return res.status(404).json({ message: "User not found" });
 
       return res.json({
-        dailyStreak: user.dailyStreak || 0,
         lastActivityDate: user.lastActivityDate,
         dailyGoal: user.dailyGoal || 5,
+        dailyStreak: user.dailyStreak || 0,
       });
     } catch (error: any) {
       console.error("Error fetching streak:", error);
@@ -1339,6 +1682,10 @@ export async function registerRoutes(
         id: users.id,
         firstName: users.firstName,
         lastName: users.lastName,
+        usernameColor: users.usernameColor,
+        equippedBadge: users.equippedBadge,
+        equippedFrame: users.equippedFrame,
+        frameAnimation: users.frameAnimation,
         xp: users.xp,
         level: users.level,
         avatar: users.avatar,
@@ -1352,6 +1699,97 @@ export async function registerRoutes(
     }
   });
 
+  // Leaderboard: Current user's rank (global)
+  app.get("/api/leaderboard/me", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const mode = String(req.query.mode || "xp");
+
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      if (mode === "streak") {
+        const youValue = user.dailyStreak || 0;
+        const [{ countGreater = 0 } = {} as any] = await db
+          .select({ countGreater: sql<number>`count(*)` })
+          .from(users)
+          .where(gt(users.dailyStreak, youValue));
+
+        const [{ total = 0 } = {} as any] = await db
+          .select({ total: sql<number>`count(*)` })
+          .from(users);
+
+        const next = await db
+          .select({
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            usernameColor: users.usernameColor,
+            equippedBadge: users.equippedBadge,
+            equippedFrame: users.equippedFrame,
+            frameAnimation: users.frameAnimation,
+            value: users.dailyStreak,
+            level: users.level,
+            avatar: users.avatar,
+            isPro: users.isPro,
+          })
+          .from(users)
+          .where(gt(users.dailyStreak, youValue))
+          .orderBy(asc(users.dailyStreak))
+          .limit(1);
+
+        return res.json({
+          mode: "streak",
+          rank: Number(countGreater) + 1,
+          total: Number(total),
+          youValue,
+          next: next[0] ? { ...next[0], value: Number(next[0].value || 0) } : null,
+        });
+      }
+
+      // default: xp
+      const youValue = user.xp || 0;
+      const [{ countGreater = 0 } = {} as any] = await db
+        .select({ countGreater: sql<number>`count(*)` })
+        .from(users)
+        .where(gt(users.xp, youValue));
+
+      const [{ total = 0 } = {} as any] = await db
+        .select({ total: sql<number>`count(*)` })
+        .from(users);
+
+      const next = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          usernameColor: users.usernameColor,
+          equippedBadge: users.equippedBadge,
+          equippedFrame: users.equippedFrame,
+          frameAnimation: users.frameAnimation,
+          value: users.xp,
+          level: users.level,
+          avatar: users.avatar,
+          isPro: users.isPro,
+        })
+        .from(users)
+        .where(gt(users.xp, youValue))
+        .orderBy(asc(users.xp))
+        .limit(1);
+
+      return res.json({
+        mode: "xp",
+        rank: Number(countGreater) + 1,
+        total: Number(total),
+        youValue,
+        next: next[0] ? { ...next[0], value: Number(next[0].value || 0) } : null,
+      });
+    } catch (error: any) {
+      console.error("Error fetching user leaderboard rank:", error);
+      return res.status(500).json({ message: "Failed to fetch rank" });
+    }
+  });
+
   // Leaderboard: Top Streak
   app.get("/api/leaderboard/streak", async (req: Request, res: Response) => {
     try {
@@ -1360,6 +1798,10 @@ export async function registerRoutes(
         id: users.id,
         firstName: users.firstName,
         lastName: users.lastName,
+        usernameColor: users.usernameColor,
+        equippedBadge: users.equippedBadge,
+        equippedFrame: users.equippedFrame,
+        frameAnimation: users.frameAnimation,
         dailyStreak: users.dailyStreak,
         level: users.level,
         avatar: users.avatar,
@@ -1370,6 +1812,306 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error("Error fetching streak leaderboard:", error);
       return res.status(500).json({ message: "Failed to fetch leaderboard" });
+    }
+  });
+
+  // ============================================================================
+  // SOCIAL (MVP): FOLLOW / UNFOLLOW
+  // ============================================================================
+
+  type SocialUser = {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    avatar: string | null;
+    isPro: boolean;
+    level: number;
+    xp: number;
+    dailyStreak: number;
+  };
+
+  function socialUserSelect() {
+    return {
+      id: users.id,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      avatar: users.avatar,
+      isPro: users.isPro,
+      level: users.level,
+      xp: users.xp,
+      dailyStreak: users.dailyStreak,
+    } as const;
+  }
+
+  app.get("/api/social/following", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const rows = await db
+        .select({ followingId: userFollows.followingId })
+        .from(userFollows)
+        .where(eq(userFollows.followerId, userId));
+
+      return res.json({ following: rows.map((r) => r.followingId) });
+    } catch (error: any) {
+      console.error("Error fetching following:", error);
+      return res.status(500).json({ message: "Failed to fetch following" });
+    }
+  });
+
+  // Full user lists for Profile UI
+  app.get("/api/social/following/users", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const rows = await db
+        .select({ ...socialUserSelect() })
+        .from(userFollows)
+        .innerJoin(users, eq(users.id, userFollows.followingId))
+        .where(eq(userFollows.followerId, userId))
+        .orderBy(asc(users.firstName));
+      return res.json({ following: rows.map((r: any) => r.users as SocialUser) });
+    } catch (error: any) {
+      console.error("Error fetching following users:", error);
+      return res.status(500).json({ message: "Failed to fetch following users" });
+    }
+  });
+
+  app.get("/api/social/followers", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const rows = await db
+        .select({ ...socialUserSelect() })
+        .from(userFollows)
+        .innerJoin(users, eq(users.id, userFollows.followerId))
+        .where(eq(userFollows.followingId, userId))
+        .orderBy(asc(users.firstName));
+      return res.json({ followers: rows.map((r: any) => r.users as SocialUser) });
+    } catch (error: any) {
+      console.error("Error fetching followers:", error);
+      return res.status(500).json({ message: "Failed to fetch followers" });
+    }
+  });
+
+  app.post("/api/social/follow", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const targetUserId = String(req.body?.userId || "").trim();
+
+      if (!targetUserId) return res.status(400).json({ message: "userId required" });
+      if (targetUserId === userId) return res.status(400).json({ message: "Cannot follow yourself" });
+
+      const target = await storage.getUser(targetUserId);
+      if (!target) return res.status(404).json({ message: "User not found" });
+
+      const existing = await db
+        .select({ id: userFollows.id })
+        .from(userFollows)
+        .where(and(eq(userFollows.followerId, userId), eq(userFollows.followingId, targetUserId)))
+        .limit(1);
+      if (existing.length > 0) return res.json({ ok: true, following: true });
+
+      await db.insert(userFollows).values({
+        followerId: userId,
+        followingId: targetUserId,
+      });
+
+      return res.json({ ok: true, following: true });
+    } catch (error: any) {
+      console.error("Error following user:", error);
+      return res.status(500).json({ message: "Failed to follow" });
+    }
+  });
+
+  app.post("/api/social/unfollow", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const targetUserId = String(req.body?.userId || "").trim();
+
+      if (!targetUserId) return res.status(400).json({ message: "userId required" });
+      if (targetUserId === userId) return res.status(400).json({ message: "Cannot unfollow yourself" });
+
+      await db
+        .delete(userFollows)
+        .where(and(eq(userFollows.followerId, userId), eq(userFollows.followingId, targetUserId)));
+
+      return res.json({ ok: true, following: false });
+    } catch (error: any) {
+      console.error("Error unfollowing user:", error);
+      return res.status(500).json({ message: "Failed to unfollow" });
+    }
+  });
+
+  // ============================================================================
+  // SOCIAL: FRIEND REQUESTS
+  // ============================================================================
+
+  app.get("/api/social/friend-requests", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+
+      const incomingRows = await db
+        .select({ ...socialUserSelect(), status: friendRequests.status, createdAt: friendRequests.createdAt })
+        .from(friendRequests)
+        .innerJoin(users, eq(users.id, friendRequests.fromUserId))
+        .where(and(eq(friendRequests.toUserId, userId), eq(friendRequests.status, 'pending')))
+        .orderBy(desc(friendRequests.createdAt));
+
+      const outgoingRows = await db
+        .select({ ...socialUserSelect(), status: friendRequests.status, createdAt: friendRequests.createdAt })
+        .from(friendRequests)
+        .innerJoin(users, eq(users.id, friendRequests.toUserId))
+        .where(and(eq(friendRequests.fromUserId, userId), eq(friendRequests.status, 'pending')))
+        .orderBy(desc(friendRequests.createdAt));
+
+      return res.json({
+        incoming: incomingRows.map((r: any) => ({ user: r.users as SocialUser, createdAt: r.createdAt })),
+        outgoing: outgoingRows.map((r: any) => ({ user: r.users as SocialUser, createdAt: r.createdAt })),
+      });
+    } catch (error: any) {
+      console.error("Error fetching friend requests:", error);
+      return res.status(500).json({ message: "Failed to fetch friend requests" });
+    }
+  });
+
+  app.get("/api/social/friends", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+
+      const asRecipient = await db
+        .select({ ...socialUserSelect() })
+        .from(friendRequests)
+        .innerJoin(users, eq(users.id, friendRequests.fromUserId))
+        .where(and(eq(friendRequests.toUserId, userId), eq(friendRequests.status, 'accepted')));
+
+      const asSender = await db
+        .select({ ...socialUserSelect() })
+        .from(friendRequests)
+        .innerJoin(users, eq(users.id, friendRequests.toUserId))
+        .where(and(eq(friendRequests.fromUserId, userId), eq(friendRequests.status, 'accepted')));
+
+      const map = new Map<string, SocialUser>();
+      for (const r of asRecipient as any[]) map.set((r.users as SocialUser).id, r.users as SocialUser);
+      for (const r of asSender as any[]) map.set((r.users as SocialUser).id, r.users as SocialUser);
+
+      return res.json({ friends: Array.from(map.values()) });
+    } catch (error: any) {
+      console.error("Error fetching friends:", error);
+      return res.status(500).json({ message: "Failed to fetch friends" });
+    }
+  });
+
+  app.post("/api/social/friend-request/send", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const toUserId = String(req.body?.userId || '').trim();
+      if (!toUserId) return res.status(400).json({ message: "userId required" });
+      if (toUserId === userId) return res.status(400).json({ message: "Cannot friend-request yourself" });
+
+      const target = await storage.getUser(toUserId);
+      if (!target) return res.status(404).json({ message: "User not found" });
+
+      // If there's a pending incoming request from them -> accept it.
+      const reversePending = await db
+        .select({ id: friendRequests.id })
+        .from(friendRequests)
+        .where(and(eq(friendRequests.fromUserId, toUserId), eq(friendRequests.toUserId, userId), eq(friendRequests.status, 'pending')))
+        .limit(1);
+      if (reversePending.length > 0) {
+        await db
+          .update(friendRequests)
+          .set({ status: 'accepted', respondedAt: new Date() })
+          .where(eq(friendRequests.id, reversePending[0].id));
+        return res.json({ ok: true, status: 'accepted' });
+      }
+
+      // Already friends?
+      const already = await db
+        .select({ id: friendRequests.id })
+        .from(friendRequests)
+        .where(
+          and(
+            eq(friendRequests.status, 'accepted'),
+            sql`(
+              (${friendRequests.fromUserId} = ${userId} AND ${friendRequests.toUserId} = ${toUserId})
+              OR
+              (${friendRequests.fromUserId} = ${toUserId} AND ${friendRequests.toUserId} = ${userId})
+            )`
+          )
+        )
+        .limit(1);
+      if (already.length > 0) return res.json({ ok: true, status: 'already_friends' });
+
+      const existing = await db
+        .select({ id: friendRequests.id, status: friendRequests.status })
+        .from(friendRequests)
+        .where(and(eq(friendRequests.fromUserId, userId), eq(friendRequests.toUserId, toUserId)))
+        .limit(1);
+
+      if (existing.length > 0) {
+        if (existing[0].status === 'pending') return res.json({ ok: true, status: 'pending' });
+        // revive any non-pending by setting pending again
+        await db.update(friendRequests).set({ status: 'pending', respondedAt: null }).where(eq(friendRequests.id, existing[0].id));
+        return res.json({ ok: true, status: 'pending' });
+      }
+
+      await db.insert(friendRequests).values({ fromUserId: userId, toUserId, status: 'pending' });
+      return res.json({ ok: true, status: 'pending' });
+    } catch (error: any) {
+      console.error("Error sending friend request:", error);
+      return res.status(500).json({ message: "Failed to send friend request" });
+    }
+  });
+
+  app.post("/api/social/friend-request/cancel", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const toUserId = String(req.body?.userId || '').trim();
+      if (!toUserId) return res.status(400).json({ message: "userId required" });
+
+      await db
+        .update(friendRequests)
+        .set({ status: 'canceled', respondedAt: new Date() })
+        .where(and(eq(friendRequests.fromUserId, userId), eq(friendRequests.toUserId, toUserId), eq(friendRequests.status, 'pending')));
+
+      return res.json({ ok: true });
+    } catch (error: any) {
+      console.error("Error canceling friend request:", error);
+      return res.status(500).json({ message: "Failed to cancel friend request" });
+    }
+  });
+
+  app.post("/api/social/friend-request/accept", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const fromUserId = String(req.body?.userId || '').trim();
+      if (!fromUserId) return res.status(400).json({ message: "userId required" });
+
+      const updated = await db
+        .update(friendRequests)
+        .set({ status: 'accepted', respondedAt: new Date() })
+        .where(and(eq(friendRequests.fromUserId, fromUserId), eq(friendRequests.toUserId, userId), eq(friendRequests.status, 'pending')));
+
+      return res.json({ ok: true, updated });
+    } catch (error: any) {
+      console.error("Error accepting friend request:", error);
+      return res.status(500).json({ message: "Failed to accept friend request" });
+    }
+  });
+
+  app.post("/api/social/friend-request/decline", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const fromUserId = String(req.body?.userId || '').trim();
+      if (!fromUserId) return res.status(400).json({ message: "userId required" });
+
+      await db
+        .update(friendRequests)
+        .set({ status: 'declined', respondedAt: new Date() })
+        .where(and(eq(friendRequests.fromUserId, fromUserId), eq(friendRequests.toUserId, userId), eq(friendRequests.status, 'pending')));
+
+      return res.json({ ok: true });
+    } catch (error: any) {
+      console.error("Error declining friend request:", error);
+      return res.status(500).json({ message: "Failed to decline friend request" });
     }
   });
 
@@ -1676,6 +2418,65 @@ export async function registerRoutes(
     });
   });
 
+  // Confirm Stripe subscription and immediately activate Pro for an existing user.
+  // This avoids waiting on webhook timing on the post-checkout return.
+  // Security model: session_id is treated as a secret; we still rate-limit by IP.
+  app.post("/api/pro/confirm-subscription", async (req: Request, res: Response) => {
+    try {
+      if (!checkRateLimit(`pro-confirm:${req.ip}`, 30, 60_000)) {
+        return res.status(429).json({ ok: false, error: "Too many requests" });
+      }
+
+      const stripe = getStripe();
+      if (!stripe) {
+        return res.status(503).json({ ok: false, error: "Billing not configured" });
+      }
+
+      const body = (req.body || {}) as any;
+      const sessionId: string | undefined = body.sessionId || body.session_id || (req.query as any)?.session_id;
+      if (!sessionId) {
+        return res.status(400).json({ ok: false, error: "sessionId is required" });
+      }
+
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+      const paid = session.payment_status === "paid" || session.status === "complete";
+      const email = session.customer_details?.email || undefined;
+      if (!paid || !email) {
+        return res.status(402).json({ ok: false, error: "Payment not confirmed or missing email" });
+      }
+
+      let expiresAt: Date | null = null;
+      const subscriptionId = (session.subscription as string) || undefined;
+      if (subscriptionId) {
+        try {
+          const sub = await stripe.subscriptions.retrieve(subscriptionId);
+          if (sub.current_period_end) expiresAt = new Date(sub.current_period_end * 1000);
+        } catch {
+          // Best-effort; webhook will reconcile expiry.
+        }
+      }
+
+      const updated = await db
+        .update(users)
+        .set({
+          isPro: true,
+          proExpiresAt: expiresAt,
+        })
+        .where(eq(users.email, email))
+        .returning({ id: users.id });
+
+      if (!updated || updated.length === 0) {
+        return res.status(404).json({ ok: false, error: "User not found for this email" });
+      }
+
+      return res.json({ ok: true, email, expiresAt: expiresAt ? expiresAt.toISOString() : null });
+    } catch (err: any) {
+      console.error("[ERROR] /api/pro/confirm-subscription:", err);
+      return res.status(500).json({ ok: false, error: err?.message || String(err) });
+    }
+  });
+
   // Upgrade to Pro (legacy simulation - kept for fallback/testing)
   app.post("/api/pro/upgrade", requireAuth, async (req: Request, res: Response) => {
     try {
@@ -1913,7 +2714,7 @@ export async function registerRoutes(
               const subscriptionId = session.subscription ? String(session.subscription) : "";
               if (subscriptionId) {
                 try {
-                  await stripe.subscriptions.del(subscriptionId);
+                  await stripe.subscriptions.cancel(subscriptionId);
                   console.log(`[BATTLE_PASS] Canceled subscription ${subscriptionId} after activation`);
                 } catch (e: any) {
                   console.error(`[BATTLE_PASS] Failed to cancel subscription ${subscriptionId}:`, e?.message || e);
@@ -2170,6 +2971,33 @@ export async function registerRoutes(
   app.post("/api/battle-pass/activate", requireAuth, async (req: Request, res: Response) => {
     try {
       const userId = (req as any).userId as string;
+      const sessionId = (req.body && (req.body.sessionId || req.body.session_id)) as string | undefined;
+
+      const stripe = getStripe();
+      if (!stripe) {
+        return res.status(503).json({ message: "Billing not configured" });
+      }
+
+      if (!sessionId) {
+        return res.status(400).json({ message: "sessionId is required" });
+      }
+
+      const session = await stripe.checkout.sessions.retrieve(String(sessionId));
+      const sessionUserId = (session.client_reference_id as string) || (session.metadata?.userId as string) || "";
+      const product = (session.metadata?.product as string) || "";
+      const paid = session.payment_status === "paid" || session.status === "complete";
+
+      if (!paid) {
+        return res.status(402).json({ message: "Payment not completed" });
+      }
+
+      if (sessionUserId !== userId) {
+        return res.status(403).json({ message: "Checkout session does not match user" });
+      }
+
+      if (product !== "battle_pass") {
+        return res.status(400).json({ message: "Invalid product for Battle Pass activation" });
+      }
 
       const user = await storage.getUser(userId);
       if (!user) return res.status(404).json({ message: "User not found" });
@@ -2218,7 +3046,10 @@ export async function registerRoutes(
         equipped: {
           avatar: user.avatar || "default",
           frame: user.equippedFrame || null,
+          frameAnimation: (user as any).frameAnimation || null,
           nameEffect: user.equippedNameEffect || null,
+          theme: (user as any).theme || null,
+          badge: user.equippedBadge || null,
         },
       });
     } catch (error: any) {
@@ -2228,7 +3059,7 @@ export async function registerRoutes(
   });
 
   // Get cosmetics catalog with user ownership info
-  app.get("/api/cosmetics/catalog", async (req: Request, res: Response) => {
+  app.get("/api/cosmetics/catalog", optionalAuth, async (req: Request, res: Response) => {
     try {
       const userId = (req as any).userId as string | undefined;
 
@@ -2304,6 +3135,11 @@ export async function registerRoutes(
         metadata: JSON.stringify({ itemId: item.id, itemName: item.name }),
       });
 
+      // Grant particle effects entitlement
+      if (item.id === 'particle_effects') {
+        await db.update(users).set({ particleEffects: true }).where(eq(users.id, userId));
+      }
+
       return res.json({
         message: "Cosmetic purchased",
         item: item.name,
@@ -2319,7 +3155,7 @@ export async function registerRoutes(
   app.post("/api/cosmetics/equip", requireAuth, async (req: Request, res: Response) => {
     try {
       const userId = (req as any).userId as string;
-      const { itemId } = req.body;
+      const { itemId, frameAnimation } = req.body;
 
       if (!itemId) return res.status(400).json({ message: "itemId required" });
 
@@ -2336,14 +3172,37 @@ export async function registerRoutes(
 
       const updates: any = {};
 
+      const allowedFrameAnimations = new Set([
+        "rotate",
+        "pulse",
+        "shimmer",
+        "glow",
+        "wave",
+        "bounce",
+        "wobble",
+        "tilt",
+        "zoom",
+        "flicker",
+      ]);
+
       if (item.category === "avatar") {
         updates.avatar = itemId.replace("avatar_", "");
       } else if (item.category === "frame") {
         updates.equippedFrame = itemId;
+
+        if (itemId === "frame_animated" && frameAnimation !== undefined) {
+          const anim = String(frameAnimation).trim();
+          if (!allowedFrameAnimations.has(anim)) {
+            return res.status(400).json({ message: "Invalid frameAnimation" });
+          }
+          updates.frameAnimation = anim;
+        }
       } else if (item.category === "name_effect") {
         updates.equippedNameEffect = itemId;
       } else if (item.category === "theme") {
         updates.theme = itemId;
+      } else if (item.category === "badge") {
+        updates.equippedBadge = itemId;
       }
 
       if (Object.keys(updates).length === 0) {
@@ -2358,7 +3217,10 @@ export async function registerRoutes(
         equipped: {
           avatar: updates.avatar || user.avatar,
           frame: updates.equippedFrame || user.equippedFrame,
+          frameAnimation: (updates.frameAnimation ?? (user as any).frameAnimation) || null,
           nameEffect: updates.equippedNameEffect || user.equippedNameEffect,
+          theme: updates.theme || (user as any).theme,
+          badge: updates.equippedBadge || user.equippedBadge,
         },
       });
     } catch (error: any) {

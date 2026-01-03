@@ -4,10 +4,11 @@ import { ArrowRight, Code, Box, Layers, Play, Repeat } from "lucide-react";
 import { motion } from "framer-motion";
 import generatedImage from "@assets/generated_images/blueprint_style_programming_visualization_concept.png";
 import { AdUnit, AD_SLOTS } from "@/components/ad-unit";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 
 export default function Home() {
-
+  const { t } = useLanguage();
   
   return (
     <Layout>
@@ -30,27 +31,27 @@ export default function Home() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                   </span>
-                  Language Support
+                  {t('home.badge.languageSupport', 'Language Support')}
                 </div>
                 
                 <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/50">
-                  Learn to Code Visually <br/>
-                  <span className="text-primary">with Interactive Lessons</span>
+                  {t('home.hero.titleTop', 'Learn to Code Visually')} <br/>
+                  <span className="text-primary">{t('home.hero.titleAccent', 'with Interactive Lessons')}</span>
                 </h1>
                 
                 <p className="text-xl text-muted-foreground mb-8 leading-relaxed max-w-2xl">
-                  Master programming concepts step by step.
+                  {t('home.hero.subtitle', 'Master programming concepts step by step.')}
                 </p>
 
                 <div className="flex flex-wrap gap-4">
                   <Link href="/lesson/functions">
                     <button aria-label="Get started" className="px-8 py-4 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]">
-                      Get Started <ArrowRight className="w-5 h-5" />
+                      {t('home.hero.getStarted', 'Get Started')} <ArrowRight className="w-5 h-5" />
                     </button>
                   </Link>
                   <Link href="/lesson/objects">
                     <button aria-label="Explore objects" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-medium rounded-lg hover:bg-white/10 transition-all backdrop-blur-sm">
-                      Explore Objects
+                      {t('home.hero.exploreObjects', 'Explore Objects')}
                     </button>
                   </Link>
                 </div>
@@ -67,7 +68,7 @@ export default function Home() {
 
         {/* Lessons Grid */}
         <section className="container mx-auto px-4 py-20 border-t border-white/5">
-          <h2 className="text-3xl font-bold mb-12">Learning Modules</h2>
+          <h2 className="text-3xl font-bold mb-12">{t('home.sections.learningModules', 'Learning Modules')}</h2>
           
           {/* Ad between grid and content */}
           <div className="mb-8 max-w-4xl">
@@ -77,43 +78,43 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <LessonCard 
               icon={<Code className="w-8 h-8 text-blue-400" />}
-              title="Functions"
-              description="Learn how to define and use functions."
+              title={t('home.lessons.functions.title', 'Functions')}
+              description={t('home.lessons.functions.desc', 'Learn how to define and use functions.')}
               href="/lesson/functions"
               color="blue"
             />
             <LessonCard 
               icon={<Box className="w-8 h-8 text-orange-400" />}
-              title="Conditionals"
-              description="Understand if/else and switch statements."
+              title={t('home.lessons.conditionals.title', 'Conditionals')}
+              description={t('home.lessons.conditionals.desc', 'Understand if/else and switch statements.')}
               href="/lesson/conditionals"
               color="orange"
             />
             <LessonCard 
               icon={<Repeat className="w-8 h-8 text-pink-400" />}
-              title="Loops & Arrays"
-              description="Work with loops and arrays in code."
+              title={t('home.lessons.loopsArrays.title', 'Loops & Arrays')}
+              description={t('home.lessons.loopsArrays.desc', 'Work with loops and arrays in code.')}
               href="/lesson/loops-arrays"
               color="pink"
             />
             <LessonCard 
               icon={<Box className="w-8 h-8 text-emerald-400" />}
-              title="Objects"
-              description="Explore object-oriented programming."
+              title={t('home.lessons.objects.title', 'Objects')}
+              description={t('home.lessons.objects.desc', 'Explore object-oriented programming.')}
               href="/lesson/objects"
               color="emerald"
             />
             <LessonCard 
               icon={<Layers className="w-8 h-8 text-amber-400" />}
-              title="Classes"
-              description="Learn about classes and inheritance."
+              title={t('home.lessons.classes.title', 'Classes')}
+              description={t('home.lessons.classes.desc', 'Learn about classes and inheritance.')}
               href="/lesson/classes"
               color="amber"
             />
             <LessonCard 
               icon={<Repeat className="w-8 h-8 text-purple-400" />}
-              title="Recursion"
-              description="Understand recursive functions."
+              title={t('home.lessons.recursion.title', 'Recursion')}
+              description={t('home.lessons.recursion.desc', 'Understand recursive functions.')}
               href="/lesson/recursion"
               color="purple"
             />
@@ -125,6 +126,7 @@ export default function Home() {
 }
 
 function LessonCard({ icon, title, description, href, color }: any) {
+  const { t } = useLanguage();
   const colorClasses = {
     blue: "hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]",
     emerald: "hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]",
@@ -146,7 +148,7 @@ function LessonCard({ icon, title, description, href, color }: any) {
         <h3 className="text-lg font-bold mb-2 group-hover:text-white transition-colors">{title}</h3>
         <p className="text-sm text-muted-foreground leading-relaxed flex-1">{description}</p>
         <div className="mt-6 flex items-center text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0">
-          Start <ArrowRight className="w-3 h-3 ml-2" />
+          {t('home.lessonCard.start', 'Start')} <ArrowRight className="w-3 h-3 ml-2" />
         </div>
       </motion.div>
     </Link>

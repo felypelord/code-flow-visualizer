@@ -6,7 +6,7 @@ import { ProExercise } from "@/lib/pro-exercises";
 import { ProExerciseEditor } from "@/components/pro-exercise-editor";
 import { useUser } from "@/hooks/use-user";
 import { useLocation } from "wouter";
-// import removed: useLanguage
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProExerciseCardProps {
   exercise: ProExercise;
@@ -16,10 +16,10 @@ interface ProExerciseCardProps {
 
 export function ProExerciseCard({ exercise, onSelect, completed }: ProExerciseCardProps) {
   const { user } = useUser();
+  const { t } = useLanguage();
   const [, setLocation] = useLocation();
   const [showEditor, setShowEditor] = useState(false);
   const isPro = !!user?.isPro;
-  const t: any = {};
 
   const difficultyColors = {
     Beginner: "bg-green-500/20 text-green-300 border-green-500/30",
@@ -35,9 +35,11 @@ export function ProExerciseCard({ exercise, onSelect, completed }: ProExerciseCa
     "design-patterns": "🎨",
   };
 
+  const hasComplexity = Boolean(exercise.complexity?.time || exercise.complexity?.space);
+
   const handleClick = () => {
     if (!isPro) {
-      setLocation("/pro");
+      setLocation("/pricing?vip=1");
       return;
     }
     setShowEditor(true);
@@ -70,7 +72,7 @@ export function ProExerciseCard({ exercise, onSelect, completed }: ProExerciseCa
       {completed && (
         <div className="absolute top-0 left-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-br-lg flex items-center gap-1">
           <Check className="w-3 h-3" />
-          Completed
+          {t('pro.exercises.completed', 'Completed')}
         </div>
       )}
 
@@ -107,13 +109,13 @@ export function ProExerciseCard({ exercise, onSelect, completed }: ProExerciseCa
                 : "bg-slate-700 text-slate-400 border border-slate-600"
             }`}
           >
-            { {
+            {t(`pro.exercises.categories.${exercise.category}`, {
               algorithms: 'Algorithms',
               "data-structures": 'Data Structures',
               async: 'Async',
               performance: 'Performance',
               "design-patterns": 'Design Patterns',
-            }[exercise.category] }
+            }[exercise.category])}
           </span>
           <span
             className={`flex items-center gap-1 px-2 py-1 rounded-full ${
@@ -125,6 +127,32 @@ export function ProExerciseCard({ exercise, onSelect, completed }: ProExerciseCa
             <Clock className="w-3 h-3" />
             {exercise.estimatedTime}
           </span>
+
+          {typeof exercise.points === 'number' && (
+            <span
+              className={`px-2 py-1 rounded-full ${
+                isPro
+                  ? "bg-emerald-500/15 text-emerald-200 border border-emerald-400/30"
+                  : "bg-slate-700 text-slate-400 border border-slate-600"
+              }`}
+              title={t('pro.exercises.points', 'Points')}
+            >
+              {t('pro.exercises.pointsShort', 'Pts')}: {exercise.points}
+            </span>
+          )}
+
+          {hasComplexity && (
+            <span
+              className={`px-2 py-1 rounded-full ${
+                isPro
+                  ? "bg-purple-500/15 text-purple-200 border border-purple-400/30"
+                  : "bg-slate-700 text-slate-400 border border-slate-600"
+              }`}
+              title={t('pro.exercises.complexity', 'Complexity')}
+            >
+              {t('pro.exercises.complexityShort', 'Big-O')}: {exercise.complexity?.time || '-'} / {exercise.complexity?.space || '-'}
+            </span>
+          )}
         </div>
 
         {/* Languages */}
@@ -157,11 +185,11 @@ export function ProExerciseCard({ exercise, onSelect, completed }: ProExerciseCa
           size="sm"
         >
           {isPro ? (
-            <>Solve Challenge</>
+            <>{t('pro.exercises.solve', 'Solve Challenge')}</>
           ) : (
             <>
               <Lock className="w-4 h-4 mr-2" />
-              Unlock with Pro
+              {t('pro.exercises.unlock', 'Unlock with Pro')}
             </>
           )}
         </Button>
@@ -182,13 +210,14 @@ export function ProExercisesGrid({
   onSelectExercise,
 }: ProExercisesGridProps) {
   const { user } = useUser();
+  const { t } = useLanguage();
   const [, setLocation] = useLocation();
   // const t = {};
 
   if (exercises.length === 0) {
     return (
       <Card className="p-8 text-center bg-slate-900/60 border border-slate-700">
-        <p className="text-slate-400">No exercises found</p>
+        <p className="text-slate-400">{t('pro.exercises.empty', 'No exercises found')}</p>
       </Card>
     );
   }
@@ -201,15 +230,15 @@ export function ProExercisesGrid({
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <Crown className="w-5 h-5 text-amber-300" />
-                <h3 className="font-bold text-white text-lg">Pro Exercises Locked</h3>
+                <h3 className="font-bold text-white text-lg">{t('pro.exercises.locked.title', 'Pro Exercises Locked')}</h3>
               </div>
-              <p className="text-slate-300 text-sm">Upgrade to Pro to unlock all exercises.</p>
+              <p className="text-slate-300 text-sm">{t('pro.exercises.locked.desc', 'Upgrade to Pro to unlock all exercises.')}</p>
             </div>
             <Button
-              onClick={() => setLocation("/pro")}
+              onClick={() => setLocation("/pricing?vip=1")}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
             >
-              Activate Pro Now
+              {t('pro.exercises.locked.cta', 'Activate Pro Now')}
             </Button>
           </div>
         </Card>

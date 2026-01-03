@@ -418,7 +418,7 @@ output = output_buffer.getvalue().split('\\n')
             <Card className="p-3 bg-black/30 border border-slate-700">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-semibold text-slate-200 flex items-center gap-2"><Sparkles className="w-4 h-4" /> Watch</span>
-                <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={() => setWatchList((prev) => [...prev, "novaVar"])}>+ var</Button>
+                <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={() => setWatchList((prev) => [...prev, "newVar"])}>+ var</Button>
               </div>
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {watchList.map((w, idx) => (
@@ -435,7 +435,7 @@ output = output_buffer.getvalue().split('\\n')
                     <span className="text-amber-300 font-mono">{currentFrame ? String(currentFrame.locals?.[w] ?? "-") : "-"}</span>
                   </div>
                 ))}
-                {watchList.length === 0 && <div className="text-slate-300 text-xs">Sem watch.</div>}
+                {watchList.length === 0 && <div className="text-slate-300 text-xs">No watch variables.</div>}
               </div>
             </Card>
           </div>
@@ -444,18 +444,18 @@ output = output_buffer.getvalue().split('\\n')
         <Card className="p-4 bg-slate-900/60 border border-slate-700 rounded-xl shadow-sm xl:col-span-2">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-3">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-white">Estado da Execucao</h2>
-              <p className="text-xs text-amber-100/80">Navegue por passos, stack e output; exporte snapshot.</p>
+              <h2 className="text-lg font-semibold text-white">Execution State</h2>
+              <p className="text-xs text-amber-100/80">Navigate steps, stack, and output; export a snapshot.</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={handleExport}><Download className="w-4 h-4" /> Exportar JSON</Button>
-              <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={handleCopy}><Copy className="w-4 h-4" /> Copiar snapshot</Button>
+              <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={handleExport}><Download className="w-4 h-4" /> Export JSON</Button>
+              <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={handleCopy}><Copy className="w-4 h-4" /> Copy snapshot</Button>
             </div>
           </div>
 
           <Tabs defaultValue="variables" className="w-full">
             <TabsList className="grid w-full grid-cols-4 bg-black/30 border border-slate-700">
-              <TabsTrigger value="variables">Variaveis</TabsTrigger>
+              <TabsTrigger value="variables">Variables</TabsTrigger>
               <TabsTrigger value="stack">Stack</TabsTrigger>
               <TabsTrigger value="output">Output</TabsTrigger>
               <TabsTrigger value="heap">Heap</TabsTrigger>
@@ -484,8 +484,8 @@ output = output_buffer.getvalue().split('\\n')
               {currentFrame ? (
                 <div className="space-y-3 bg-black/40 p-4 rounded-lg border border-slate-700">
                   <div className="flex items-center justify-between text-sm text-slate-200">
-                    <span>📍 Linha {currentFrame.line} em <span className="font-mono">{currentFrame.function}()</span></span>
-                    <span className="text-xs text-amber-200/80">Passo {debugState.currentFrame + 1} / {debugState.frames.length}</span>
+                    <span>📍 Line {currentFrame.line} in <span className="font-mono">{currentFrame.function}()</span></span>
+                    <span className="text-xs text-amber-200/80">Step {debugState.currentFrame + 1} / {debugState.frames.length}</span>
                   </div>
                   <div className="grid md:grid-cols-2 gap-2">
                     {Object.entries(currentFrame.locals || {}).map(([key, value]) => (
@@ -496,7 +496,7 @@ output = output_buffer.getvalue().split('\\n')
                     ))}
                   </div>
                   {Object.keys(currentFrame.locals || {}).length === 0 && (
-                    <p className="text-sm text-slate-300">Sem variaveis locais</p>
+                    <p className="text-sm text-slate-300">No local variables</p>
                   )}
 
                   <div className="bg-slate-800/80 border border-slate-700 rounded-lg p-3">
@@ -512,14 +512,14 @@ output = output_buffer.getvalue().split('\\n')
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-slate-300">Execute o codigo para ver variaveis</p>
+                <p className="text-sm text-slate-300">Run the code to see variables</p>
               )}
             </TabsContent>
 
             <TabsContent value="stack" className="mt-3">
               <div className="bg-black/40 border border-slate-700 rounded-lg p-3 grid md:grid-cols-2 gap-4">
                 <div>
-                  <div className="text-sm text-amber-100 mb-2">Timeline de passos</div>
+                  <div className="text-sm text-amber-100 mb-2">Step timeline</div>
                   <div className="max-h-64 overflow-y-auto space-y-1">
                     {debugState.frames.map((frame, idx) => (
                       <button
@@ -531,7 +531,7 @@ output = output_buffer.getvalue().split('\\n')
                         {frame.stack && frame.stack.length > 0 && <span className="ml-2 text-slate-300">[{frame.stack.join(" » ")}]</span>}
                       </button>
                     ))}
-                    {debugState.frames.length === 0 && <div className="text-xs text-slate-300">Sem passos.</div>}
+                    {debugState.frames.length === 0 && <div className="text-xs text-slate-300">No steps.</div>}
                   </div>
                 </div>
                 <div className="border-l border-slate-700 pl-3">
@@ -549,7 +549,7 @@ output = output_buffer.getvalue().split('\\n')
                     ))}
                   </div>
                 ) : (
-                  <p className="text-slate-300">{debugState.frames.length > 0 ? "Nenhum output" : "Execute para ver output"}</p>
+                  <p className="text-slate-300">{debugState.frames.length > 0 ? "No output" : "Run to see output"}</p>
                 )}
                 {debugState.error && (
                   <div className="text-red-400 mt-2 font-semibold">❌ {debugState.error}</div>

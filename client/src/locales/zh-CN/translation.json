@@ -1,0 +1,715 @@
+{
+  "seo": {
+    "title": "CodeFlowBR — 可视化学习编程 | 免费互动课程",
+    "description": "通过 CodeFlowBR 以可视化和互动的方式学习编程。提供 Python、JavaScript、C++ 等免费课程与练习。现在开始。"
+  },
+  "nav": {
+    "home": "首页",
+    "learn": "学习",
+    "exercises": "练习",
+    "sandbox": "沙盒",
+    "learning": "学习路径",
+    "pro": "Pro",
+    "pricing": "价格",
+    "library": "图书馆",
+    "gamification": "游戏化",
+    "profile": "个人资料",
+    "battlePass": "战斗通行证",
+    "cosmetics": "外观",
+    "challenges": "挑战",
+    "leaderboard": "排行榜",
+    "dailyChallenges": "每日挑战",
+    "history": "历史记录",
+    "journal": "日志",
+    "achievements": "成就",
+    "upgrade": "升级"
+  },
+  "auth": {
+    "logout": "退出",
+    "signIn": "登录",
+    "createAccount": "创建账号",
+    "dialog": {
+      "loginDesc": "输入邮箱和密码以登录。"
+    },
+    "fields": {
+      "email": "邮箱",
+      "password": "密码"
+    },
+    "sessionExpired": {
+      "title": "会话已过期",
+      "desc": "请重新登录以继续。"
+    }
+  },
+  "banner": {
+    "proCosts": "Pro 每月 $2（USD）；银行会自动换算为本地货币。"
+  },
+  "common": {
+    "start": "开始",
+    "analyze": "分析",
+    "viewPricing": "查看价格",
+    "copy": "复制",
+    "clear": "清除",
+    "cancel": "取消",
+    "backToProfile": "← 返回个人资料",
+    "loading": "加载中",
+    "analyzing": "分析中",
+    "processing": "处理中...",
+    "redirecting": "正在跳转",
+    "active": "已激活",
+    "error": "错误",
+    "errorWithCode": "错误 {{status}}",
+    "pleaseTryAgain": "请重试。",
+    "tryAgainSoon": "请稍后重试。",
+    "somethingWentWrongTryAgain": "出了点问题。请重试。",
+    "unexpectedError": "发生未知错误。",
+    "copied": "已复制！",
+    "copyFailed": "复制失败",
+    "alreadyPro": {
+      "title": "已是 Pro",
+      "desc": "你的账号已拥有 Pro 功能。"
+    }
+  },
+  "home": {
+    "badge": {
+      "languageSupport": "多语言支持"
+    },
+    "hero": {
+      "titleTop": "可视化学习编程",
+      "titleAccent": "交互式课程",
+      "subtitle": "一步步掌握编程概念。",
+      "getStarted": "开始",
+      "exploreObjects": "探索对象"
+    },
+    "sections": {
+      "learningModules": "学习模块"
+    },
+    "lessons": {
+      "functions": {
+        "title": "函数",
+        "desc": "学习如何定义和使用函数。"
+      },
+      "conditionals": {
+        "title": "条件判断",
+        "desc": "理解 if/else 与 switch 语句。"
+      },
+      "loopsArrays": {
+        "title": "循环与数组",
+        "desc": "在代码中使用循环与数组。"
+      },
+      "objects": {
+        "title": "对象",
+        "desc": "探索面向对象编程。"
+      },
+      "classes": {
+        "title": "类",
+        "desc": "学习类与继承。"
+      },
+      "recursion": {
+        "title": "递归",
+        "desc": "理解递归函数。"
+      }
+    },
+    "lessonCard": {
+      "start": "开始"
+    }
+  },
+  "pricing": {
+    "header": {
+      "title": "定价方案",
+      "subtitle": "选择适合你的方案",
+      "proPrice": "Pro：$2.00/月",
+      "currency": "USD"
+    },
+    "flashOffer": {
+      "title": "限时优惠",
+      "subtitle": "限时折扣"
+    },
+    "value": {
+      "premiumBadge": "高级徽章",
+      "premiumTitle": "更快调试的高级工具",
+      "premiumDesc": "高级调试、AI 辅助修复、快照与精选学习路径，帮助你更快成长。",
+      "proTracksBadge": "Pro 路径徽章",
+      "proTracksDesc": "精选路径，快速进阶"
+    },
+    "everythingPro": {
+      "title": "Pro 全家桶：更快调试，更聪明的代码",
+      "desc": "订阅 Pro 获取完整套件：高级调试器、AI 修复、快照、性能分析器、私有 Playground 与精选学习路径，加速你的开发提升。"
+    },
+    "billing": {
+      "title": "账单",
+      "desc": "支付由第三方服务商处理。如果结账失败，请联系站点管理员或查看服务器日志——此处不会显示敏感配置信息。"
+    },
+    "store": {
+      "title": "商店",
+      "subtitle": "集中购买道具与额外内容",
+      "xpStoreSubtitle": "用你辛苦赚来的 FlowCoins 购买加成和外观。"
+    },
+    "plans": {
+      "free": {
+        "name": "免费",
+        "period": "每月",
+        "description": "基础功能的有限访问。",
+        "features": {
+          "basicAccess": "基础编辑器与练习访问",
+          "communityChallenges": "社区挑战",
+          "limitedAi": "有限的 AI 建议（试用）",
+          "publicExamples": "公开示例与文档",
+          "basicDebugging": "基础调试工具"
+        },
+        "notIncluded": {
+          "unlimitedAi": "无限 AI 建议",
+          "snapshots": "快照与版本管理",
+          "privatePlaygrounds": "私有 Playground",
+          "prioritySupport": "优先支持"
+        },
+        "cta": "当前方案"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "完整的 Pro 功能、工具与高级内容。",
+        "badge": "Pro",
+        "cta": "激活 Pro"
+      }
+    },
+    "toast": {
+      "signInToEquip": "请登录以装备。"
+    }
+  },
+  "store": {
+    "gate": {
+      "signIn": "请登录以访问商店"
+    },
+    "header": {
+      "title": "经验商店",
+      "subtitle": "用你辛苦获得的 XP 兑换酷炫物品！",
+      "backToProfile": "← 返回个人资料"
+    },
+    "balance": {
+      "subtitle": "你的当前余额 • 每 50 XP 获得 1 枚硬币",
+      "level": "等级"
+    },
+    "filters": {
+      "all": "全部",
+      "cosmetic": "外观",
+      "utility": "实用",
+      "boost": "加成",
+      "avatar": "头像",
+      "badge": "徽章",
+      "theme": "主题",
+      "frame": "边框"
+    },
+    "loading": "正在加载商店...",
+    "emptyCategory": "此分类暂无物品",
+    "item": {
+      "owned": "已拥有",
+      "notEnough": "硬币不足",
+      "buy": "购买"
+    },
+    "earn": {
+      "title": "如何获得 FlowCoins",
+      "completeExercises": {
+        "title": "完成练习",
+        "desc": "每 50 XP 获得 1 枚 FlowCoin（每题 10-50 XP）"
+      },
+      "dailyStreak": {
+        "title": "每日连续",
+        "desc": "连续签到奖励 XP = 更多 FlowCoins"
+      },
+      "achievements": {
+        "title": "解锁成就",
+        "desc": "每个成就可获得 25-500 XP"
+      }
+    },
+    "toast": {
+      "notEnough": {
+        "title": "FlowCoins 不足",
+        "desc": "购买此物品需要 {{price}} FlowCoins。"
+      },
+      "purchaseSuccess": {
+        "title": "购买成功！",
+        "desc": "你购买了 {{name}}"
+      },
+      "purchaseFailed": {
+        "title": "购买失败"
+      }
+    },
+    "confirm": {
+      "purchase": "是否使用 {{price}} FlowCoins 购买 {{name}}？"
+    }
+  },
+  "battlePass": {
+    "actions": {
+      "buy": "购买战斗通行证 - $5"
+    },
+    "badge": {
+      "premium": "高级",
+      "free": "免费"
+    },
+    "hero": {
+      "seasonRemaining": "第 1 赛季 • 剩余 45 天",
+      "title": "CodeFlow 战斗通行证",
+      "subtitle": "解锁 50 级高级奖励、传奇头像、金色边框和动态昵称效果。每天学习与完成挑战即可推进进度。",
+      "active": "战斗通行证已激活",
+      "premiumIncludes": "高级通行证包含所有金色奖励。",
+      "signInToSave": "登录以保存你的等级进度。"
+    },
+    "progress": {
+      "label": "进度",
+      "tierOf": "等级 {{current}}/50"
+    },
+    "stats": {
+      "coinsInRewards": "奖励金币",
+      "avatarsFrames": "头像/边框",
+      "xpBoosts": "XP 加成"
+    },
+    "cosmeticsHighlights": {
+      "label": "外观亮点",
+      "title": "自定义你的资料"
+    },
+    "tierGrid": {
+      "season": "第 1 赛季",
+      "title": "等级地图（1-50）",
+      "premiumUnlocks": "高级路线解锁所有金色物品",
+      "tierLabel": "等级"
+    },
+    "cta": {
+      "premiumPassLabel": "高级通行证",
+      "title": "仅需 $5 即可获得全部金色奖励",
+      "desc": "包含 50 级、传奇头像、动态边框、昵称效果，以及 25k+ 奖励金币。非订阅——赛季一次性购买。",
+      "estimatedValue": "预计总价值：价值 $40 的物品"
+    },
+    "toast": {
+      "activationFailedWithCode": "战斗通行证激活失败（{{status}}）",
+      "couldNotConfirmPurchase": "无法确认购买。",
+      "activated": {
+        "title": "战斗通行证已激活",
+        "desc": "你的高级奖励已解锁。"
+      },
+      "activationFailed": {
+        "title": "战斗通行证激活失败"
+      },
+      "mustSignInToBuy": "购买战斗通行证前请先登录。",
+      "failedStartCheckout": "无法开始结账流程。",
+      "openingCheckout": "正在打开战斗通行证结账...",
+      "couldNotCreateCheckout": {
+        "title": "无法创建结账"
+      },
+      "unexpectedStartCheckout": "开始结账时发生未知错误。"
+    }
+  },
+  "pro": {
+    "header": {
+      "title": "Pro 学习",
+      "subtitle": "通过引导式解法与专家讲解，练习更高级的问题。"
+    },
+    "shortcuts": {
+      "proChallenges": {
+        "badge": "Pro 挑战",
+        "title": "Pro 挑战",
+        "desc": "通过引导式解法与专家讲解，练习更高级的问题。"
+      },
+      "aiInspector": {
+        "badge": "AI 代码检查",
+        "title": "AI 代码检查",
+        "desc": "自动分析并提供优化建议、警告与算法解释。"
+      },
+      "debugger": {
+        "badge": "调试器",
+        "title": "高级徽章",
+        "desc": "Pro 调试器需要文本"
+      }
+    },
+    "playground": {
+      "badge": "Pro Playground",
+      "title": "Pro Playground",
+      "desc": "私密且快速的 Playground，用于验证想法与复现 bug。",
+      "placeholder": "编写或粘贴代码进行实验。",
+      "bullets": {
+        "quickExperiments": "快速实验",
+        "testSnippets": "测试代码片段",
+        "shareIterate": "分享并迭代"
+      }
+    },
+    "exercises": {
+      "badge": "Pro 挑战",
+      "searchPlaceholder": "搜索 Pro 内容...",
+      "categories": {
+        "all": "全部",
+        "algorithms": "算法",
+        "data-structures": "数据结构",
+        "async": "异步",
+        "performance": "性能",
+        "design-patterns": "设计模式"
+      },
+      "difficulty": {
+        "all": "全部",
+        "beginner": "入门",
+        "intermediate": "中级",
+        "advanced": "高级"
+      },
+      "sort": {
+        "recommended": "推荐",
+        "difficulty": "难度",
+        "time": "耗时"
+      },
+      "completed": "已完成",
+      "solve": "解题",
+      "unlock": "使用 Pro 解锁",
+      "empty": "未找到练习",
+      "locked": {
+        "title": "Pro 练习已锁定",
+        "desc": "升级到 Pro 以解锁所有练习。",
+        "cta": "立即开通 Pro"
+      },
+      "points": "积分",
+      "pointsShort": "分",
+      "complexity": "复杂度",
+      "complexityShort": "Big-O"
+    },
+    "labs": {
+      "badge": "迷你演示",
+      "subtitle": "快速交互式演示，展示 Pro 功能与工作流。",
+      "profiler": {
+        "title": "代码性能分析",
+        "steps": "性能分析步骤",
+        "hint": "使用性能分析器测量函数性能。",
+        "realtimeToggle": "切换实时分析",
+        "config": {
+          "runs": "运行次数",
+          "warmup": "预热次数"
+        },
+        "runLabel": "第 {{run}} 次",
+        "whatToWatch": {
+          "title": "关注点",
+          "item1": "耗时函数与递归热点。",
+          "item2": "大量分配与内存抖动导致的卡顿。",
+          "item3": "CPU 热点与 I/O 等待队列。"
+        }
+      },
+      "breakpoints": {
+        "title": "断点管理",
+        "conditionPlaceholder": "条件",
+        "add": "添加断点"
+      },
+      "inspector": {
+        "title": "变量检查器",
+        "guide": "检查器指南",
+        "hint": "使用检查器探索对象结构、数值与元数据。",
+        "searchPlaceholder": "搜索检查器...",
+        "pastePlaceholder": "粘贴 JSON 或对象以检查。",
+        "analyze": "分析",
+        "focus": "焦点",
+        "focusFallback": "在树中选择一个值以查看详情",
+        "length": "长度",
+        "keys": "键",
+        "previewFallback": "在检查器树中选择路径以预览其值。",
+        "howToUse": {
+          "title": "如何使用检查器",
+          "item1": "点击键或索引以探索嵌套值。",
+          "item2": "使用搜索框快速查找属性或值。",
+          "item3": "提示：粘贴 JSON 可检查对象或调试 API 响应。"
+        },
+        "interpreter": {
+          "title": "解释器",
+          "item1": "显示所选值及其类型。",
+          "item2": "快速复制值或路径用于调试。",
+          "item3": "使用检查器更快复现并诊断问题。"
+        }
+      }
+    },
+    "debugger": {
+      "loading": "正在加载 Pro 调试器",
+      "badge": "Pro 调试器",
+      "desc": "Pro 调试器仅对订阅用户开放——先免费体验一次，感受价值。"
+    },
+    "editor": {
+      "writeCodeFirst": "请先编写代码",
+      "tests": {
+        "allPassed": "所有测试通过！",
+        "someFailed": "部分测试失败。"
+      },
+      "js": {
+        "noFunction": "未找到可测试的函数。"
+      },
+      "python": {
+        "syntaxErrorTitle": "语法错误",
+        "useDef": "请使用 'def' 关键字",
+        "loadErrorTitle": "Python 加载错误",
+        "loadErrorDesc": "无法加载 Python"
+      }
+    },
+    "toast": {
+      "checkoutCanceled": {
+        "title": "已取消结账",
+        "desc": "未完成支付。"
+      },
+      "subscriptionActivated": {
+        "title": "Pro 已激活",
+        "desc": "你的 Pro 订阅现已生效。"
+      },
+      "firstUseUnlocked": {
+        "title": "首次使用已解锁",
+        "desc": "免费试用此 Pro 功能——订阅后无限使用。"
+      },
+      "proFeature": {
+        "title": "Pro 功能",
+        "desc": "此功能需要 Pro 订阅。升级以解锁全部内容。"
+      },
+      "codeCopied": "代码已复制到剪贴板。",
+      "vipCreated": {
+        "title": "VIP 已创建",
+        "login": "登录以使用你的 VIP 功能。",
+        "checkEmail": "请查看邮箱以完成确认。"
+      },
+      "proFeatureWithTitle": "Pro 功能：{{title}}",
+      "openChallengeToLearnMore": "打开此 Pro 挑战了解更多。"
+    }
+  },
+  "cosmetics": {
+    "toast": {
+      "mustSignInToBuy": "购买外观前请先登录。",
+      "mustSignInToEquip": "装备外观前请先登录。"
+    }
+  },
+  "profile": {
+    "toast": {
+      "signInToSaveTheme": "请登录以保存你的自定义主题。",
+      "signInToEquipThemes": "请登录以装备主题。",
+      "signInToUseSocial": "请登录以使用社交功能。",
+      "signInToEquipAvatars": "请登录以装备头像。"
+    }
+  },
+  "leaderboard": {
+    "toast": {
+      "loginRequired": {
+        "title": "需要登录",
+        "addFriends": "登录后才能添加好友。",
+        "acceptRequests": "登录后才能接受请求。",
+        "followUsers": "登录后才能关注用户。"
+      }
+    }
+  },
+  "dailyChallenges": {
+    "gate": {
+      "signIn": "请登录以查看每日挑战"
+    },
+    "header": {
+      "title": "每日挑战",
+      "subtitle": "完成挑战以获得额外 XP 和 FlowCoins"
+    },
+    "progress": {
+      "title": "今日进度",
+      "completed": "已完成",
+      "earned": "已获得",
+      "streak": "连击"
+    },
+    "difficulty": {
+      "easy": "简单",
+      "medium": "中等",
+      "hard": "困难"
+    },
+    "challenge": {
+      "progress": "进度：{{current}} / {{total}}",
+      "completed": "✓ 已完成！获得 +{{xp}} XP"
+    },
+    "reward": {
+      "xp": "XP"
+    },
+    "about": {
+      "title": "关于每日挑战",
+      "item1": "挑战每天在 UTC 午夜重置",
+      "item2": "完成挑战以获得额外 XP 和 FlowCoins",
+      "item3": "更高难度的挑战奖励更多",
+      "item4": "保持连击以解锁特殊成就",
+      "item5": "Pro 会员可获得专属挑战，奖励 2 倍"
+    },
+    "items": {
+      "daily1": {
+        "title": "完成 3 个练习",
+        "desc": "今天完成任意 3 个编程练习"
+      },
+      "daily2": {
+        "title": "保持连击",
+        "desc": "保持你的每日连击不断"
+      },
+      "daily3": {
+        "title": "学习 30 分钟",
+        "desc": "至少学习 30 分钟"
+      },
+      "daily4": {
+        "title": "满分",
+        "desc": "任意练习获得 100%"
+      },
+      "daily5": {
+        "title": "速度达人",
+        "desc": "在 60 秒内完成一个练习"
+      }
+    }
+  },
+  "achievements": {
+    "gate": {
+      "signIn": "请登录以查看成就"
+    },
+    "header": {
+      "title": "成就"
+    },
+    "progress": {
+      "title": "进度",
+      "percentComplete": "{{percent}}% 已完成"
+    },
+    "filters": {
+      "all": "全部",
+      "streak": "连击",
+      "exercises": "练习",
+      "speed": "速度",
+      "accuracy": "准确率",
+      "learning": "学习",
+      "special": "特殊"
+    },
+    "loading": "正在加载成就...",
+    "empty": "此分类暂无成就",
+    "card": {
+      "progress": "进度",
+      "unlockedOn": "于 {{date}} 解锁"
+    }
+  },
+  "history": {
+    "gate": {
+      "signIn": "请登录以查看历史记录"
+    },
+    "header": {
+      "title": "活动历史"
+    },
+    "stats": {
+      "exercises": "练习",
+      "avgScore": "平均得分",
+      "avgTime": "平均用时",
+      "totalXp": "总 XP",
+      "streak": "连击",
+      "streakDays": "{{count}} 天"
+    },
+    "heatmap": {
+      "title": "活动热力图（最近 90 天）",
+      "tooltipOne": "{{date}}：{{count}} 次活动",
+      "tooltipMany": "{{date}}：{{count}} 次活动",
+      "less": "少",
+      "more": "多"
+    },
+    "filters": {
+      "all": "全部",
+      "exercise": "练习",
+      "lesson": "课程",
+      "profiler": "Profiler",
+      "inspector": "Inspector",
+      "debugger": "Debugger"
+    },
+    "recent": {
+      "title": "最近活动",
+      "empty": "还没有活动。开始编码来建立你的历史记录！"
+    }
+  },
+  "journal": {
+    "gate": {
+      "signIn": "请登录以查看日志"
+    },
+    "header": {
+      "title": "学习日志",
+      "backToProfile": "← 个人资料"
+    },
+    "actions": {
+      "new": "新建条目",
+      "save": "保存条目"
+    },
+    "form": {
+      "editTitle": "编辑条目",
+      "newTitle": "新建条目",
+      "titleLabel": "标题（可选）",
+      "titlePlaceholder": "今天的学习...",
+      "contentLabel": "内容 *",
+      "contentPlaceholder": "你今天学到了什么？有什么收获或 'aha' 时刻吗？",
+      "tagsLabel": "标签（用逗号分隔）",
+      "tagsPlaceholder": "algorithms, recursion, debugging",
+      "codeLabel": "代码片段（可选）"
+    },
+    "loading": "正在加载日志...",
+    "empty": {
+      "title": "你的日志还是空的",
+      "desc": "开始记录你的编程旅程！回顾所学、跟踪进度，并保存有用的代码片段。"
+    },
+    "entry": {
+      "codeSnippet": "代码片段"
+    },
+    "confirm": {
+      "delete": "删除此条目？"
+    },
+    "toast": {
+      "created": {
+        "title": "条目已创建！"
+      },
+      "updated": {
+        "title": "条目已更新！"
+      },
+      "saved": {
+        "desc": "你的日志已保存。"
+      },
+      "saveFailed": "保存条目失败",
+      "deleted": {
+        "title": "条目已删除",
+        "desc": "日志条目已移除。"
+      },
+      "deleteFailed": "删除条目失败"
+    }
+  },
+  "sandbox": {
+    "title": "沙盒",
+    "subtitle": "粘贴完整代码，逐行查看程序如何运行。",
+    "reset": "重置",
+    "play": "运行",
+    "pause": "暂停",
+    "step": "单步",
+    "speed": "速度",
+    "syntaxErrorTitle": "语法问题",
+    "syntaxErrorDesc": "请先修复代码：{{details}}",
+    "suggestionsLabel": "建议",
+    "suggestion": {
+      "removeDebug": "分享前移除调试输出（例如 console.log / print）。",
+      "strictEq": "在 JavaScript 中优先使用 === 而不是 ==。",
+      "avoidVar": "优先使用 let/const 而不是 var。",
+      "semicolon": "这一行看起来可能缺少分号（;）。",
+      "unusedVar": "变量 \"{{name}}\" 被赋值但从未使用。"
+    },
+    "nonJsNote": "目前已完整支持 JavaScript 的真实执行。其他语言我们将很快添加执行引擎（静态检查 + 单步模拟）。",
+    "notSupported": "目前只有 JavaScript 支持真实的逐步执行。其他语言我们将很快添加执行引擎。",
+    "doneTitle": "执行完成",
+    "doneDesc": "已到达程序末尾。",
+    "errorTitle": "执行错误",
+    "narration": "讲解",
+    "narrationEmpty": "点击“单步”或“运行”开始。",
+    "output": "输出",
+    "outputEmpty": "暂无输出。",
+    "outputNonJsNote": "输出仅对 JavaScript 的真实执行显示。其他语言目前为模拟。",
+    "explain": {
+      "blank": "空行。",
+      "comment": "注释。",
+      "import": "导入 / include 语句。",
+      "class": "类 / 类型定义。",
+      "function": "函数定义。",
+      "conditional": "条件分支判断。",
+      "loop": "循环判断/迭代。",
+      "return": "返回语句。",
+      "output": "输出语句。",
+      "declaration": "变量声明。",
+      "assignment": "赋值 / 表达式求值。",
+      "executing": "正在执行该行。"
+    }
+  }
+  ,
+  "visualizer": {
+    "callStack": "调用栈",
+    "heap": "堆内存",
+    "active": "活动",
+    "empty": "空",
+    "emptyStack": "调用栈为空",
+    "emptyHeap": "堆内存为空"
+  }
+}

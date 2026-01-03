@@ -10,7 +10,14 @@ export type WorkerRequest = {
 
 export type WorkerResponse =
   | { ok: true; result: any }
-  | { ok: false; error: string };
+  | { ok: false; error: string; line?: number };
+
+export type WorkerStdoutEvent = {
+  type: 'stdout';
+  stream: 'stdout' | 'stderr';
+  text: string;
+  line?: number;
+};
 
 // Support two modes:
 // - default: execute fully and post step/snapshot events as before
@@ -54,12 +61,81 @@ async function runAuto(src: string, functionName: string, args: any[]) {
   const lines = src.split('\n');
   const instrumented = lines.map((l, i) => {
     const lineNum = i + 1;
-    return `${l}\n__stepHook(${lineNum});\n__captureSnapshot(${lineNum});`;
+    return `__stepHook(${lineNum});\n${l}\n__captureSnapshot(${lineNum});`;
   }).join('\n');
 
-    const wrapper = `
+  const __cf_blockSize = 3;
+  const wrapperHeader = `
+    let __currentLine = 0;
     const __captureNames = ${JSON.stringify(uniqueNames)};
-    function __stepHook(line){ try { self.postMessage({ type: 'step', line: line }); } catch(e){} }
+    function __setLine(line){ __currentLine = Number(line)||0; try { self.__currentLine = __currentLine; } catch(e){} }
+    function __stepHook(line){ __setLine(line); try { self.postMessage({ type: 'step', line: line }); } catch(e){} }
+    function __emitStdout(stream, args){
+      try {
+        const parts = Array.isArray(args) ? args : [args];
+        const text = parts.map((a)=>{
+          try {
+            if (typeof a === 'string') return a;
+            return JSON.stringify(a);
+          } catch(e) {
+            return String(a);
+          }
+        }).join(' ');
+        self.postMessage({ type: 'stdout', stream: stream, text: String(text), line: __currentLine });
+      } catch(e){}
+    }
+    try {
+      const __origLog = console.log;
+      const __origErr = console.error;
+      console.log = (...a) => { __emitStdout('stdout', a); try { __origLog && __origLog(...a); } catch(e){} };
+      console.error = (...a) => { __emitStdout('stderr', a); try { __origErr && __origErr(...a); } catch(e){} };
+    } catch(e) {}
+    // Best-effort async line attribution: when callbacks run later, restore the scheduling line.
+    try {
+      const __wrapCallback = (cb, line) => {
+        if (typeof cb !== 'function') return cb;
+        return (...a) => { try { __setLine(line); } catch(e){}; return cb(...a); };
+      };
+      const __origSetTimeout = self.setTimeout;
+      if (typeof __origSetTimeout === 'function') {
+        self.setTimeout = (cb, delay, ...a) => __origSetTimeout(__wrapCallback(cb, __currentLine), delay, ...a);
+      }
+      const __origSetInterval = self.setInterval;
+      if (typeof __origSetInterval === 'function') {
+        self.setInterval = (cb, delay, ...a) => __origSetInterval(__wrapCallback(cb, __currentLine), delay, ...a);
+      }
+      const __origQueueMicrotask = self.queueMicrotask;
+      if (typeof __origQueueMicrotask === 'function') {
+        self.queueMicrotask = (cb) => __origQueueMicrotask(__wrapCallback(cb, __currentLine));
+      }
+      const __origRAF = self.requestAnimationFrame;
+      if (typeof __origRAF === 'function') {
+        self.requestAnimationFrame = (cb) => __origRAF(__wrapCallback(cb, __currentLine));
+      }
+      if (self.Promise && self.Promise.prototype) {
+        const __origThen = self.Promise.prototype.then;
+        const __origCatch = self.Promise.prototype.catch;
+        const __origFinally = self.Promise.prototype.finally;
+        if (typeof __origThen === 'function') {
+          self.Promise.prototype.then = function(onFulfilled, onRejected){
+            const ln = __currentLine;
+            return __origThen.call(this, __wrapCallback(onFulfilled, ln), __wrapCallback(onRejected, ln));
+          };
+        }
+        if (typeof __origCatch === 'function') {
+          self.Promise.prototype.catch = function(onRejected){
+            const ln = __currentLine;
+            return __origCatch.call(this, __wrapCallback(onRejected, ln));
+          };
+        }
+        if (typeof __origFinally === 'function') {
+          self.Promise.prototype.finally = function(onFinally){
+            const ln = __currentLine;
+            return __origFinally.call(this, __wrapCallback(onFinally, ln));
+          };
+        }
+      }
+    } catch(e) {}
     function __serialize(val, depth){ try { if (depth <= 0) return (Array.isArray(val) ? '[Array]' : (val && typeof val === 'object' ? '[Object]' : val)); if (val && typeof val === 'object') { if (Array.isArray(val)) { return val.map(v => __serialize(v, depth - 1)); } const out = {}; for (const k in val) { try { out[k] = __serialize(val[k], depth - 1); } catch(e) { out[k] = String(val[k]); } } return out; } return val; } catch(e) { return null; } }
     function __captureSnapshot(line){ try {
         const obj = {};
@@ -99,17 +175,39 @@ async function runAuto(src: string, functionName: string, args: any[]) {
         } catch(e){}
         self.postMessage({ type: 'snapshot', line: line, vars: obj, stack: __stack, heap: __heap });
       } catch(e){} }
-    ${instrumented}
-    ; (typeof ${functionName} === 'function') ? ${functionName} : null;
   `;
+
+  const wrapperFooter = `
+    ; (typeof ${functionName} === 'function') ? ${functionName} : null;
+    //# sourceURL=codeflow-sandbox.js
+  `;
+
+  const __cf_instrumentedStartLine = wrapperHeader.split('\n').length;
+  const wrapper = wrapperHeader + instrumented + wrapperFooter;
 
   let fn: any;
   try {
     const getFn = new Function(wrapper);
     fn = getFn();
   } catch (err) {
-    try { self.postMessage({ type: 'wrapper-error', error: 'Wrapper SyntaxError: ' + String(err), wrapper: wrapper.slice(0, 2000) }); } catch(e){}
+    let mappedLine: number | undefined;
+    try {
+      const stack = String((err as any)?.stack || '');
+      const m = stack.match(/codeflow-sandbox\.js:(\d+):(\d+)/);
+      if (m && m[1]) {
+        const wrapperLine = Number(m[1]);
+        if (Number.isFinite(wrapperLine)) {
+          const rel = wrapperLine - __cf_instrumentedStartLine + 1;
+          if (rel >= 1) mappedLine = Math.ceil(rel / __cf_blockSize);
+        }
+      }
+    } catch(e) {}
+    try { self.postMessage({ type: 'wrapper-error', error: 'Wrapper SyntaxError: ' + String(err), wrapper: wrapper.slice(0, 2000), line: mappedLine }); } catch(e){}
     return;
+  }
+  // Script mode: allow running top-level code without requiring a named function.
+  if (!fn && functionName === '__cf_script') {
+    fn = async () => null;
   }
   if (!fn) {
     const msg = `Function not found: ${functionName}`;
@@ -121,7 +219,7 @@ async function runAuto(src: string, functionName: string, args: any[]) {
     if (result && typeof result.then === 'function') result = await result;
     self.postMessage({ ok: true, result } as WorkerResponse);
   } catch (err) {
-    self.postMessage({ ok: false, error: String(err) } as WorkerResponse);
+    self.postMessage({ ok: false, error: String(err), line: (self as any).__currentLine } as WorkerResponse);
   }
 }
 
@@ -151,12 +249,77 @@ async function runManual(src: string, functionName: string, args: any[]) {
   // Build an async wrapper that yields (awaits) between lines
   const instrumented = lines.map((l, i) => {
     const lineNum = i + 1;
-    return `${l}\n__stepHook(${lineNum});\n__captureSnapshot(${lineNum});\nawait __wait();`;
+    return `__stepHook(${lineNum});\n${l}\n__captureSnapshot(${lineNum});\nawait __wait();`;
   }).join('\n');
 
-    const wrapper = `
+  const __cf_blockSize = 4;
+  const wrapperHeader = `
+    let __currentLine = 0;
     const __captureNames = ${JSON.stringify(uniqueNames)};
-    function __stepHook(line){ try { self.postMessage({ type: 'step', line: line }); } catch(e){} }
+    function __setLine(line){ __currentLine = Number(line)||0; try { self.__currentLine = __currentLine; } catch(e){} }
+    function __stepHook(line){ __setLine(line); try { self.postMessage({ type: 'step', line: line }); } catch(e){} }
+    function __emitStdout(stream, args){
+      try {
+        const parts = Array.isArray(args) ? args : [args];
+        const text = parts.map((a)=>{
+          try {
+            if (typeof a === 'string') return a;
+            return JSON.stringify(a);
+          } catch(e) {
+            return String(a);
+          }
+        }).join(' ');
+        self.postMessage({ type: 'stdout', stream: stream, text: String(text), line: __currentLine });
+      } catch(e){}
+    }
+    try {
+      const __origLog = console.log;
+      const __origErr = console.error;
+      console.log = (...a) => { __emitStdout('stdout', a); try { __origLog && __origLog(...a); } catch(e){} };
+      console.error = (...a) => { __emitStdout('stderr', a); try { __origErr && __origErr(...a); } catch(e){} };
+    } catch(e) {}
+    // Best-effort async line attribution
+    try {
+      const __wrapCallback = (cb, line) => {
+        if (typeof cb !== 'function') return cb;
+        return (...a) => { try { __setLine(line); } catch(e){}; return cb(...a); };
+      };
+      const __origSetTimeout = self.setTimeout;
+      if (typeof __origSetTimeout === 'function') {
+        self.setTimeout = (cb, delay, ...a) => __origSetTimeout(__wrapCallback(cb, __currentLine), delay, ...a);
+      }
+      const __origSetInterval = self.setInterval;
+      if (typeof __origSetInterval === 'function') {
+        self.setInterval = (cb, delay, ...a) => __origSetInterval(__wrapCallback(cb, __currentLine), delay, ...a);
+      }
+      const __origQueueMicrotask = self.queueMicrotask;
+      if (typeof __origQueueMicrotask === 'function') {
+        self.queueMicrotask = (cb) => __origQueueMicrotask(__wrapCallback(cb, __currentLine));
+      }
+      if (self.Promise && self.Promise.prototype) {
+        const __origThen = self.Promise.prototype.then;
+        const __origCatch = self.Promise.prototype.catch;
+        const __origFinally = self.Promise.prototype.finally;
+        if (typeof __origThen === 'function') {
+          self.Promise.prototype.then = function(onFulfilled, onRejected){
+            const ln = __currentLine;
+            return __origThen.call(this, __wrapCallback(onFulfilled, ln), __wrapCallback(onRejected, ln));
+          };
+        }
+        if (typeof __origCatch === 'function') {
+          self.Promise.prototype.catch = function(onRejected){
+            const ln = __currentLine;
+            return __origCatch.call(this, __wrapCallback(onRejected, ln));
+          };
+        }
+        if (typeof __origFinally === 'function') {
+          self.Promise.prototype.finally = function(onFinally){
+            const ln = __currentLine;
+            return __origFinally.call(this, __wrapCallback(onFinally, ln));
+          };
+        }
+      }
+    } catch(e) {}
     function __serialize(val, depth){ try { if (depth <= 0) return (Array.isArray(val) ? '[Array]' : (val && typeof val === 'object' ? '[Object]' : val)); if (val && typeof val === 'object') { if (Array.isArray(val)) { return val.map(v => __serialize(v, depth - 1)); } const out = {}; for (const k in val) { try { out[k] = __serialize(val[k], depth - 1); } catch(e) { out[k] = String(val[k]); } } return out; } return val; } catch(e) { return null; } }
     function __captureSnapshot(line){ try {
         const obj = {};
@@ -199,23 +362,41 @@ async function runManual(src: string, functionName: string, args: any[]) {
     function __wait(){ return new Promise(res=>{ __res.push(res); }); }
     (async function(){
       try {
-        ${instrumented}
+  `;
+
+  const wrapperFooter = `
         const res = (typeof ${functionName} === 'function') ? await ${functionName}(...(Array.isArray(args) ? args : [])) : null;
         self.postMessage({ ok: true, result: res });
       } catch(e) {
-        self.postMessage({ ok: false, error: String(e) });
+        self.postMessage({ ok: false, error: String(e), line: __currentLine });
       }
     })();
     // expose resolver array access via global
-    (self as any).__resolveNext = function(){ try { if(__res && __res.length) { const r = __res.shift(); r(); } } catch(e){} };
-    (self as any).__resolveAll = function(){ try { while(__res && __res.length) { const r = __res.shift(); r(); } } catch(e){} };
+    self.__resolveNext = function(){ try { if(__res && __res.length) { const r = __res.shift(); r(); } } catch(e){} };
+    self.__resolveAll = function(){ try { while(__res && __res.length) { const r = __res.shift(); r(); } } catch(e){} };
+    //# sourceURL=codeflow-sandbox.js
   `;
+
+  const __cf_instrumentedStartLine = wrapperHeader.split('\n').length;
+  const wrapper = wrapperHeader + instrumented + wrapperFooter;
 
   try {
     const getFn = new Function('args', wrapper);
     getFn(args);
   } catch (err) {
-    try { self.postMessage({ type: 'wrapper-error', error: 'Wrapper SyntaxError: ' + String(err), wrapper: wrapper.slice(0, 2000) }); } catch(e){}
+    let mappedLine: number | undefined;
+    try {
+      const stack = String((err as any)?.stack || '');
+      const m = stack.match(/codeflow-sandbox\.js:(\d+):(\d+)/);
+      if (m && m[1]) {
+        const wrapperLine = Number(m[1]);
+        if (Number.isFinite(wrapperLine)) {
+          const rel = wrapperLine - __cf_instrumentedStartLine + 1;
+          if (rel >= 1) mappedLine = Math.ceil(rel / __cf_blockSize);
+        }
+      }
+    } catch(e) {}
+    try { self.postMessage({ type: 'wrapper-error', error: 'Wrapper SyntaxError: ' + String(err), wrapper: wrapper.slice(0, 2000), line: mappedLine }); } catch(e){}
     return;
   }
 }

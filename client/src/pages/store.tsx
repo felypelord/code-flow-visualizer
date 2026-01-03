@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/use-user';
 import { ShoppingBag, Zap, Sparkles, Camera, Award, Palette, HelpCircle, Eye, Clock, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface StoreItem {
   id: string;
@@ -24,21 +25,60 @@ const STORE_CATALOG: StoreItem[] = [
   { id: 'avatar_alien', name: 'Alien Avatar', description: 'Out of this world 👽', type: 'cosmetic', price: 75, icon: '👽', category: 'avatar' },
   { id: 'avatar_pirate', name: 'Pirate Avatar', description: 'Ahoy matey! 🏴‍☠️', type: 'cosmetic', price: 100, icon: '🏴‍☠️', category: 'avatar' },
   { id: 'avatar_astronaut', name: 'Astronaut Avatar', description: 'To infinity! 👨‍🚀', type: 'cosmetic', price: 150, icon: '👨‍🚀', category: 'avatar' },
+  { id: 'avatar_cat', name: 'Cat Avatar', description: 'A purr-fect coding companion 🐱', type: 'cosmetic', price: 75, icon: '🐱', category: 'avatar' },
+  { id: 'avatar_fox', name: 'Fox Avatar', description: 'Clever and quick 🦊', type: 'cosmetic', price: 100, icon: '🦊', category: 'avatar' },
+  { id: 'avatar_octopus', name: 'Octopus Avatar', description: 'Multi-task like a pro 🐙', type: 'cosmetic', price: 150, icon: '🐙', category: 'avatar' },
 
   // Cosmetics - Badges
   { id: 'badge_fire', name: 'Fire Badge', description: 'Show you\'re on fire 🔥', type: 'cosmetic', price: 100, icon: '🔥', category: 'badge' },
   { id: 'badge_diamond', name: 'Diamond Badge', description: 'Shine bright 💎', type: 'cosmetic', price: 200, icon: '💎', category: 'badge' },
   { id: 'badge_crown', name: 'Crown Badge', description: 'Royalty status 👑', type: 'cosmetic', price: 300, icon: '👑', category: 'badge' },
+  { id: 'badge_premium', name: 'Premium Badge', description: 'Special premium badge 🏅', type: 'cosmetic', price: 800, icon: '🏅', category: 'badge' },
+  { id: 'badge_vip_halo', name: 'VIP Badge + Halo', description: 'Exclusive VIP badge with golden halo effect', type: 'cosmetic', price: 5000, icon: '✨', category: 'badge' },
 
   // Cosmetics - Themes
   { id: 'theme_neon', name: 'Neon Theme', description: 'Cyberpunk editor colors', type: 'cosmetic', price: 200, icon: '🌈', category: 'theme' },
   { id: 'theme_ocean', name: 'Ocean Theme', description: 'Deep blue vibes', type: 'cosmetic', price: 200, icon: '🌊', category: 'theme' },
   { id: 'theme_forest', name: 'Forest Theme', description: 'Natural green tones', type: 'cosmetic', price: 200, icon: '🌲', category: 'theme' },
+  { id: 'theme_cyberpunk', name: 'Cyberpunk Theme', description: 'Neon nights and dark UI', type: 'cosmetic', price: 250, icon: '🟣', category: 'theme' },
+  { id: 'theme_matrix', name: 'Matrix Theme', description: 'Green code rain vibes', type: 'cosmetic', price: 250, icon: '🟩', category: 'theme' },
+  { id: 'theme_vip_gold', name: 'VIP Gold Theme', description: 'Premium golden grid background', type: 'cosmetic', price: 5000, icon: '✨', category: 'theme' },
+  { id: 'theme_aurora', name: 'Aurora Theme', description: 'Soft aurora glow background', type: 'cosmetic', price: 300, icon: '🌌', category: 'theme' },
+  { id: 'theme_sunset', name: 'Sunset Theme', description: 'Warm sunset grid background', type: 'cosmetic', price: 300, icon: '🌅', category: 'theme' },
+  { id: 'theme_rose', name: 'Rose Theme', description: 'Pink accent grid background', type: 'cosmetic', price: 300, icon: '🌸', category: 'theme' },
+  { id: 'theme_obsidian', name: 'Obsidian Theme', description: 'Ultra subtle dark grid background', type: 'cosmetic', price: 300, icon: '🖤', category: 'theme' },
 
   // Cosmetics - Profile Frames
   { id: 'frame_gold', name: 'Gold Frame', description: 'Legendary profile border', type: 'cosmetic', price: 150, icon: '🟡', category: 'frame' },
   { id: 'frame_silver', name: 'Silver Frame', description: 'Epic profile border', type: 'cosmetic', price: 100, icon: '⚪', category: 'frame' },
   { id: 'frame_rainbow', name: 'Rainbow Frame', description: 'Colorful profile border', type: 'cosmetic', price: 250, icon: '🌈', category: 'frame' },
+  { id: 'frame_neon', name: 'Neon Frame', description: 'Electric neon border', type: 'cosmetic', price: 250, icon: '💡', category: 'frame' },
+  { id: 'frame_onyx', name: 'Onyx Frame', description: 'Minimal dark border', type: 'cosmetic', price: 150, icon: '⬛', category: 'frame' },
+  { id: 'frame_animated', name: 'Animated Avatar Frame', description: 'Animated frame around your avatar (10 animations)', type: 'cosmetic', price: 3500, icon: '🌀', category: 'frame' },
+
+  // Cosmetics - Name Effects
+  { id: 'name_effect_ice', name: 'Ice Name', description: 'Cool icy glow ❄️', type: 'cosmetic', price: 400, icon: '❄️', category: 'cosmetic' },
+  { id: 'name_effect_glitch', name: 'Glitch Name', description: 'Glitchy cyber effect 🧩', type: 'cosmetic', price: 600, icon: '🧩', category: 'cosmetic' },
+
+  // Cosmetics - Custom Username Color (entitlement)
+  { id: 'username_color_custom', name: 'Custom Username Color', description: 'Choose a custom color for your username 🎨', type: 'cosmetic', price: 1000, icon: '🎨', category: 'cosmetic' },
+
+  // Cosmetics - Particle effects (entitlement)
+  { id: 'particle_effects', name: 'Particle Effects', description: 'Confetti effect when completing exercises 🎉', type: 'cosmetic', price: 1200, icon: '🎉', category: 'effect' },
+
+  // Cosmetics - Trophy case / Achievements display (entitlement)
+  { id: 'trophy_case', name: 'Trophy Case', description: 'Showcase up to 3 achievements on your profile 🏆', type: 'cosmetic', price: 2500, icon: '🏆', category: 'trophy_case' },
+
+  // Cosmetics - Custom theme creator (entitlement)
+  { id: 'custom_theme_creator', name: 'Custom Theme Creator', description: 'Create and save your own theme 🛠️', type: 'cosmetic', price: 3000, icon: '🛠️', category: 'theme_creator' },
+
+  // Cosmetics - Emotes/Stickers (collectibles)
+  { id: 'emote_pack_1', name: 'Emotes Pack V1', description: 'Pack of 10 fun emotes 😄', type: 'cosmetic', price: 150, icon: '😄', category: 'cosmetic' },
+  { id: 'sticker_pack_1', name: 'Stickers Pack V1', description: 'Pack of stickers for your profile 🏷️', type: 'cosmetic', price: 150, icon: '🏷️', category: 'cosmetic' },
+
+  // Cosmetics - Pets (collectibles)
+  { id: 'pet_dog', name: 'Virtual Dog Pet', description: 'A loyal coding buddy 🐶', type: 'cosmetic', price: 300, icon: '🐶', category: 'cosmetic' },
+  { id: 'pet_cat', name: 'Virtual Cat Pet', description: 'A calm companion 🐱', type: 'cosmetic', price: 300, icon: '🐱', category: 'cosmetic' },
 
   // Utilities
   { id: 'hint_token', name: 'Hint Token', description: 'Get 1 free hint in any exercise', type: 'utility', price: 10, icon: '💡', category: 'utility' },
@@ -54,11 +94,17 @@ const STORE_CATALOG: StoreItem[] = [
   
   // Weekly Challenge
   { id: 'boss_challenge', name: 'Boss Challenge (Weekly)', description: 'Unlock a special weekly challenge', type: 'utility', price: 200, icon: '🏆', category: 'challenge' },
+
+  // Profile visibility (time-limited)
+  { id: 'featured_profile_30d', name: 'Featured Profile (30 days)', description: 'Showcase your profile in the Featured section for 30 days', type: 'utility', price: 8000, icon: '⭐', category: 'profile' },
+
+  // Export / sharing
+  { id: 'custom_watermark', name: 'Custom Watermark', description: 'Add a custom watermark to printed/exported pages', type: 'utility', price: 10000, icon: '🏷️', category: 'export' },
 ];
 
 export default function StorePage() {
   const { user, refreshUser } = useUser();
-  // Translation removed, all text is now English
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [items, setItems] = useState<StoreItem[]>([]);
   const [purchases, setPurchases] = useState<string[]>([]);
@@ -96,14 +142,14 @@ export default function StorePage() {
     
     if ((user.coins || 0) < item.price) {
       toast({
-        title: 'Not enough FlowCoins',
-        description: `You need ${item.price} FlowCoins to purchase this item.`,
+        title: t('store.toast.notEnough.title', 'Not enough FlowCoins'),
+        description: t('store.toast.notEnough.desc', 'You need {{price}} FlowCoins to purchase this item.', { price: item.price }),
         variant: 'destructive',
       });
       return;
     }
 
-    if (!confirm(`Purchase ${item.name} for ${item.price} FlowCoins?`)) return;
+    if (!confirm(t('store.confirm.purchase', 'Purchase {{name}} for {{price}} FlowCoins?', { name: item.name, price: item.price }))) return;
 
     try {
       const token = localStorage.getItem('token');
@@ -119,16 +165,16 @@ export default function StorePage() {
       if (!res.ok) throw new Error('Purchase failed');
 
       toast({
-        title: 'Purchase successful!',
-        description: `You bought ${item.name}`,
+        title: t('store.toast.purchaseSuccess.title', 'Purchase successful!'),
+        description: t('store.toast.purchaseSuccess.desc', 'You bought {{name}}', { name: item.name }),
       });
 
       await refreshUser();
       loadStore();
     } catch (error) {
       toast({
-        title: 'Purchase failed',
-        description: 'Something went wrong. Please try again.',
+        title: t('store.toast.purchaseFailed.title', 'Purchase failed'),
+        description: t('common.somethingWentWrongTryAgain', 'Something went wrong. Please try again.'),
         variant: 'destructive',
       });
     }
@@ -137,7 +183,7 @@ export default function StorePage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="text-white text-xl">Please sign in to access the store</div>
+        <div className="text-white text-xl">{t('store.gate.signIn', 'Please sign in to access the store')}</div>
       </div>
     );
   }
@@ -154,12 +200,12 @@ export default function StorePage() {
           <div>
             <h1 className="text-4xl font-bold text-white flex items-center gap-3">
               <ShoppingBag className="w-10 h-10 text-amber-400" />
-              XP Store
+              {t('store.header.title', 'XP Store')}
             </h1>
-            <p className="text-gray-400 mt-2">Spend your hard-earned XP on cool items!</p>
+            <p className="text-gray-400 mt-2">{t('store.header.subtitle', 'Spend your hard-earned XP on cool items!')}</p>
           </div>
           <a href="/profile" className="text-blue-400 hover:text-blue-300">
-            ← Back to Profile
+            {t('store.header.backToProfile', '← Back to Profile')}
           </a>
         </div>
 
@@ -175,11 +221,11 @@ export default function StorePage() {
                   <Zap className="w-6 h-6 text-yellow-400" />
                   {user.coins || 0} FlowCoins
                 </h2>
-                <p className="text-amber-200 text-sm">Your current balance • Earn 1 coin per 50 XP</p>
+                <p className="text-amber-200 text-sm">{t('store.balance.subtitle', 'Your current balance • Earn 1 coin per 50 XP')}</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-amber-300">Level {user.level || 1}</p>
+              <p className="text-sm text-amber-300">{t('store.balance.level', 'Level')} {user.level || 1}</p>
               <p className="text-xs text-amber-200/70">{user.xp || 0} XP</p>
             </div>
           </div>
@@ -197,7 +243,7 @@ export default function StorePage() {
                   : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
               }`}
             >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
+              {t(`store.filters.${f}`, f.charAt(0).toUpperCase() + f.slice(1))}
             </button>
           ))}
         </div>
@@ -205,10 +251,10 @@ export default function StorePage() {
         {/* Store Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading ? (
-            <div className="col-span-full text-center text-gray-400 py-8">Loading store...</div>
+            <div className="col-span-full text-center text-gray-400 py-8">{t('store.loading', 'Loading store...')}</div>
           ) : filteredItems.length === 0 ? (
             <div className="col-span-full text-center text-gray-400 py-8">
-              No items in this category
+              {t('store.emptyCategory', 'No items in this category')}
             </div>
           ) : (
             filteredItems.map((item) => {
@@ -238,7 +284,7 @@ export default function StorePage() {
                         <h3 className="font-bold text-white">{item.name}</h3>
                         {owned && (
                           <span className="text-xs px-2 py-1 bg-green-600/30 text-green-400 rounded-full">
-                            Owned
+                            {t('store.item.owned', 'Owned')}
                           </span>
                         )}
                       </div>
@@ -272,7 +318,11 @@ export default function StorePage() {
                             : 'bg-amber-600 hover:bg-amber-700'
                       }`}
                     >
-                      {owned ? 'Owned' : !canAfford ? 'Not enough coins' : 'Buy'}
+                      {owned
+                        ? t('store.item.owned', 'Owned')
+                        : !canAfford
+                          ? t('store.item.notEnough', 'Not enough coins')
+                          : t('store.item.buy', 'Buy')}
                     </Button>
                   </div>
                 </Card>
@@ -285,23 +335,23 @@ export default function StorePage() {
         <Card className="p-6 bg-slate-900/90 border-slate-700">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
             <Gift className="w-6 h-6 text-purple-400" />
-            How to Earn FlowCoins
+            {t('store.earn.title', 'How to Earn FlowCoins')}
           </h2>
           <div className="grid md:grid-cols-3 gap-4">
             <div className="p-4 bg-slate-800/50 rounded-lg">
               <div className="text-3xl mb-2">✅</div>
-              <h3 className="font-semibold text-white mb-1">Complete Exercises</h3>
-              <p className="text-sm text-gray-400">Earn 1 FlowCoin per 50 XP (10-50 XP per exercise)</p>
+              <h3 className="font-semibold text-white mb-1">{t('store.earn.completeExercises.title', 'Complete Exercises')}</h3>
+              <p className="text-sm text-gray-400">{t('store.earn.completeExercises.desc', 'Earn 1 FlowCoin per 50 XP (10-50 XP per exercise)')}</p>
             </div>
             <div className="p-4 bg-slate-800/50 rounded-lg">
               <div className="text-3xl mb-2">🔥</div>
-              <h3 className="font-semibold text-white mb-1">Daily Streak</h3>
-              <p className="text-sm text-gray-400">Bonus XP for streaks = more FlowCoins</p>
+              <h3 className="font-semibold text-white mb-1">{t('store.earn.dailyStreak.title', 'Daily Streak')}</h3>
+              <p className="text-sm text-gray-400">{t('store.earn.dailyStreak.desc', 'Bonus XP for streaks = more FlowCoins')}</p>
             </div>
             <div className="p-4 bg-slate-800/50 rounded-lg">
               <div className="text-3xl mb-2">🏆</div>
-              <h3 className="font-semibold text-white mb-1">Unlock Achievements</h3>
-              <p className="text-sm text-gray-400">Each achievement gives 25-500 XP</p>
+              <h3 className="font-semibold text-white mb-1">{t('store.earn.achievements.title', 'Unlock Achievements')}</h3>
+              <p className="text-sm text-gray-400">{t('store.earn.achievements.desc', 'Each achievement gives 25-500 XP')}</p>
             </div>
           </div>
         </Card>

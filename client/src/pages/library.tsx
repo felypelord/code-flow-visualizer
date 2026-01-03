@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useRef } from "react";
 import Layout from "@/components/layout";
 import { BookOpen, Star, Printer, Search } from "lucide-react";
 import { exercises } from "@/lib/exercises-new";
+import { useUser } from "@/hooks/use-user";
 
 // Card storage helpers (module scope)
 const loadAllCards = (): Record<string, any[]> => {
@@ -13,10 +14,17 @@ const loadStats = (): Record<string, any> => { try { return JSON.parse(localStor
 const saveStats = (s: Record<string, any>) => { try { localStorage.setItem('library:cardstats', JSON.stringify(s)); } catch {} };
 
 export default function LibraryPage() {
+  const { user } = useUser();
   const [filter, setFilter] = useState<"all" | "Beginner" | "Intermediate" | "Advanced">("all");
   const [query, setQuery] = useState("");
   const [bookmarks, setBookmarks] = useState<Record<string, boolean>>({});
   const [liveText, setLiveText] = useState('');
+
+  const watermarkText = useMemo(() => {
+    if (!user || !user.customWatermark) return '';
+    const raw = String(user.watermarkText || '').trim();
+    return raw;
+  }, [user]);
 
   useEffect(() => {
     try {
@@ -166,6 +174,12 @@ export default function LibraryPage() {
         margin: '0 auto'
       }}>
 
+        {watermarkText ? (
+          <div className="print-only watermark-print" aria-hidden="true">
+            <div className="watermark-print__inner">{watermarkText}</div>
+          </div>
+        ) : null}
+
         <style>{`
           <p className="no-print" style={{ marginTop: 10, fontSize: 16, lineHeight: 1.6 }}>
             Functions are reusable pieces of code that perform a task. They accept inputs (parameters) and often return outputs. Use them to break problems into smaller parts.
@@ -216,6 +230,8 @@ export default function LibraryPage() {
           }
           pre[data-lang]::before { z-index: 3; }
           .print-only { display: none; }
+          .watermark-print { display: none; }
+          .watermark-print__inner { display: none; }
           /* print tuning: show condensed grid as single column and hide quick links */
           .cheats-grid { gap: 12px; }
           nav[aria-label="Section quick links"] { display: none; }
@@ -245,6 +261,8 @@ export default function LibraryPage() {
             header, footer { display: block; }
             pre { background: #fff !important; box-shadow: none !important; border: 1px solid #ddd !important; }
             .print-only { display: block !important; }
+            .watermark-print { display: block !important; position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+            .watermark-print__inner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 64px; font-weight: 700; letter-spacing: 2px; color: rgba(0,0,0,0.12); white-space: nowrap; }
             /* Print: show condensed grid as single column and hide expanded verbose sections */
             .cheats-grid { grid-template-columns: 1fr !important; gap: 8px !important; }
             #expanded-cheats { display: none !important; }
@@ -832,13 +850,13 @@ window.count = 0; // shared mutable state
             </table>
           </div>
 
-          <h4 style={{ marginTop: 12 }}>Complexidade (Time / Space) — referência</h4>
+          <h4 style={{ marginTop: 12 }}>Complexity (Time / Space) — reference</h4>
           <pre style={{ background: '#071424', color: '#f3e9c8', padding: 8, borderRadius: 6, overflowX: 'auto' }}>{`Array/List: access O(1), insert O(n)
 Map/Dict: lookup O(1) avg, Set: membership O(1)
 LinkedList: traversal O(n)
 Sorting: O(n log n) typical`}</pre>
 
-          <h4 style={{ marginTop: 12 }}>Erros Comuns e Como Corrigir</h4>
+          <h4 style={{ marginTop: 12 }}>Common Errors and How to Fix</h4>
           <div className="card" style={{ padding: 12, borderRadius: 8 }}>
             <strong>TypeError example (JS)</strong>
             <pre style={{ background: '#071424', color: '#f3e9c8', padding: 8, borderRadius: 6, overflowX: 'auto' }}>{`TypeError: Cannot read properties of undefined (reading 'map')
@@ -847,7 +865,7 @@ Cause: calling .map on undefined — check the variable before using or default 
 Fix: const list = maybeList || []; list.map(...)`}</pre>
           </div>
 
-          <h4 style={{ marginTop: 12 }}>Checklist de Boas Práticas (do / don't)</h4>
+          <h4 style={{ marginTop: 12 }}>Best Practices Checklist (do / don't)</h4>
           <ul>
             <li><strong>Do:</strong> name functions clearly, write tests, add docs for public APIs.</li>
             <li><strong>Don't:</strong> Rely on magic numbers or copy/paste; avoid silent catches that hide errors.</li>
@@ -949,7 +967,7 @@ db.users.find({active:true}, {name:1,email:1}).limit(100);`}</pre>
             <dt><strong>Concurrency</strong></dt><dd>Handling multiple tasks at once — async vs parallel are different concepts.</dd>
           </dl>
 
-          <h4 style={{ marginTop: 12 }}>Diagramas / Imagens estáticas</h4>
+          <h4 style={{ marginTop: 12 }}>Diagrams / Static images</h4>
           <div style={{ borderRadius: 8, overflow: 'hidden', border: '1px solid var(--color-border)' }}>
             <svg role="img" viewBox="0 0 800 120" width="100%" height={120} preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
               <title>Client to API to Database flow</title>

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, timestamp, boolean, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -9,6 +9,8 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   firstName: text("first_name"),
   lastName: text("last_name"),
+  featuredUntil: timestamp("featured_until"),
+  usernameColor: text("username_color"),
   dateOfBirth: timestamp("date_of_birth"),
   country: text("country"),
   emailVerified: boolean("email_verified").notNull().default(false),
@@ -21,6 +23,7 @@ export const users = pgTable("users", {
   level: integer("level").notNull().default(1),
   // Site currency (FlowCoins)
   coins: integer("coins").notNull().default(0),
+  particleEffects: boolean("particle_effects").notNull().default(false),
   avatar: text("avatar").default("default"),
   bio: text("bio"),
   theme: text("theme").default("dark"),
@@ -31,7 +34,13 @@ export const users = pgTable("users", {
   totalExercises: integer("total_exercises").notNull().default(0),
   totalTime: integer("total_time").notNull().default(0), // in seconds
   equippedFrame: text("equipped_frame"),
+  frameAnimation: text("frame_animation"),
   equippedNameEffect: text("equipped_name_effect"),
+  equippedBadge: text("equipped_badge"),
+  trophyCase: text("trophy_case"),
+  customTheme: text("custom_theme"),
+  customWatermark: boolean("custom_watermark").notNull().default(false),
+  watermarkText: text("watermark_text"),
   battlePassActive: boolean("battle_pass_active").notNull().default(false),
   battlePassSeason: integer("battle_pass_season").notNull().default(1),
   // Optional address for user profile
@@ -187,6 +196,36 @@ export const adRewards = pgTable("ad_rewards", {
   watchedAt: timestamp("watched_at").defaultNow(),
 });
 
+// Social: follow graph (MVP)
+export const userFollows = pgTable(
+  "user_follows",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    followerId: varchar("follower_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    followingId: varchar("following_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (t) => ({
+    followerFollowingUnique: uniqueIndex("user_follows_follower_following_unique").on(t.followerId, t.followingId),
+  })
+);
+
+// Social: friend requests (pending -> accepted/declined/canceled)
+export const friendRequests = pgTable(
+  "friend_requests",
+  {
+    id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+    fromUserId: varchar("from_user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    toUserId: varchar("to_user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    status: text("status").notNull().default('pending'),
+    createdAt: timestamp("created_at").defaultNow(),
+    respondedAt: timestamp("responded_at"),
+  },
+  (t) => ({
+    fromToUnique: uniqueIndex("friend_requests_from_to_unique").on(t.fromUserId, t.toUserId),
+  })
+);
+
 export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
   password: true,
@@ -218,6 +257,8 @@ export type Progress = typeof progress.$inferSelect;
 export type InsertProgress = z.infer<typeof insertProgressSchema>;
 export type WebhookEventRow = typeof webhookEvents.$inferSelect;
 export type StripeCustomerRow = typeof stripeCustomers.$inferSelect;
+export type UserFollowRow = typeof userFollows.$inferSelect;
+export type FriendRequestRow = typeof friendRequests.$inferSelect;
 export type ActivityHistory = typeof activityHistory.$inferSelect;
 export type SiteAnalytics = typeof siteAnalytics.$inferSelect;
 export type UserAchievement = typeof userAchievements.$inferSelect;

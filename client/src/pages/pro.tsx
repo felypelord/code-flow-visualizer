@@ -18,6 +18,8 @@ import {
 import { Card } from "@/components/ui/card";
 import { ProExercisesGrid } from "@/components/pro-exercises-grid";
 import { getAllProExercises } from "@/lib/pro-exercises";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { runInWorker } from "@/lib/sandbox";
 
 
 const ProDebuggerLazy = lazy(() =>
@@ -38,7 +40,7 @@ const ProAdvancedFeaturesLazy = lazy(() =>
 
 export default function ProPage() {
   const { user, refreshUser } = useUser();
-  const t: any = {};
+  const { t } = useLanguage();
 
   const [, setLocation] = useLocation();
   const [profilerCode, setProfilerCode] = useState(
@@ -169,10 +171,16 @@ export default function ProPage() {
     const used = trialUses[feature] || 0;
     if (used === 0) {
       setTrialUses((prev) => ({ ...prev, [feature]: used + 1 }));
-      toast({ title: "First use unlocked", description: "Try this Pro feature free — subscribe for unlimited access." });
+      toast({
+        title: t('pro.toast.firstUseUnlocked.title', 'First use unlocked'),
+        description: t('pro.toast.firstUseUnlocked.desc', 'Try this Pro feature free — subscribe for unlimited access.'),
+      });
       return true;
     }
-    toast({ title: "Pro feature", description: "This feature requires a Pro subscription. Upgrade to unlock everything." });
+    toast({
+      title: t('pro.toast.proFeature.title', 'Pro feature'),
+      description: t('pro.toast.proFeature.desc', 'This feature requires a Pro subscription. Upgrade to unlock everything.'),
+    });
     return false;
   };
 
@@ -187,9 +195,15 @@ export default function ProPage() {
     if (!allowProAction("scratchpad-copy")) return;
     try {
       await navigator.clipboard.writeText(scratchpad);
-      toast({ title: "Copied!", description: "Code copied to clipboard." });
+      toast({
+        title: t('common.copied', 'Copied!'),
+        description: t('pro.toast.codeCopied', 'Code copied to clipboard.'),
+      });
     } catch (err) {
-      toast({ title: "Copy failed", description: String(err) });
+      toast({
+        title: t('common.copyFailed', 'Copy failed'),
+        description: String(err),
+      });
     }
   };
 
@@ -198,27 +212,13 @@ export default function ProPage() {
     setScratchpad("");
   };
 
-  const runProfiler = () => {
+  const runProfiler = async () => {
     if (!allowProAction("profiler-run")) return;
     try {
-      const instrumentSource = (code: string) => {
-        return code
-          .split("\n")
-          .map((line, idx) => `markLine(${idx + 1}); ${line}`)
-          .join("\n");
-      };
-
-      const source = profilerShowRealtime ? instrumentSource(profilerCode) : profilerCode;
-      const fn = new Function(
-        "performance",
-        "markLine",
-        `${source}; return typeof main === 'function' ? main() : undefined;`
-      );
-
-      // Optional warmup
+      // Optional warmup (in a worker, no UI instrumentation)
       for (let w = 0; w < Math.max(0, profilerConfig.warmup); w++) {
         try {
-          fn(performance);
+          await runInWorker(profilerCode, "main", [], { timeoutMs: 3000 });
         } catch {
           // ignore warmup errors
         }
@@ -226,24 +226,26 @@ export default function ProPage() {
 
       const runs: Array<{ run: number; ms: number; result?: any }> = [];
       const events: Array<{ run: number; t: number; type: "log" | "start" | "end" | "result" | "error"; data?: any }> = [];
-      const originalLog = console.log;
 
       for (let i = 0; i < Math.max(1, profilerConfig.runs); i++) {
         const runIndex = i + 1;
         const start = performance.now();
         events.push({ run: runIndex, t: 0, type: "start" });
-        if (profilerConfig.captureConsole) {
-          console.log = (...args: any[]) => {
-            const now = performance.now();
-            events.push({ run: runIndex, t: Number((now - start).toFixed(3)), type: "log", data: args });
-            // mirror to console
-            try { originalLog.apply(console, args); } catch {}
-          };
-        }
         try {
           setProfilerExecutionLine(null);
-          const result = fn(performance, (line: number) => {
-            try { setProfilerExecutionLine(line); } catch {}
+          const result = await runInWorker(profilerCode, "main", [], {
+            timeoutMs: 5000,
+            onStep: (line) => {
+              try { setProfilerExecutionLine(line); } catch {}
+            },
+            onStdout: profilerConfig.captureConsole
+              ? (entry) => {
+                  try {
+                    const now = performance.now();
+                    events.push({ run: runIndex, t: Number((now - start).toFixed(3)), type: "log", data: [entry.text] });
+                  } catch {}
+                }
+              : undefined,
           });
           const end = performance.now();
           const ms = Number((end - start).toFixed(3));
@@ -258,9 +260,9 @@ export default function ProPage() {
           throw err;
         } finally {
           setProfilerExecutionLine(null);
-          console.log = originalLog;
         }
       }
+
       setProfilerRuns(runs);
       setProfilerTimeline({ runs, events });
       setTimelineIndex(0);
@@ -492,66 +494,130 @@ export default function ProPage() {
     }
   };
 
-  // Finalize VIP signup after returning from Stripe Checkout
+  // After returning from Stripe Checkout, finalize either:
+  // - VIP Signup flow (requires pendingSignup), OR
+  // - Pro subscription activation for an existing user (best-effort sync, avoids waiting for webhook)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get("session_id");
+    const canceled = params.get("canceled");
+    if (!sessionId && !canceled) return;
+
+    const cleanUrl = () => {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("session_id");
+        url.searchParams.delete("canceled");
+        window.history.replaceState({}, "", url.toString());
+      } catch {}
+    };
+
+    if (canceled === "1") {
+      try {
+        toast({
+          title: t('pro.toast.checkoutCanceled.title', 'Checkout canceled'),
+          description: t('pro.toast.checkoutCanceled.desc', 'No payment was made.'),
+        });
+      } catch {}
+      cleanUrl();
+      return;
+    }
+
     if (!sessionId) return;
+
     const pendingRaw = sessionStorage.getItem("pendingSignup");
-    if (!pendingRaw) return;
 
     (async () => {
       try {
-        const cres = await fetch("/api/pro/confirm", {
+        // VIP signup path
+        if (pendingRaw) {
+          const cres = await fetch("/api/pro/confirm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sessionId }),
+          });
+          const cdata = await cres.json();
+          if (!cres.ok || !cdata?.ok || !cdata?.proToken) {
+            throw new Error(cdata?.error || "Pro VIP Payment Not Confirmed");
+          }
+          const proToken: string = cdata.proToken;
+
+          const pending = JSON.parse(pendingRaw);
+          const payload = {
+            ...pending,
+            proToken,
+            // Ensure datetime format
+            dateOfBirth: pending.dateOfBirth && pending.dateOfBirth.length <= 10
+              ? new Date(pending.dateOfBirth + "T00:00:00.000Z").toISOString()
+              : pending.dateOfBirth,
+          };
+
+          const sres = await fetch("/api/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const sdata = await sres.json();
+          if (!sres.ok || !sdata?.ok) {
+            throw new Error(sdata?.message || sdata?.error || "Pro VIP Create Failed");
+          }
+          sessionStorage.removeItem("pendingSignup");
+          // Auto-login
+          try {
+            const lres = await fetch("/api/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: pending.email, password: pending.password }),
+            });
+            const ldata = await lres.json();
+            if (lres.ok && ldata?.token) {
+              localStorage.setItem("token", ldata.token);
+              toast({
+                title: t('pro.toast.vipCreated.title', 'VIP Created'),
+                description: t('pro.toast.vipCreated.login', 'Login to access your VIP features.'),
+              });
+              cleanUrl();
+              window.location.reload();
+              return;
+            }
+          } catch {}
+          toast({
+            title: t('pro.toast.vipCreated.title', 'VIP Created'),
+            description: t('pro.toast.vipCreated.checkEmail', 'Check your email for confirmation.'),
+          });
+          await refreshUser();
+          cleanUrl();
+          return;
+        }
+
+        // Existing-user subscription activation path
+        const pres = await fetch("/api/pro/confirm-subscription", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId }),
         });
-        const cdata = await cres.json();
-        if (!cres.ok || !cdata?.ok || !cdata?.proToken) {
-          throw new Error(cdata?.error || "Pro VIP Payment Not Confirmed");
+        const pdata = await pres.json().catch(() => ({}));
+        if (!pres.ok || !pdata?.ok) {
+          throw new Error(pdata?.error || "Unable to confirm Pro subscription");
         }
-        const proToken: string = cdata.proToken;
-
-        const pending = JSON.parse(pendingRaw);
-        const payload = {
-          ...pending,
-          proToken,
-          // Ensure datetime format
-          dateOfBirth: pending.dateOfBirth && pending.dateOfBirth.length <= 10
-            ? new Date(pending.dateOfBirth + "T00:00:00.000Z").toISOString()
-            : pending.dateOfBirth,
-        };
-
-        const sres = await fetch("/api/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        const sdata = await sres.json();
-        if (!sres.ok || !sdata?.ok) {
-          throw new Error(sdata?.message || sdata?.error || "Pro VIP Create Failed");
-        }
-        sessionStorage.removeItem("pendingSignup");
-        // Auto-login
         try {
-          const lres = await fetch("/api/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: pending.email, password: pending.password }),
+          toast({
+            title: t('pro.toast.subscriptionActivated.title', 'Pro activated'),
+            description: t('pro.toast.subscriptionActivated.desc', 'Your Pro subscription is now active.'),
           });
-          const ldata = await lres.json();
-          if (lres.ok && ldata?.token) {
-            localStorage.setItem("token", ldata.token);
-            toast({ title: "VIP Created", description: "Login to access your VIP features." });
-            window.location.reload();
-            return;
-          }
         } catch {}
-        toast({ title: "VIP Created", description: "Check your email for confirmation." });
-        await refreshUser();
+        try {
+          await refreshUser();
+        } catch {}
+        cleanUrl();
       } catch (err: any) {
-        toast({ title: "Error", description: err?.message || String(err) });
+        try {
+          toast({
+            title: t('common.error', 'Error'),
+            description: err?.message || String(err),
+          });
+        } catch {}
+        cleanUrl();
       }
     })();
   }, [refreshUser, t]);
@@ -586,11 +652,11 @@ export default function ProPage() {
                 <span className="relative inline-block">
                   <Crown className="absolute -top-8 left-1 -rotate-12 w-10 h-10 text-amber-300 drop-shadow-[0_0_12px_rgba(255,215,0,0.45)]" />
                   <span className="block px-3 py-1 rounded-xl bg-gradient-to-r from-amber-200 via-yellow-200 to-amber-400 text-transparent bg-clip-text drop-shadow-[0_0_18px_rgba(255,214,102,0.35)]">
-                    Pro Learning
+                    {t('pro.header.title', 'Pro Learning')}
                   </span>
                 </span>
               </h1>
-              <p className="text-sm text-amber-100/90">Hands-on advanced problems with guided solutions and expert explanations.</p>
+              <p className="text-sm text-amber-100/90">{t('pro.header.subtitle', 'Hands-on advanced problems with guided solutions and expert explanations.')}</p>
             </div>
           </div>
         </div>
@@ -601,47 +667,47 @@ export default function ProPage() {
             <Card className="p-5 bg-slate-900/60 border border-slate-700 rounded-xl text-white">
               <div className="flex items-center gap-2 mb-2">
                 <Crown className="w-4 h-4 text-amber-300" />
-                <span className="text-sm font-semibold text-amber-200">Pro Challenges</span>
+                <span className="text-sm font-semibold text-amber-200">{t('pro.shortcuts.proChallenges.badge', 'Pro Challenges')}</span>
               </div>
-              <h3 className="text-lg font-bold mb-1">Pro Challenges</h3>
-              <p className="text-sm text-gray-300 mb-4">Hands-on advanced problems with guided solutions and expert explanations.</p>
+              <h3 className="text-lg font-bold mb-1">{t('pro.shortcuts.proChallenges.title', 'Pro Challenges')}</h3>
+              <p className="text-sm text-gray-300 mb-4">{t('pro.shortcuts.proChallenges.desc', 'Hands-on advanced problems with guided solutions and expert explanations.')}</p>
               <Button
                 variant="secondary"
                 className="w-full"
                 onClick={() => scrollToSection("pro-exercises")}
               >
-                Start
+                {t('common.start', 'Start')}
               </Button>
             </Card>
 
             <Card className="p-5 bg-slate-900/60 border border-slate-700 rounded-xl text-white">
               <div className="flex items-center gap-2 mb-2">
                 <Database className="w-4 h-4 text-amber-300" />
-                <span className="text-sm font-semibold text-amber-200">AI Code Inspector</span>
+                <span className="text-sm font-semibold text-amber-200">{t('pro.shortcuts.aiInspector.badge', 'AI Code Inspector')}</span>
               </div>
-              <h3 className="text-lg font-bold mb-1">AI Code Inspector</h3>
-              <p className="text-sm text-gray-300 mb-4">Automatic analysis with optimization suggestions, warnings, and algorithm explanations.</p>
+              <h3 className="text-lg font-bold mb-1">{t('pro.shortcuts.aiInspector.title', 'AI Code Inspector')}</h3>
+              <p className="text-sm text-gray-300 mb-4">{t('pro.shortcuts.aiInspector.desc', 'Automatic analysis with optimization suggestions, warnings, and algorithm explanations.')}</p>
               <Button
                 variant="secondary"
                 className="w-full"
                 onClick={() => scrollToSection("ai-inspector")}
               >
-                Analyze
+                {t('common.analyze', 'Analyze')}
               </Button>
             </Card>
 
             <Card className="p-5 bg-slate-900/60 border border-slate-700 rounded-xl text-white">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-4 h-4 text-amber-300" />
-                <span className="text-sm font-semibold text-amber-200">Debugger</span>
+                <span className="text-sm font-semibold text-amber-200">{t('pro.shortcuts.debugger.badge', 'Debugger')}</span>
               </div>
-              <h3 className="text-lg font-bold mb-1">Premium Badge</h3>
-              <p className="text-sm text-gray-300 mb-4">Pro Debugger Requires Text</p>
+              <h3 className="text-lg font-bold mb-1">{t('pro.shortcuts.debugger.title', 'Premium Badge')}</h3>
+              <p className="text-sm text-gray-300 mb-4">{t('pro.shortcuts.debugger.desc', 'Pro Debugger Requires Text')}</p>
               <Button
                 className="w-full bg-gradient-to-r from-amber-400 to-amber-600 text-black font-semibold"
                 onClick={handleGoToPricing}
               >
-                View Pricing
+                {t('common.viewPricing', 'View Pricing')}
               </Button>
             </Card>
           </div>
@@ -654,30 +720,30 @@ export default function ProPage() {
               <div className="space-y-3">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 border border-amber-400/40 text-amber-100 text-xs font-semibold shadow-[0_0_10px_rgba(251,191,36,0.3)]">
                   <Crown className="w-4 h-4" />
-                  Pro Playground
+                  {t('pro.playground.badge', 'Pro Playground')}
                 </div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-amber-200 to-amber-400 bg-clip-text text-transparent">Pro Playground</h3>
-                <p className="text-sm text-amber-100/90">A private, fast playground to prototype ideas and reproduce bugs.</p>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-amber-200 to-amber-400 bg-clip-text text-transparent">{t('pro.playground.title', 'Pro Playground')}</h3>
+                <p className="text-sm text-amber-100/90">{t('pro.playground.desc', 'A private, fast playground to prototype ideas and reproduce bugs.')}</p>
                 <div className="space-y-2 text-sm text-amber-50/90">
                   <div className="flex items-start gap-2">
                     <Sparkles className="w-4 h-4 text-amber-300 mt-0.5" />
-                    <span>Quick experiments</span>
+                    <span>{t('pro.playground.bullets.quickExperiments', 'Quick experiments')}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Sparkles className="w-4 h-4 text-amber-300 mt-0.5" />
-                    <span>Test code snippets</span>
+                    <span>{t('pro.playground.bullets.testSnippets', 'Test code snippets')}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Sparkles className="w-4 h-4 text-amber-300 mt-0.5" />
-                    <span>Share and iterate</span>
+                    <span>{t('pro.playground.bullets.shareIterate', 'Share and iterate')}</span>
                   </div>
                 </div>
                 <div className="flex gap-3 pt-2">
                   <Button variant="secondary" className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white border border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.4)] font-semibold" onClick={() => scrollToSection("pro-exercises")}>
-                    Start
+                    {t('common.start', 'Start')}
                   </Button>
                   <Button variant="outline" className="border-amber-500/60 text-amber-200 hover:bg-amber-500/10" onClick={() => scrollToSection("pro-labs")}>
-                    Mini Demos
+                    {t('pro.labs.badge', 'Mini Demos')}
                   </Button>
                 </div>
               </div>
@@ -687,14 +753,14 @@ export default function ProPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Code2 className="w-5 h-5 text-amber-400" />
-                  <span className="font-semibold text-amber-100">Pro Playground</span>
+                  <span className="font-semibold text-amber-100">{t('pro.playground.title', 'Pro Playground')}</span>
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" variant="secondary" className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold shadow-[0_0_10px_rgba(251,191,36,0.3)]" onClick={copyScratchpad}>
-                    Copy
+                    {t('common.copy', 'Copy')}
                   </Button>
                   <Button size="sm" variant="outline" className="border-amber-500/50 text-amber-200 hover:bg-amber-500/10" onClick={clearScratchpad}>
-                    Clear
+                    {t('common.clear', 'Clear')}
                   </Button>
                 </div>
               </div>
@@ -702,9 +768,9 @@ export default function ProPage() {
                 className="w-full h-48 rounded-xl bg-slate-950/70 border border-amber-500/20 text-sm text-amber-50 p-3 font-mono focus:border-amber-400/40 focus:ring-2 focus:ring-amber-400/20"
                 value={scratchpad}
                 onChange={(e) => setScratchpad(e.target.value)}
-                placeholder="Write or paste code to experiment."
+                placeholder={t('pro.playground.placeholder', 'Write or paste code to experiment.')}
               />
-              <p className="text-xs text-slate-300">Write or paste code to experiment.</p>
+              <p className="text-xs text-slate-300">{t('pro.playground.placeholder', 'Write or paste code to experiment.')}</p>
             </div>
           </div>
         </div>
@@ -715,9 +781,9 @@ export default function ProPage() {
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-semibold">
                 <Code2 className="w-4 h-4" />
-                Pro Challenges
+                {t('pro.exercises.badge', 'Pro Challenges')}
               </span>
-              <p className="text-sm text-gray-400">Pro Challenges</p>
+              <p className="text-sm text-gray-400">{t('pro.exercises.badge', 'Pro Challenges')}</p>
             </div>
           </div>
 
@@ -740,7 +806,7 @@ export default function ProPage() {
                     : "bg-slate-900/60 text-slate-300 border-slate-700 hover:bg-slate-800"
                 }`}
               >
-                {c.label}
+                {t(`pro.exercises.categories.${c.id}`, c.label)}
               </button>
             ))}
           </div>
@@ -757,23 +823,23 @@ export default function ProPage() {
                       ? "bg-purple-500/20 text-purple-200 border-purple-400/40"
                       : "bg-slate-900/60 text-slate-300 border-slate-700 hover:bg-slate-800"
                   }`}
-                >{d.label}</button>
+                >{t(`pro.exercises.difficulty.${d.id}`, d.label)}</button>
               ))}
             </div>
             <div className="flex-1 flex items-center gap-2">
               <input
                 value={query}
                 onChange={(e)=> setQuery(e.target.value)}
-                placeholder="Search Pro content..."
+                placeholder={t('pro.exercises.searchPlaceholder', 'Search Pro content...')}
                 className="w-full md:max-w-sm text-sm px-3 py-2 rounded-lg bg-slate-950/60 border border-slate-700 text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40"
               />
               <select
                 onChange={(e)=> setSort(e.target.value as any)}
                 className="text-sm px-3 py-2 rounded-lg bg-slate-950/60 border border-slate-700 text-slate-200 focus:outline-none"
               >
-                <option value="relevance">Recommended</option>
-                <option value="difficulty">Difficulty</option>
-                <option value="time">Time</option>
+                <option value="relevance">{t('pro.exercises.sort.recommended', 'Recommended')}</option>
+                <option value="difficulty">{t('pro.exercises.sort.difficulty', 'Difficulty')}</option>
+                <option value="time">{t('pro.exercises.sort.time', 'Time')}</option>
               </select>
             </div>
           </div>
@@ -796,17 +862,20 @@ export default function ProPage() {
               })}
             completedIds={[]}
             onSelectExercise={(ex) => {
-              toast({ title: `Pro Feature: ${ex.title}`, description: ex.description || "Open this Pro challenge to learn more." });
+              toast({
+                title: t('pro.toast.proFeatureWithTitle', 'Pro Feature: {{title}}', { title: ex.title }),
+                description: ex.description || t('pro.toast.openChallengeToLearnMore', 'Open this Pro challenge to learn more.'),
+              });
             }}
           />
         </div>
 
         {/* VIP Playground - Advanced Execution */}
         {user?.isPro && (
-          <div id="vip-playground" className="max-w-7xl mx-auto px-4 mb-16">
+          <div id="vip-playground-pro" className="max-w-7xl mx-auto px-4 mb-16">
             <Suspense
               fallback={
-                <div className="text-center text-white/60 py-10">Loading</div>
+                <div className="text-center text-white/60 py-10">{t('common.loading', 'Loading')}</div>
               }
             >
               <VIPPlaygroundLazy />
@@ -819,7 +888,7 @@ export default function ProPage() {
           <Suspense
             fallback={
               <div className="text-center text-white/60 py-10">
-                Analyzing
+                {t('common.analyzing', 'Analyzing')}
               </div>
             }
           >
@@ -837,20 +906,20 @@ export default function ProPage() {
           <div className="flex items-center gap-2 mb-6">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/30 to-amber-600/30 border border-amber-400/50 text-amber-200 text-xs font-semibold shadow-[0_0_10px_rgba(251,191,36,0.25)]">
               <Sparkles className="w-4 h-4" />
-              Mini Demos
+              {t('pro.labs.badge', 'Mini Demos')}
             </span>
-            <p className="text-sm text-amber-200/70">Quick interactive demos that showcase Pro features and workflows.</p>
+            <p className="text-sm text-amber-200/70">{t('pro.labs.subtitle', 'Quick interactive demos that showcase Pro features and workflows.')}</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-slate-900/60 p-4 space-y-3 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
               <div className="flex items-center gap-2 text-white">
                 <BarChart3 className="w-5 h-5 text-amber-400" />
-                <h3 className="text-lg font-semibold text-amber-100">Code Profiler</h3>
+                  <h3 className="text-lg font-semibold text-amber-100">{t('pro.labs.profiler.title', 'Code Profiler')}</h3>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-amber-100">
-                <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-400/40">Profiler Steps</span>
-                <span className="text-amber-50/80">Use the profiler to measure function performance.</span>
+                  <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-400/40">{t('pro.labs.profiler.steps', 'Profiler Steps')}</span>
+                  <span className="text-amber-50/80">{t('pro.labs.profiler.hint', 'Use the profiler to measure function performance.')}</span>
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
                 {profilerExamples.map((ex) => (
@@ -874,7 +943,7 @@ export default function ProPage() {
                     />
                     <span className="inline-flex items-center gap-1">
                       <Activity className="w-3 h-3" />
-                      Profiler Realtime Toggle
+                      {t('pro.labs.profiler.realtimeToggle', 'Profiler Realtime Toggle')}
                     </span>
                   </label>
                 </div>
@@ -905,7 +974,7 @@ export default function ProPage() {
               <div className="flex flex-col md:flex-row md:items-center gap-2">
                 <div className="flex items-center gap-2 text-xs text-gray-300">
                   <label className="inline-flex items-center gap-1">
-                    <span>Profiler Config Runs</span>
+                    <span>{t('pro.labs.profiler.config.runs', 'Profiler Config Runs')}</span>
                     <select
                       value={profilerConfig.runs}
                       onChange={(e) => setProfilerConfig((c) => ({ ...c, runs: parseInt(e.target.value, 10) }))}
@@ -915,7 +984,7 @@ export default function ProPage() {
                     </select>
                   </label>
                   <label className="inline-flex items-center gap-1">
-                    <span>Profiler Config Warmup</span>
+                    <span>{t('pro.labs.profiler.config.warmup', 'Profiler Config Warmup')}</span>
                     <select
                       value={profilerConfig.warmup}
                       onChange={(e) => setProfilerConfig((c) => ({ ...c, warmup: parseInt(e.target.value, 10) }))}
@@ -945,7 +1014,7 @@ export default function ProPage() {
                 <div className="bg-black/30 border border-slate-700 rounded-lg p-3 text-sm text-gray-200 space-y-1">
                   {profilerRuns.map((r) => (
                     <div key={r.run} className="flex items-center justify-between">
-                      <span className="text-gray-400">Run {r.run}</span>
+                      <span className="text-gray-400">{t('pro.labs.profiler.runLabel', 'Run {{run}}', { run: r.run })}</span>
                       <span className="font-semibold text-blue-300">{r.ms} ms</span>
                     </div>
                   ))}
@@ -953,17 +1022,17 @@ export default function ProPage() {
               )}
               {renderTimeline()}
               <div className="bg-slate-800/80 border border-slate-700 rounded-lg p-3 text-xs text-slate-200 space-y-1">
-                <div className="font-semibold text-slate-100">What to Watch</div>
-                <div>Long-running functions and recursive hotspots.</div>
-                <div>Heavy allocations and memory churn that cause pauses.</div>
-                <div>CPU-bound hotspots and I/O wait queues to optimize.</div>
+                <div className="font-semibold text-slate-100">{t('pro.labs.profiler.whatToWatch.title', 'What to Watch')}</div>
+                <div>{t('pro.labs.profiler.whatToWatch.item1', 'Long-running functions and recursive hotspots.')}</div>
+                <div>{t('pro.labs.profiler.whatToWatch.item2', 'Heavy allocations and memory churn that cause pauses.')}</div>
+                <div>{t('pro.labs.profiler.whatToWatch.item3', 'CPU-bound hotspots and I/O wait queues to optimize.')}</div>
               </div>
             </div>
 
             <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-slate-900/60 p-4 space-y-3 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
               <div className="flex items-center gap-2 text-white">
                 <PauseCircle className="w-5 h-5 text-amber-400" />
-                <h3 className="text-lg font-semibold text-amber-100">Breakpoint Manager</h3>
+                <h3 className="text-lg font-semibold text-amber-100">{t('pro.labs.breakpoints.title', 'Breakpoint Manager')}</h3>
               </div>
               <div className="space-y-2">
                 {breakpoints.map((bp) => (
@@ -983,13 +1052,13 @@ export default function ProPage() {
                       onChange={(e) =>
                         setBreakpoints((prev) => prev.map((b) => (b.id === bp.id ? { ...b, condition: e.target.value } : b)))
                       }
-                      placeholder="Condition"
+                      placeholder={t('pro.labs.breakpoints.conditionPlaceholder', 'Condition')}
                     />
                   </div>
                 ))}
               </div>
               <Button onClick={addBreakpoint} variant="outline" className="border-slate-600 text-slate-200">
-                Add Breakpoint
+                {t('pro.labs.breakpoints.add', 'Add Breakpoint')}
               </Button>
             </div>
           </div>
@@ -997,11 +1066,11 @@ export default function ProPage() {
           <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-slate-900/60 p-4 space-y-3 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
             <div className="flex items-center gap-2 text-white">
               <Database className="w-5 h-5 text-amber-400" />
-              <h3 className="text-lg font-semibold text-amber-100">Variable Inspector</h3>
+              <h3 className="text-lg font-semibold text-amber-100">{t('pro.labs.inspector.title', 'Variable Inspector')}</h3>
             </div>
             <div className="flex flex-wrap gap-2 text-xs text-amber-50 items-center">
-              <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-600/30 to-amber-700/30 border border-amber-400/50">Inspector Guide</span>
-              <span className="text-amber-100/80">Use the inspector to explore object structure, values and metadata.</span>
+              <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-600/30 to-amber-700/30 border border-amber-400/50">{t('pro.labs.inspector.guide', 'Inspector Guide')}</span>
+              <span className="text-amber-100/80">{t('pro.labs.inspector.hint', 'Use the inspector to explore object structure, values and metadata.')}</span>
             </div>
             <div className="flex flex-wrap gap-2 text-xs">
               {inspectorExamples.map((ex) => (
@@ -1026,7 +1095,7 @@ export default function ProPage() {
                   className="w-full rounded bg-black/40 border border-slate-700 text-sm text-white px-2 py-1"
                   value={inspectorQuery}
                   onChange={(e) => setInspectorQuery(e.target.value)}
-                  placeholder="Search inspector..."
+                  placeholder={t('pro.labs.inspector.searchPlaceholder', 'Search inspector...')}
                 />
               </div>
               {selectedPath && (
@@ -1039,40 +1108,40 @@ export default function ProPage() {
               className="w-full h-32 rounded-lg bg-black/40 border border-slate-700 text-sm text-white p-3 font-mono"
               value={inspectorInput}
               onChange={(e) => setInspectorInput(e.target.value)}
-              placeholder="Paste JSON or object to inspect."
+              placeholder={t('pro.labs.inspector.pastePlaceholder', 'Paste JSON or object to inspect.')}
             />
             <div className="flex items-center gap-2">
               <Button onClick={parseInspector} className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-semibold shadow-[0_0_15px_rgba(251,191,36,0.4)]">
-                Pro Inspector Analyze
+                {t('pro.labs.inspector.analyze', 'Pro Inspector Analyze')}
               </Button>
               {inspectorError && <span className="text-sm text-red-300">{inspectorError}</span>}
             </div>
             <div className="bg-black/30 border border-slate-700 rounded-lg p-3 min-h-[120px] text-sm text-gray-200">
-              {inspectorParsed ? renderObject(inspectorParsed, 0, []) : <span className="text-gray-500">Paste JSON or object to inspect.</span>}
+              {inspectorParsed ? renderObject(inspectorParsed, 0, []) : <span className="text-gray-500">{t('pro.labs.inspector.pastePlaceholder', 'Paste JSON or object to inspect.')}</span>}
             </div>
             {inspectorInput && (
               <div className="grid md:grid-cols-2 gap-3">
                 <div className="bg-black/25 border border-slate-700 rounded-lg p-3 space-y-2">
                   <div className="flex items-center justify-between text-xs text-amber-200">
-                    <span>Focus</span>
-                    <span className="font-mono text-amber-300">{selectedPath || "Select a value in the tree to inspect it"}</span>
+                    <span>{t('pro.labs.inspector.focus', 'Focus')}</span>
+                    <span className="font-mono text-amber-300">{selectedPath || t('pro.labs.inspector.focusFallback', 'Select a value in the tree to inspect it')}</span>
                   </div>
                   <div className="flex flex-wrap gap-2 text-[11px] text-amber-50">
                     <span className="px-2 py-1 rounded-full bg-amber-600/25 border border-amber-300/60 shadow-[0_0_0_1px_rgba(251,191,36,0.35)]">{valueKind}</span>
-                    {arrayLength !== null && <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">Length: {arrayLength}</span>}
+                    {arrayLength !== null && <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">{t('pro.labs.inspector.length', 'Length')}: {arrayLength}</span>}
                     {objectKeysCount !== null && (
-                      <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">Keys: {objectKeysCount}</span>
+                      <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">{t('pro.labs.inspector.keys', 'Keys')}: {objectKeysCount}</span>
                     )}
                     <span className="px-2 py-1 rounded-full bg-emerald-600/25 border border-emerald-300/60 text-emerald-50">Stack/Heap</span>
                   </div>
                   <pre className="bg-slate-950/70 border border-slate-700 rounded text-xs text-slate-200 p-2 max-h-40 overflow-auto">
-                    {selectedValuePreview || "Select a path in the inspector tree to preview its value."}
+                    {selectedValuePreview || t('pro.labs.inspector.previewFallback', 'Select a path in the inspector tree to preview its value.')}
                   </pre>
                   <div className="text-[11px] text-slate-200 space-y-1 bg-slate-800/80 border border-slate-700 rounded p-2">
-                    <div className="font-semibold text-slate-100">How to Use the Inspector</div>
-                    <div>Click keys or indices to explore nested values.</div>
-                    <div>Use the search box to find properties or values quickly.</div>
-                    <div>Tip: paste JSON to inspect objects or debug API responses.</div>
+                    <div className="font-semibold text-slate-100">{t('pro.labs.inspector.howToUse.title', 'How to Use the Inspector')}</div>
+                    <div>{t('pro.labs.inspector.howToUse.item1', 'Click keys or indices to explore nested values.')}</div>
+                    <div>{t('pro.labs.inspector.howToUse.item2', 'Use the search box to find properties or values quickly.')}</div>
+                    <div>{t('pro.labs.inspector.howToUse.item3', 'Tip: paste JSON to inspect objects or debug API responses.')}</div>
                   </div>
                 </div>
                 {renderCodePreview()}
@@ -1080,12 +1149,12 @@ export default function ProPage() {
             )}
             {selectedPath && inspectorParsed && (
               <div className="bg-black/20 border border-slate-700 rounded p-3">
-                <div className="text-xs text-gray-300 mb-2">Interpreter</div>
+                <div className="text-xs text-gray-300 mb-2">{t('pro.labs.inspector.interpreter.title', 'Interpreter')}</div>
                 <ul className="text-xs text-gray-200 space-y-1">
-                  <li>Shows the selected value and its type.</li>
-                  <li>Quickly copy values or paths for debugging.</li>
+                  <li>{t('pro.labs.inspector.interpreter.item1', 'Shows the selected value and its type.')}</li>
+                  <li>{t('pro.labs.inspector.interpreter.item2', 'Quickly copy values or paths for debugging.')}</li>
                   <li>{`Use the path ${selectedPath || '<path>'} to reference values programmatically.`}</li>
-                  <li>Use the inspector to reproduce and diagnose issues faster.</li>
+                  <li>{t('pro.labs.inspector.interpreter.item3', 'Use the inspector to reproduce and diagnose issues faster.')}</li>
                 </ul>
               </div>
             )}
@@ -1094,18 +1163,18 @@ export default function ProPage() {
 
         <div className="border-t border-white/10 pt-12">
           {user?.isPro ? (
-            <Suspense fallback={<div className="text-center p-8 text-white">Pro Debugger Loading</div>}>
+            <Suspense fallback={<div className="text-center p-8 text-white">{t('pro.debugger.loading', 'Pro Debugger Loading')}</div>}>
               <ProDebuggerLazy />
             </Suspense>
           ) : (
             <div className="max-w-4xl mx-auto text-center text-white space-y-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-semibold">
                 <Crown className="w-4 h-4" />
-                Pro Debugger
+                {t('pro.debugger.badge', 'Pro Debugger')}
               </div>
-              <p className="text-gray-200">The Pro debugger is available to subscribers — try one free use to see its value.</p>
+              <p className="text-gray-200">{t('pro.debugger.desc', 'The Pro debugger is available to subscribers — try one free use to see its value.')}</p>
               <Button onClick={handleGoToPricing} className="bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-black font-bold h-12">
-                View Pricing
+                {t('common.viewPricing', 'View Pricing')}
               </Button>
             </div>
           )}

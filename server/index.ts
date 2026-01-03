@@ -6,6 +6,8 @@ import { serveStatic } from "./static.js";
 import { db } from "./db.js";
 import { users } from "../shared/schema.js";
 import { and, eq, or, lt, isNull } from "drizzle-orm";
+import fs from "fs";
+import path from "path";
 
 export { registerRoutes } from "./routes.js";
 export { buildApp } from "./app.js";
@@ -72,9 +74,12 @@ app.use((req, res, next) => {
 
 app.use(compression({ threshold: 1024 }));
 
-// Stripe webhook requires raw body
-const stripeWebhookPath = "/api/monetization/stripe-webhook";
-app.use(stripeWebhookPath, express.raw({ type: "application/json", limit: JSON_LIMIT }));
+// Stripe webhooks require raw body (signature verification)
+// NOTE: routes.ts currently exposes both endpoints; keep them aligned.
+const stripeWebhookPaths = ["/api/monetization/stripe-webhook", "/api/webhooks/stripe"];
+for (const p of stripeWebhookPaths) {
+  app.use(p, express.raw({ type: "application/json", limit: JSON_LIMIT }));
+}
 
 // For all other routes, use JSON parser. Skip JSON parse on webhook path.
 const jsonParser = express.json({
@@ -84,7 +89,7 @@ const jsonParser = express.json({
   },
 });
 app.use((req, res, next) => {
-  if (req.path === stripeWebhookPath) return next();
+  if (stripeWebhookPaths.includes(req.path)) return next();
   return (jsonParser as any)(req, res, next);
 });
 
@@ -207,9 +212,20 @@ if (shouldStartServer) {
       listenOptions.reusePort = true;
     }
 
+    const backendPortFile = path.resolve(process.cwd(), ".backend-port");
+
+    const writeBackendPortFile = (port: number) => {
+      try {
+        fs.writeFileSync(backendPortFile, String(port), "utf-8");
+      } catch {
+        // ignore best-effort write errors
+      }
+    };
+
     const tryListen = (p: number) => {
       currentPort = p;
       httpServer.listen({ ...listenOptions, port: p }, () => {
+        writeBackendPortFile(p);
         log(`serving on port ${p}`);
       });
     };

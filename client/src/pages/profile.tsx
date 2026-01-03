@@ -2,9 +2,51 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/use-user';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { Camera, Save, Trophy, Zap, Target, Calendar, TrendingUp, Award } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+type SocialUser = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  avatar: string | null;
+  isPro: boolean;
+  level: number;
+  xp: number;
+  dailyStreak: number;
+};
+
+type StoreItem = {
+  id: string;
+  name: string;
+  description?: string;
+  type: string;
+  category: string;
+  price?: number;
+  icon?: string;
+  owned?: boolean;
+};
+
+type Achievement = {
+  id: string;
+  name: string;
+  description: string;
+  xp: number;
+  category: string;
+  icon: string;
+  unlocked: boolean;
+  unlockedAt?: string | null;
+  progress?: number;
+};
+
+function displayName(u: Pick<SocialUser, 'firstName' | 'lastName'>) {
+  const first = (u.firstName || '').trim();
+  const last = (u.lastName || '').trim();
+  const full = `${first} ${last}`.trim();
+  return full || 'User';
+}
 
 const AVATAR_GALLERY = [
   'default', 'ninja', 'robot', 'wizard', 'alien', 'pirate', 'astronaut', 'detective',
@@ -28,6 +70,7 @@ function getLevelInfo(xp: number) {
 
 export default function ProfilePage() {
   const { user, refreshUser } = useUser();
+  const { t } = useLanguage();
 
   const { toast } = useToast();
   
@@ -35,6 +78,27 @@ export default function ProfilePage() {
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [saving, setSaving] = useState(false);
   const [ownedAvatars, setOwnedAvatars] = useState<Record<string, boolean>>({});
+  const [ownedEmotes, setOwnedEmotes] = useState<StoreItem[]>([]);
+  const [ownedPets, setOwnedPets] = useState<StoreItem[]>([]);
+  const [ownedThemes, setOwnedThemes] = useState<StoreItem[]>([]);
+  const [hasTrophyCase, setHasTrophyCase] = useState(false);
+  const [hasCustomThemeCreator, setHasCustomThemeCreator] = useState(false);
+  const [hasCustomWatermark, setHasCustomWatermark] = useState(false);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<Achievement[]>([]);
+  const [trophySlots, setTrophySlots] = useState<string[]>(['', '', '']);
+
+  const [customGridColor, setCustomGridColor] = useState('#06b6d4');
+  const [customGridOpacity, setCustomGridOpacity] = useState(0.1);
+  const [themeCode, setThemeCode] = useState('');
+  const [importThemeCode, setImportThemeCode] = useState('');
+
+  const [socialLoading, setSocialLoading] = useState(false);
+  const [followers, setFollowers] = useState<SocialUser[]>([]);
+  const [followingUsers, setFollowingUsers] = useState<SocialUser[]>([]);
+  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
+  const [incomingRequests, setIncomingRequests] = useState<Array<{ user: SocialUser; createdAt?: string }>>([]);
+  const [outgoingRequests, setOutgoingRequests] = useState<Array<{ user: SocialUser; createdAt?: string }>>([]);
+  const [friends, setFriends] = useState<SocialUser[]>([]);
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -42,6 +106,8 @@ export default function ProfilePage() {
     country: '',
     bio: '',
     avatar: 'default',
+    usernameColor: '',
+    watermarkText: '',
     theme: 'dark',
     language: 'en',
     dailyGoal: 3,
@@ -55,12 +121,34 @@ export default function ProfilePage() {
         country: user.country || '',
         bio: user.bio || '',
         avatar: user.avatar || 'default',
+        usernameColor: user.usernameColor || '',
+        watermarkText: user.watermarkText || '',
         theme: user.theme || 'dark',
         language: user.language || 'en',
         dailyGoal: user.dailyGoal || 3,
       });
+
+      const initial = Array.isArray((user as any).trophyCase) ? (user as any).trophyCase as string[] : [];
+      const slots = [initial[0] || '', initial[1] || '', initial[2] || ''];
+      setTrophySlots(slots);
+
+      const ct = (user as any).customTheme as any;
+      if (ct && typeof ct === 'object' && typeof ct.gridColor === 'string') {
+        setCustomGridColor(ct.gridColor);
+        if (typeof ct.gridOpacity === 'number') setCustomGridOpacity(Math.max(0, Math.min(1, ct.gridOpacity)));
+      }
     }
   }, [user]);
+
+  useEffect(() => {
+    try {
+      const payload = { gridColor: customGridColor, gridOpacity: customGridOpacity };
+      const raw = JSON.stringify(payload);
+      setThemeCode(btoa(unescape(encodeURIComponent(raw))));
+    } catch {
+      setThemeCode('');
+    }
+  }, [customGridColor, customGridOpacity]);
 
   // Load owned avatars when opening the avatar picker so we can restrict selection
   useEffect(() => {
@@ -86,6 +174,246 @@ export default function ProfilePage() {
     })();
   }, [showAvatarPicker]);
 
+  // Load owned collectibles for profile display (emotes/stickers + pets)
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const res = await fetch('/api/store', { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const data = await res.json().catch(() => ({} as any));
+        const items: StoreItem[] = Array.isArray(data.items) ? data.items : [];
+
+        const emotes = items.filter((it) => it.owned && it.type === 'cosmetic' && it.category === 'emote');
+        const pets = items.filter((it) => it.owned && it.type === 'cosmetic' && it.category === 'pet');
+        const themes = items.filter((it) => it.owned && it.type === 'cosmetic' && it.category === 'theme');
+        setOwnedEmotes(emotes);
+        setOwnedPets(pets);
+        setOwnedThemes(themes);
+        setHasTrophyCase(items.some((it) => it.owned && it.id === 'trophy_case'));
+        setHasCustomThemeCreator(items.some((it) => it.owned && it.id === 'custom_theme_creator'));
+        setHasCustomWatermark(items.some((it) => it.owned && it.id === 'custom_watermark'));
+      } catch (e) {
+        // ignore
+      }
+    })();
+  }, [user?.id]);
+
+  async function saveCustomTheme() {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast({
+          title: t('auth.signIn', 'Sign in'),
+          description: t('profile.toast.signInToSaveTheme', 'Please sign in to save your custom theme.'),
+        });
+        return;
+      }
+      const res = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          customTheme: { gridColor: customGridColor, gridOpacity: customGridOpacity },
+          theme: 'theme_custom',
+        }),
+      });
+      const j = await res.json().catch(() => ({} as any));
+      if (!res.ok) throw new Error(j?.message || 'Failed to save custom theme');
+      if (refreshUser) await refreshUser();
+      toast({ title: 'Custom theme saved', description: 'Your custom theme is now active.' });
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Unable to save custom theme', variant: 'destructive' });
+    }
+  }
+
+  function importThemeFromCode() {
+    try {
+      const raw = decodeURIComponent(escape(atob(importThemeCode.trim())));
+      const parsed = JSON.parse(raw);
+      const gridColor = String(parsed?.gridColor || '').trim();
+      const gridOpacityNum = Number(parsed?.gridOpacity);
+      if (!/^#[0-9a-fA-F]{6}$/.test(gridColor)) throw new Error('Invalid gridColor');
+      if (!Number.isFinite(gridOpacityNum)) throw new Error('Invalid gridOpacity');
+      setCustomGridColor(gridColor);
+      setCustomGridOpacity(Math.max(0, Math.min(1, gridOpacityNum)));
+      toast({ title: 'Imported', description: 'Theme code imported. Click Save to apply.' });
+    } catch (e: any) {
+      toast({ title: 'Invalid code', description: e?.message || 'Could not import theme code', variant: 'destructive' });
+    }
+  }
+
+  useEffect(() => {
+    if (!user || !hasTrophyCase) return;
+    (async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const res = await fetch('/api/achievements', { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const data = await res.json().catch(() => ({} as any));
+        const all: Achievement[] = Array.isArray(data.achievements) ? data.achievements : [];
+        setUnlockedAchievements(all.filter((a) => a.unlocked));
+      } catch {
+        // ignore
+      }
+    })();
+  }, [user?.id, hasTrophyCase]);
+
+  async function equipTheme(itemId: string) {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast({
+          title: t('auth.signIn', 'Sign in'),
+          description: t('profile.toast.signInToEquipThemes', 'Please sign in to equip themes.'),
+        });
+        return;
+      }
+      const res = await fetch('/api/cosmetics/equip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        credentials: 'include',
+        body: JSON.stringify({ itemId }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j?.message || 'Equip failed');
+      toast({ title: 'Theme applied', description: j?.item ? `${j.item}` : 'Theme applied.' });
+      if (refreshUser) await refreshUser();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Unable to equip theme', variant: 'destructive' });
+    }
+  }
+
+  async function refreshSocial() {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      setSocialLoading(true);
+
+      const [followingIdsRes, followersRes, followingUsersRes, requestsRes, friendsRes] = await Promise.all([
+        fetch('/api/social/following', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/social/followers', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/social/following/users', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/social/friend-requests', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/social/friends', { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
+
+      if (followingIdsRes.ok) {
+        const j = await followingIdsRes.json().catch(() => ({}));
+        const ids = Array.isArray(j.following) ? j.following : [];
+        setFollowingIds(new Set(ids));
+      }
+      if (followersRes.ok) {
+        const j = await followersRes.json().catch(() => ({}));
+        setFollowers(Array.isArray(j.followers) ? j.followers : []);
+      }
+      if (followingUsersRes.ok) {
+        const j = await followingUsersRes.json().catch(() => ({}));
+        setFollowingUsers(Array.isArray(j.following) ? j.following : []);
+      }
+      if (requestsRes.ok) {
+        const j = await requestsRes.json().catch(() => ({}));
+        setIncomingRequests(Array.isArray(j.incoming) ? j.incoming : []);
+        setOutgoingRequests(Array.isArray(j.outgoing) ? j.outgoing : []);
+      }
+      if (friendsRes.ok) {
+        const j = await friendsRes.json().catch(() => ({}));
+        setFriends(Array.isArray(j.friends) ? j.friends : []);
+      }
+    } catch (e) {
+      // ignore
+    } finally {
+      setSocialLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!user) return;
+    refreshSocial();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  async function postJson(url: string, body: any) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast({
+        title: t('auth.signIn', 'Sign in'),
+        description: t('profile.toast.signInToUseSocial', 'Please sign in to use social features.'),
+      });
+      return { ok: false } as any;
+    }
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body || {}),
+    });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j?.message || 'Request failed');
+    return j;
+  }
+
+  async function follow(userId: string) {
+    try {
+      await postJson('/api/social/follow', { userId });
+      toast({ title: 'Following', description: 'You are now following this user.' });
+      await refreshSocial();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Failed to follow', variant: 'destructive' });
+    }
+  }
+
+  async function unfollow(userId: string) {
+    try {
+      await postJson('/api/social/unfollow', { userId });
+      toast({ title: 'Unfollowed', description: 'You are no longer following this user.' });
+      await refreshSocial();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Failed to unfollow', variant: 'destructive' });
+    }
+  }
+
+  async function sendFriendRequest(userId: string) {
+    try {
+      const j = await postJson('/api/social/friend-request/send', { userId });
+      toast({ title: 'Friend request', description: j?.status === 'accepted' ? 'Friend request accepted.' : 'Friend request sent.' });
+      await refreshSocial();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Failed to send request', variant: 'destructive' });
+    }
+  }
+
+  async function cancelFriendRequest(userId: string) {
+    try {
+      await postJson('/api/social/friend-request/cancel', { userId });
+      toast({ title: 'Canceled', description: 'Friend request canceled.' });
+      await refreshSocial();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Failed to cancel request', variant: 'destructive' });
+    }
+  }
+
+  async function acceptFriendRequest(userId: string) {
+    try {
+      await postJson('/api/social/friend-request/accept', { userId });
+      toast({ title: 'Friends', description: 'Friend request accepted.' });
+      await refreshSocial();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Failed to accept request', variant: 'destructive' });
+    }
+  }
+
+  async function declineFriendRequest(userId: string) {
+    try {
+      await postJson('/api/social/friend-request/decline', { userId });
+      toast({ title: 'Declined', description: 'Friend request declined.' });
+      await refreshSocial();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Failed to decline request', variant: 'destructive' });
+    }
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
@@ -96,26 +424,42 @@ export default function ProfilePage() {
 
   const levelInfo = getLevelInfo(user.xp || 0);
 
+  const featuredUntilDate = (() => {
+    if (!user.featuredUntil) return null;
+    const dt = new Date(user.featuredUntil);
+    return Number.isFinite(dt.getTime()) ? dt : null;
+  })();
+  const isFeaturedActive = Boolean(featuredUntilDate && featuredUntilDate.getTime() > Date.now());
+
   const handleSave = async () => {
     setSaving(true);
     try {
       const token = localStorage.getItem('token');
+      const normalizedSlots = trophySlots.map((s) => String(s || '').trim()).filter(Boolean);
+      const uniqueSlots = Array.from(new Set(normalizedSlots)).slice(0, 3);
       const res = await fetch('/api/profile/update', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          ...(hasTrophyCase ? { trophyCase: uniqueSlots } : {}),
+          ...(hasCustomWatermark ? { watermarkText: String(formData.watermarkText || '') } : {}),
+        }),
       });
 
-      if (!res.ok) throw new Error('Failed to update profile');
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({} as any));
+        throw new Error(j?.message || 'Failed to update profile');
+      }
 
       await refreshUser();
       toast({ title: 'Profile updated!', description: 'Your changes have been saved.' });
       setIsEditing(false);
-    } catch (error) {
-      toast({ title: 'Error', description: 'Failed to update profile', variant: 'destructive' });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error?.message || 'Failed to update profile', variant: 'destructive' });
     } finally {
       setSaving(false);
     }
@@ -129,11 +473,60 @@ export default function ProfilePage() {
           <div className="flex flex-col md:flex-row items-center gap-6">
             {/* Avatar */}
             <div className="relative">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-yellow-500 to-amber-600 p-1 shadow-[0_0_25px_rgba(251,191,36,0.4)]">
-                <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-6xl">
-                  {formData.avatar === 'default' ? '👤' : getAvatarEmoji(formData.avatar)}
+              {user.equippedFrame ? (
+                <div className="avatar-frame-wrap w-32 h-32">
+                  {user.equippedBadge === 'badge_vip_halo' ? <div className="avatar-halo" /> : null}
+                  <div
+                    className={`avatar-frame-ring ${
+                      user.equippedFrame === 'frame_gold'
+                        ? 'avatar-frame--gold'
+                        : user.equippedFrame === 'frame_silver'
+                          ? 'avatar-frame--silver'
+                          : user.equippedFrame === 'frame_rainbow'
+                            ? 'avatar-frame--rainbow'
+                            : user.equippedFrame === 'frame_neon'
+                              ? 'avatar-frame--neon'
+                              : user.equippedFrame === 'frame_onyx'
+                                ? 'avatar-frame--onyx'
+                                : user.equippedFrame === 'frame_animated'
+                                  ? 'avatar-frame--animated'
+                                  : ''
+                    } ${
+                      user.equippedFrame === 'frame_animated'
+                        ? user.frameAnimation === 'pulse'
+                          ? 'frame-anim-pulse'
+                          : user.frameAnimation === 'shimmer'
+                            ? 'frame-anim-shimmer'
+                            : user.frameAnimation === 'glow'
+                              ? 'frame-anim-glow'
+                              : user.frameAnimation === 'wave'
+                                ? 'frame-anim-wave'
+                                : user.frameAnimation === 'bounce'
+                                  ? 'frame-anim-bounce'
+                                  : user.frameAnimation === 'wobble'
+                                    ? 'frame-anim-wobble'
+                                    : user.frameAnimation === 'tilt'
+                                      ? 'frame-anim-tilt'
+                                      : user.frameAnimation === 'zoom'
+                                        ? 'frame-anim-zoom'
+                                        : user.frameAnimation === 'flicker'
+                                          ? 'frame-anim-flicker'
+                                          : 'frame-anim-rotate'
+                        : ''
+                    }`}
+                  />
+                  <div className="avatar-frame-inner w-full h-full text-6xl">
+                    {formData.avatar === 'default' ? '👤' : getAvatarEmoji(formData.avatar)}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-yellow-500 to-amber-600 p-1 shadow-[0_0_25px_rgba(251,191,36,0.4)]">
+                  {user.equippedBadge === 'badge_vip_halo' ? <div className="avatar-halo" /> : null}
+                  <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-6xl">
+                    {formData.avatar === 'default' ? '👤' : getAvatarEmoji(formData.avatar)}
+                  </div>
+                </div>
+              )}
               {isEditing && (
                 <button
                   onClick={() => setShowAvatarPicker(!showAvatarPicker)}
@@ -147,12 +540,42 @@ export default function ProfilePage() {
             {/* Info */}
             <div className="flex-1 text-center md:text-left">
               <div className="flex items-center gap-3 justify-center md:justify-start mb-2">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
+                <h1
+                  className={
+                    user.usernameColor
+                      ? 'text-3xl font-bold'
+                      : 'text-3xl font-bold bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent'
+                  }
+                  style={user.usernameColor ? { color: user.usernameColor } : undefined}
+                >
                   {user.firstName} {user.lastName}
                 </h1>
+                {user.equippedBadge ? (
+                  <span className="text-2xl" title="Equipped badge">
+                    {user.equippedBadge === 'badge_fire'
+                      ? '🔥'
+                      : user.equippedBadge === 'badge_diamond'
+                        ? '💎'
+                        : user.equippedBadge === 'badge_crown'
+                          ? '👑'
+                          : user.equippedBadge === 'badge_premium'
+                            ? '🏅'
+                            : user.equippedBadge === 'badge_vip_halo'
+                              ? '✨'
+                            : '🏷️'}
+                  </span>
+                ) : null}
                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${levelInfo.color} bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/40 shadow-[0_0_15px_rgba(251,191,36,0.2)]`}>
                   {levelInfo.name}
                 </span>
+                {isFeaturedActive ? (
+                  <span
+                    className="px-3 py-1 rounded-full text-sm font-semibold text-yellow-200 bg-slate-900/60 border border-yellow-600/40"
+                    title={featuredUntilDate ? `Featured until ${featuredUntilDate.toLocaleString()}` : 'Featured'}
+                  >
+                    ⭐ Featured
+                  </span>
+                ) : null}
               </div>
               <p className="text-amber-200/70 text-sm mb-4">{user.email}</p>
               
@@ -202,6 +625,153 @@ export default function ProfilePage() {
           </div>
         </Card>
 
+        {/* Social */}
+        <Card className="p-6 bg-slate-900/90 border-slate-700">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-white">Social</h2>
+            <Button variant="outline" onClick={refreshSocial} disabled={socialLoading}>
+              {socialLoading ? 'Refreshing...' : 'Refresh'}
+            </Button>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card className="p-4 bg-slate-800/60 border-white/5">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-white font-semibold">Followers</div>
+                <div className="text-xs text-gray-400">{followers.length}</div>
+              </div>
+              {followers.length === 0 ? (
+                <div className="text-sm text-gray-400">No followers yet.</div>
+              ) : (
+                <div className="space-y-2">
+                  {followers.slice(0, 10).map((u) => {
+                    const isFollowing = followingIds.has(u.id);
+                    return (
+                      <div key={u.id} className="flex items-center justify-between gap-2 bg-black/20 border border-white/10 rounded px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <div className="text-xl">{(u.avatar || 'default') === 'default' ? '👤' : getAvatarEmoji(u.avatar || 'default')}</div>
+                          <div>
+                            <div className="text-sm text-white">{displayName(u)} {u.isPro ? '👑' : ''}</div>
+                            <div className="text-xs text-gray-400">Lvl {u.level} • {u.xp} XP</div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          {isFollowing ? (
+                            <Button size="sm" variant="outline" onClick={() => unfollow(u.id)}>Unfollow</Button>
+                          ) : (
+                            <Button size="sm" onClick={() => follow(u.id)}>Follow back</Button>
+                          )}
+                          <Button size="sm" variant="outline" onClick={() => sendFriendRequest(u.id)}>Add</Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {followers.length > 10 && <div className="mt-2 text-xs text-gray-500">Showing 10 of {followers.length}</div>}
+            </Card>
+
+            <Card className="p-4 bg-slate-800/60 border-white/5">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-white font-semibold">Following</div>
+                <div className="text-xs text-gray-400">{followingUsers.length}</div>
+              </div>
+              {followingUsers.length === 0 ? (
+                <div className="text-sm text-gray-400">You are not following anyone yet.</div>
+              ) : (
+                <div className="space-y-2">
+                  {followingUsers.slice(0, 10).map((u) => (
+                    <div key={u.id} className="flex items-center justify-between gap-2 bg-black/20 border border-white/10 rounded px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="text-xl">{(u.avatar || 'default') === 'default' ? '👤' : getAvatarEmoji(u.avatar || 'default')}</div>
+                        <div>
+                          <div className="text-sm text-white">{displayName(u)} {u.isPro ? '👑' : ''}</div>
+                          <div className="text-xs text-gray-400">Streak {u.dailyStreak} • Lvl {u.level}</div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => unfollow(u.id)}>Unfollow</Button>
+                        <Button size="sm" variant="outline" onClick={() => sendFriendRequest(u.id)}>Add</Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {followingUsers.length > 10 && <div className="mt-2 text-xs text-gray-500">Showing 10 of {followingUsers.length}</div>}
+            </Card>
+          </div>
+
+          <div className="mt-4 grid md:grid-cols-2 gap-4">
+            <Card className="p-4 bg-slate-800/60 border-white/5">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-white font-semibold">Incoming requests</div>
+                <div className="text-xs text-gray-400">{incomingRequests.length}</div>
+              </div>
+              {incomingRequests.length === 0 ? (
+                <div className="text-sm text-gray-400">No pending requests.</div>
+              ) : (
+                <div className="space-y-2">
+                  {incomingRequests.map((r) => (
+                    <div key={r.user.id} className="flex items-center justify-between gap-2 bg-black/20 border border-white/10 rounded px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="text-xl">{(r.user.avatar || 'default') === 'default' ? '👤' : getAvatarEmoji(r.user.avatar || 'default')}</div>
+                        <div className="text-sm text-white">{displayName(r.user)} {r.user.isPro ? '👑' : ''}</div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => acceptFriendRequest(r.user.id)}>Accept</Button>
+                        <Button size="sm" variant="outline" onClick={() => declineFriendRequest(r.user.id)}>Decline</Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+
+            <Card className="p-4 bg-slate-800/60 border-white/5">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-white font-semibold">Outgoing requests</div>
+                <div className="text-xs text-gray-400">{outgoingRequests.length}</div>
+              </div>
+              {outgoingRequests.length === 0 ? (
+                <div className="text-sm text-gray-400">No pending requests.</div>
+              ) : (
+                <div className="space-y-2">
+                  {outgoingRequests.map((r) => (
+                    <div key={r.user.id} className="flex items-center justify-between gap-2 bg-black/20 border border-white/10 rounded px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="text-xl">{(r.user.avatar || 'default') === 'default' ? '👤' : getAvatarEmoji(r.user.avatar || 'default')}</div>
+                        <div className="text-sm text-white">{displayName(r.user)} {r.user.isPro ? '👑' : ''}</div>
+                      </div>
+                      <Button size="sm" variant="outline" onClick={() => cancelFriendRequest(r.user.id)}>Cancel</Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </div>
+
+          <div className="mt-4">
+            <Card className="p-4 bg-slate-800/60 border-white/5">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-white font-semibold">Friends</div>
+                <div className="text-xs text-gray-400">{friends.length}</div>
+              </div>
+              {friends.length === 0 ? (
+                <div className="text-sm text-gray-400">No friends yet. Send some requests!</div>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {friends.map((u) => (
+                    <div key={u.id} className="flex items-center gap-2 bg-black/20 border border-white/10 rounded px-3 py-2">
+                      <div className="text-xl">{(u.avatar || 'default') === 'default' ? '👤' : getAvatarEmoji(u.avatar || 'default')}</div>
+                      <div className="text-sm text-white">{displayName(u)} {u.isPro ? '👑' : ''}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </div>
+        </Card>
+
         {/* Avatar Picker Modal */}
         {showAvatarPicker && (
           <Card className="p-6 bg-slate-900 border-slate-700">
@@ -221,7 +791,13 @@ export default function ProfilePage() {
                         // Owned: equip via store API to ensure server-side enforcement
                         try {
                           const token = localStorage.getItem('token');
-                          if (!token) { toast({ title: 'Sign in', description: 'Please sign in to equip avatars.' }); return; }
+                          if (!token) {
+                            toast({
+                              title: t('auth.signIn', 'Sign in'),
+                              description: t('profile.toast.signInToEquipAvatars', 'Please sign in to equip avatars.'),
+                            });
+                            return;
+                          }
                           const res = await fetch('/api/store/equip', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -345,6 +921,32 @@ export default function ProfilePage() {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Username Color (hex)</label>
+              <input
+                type="text"
+                value={formData.usernameColor}
+                onChange={(e) => setFormData({ ...formData, usernameColor: e.target.value })}
+                disabled={!isEditing}
+                className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white disabled:opacity-50"
+                placeholder="#ff0000 (leave blank for default)"
+              />
+            </div>
+
+            {hasCustomWatermark && (
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Export Watermark</label>
+                <input
+                  type="text"
+                  value={formData.watermarkText}
+                  onChange={(e) => setFormData({ ...formData, watermarkText: e.target.value })}
+                  disabled={!isEditing}
+                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white disabled:opacity-50"
+                  placeholder="e.g. @YourName (max 48 chars)"
+                />
+              </div>
+            )}
+
+            <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Daily Goal (exercises)</label>
               <select
                 value={formData.dailyGoal}
@@ -387,6 +989,220 @@ export default function ProfilePage() {
             </a>
           </Card>
         </div>
+
+        {/* Trophy Case (paid): showcase achievements */}
+        {hasTrophyCase && (
+          <Card className="p-6 bg-slate-900/90 border-slate-700">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-white">Trophy Case</h2>
+                <div className="text-sm text-slate-300">Showcase up to 3 unlocked achievements</div>
+              </div>
+            </div>
+
+            {isEditing ? (
+              <div className="grid md:grid-cols-3 gap-4">
+                {[0, 1, 2].map((idx) => (
+                  <div key={idx}>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Slot {idx + 1}</label>
+                    <select
+                      value={trophySlots[idx] || ''}
+                      onChange={(e) => {
+                        const next = [...trophySlots];
+                        next[idx] = e.target.value;
+                        setTrophySlots(next);
+                      }}
+                      className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
+                    >
+                      <option value="">(none)</option>
+                      {unlockedAchievements.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.icon} {a.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-3 gap-4">
+                {trophySlots.filter(Boolean).length === 0 ? (
+                  <div className="md:col-span-3 text-sm text-slate-400">No featured achievements yet. Click Edit Profile to select them.</div>
+                ) : (
+                  trophySlots
+                    .map((id) => id.trim())
+                    .filter(Boolean)
+                    .slice(0, 3)
+                    .map((id) => {
+                      const a = unlockedAchievements.find((x) => x.id === id);
+                      return (
+                        <Card key={id} className="p-4 bg-slate-800/60 border-white/5">
+                          <div className="flex items-center gap-3">
+                            <div className="text-2xl">{a?.icon || '🏆'}</div>
+                            <div className="min-w-0">
+                              <div className="text-white font-semibold truncate">{a?.name || id}</div>
+                              <div className="text-xs text-slate-400 truncate">{a?.description || ''}</div>
+                            </div>
+                          </div>
+                        </Card>
+                      );
+                    })
+                )}
+              </div>
+            )}
+          </Card>
+        )}
+
+        {/* Custom Theme Creator (paid): create/save/share */}
+        {hasCustomThemeCreator && (
+          <Card className="p-6 bg-slate-900/90 border-slate-700">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-white">Custom Theme Creator</h2>
+                <div className="text-sm text-slate-300">Customize the background grid and share your theme code</div>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Grid color (hex)</label>
+                <input
+                  type="text"
+                  value={customGridColor}
+                  onChange={(e) => setCustomGridColor(e.target.value)}
+                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
+                  placeholder="#06b6d4"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Grid opacity (0-1)</label>
+                <input
+                  type="number"
+                  value={customGridOpacity}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onChange={(e) => setCustomGridOpacity(Number(e.target.value))}
+                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
+                />
+              </div>
+              <div className="flex items-end">
+                <Button onClick={saveCustomTheme} className="w-full">Save & Apply</Button>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Theme code (share)</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={themeCode}
+                    readOnly
+                    className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      try { navigator.clipboard.writeText(themeCode); toast({ title: 'Copied', description: 'Theme code copied.' }); } catch {}
+                    }}
+                  >
+                    Copy
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Import code</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={importThemeCode}
+                    onChange={(e) => setImportThemeCode(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
+                    placeholder="Paste a theme code"
+                  />
+                  <Button variant="outline" onClick={importThemeFromCode}>Import</Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Collectibles (MVP): Emotes + Pets */}
+        <Card className="p-6 bg-slate-900/90 border-slate-700">
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-white">Collectibles</h2>
+              <div className="text-sm text-slate-300">Your owned emotes/stickers and pets</div>
+            </div>
+            <a href="/pricing#store" className="text-amber-200 hover:text-amber-100 text-sm">Open Store →</a>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <Card className="p-4 bg-slate-800/60 border-white/5">
+              <div className="text-white font-semibold mb-2">Emotes & Stickers</div>
+              {ownedEmotes.length === 0 ? (
+                <div className="text-sm text-slate-400">No emotes yet. Buy a pack in the store.</div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {ownedEmotes.map((it) => (
+                    <div key={it.id} className="flex items-center gap-2 px-3 py-2 rounded bg-black/20 border border-white/10">
+                      <div className="text-xl">{it.icon || '😄'}</div>
+                      <div className="text-sm text-white">{it.name}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+
+            <Card className="p-4 bg-slate-800/60 border-white/5">
+              <div className="text-white font-semibold mb-2">Pets</div>
+              {ownedPets.length === 0 ? (
+                <div className="text-sm text-slate-400">No pets yet. Adopt one in the store.</div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {ownedPets.map((it) => (
+                    <div key={it.id} className="flex items-center gap-2 px-3 py-2 rounded bg-black/20 border border-white/10">
+                      <div className="text-xl">{it.icon || '🐾'}</div>
+                      <div className="text-sm text-white">{it.name}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+
+            <Card className="p-4 bg-slate-800/60 border-white/5">
+              <div className="text-white font-semibold mb-2">Themes</div>
+              {ownedThemes.length === 0 ? (
+                <div className="text-sm text-slate-400">No themes yet. Buy one in the store.</div>
+              ) : (
+                <div className="space-y-2">
+                  {ownedThemes.map((it) => {
+                    const equipped = (user?.theme || '') === it.id;
+                    return (
+                      <div key={it.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded bg-black/20 border border-white/10">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="text-xl">{it.icon || '🎨'}</div>
+                          <div className="min-w-0">
+                            <div className="text-sm text-white truncate">{it.name}</div>
+                            <div className="text-xs text-slate-400 truncate">{it.description || ''}</div>
+                          </div>
+                        </div>
+                        {equipped ? (
+                          <div className="text-xs px-2 py-1 rounded bg-emerald-600 text-black">Equipped</div>
+                        ) : (
+                          <Button size="sm" variant="outline" onClick={() => equipTheme(it.id)}>
+                            Equip
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </Card>
+          </div>
+        </Card>
       </div>
     </div>
   );

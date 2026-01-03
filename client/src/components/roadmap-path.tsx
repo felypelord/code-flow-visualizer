@@ -17,6 +17,21 @@ type RoadmapItem = {
   contentPreview?: string;
   starterCode?: string;
   tests?: any[];
+  quiz?: {
+    title?: string;
+    questions: Array<{
+      id: string;
+      prompt: string;
+      options: string[];
+      answerIndex: number;
+      explanation?: string;
+    }>;
+  };
+};
+
+type QuizProgress = {
+  selections: Record<string, number>;
+  passed?: boolean;
 };
 
 export default function RoadmapPath(): React.ReactElement {
@@ -28,6 +43,7 @@ export default function RoadmapPath(): React.ReactElement {
   const [showPractice, setShowPractice] = useState(false);
   const [purchases, setPurchases] = useState<string[]>([]);
   const purchasedSet = useMemo(() => new Set(purchases), [purchases]);
+  const [quizProgress, setQuizProgress] = useState<QuizProgress | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -71,6 +87,56 @@ export default function RoadmapPath(): React.ReactElement {
     })();
   }, [selectedSlug]);
 
+  useEffect(() => {
+    if (!selectedItem?.slug) {
+      setQuizProgress(null);
+      return;
+    }
+
+    const quiz = selectedItem.quiz;
+    if (!quiz?.questions?.length) {
+      setQuizProgress(null);
+      return;
+    }
+
+    const key = `roadmap-quiz:${selectedItem.slug}`;
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object' && parsed.selections && typeof parsed.selections === 'object') {
+          setQuizProgress({ selections: parsed.selections as Record<string, number>, passed: Boolean(parsed.passed) });
+          return;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    const initialSelections: Record<string, number> = {};
+    for (const q of quiz.questions) initialSelections[q.id] = -1;
+    setQuizProgress({ selections: initialSelections, passed: false });
+  }, [selectedItem?.slug]);
+
+  useEffect(() => {
+    if (!selectedItem?.slug || !quizProgress) return;
+    const quiz = selectedItem.quiz;
+    if (!quiz?.questions?.length) return;
+
+    const allAnswered = quiz.questions.every((q) => typeof quizProgress.selections[q.id] === 'number' && quizProgress.selections[q.id] >= 0);
+    const allCorrect = allAnswered && quiz.questions.every((q) => quizProgress.selections[q.id] === q.answerIndex);
+
+    if (allCorrect && !quizProgress.passed) {
+      const next = { ...quizProgress, passed: true };
+      setQuizProgress(next);
+      try {
+        localStorage.setItem(`roadmap-quiz:${selectedItem.slug}`, JSON.stringify(next));
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [quizProgress, selectedItem?.slug, selectedItem?.quiz]);
+
   async function startPurchase(itemId: string) {
     try {
       // Redirect to centralized pricing/store page for this roadmap item
@@ -78,7 +144,21 @@ export default function RoadmapPath(): React.ReactElement {
       url.searchParams.set('product', itemId);
       url.searchParams.set('returnTo', window.location.pathname + window.location.search);
       window.location.href = url.toString();
-    } catch (e) { alert('Falha ao iniciar compra'); }
+    } catch (e) { alert('Failed to start purchase'); }
+  }
+
+  function setQuizAnswer(questionId: string, optionIndex: number) {
+    if (!selectedItem?.slug || !quizProgress) return;
+    const next: QuizProgress = {
+      ...quizProgress,
+      selections: { ...quizProgress.selections, [questionId]: optionIndex },
+    };
+    setQuizProgress(next);
+    try {
+      localStorage.setItem(`roadmap-quiz:${selectedItem.slug}`, JSON.stringify(next));
+    } catch (e) {
+      // ignore
+    }
   }
 
   return (
@@ -127,18 +207,65 @@ export default function RoadmapPath(): React.ReactElement {
             <div className="mt-4 prose max-w-none text-sm text-gray-200">
               {selectedLocked ? (
                 <div>
-                  <div className="mb-3">Conteúdo Pro — bloqueado.</div>
+                  <div className="mb-3">Pro content — locked.</div>
                   <div className="mb-4"><ReactMarkdown skipHtml>{selectedItem.contentPreview || selectedItem.summary || ''}</ReactMarkdown></div>
                   <div className="flex gap-2">
-                    <button className="bg-amber-500 text-black px-3 py-2 rounded" onClick={() => startPurchase(`roadmap:${selectedItem.slug}`)}>Comprar Pro</button>
-                    <a className="px-3 py-2 border rounded" href="/signup">Criar conta</a>
+                    <button className="bg-amber-500 text-black px-3 py-2 rounded" onClick={() => startPurchase(`roadmap:${selectedItem.slug}`)}>Buy Pro</button>
+                    <a className="px-3 py-2 border rounded" href="/signup">Create account</a>
                   </div>
                 </div>
               ) : (
                 <div>
                   <div className="prose max-w-none"><ReactMarkdown skipHtml>{selectedItem.content || selectedItem.summary || ''}</ReactMarkdown></div>
+
+                  {selectedItem.quiz?.questions?.length ? (
+                    <div className="mt-6 not-prose border border-slate-700 rounded p-4 bg-slate-950">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="font-semibold">{selectedItem.quiz.title || 'Quiz'}</div>
+                        {quizProgress?.passed ? (
+                          <div className="text-xs px-2 py-1 rounded bg-emerald-600 text-black">Completed</div>
+                        ) : (
+                          <div className="text-xs px-2 py-1 rounded bg-slate-700 text-slate-100">Pending</div>
+                        )}
+                      </div>
+
+                      <div className="mt-4 space-y-4">
+                        {selectedItem.quiz.questions.map((q, idx) => {
+                          const selected = quizProgress?.selections?.[q.id] ?? -1;
+                          const answered = selected >= 0;
+                          const correct = answered && selected === q.answerIndex;
+
+                          return (
+                            <div key={q.id} className="rounded border border-slate-800 p-3">
+                              <div className="text-sm font-medium">{idx + 1}. {q.prompt}</div>
+                              <div className="mt-2 grid gap-2">
+                                {q.options.map((opt, optIdx) => (
+                                  <label key={optIdx} className="flex items-center gap-2 text-sm cursor-pointer">
+                                    <input
+                                      type="radio"
+                                      name={`quiz-${selectedItem.slug}-${q.id}`}
+                                      checked={selected === optIdx}
+                                      onChange={() => setQuizAnswer(q.id, optIdx)}
+                                    />
+                                    <span>{opt}</span>
+                                  </label>
+                                ))}
+                              </div>
+
+                              {answered ? (
+                                <div className={`mt-2 text-xs ${correct ? 'text-emerald-300' : 'text-rose-300'}`}>
+                                  {correct ? 'Correct.' : 'Incorrect.'}{q.explanation ? ` ${q.explanation}` : ''}
+                                </div>
+                              ) : null}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
+
                   <div className="mt-4">
-                    <button className="bg-emerald-500 text-black px-3 py-2 rounded" onClick={() => setShowPractice(true)}>Praticar</button>
+                    <button className="bg-emerald-500 text-black px-3 py-2 rounded" onClick={() => setShowPractice(true)}>Practice</button>
                   </div>
                 </div>
               )}
@@ -161,7 +288,7 @@ export default function RoadmapPath(): React.ReactElement {
                 id: selectedItem.slug,
                 title: selectedItem.title,
                 lesson: (selectedItem.content || selectedItem.summary || '').split('\n\n'),
-                taskPrompt: selectedItem.summary || 'Implemente este exercício',
+                taskPrompt: selectedItem.summary || 'Implement this exercise',
                 check: async (code: string) => {
                   try {
                     const starter = selectedItem.starterCode || '';

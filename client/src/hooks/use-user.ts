@@ -5,10 +5,20 @@ interface User {
   email?: string;
   firstName?: string;
   lastName?: string;
+  featuredUntil?: string | null;
+  usernameColor?: string | null;
+  particleEffects?: boolean;
+  trophyCase?: string[];
+  customTheme?: { gridColor: string; gridOpacity: number } | null;
+  customWatermark?: boolean;
+  watermarkText?: string | null;
   isAdmin?: boolean;
   isPro?: boolean;
   proExpiresAt?: string | null;
   emailVerified?: boolean;
+  // Battle Pass fields
+  battlePassActive?: boolean;
+  battlePassSeason?: number;
   // Gamification fields
   xp?: number;
   level?: number;
@@ -16,6 +26,9 @@ interface User {
   avatar?: string;
   bio?: string;
   theme?: string;
+  equippedFrame?: string | null;
+  frameAnimation?: string | null;
+  equippedBadge?: string | null;
   language?: string;
   dailyStreak?: number;
   lastActivityDate?: string;
