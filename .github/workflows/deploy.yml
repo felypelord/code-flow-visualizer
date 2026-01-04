@@ -12,91 +12,28 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.19.0
-      - name: Detect project directory containing package.json
-        id: detect
-        run: |
-          echo "Searching for package.json to determine project root..."
-          # If root has package.json use it, otherwise search up to depth 3
-          if [ -f "$GITHUB_WORKSPACE/package.json" ]; then
-            echo "root=." >> $GITHUB_OUTPUT
-          else
-            pkgpath=$(find "$GITHUB_WORKSPACE" -maxdepth 3 -type f -name package.json -print -quit || true)
-            if [ -n "$pkgpath" ]; then
-              pkgdir=$(dirname "$pkgpath")
-              # strip leading $GITHUB_WORKSPACE/ if present
-              root=${pkgdir#${GITHUB_WORKSPACE}/}
-              if [ -z "$root" ]; then root="."; fi
-              echo "root=$root" >> $GITHUB_OUTPUT
-            else
-              echo "root=." >> $GITHUB_OUTPUT
-            fi
-          fi
-      - name: Debug workspace
-        run: |
-          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
-          pwd
-          echo "Listing repo root:"; ls -la
-          echo "Listing Code-Flow-Visualizer (if present):"; ls -la Code-Flow-Visualizer || true
-          echo "Detected root: '${{ steps.detect.outputs.root }}'";
-          ls -la "${{ steps.detect.outputs.root }}" || true
       - name: Install dependencies
-        working-directory: ${{ steps.detect.outputs.root }}
         run: |
-          npm install --no-audit --prefer-offline
-      - name: Build
-        working-directory: ${{ steps.detect.outputs.root }}
+          npm ci --no-audit
+
+      - name: Build (local)
         run: |
           npm run build --if-present
-      - name: Show build output
-        working-directory: ${{ steps.detect.outputs.root }}
-        run: |
-          echo "PWD: $(pwd)"
-          echo "Listing working directory:"; ls -la
-          echo "Listing dist (subdir):"; ls -la dist || true
-          echo "Listing dist/public (subdir):"; ls -la dist/public || true
-          echo "Listing repo-root/dist (if present):"; ls -la "$GITHUB_WORKSPACE/dist" || true
-      - name: Prepare dist for deploy
-        working-directory: ${{ steps.detect.outputs.root }}
-        run: |
-          echo "Preparing dist in repo root for Vercel upload"
-          # copy from the detected project root's dist into repo root
-          SRC="$GITHUB_WORKSPACE/${{ steps.detect.outputs.root }}/dist"
-          if [ -d "$SRC" ]; then
-            rm -rf "$GITHUB_WORKSPACE/dist" || true
-            mkdir -p "$GITHUB_WORKSPACE/dist"
-            cp -r "$SRC"/* "$GITHUB_WORKSPACE/dist/" || true
-            echo "Copied $SRC to $GITHUB_WORKSPACE/dist"
-            ls -la "$GITHUB_WORKSPACE/dist" || true
-          else
-            echo "No dist directory to copy from $SRC"
-            ls -la "${{ steps.detect.outputs.root }}" || true
-            exit 0
-          fi
-      - name: Ensure Vercel Project Root Directory
-        run: |
-          echo "Ensuring Vercel project rootDirectory is empty (so deploy from repo root works)"
-          curl -s -X PATCH "https://api.vercel.com/v1/projects/${{ secrets.VERCEL_PROJECT_ID }}" \
-            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{"rootDirectory":""}' | jq '.' || true
-        env:
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
       - name: "Vercel: pull project settings"
-        working-directory: ${{ github.workspace }}
         run: |
           set -e
           echo "Pulling Vercel project settings into runner (.vercel)"
-          npx --yes vercel pull --yes --token "${{ secrets.VERCEL_TOKEN }}" --project "${{ secrets.VERCEL_PROJECT_ID }}" || true
-      - name: Deploy to Vercel (CLI)
-        # run from repo root and let Vercel run the build there (no --prebuilt)
-        working-directory: ${{ github.workspace }}
+          npx --yes vercel pull --yes --environment=production --token "${{ secrets.VERCEL_TOKEN }}"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Prebuild with Vercel (runner)
         run: |
           set -e
-          echo "Deploying from repo root (let Vercel build)"
-          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
-          echo "PWD: $(pwd)"
-          npx --yes vercel --prod --yes --token "${{ secrets.VERCEL_TOKEN }}"
+          echo "Running 'vercel build' in the runner to produce .vercel/output"
+          npx --yes vercel build --prod --token "${{ secrets.VERCEL_TOKEN }}"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -106,15 +43,7 @@ jobs:
           STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
 
-      - name: Prebuild with Vercel (runner)
-        working-directory: ${{ github.workspace }}
-        run: |
-          set -e
-          echo "Running 'vercel build' in the runner to produce .vercel/output"
-          npx --yes vercel build --token "${{ secrets.VERCEL_TOKEN }}"
-
       - name: Deploy prebuilt to Vercel (CLI)
-        working-directory: ${{ github.workspace }}
         run: |
           set -e
           echo "Deploying prebuilt output to Vercel"
