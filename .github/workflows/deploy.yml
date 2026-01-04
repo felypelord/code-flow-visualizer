@@ -37,8 +37,8 @@ jobs:
           pwd
           echo "Listing repo root:"; ls -la
           echo "Listing Code-Flow-Visualizer (if present):"; ls -la Code-Flow-Visualizer || true
-          echo "Detected subdir: '${{ steps.detect.outputs.subdir }}'";
-          ls -la "${{ steps.detect.outputs.subdir }}" || true
+          echo "Detected root: '${{ steps.detect.outputs.root }}'";
+          ls -la "${{ steps.detect.outputs.root }}" || true
       - name: Install dependencies
         working-directory: ${{ steps.detect.outputs.root }}
         run: |
@@ -82,7 +82,7 @@ jobs:
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      - name: Vercel: pull project settings
+      - name: "Vercel: pull project settings"
         working-directory: ${{ github.workspace }}
         run: |
           set -e
