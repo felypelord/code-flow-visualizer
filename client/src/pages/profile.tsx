@@ -508,7 +508,6 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-transparent">
-        <div className="absolute inset-0 pointer-events-none themed-bg -z-20" />
         <div className="absolute inset-0 pointer-events-none opacity-55 bg-gradient-to-b from-white/5 via-transparent to-black/50" />
         <div className="relative z-10 text-white text-xl">Loading profile...</div>
       </div>
@@ -563,7 +562,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden py-8 px-4 bg-transparent">
-      <div className="absolute inset-0 pointer-events-none themed-bg -z-20" />
       <div className="absolute inset-0 pointer-events-none opacity-55 bg-gradient-to-b from-white/5 via-transparent to-black/50" />
       <div className="max-w-6xl mx-auto space-y-6 relative z-10">
         {/* Header with XP & Level */}

@@ -43,6 +43,7 @@ const STORE_CATALOG: StoreItem[] = [
   { id: 'theme_cyberpunk', name: 'Cyberpunk Theme', description: 'Neon nights and dark UI', type: 'cosmetic', price: 250, icon: '🟣', category: 'theme' },
   { id: 'theme_matrix', name: 'Matrix Theme', description: 'Green code rain vibes', type: 'cosmetic', price: 250, icon: '🟩', category: 'theme' },
   { id: 'theme_vip_gold', name: 'VIP Gold Theme', description: 'Premium golden grid background', type: 'cosmetic', price: 5000, icon: '✨', category: 'theme' },
+  { id: 'theme_luxe_gold', name: 'Luxe Gold Theme', description: 'Luxury gold gradient background', type: 'cosmetic', price: 15000, icon: 'BG', category: 'theme' },
   { id: 'theme_aurora', name: 'Aurora Theme', description: 'Soft aurora glow background', type: 'cosmetic', price: 300, icon: '🌌', category: 'theme' },
   { id: 'theme_sunset', name: 'Sunset Theme', description: 'Warm sunset grid background', type: 'cosmetic', price: 300, icon: '🌅', category: 'theme' },
   { id: 'theme_rose', name: 'Rose Theme', description: 'Pink accent grid background', type: 'cosmetic', price: 300, icon: '🌸', category: 'theme' },

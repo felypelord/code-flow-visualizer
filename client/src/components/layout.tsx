@@ -499,9 +499,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       <main className="flex-1 relative flex flex-col">
-        {/* Theme-driven background (patterns/images via CSS gradients) */}
-        <div className="absolute inset-0 pointer-events-none themed-bg -z-20" />
-        
         {children}
       </main>
 

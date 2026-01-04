@@ -44,7 +44,7 @@ postgresql://user:password@ep-xxx.neon.tech/codeflow?sslmode=require&pgbouncer=t
 Copie todo o conteúdo de `neon-setup.sql` que está na raiz do projeto e cole no Neon SQL Editor.
 
 **Conteúdo do script:**
-- Cria tabelas: `users`, `email_verifications`, `password_resets`, `progress`, `webhook_events`, `stripe_customers`
+- Cria tabelas: `users`, `email_verifications`, `password_resets`, `progress`, `webhook_events`, `stripe_customers`, `user_follows`, `friend_requests`
 - Cria índices para melhor performance
 - Adiciona um usuário de teste
 

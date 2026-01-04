@@ -102,6 +102,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <TooltipProvider>
+          {/* Global theme-driven background (applies to all pages, including Profile) */}
+          <div className="fixed inset-0 pointer-events-none themed-bg -z-20" />
           <Toaster />
           <Router />
           <Analytics />
