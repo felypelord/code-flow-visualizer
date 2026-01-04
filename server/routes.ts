@@ -1930,6 +1930,24 @@ export async function registerRoutes(
   // SOCIAL (MVP): FOLLOW / UNFOLLOW
   // ============================================================================
 
+  function isMissingRelationError(error: any) {
+    // Postgres: 42P01 = undefined_table
+    const code = (error && (error.code || error?.cause?.code)) as string | undefined;
+    if (code === '42P01') return true;
+
+    const message = String(error?.message || error?.cause?.message || '');
+    return /relation .* does not exist/i.test(message) || /undefined_table/i.test(message);
+  }
+
+  function socialNotReadyRead(res: Response) {
+    // Avoid breaking Profile UI if the social tables haven't been migrated yet.
+    return res.status(200);
+  }
+
+  function socialNotReadyWrite(res: Response) {
+    return res.status(503).json({ message: 'Social feature is not available yet. Please try again later.' });
+  }
+
   type SocialUser = {
     id: string;
     firstName: string | null;
@@ -1964,6 +1982,7 @@ export async function registerRoutes(
 
       return res.json({ following: rows.map((r) => r.followingId) });
     } catch (error: any) {
+      if (isMissingRelationError(error)) return socialNotReadyRead(res).json({ following: [] });
       console.error("Error fetching following:", error);
       return res.status(500).json({ message: "Failed to fetch following" });
     }
@@ -1981,6 +2000,7 @@ export async function registerRoutes(
         .orderBy(asc(users.firstName));
       return res.json({ following: rows.map((r: any) => r.users as SocialUser) });
     } catch (error: any) {
+      if (isMissingRelationError(error)) return socialNotReadyRead(res).json({ following: [] });
       console.error("Error fetching following users:", error);
       return res.status(500).json({ message: "Failed to fetch following users" });
     }
@@ -1997,6 +2017,7 @@ export async function registerRoutes(
         .orderBy(asc(users.firstName));
       return res.json({ followers: rows.map((r: any) => r.users as SocialUser) });
     } catch (error: any) {
+      if (isMissingRelationError(error)) return socialNotReadyRead(res).json({ followers: [] });
       console.error("Error fetching followers:", error);
       return res.status(500).json({ message: "Failed to fetch followers" });
     }
@@ -2027,6 +2048,7 @@ export async function registerRoutes(
 
       return res.json({ ok: true, following: true });
     } catch (error: any) {
+      if (isMissingRelationError(error)) return socialNotReadyWrite(res);
       console.error("Error following user:", error);
       return res.status(500).json({ message: "Failed to follow" });
     }
@@ -2046,6 +2068,7 @@ export async function registerRoutes(
 
       return res.json({ ok: true, following: false });
     } catch (error: any) {
+      if (isMissingRelationError(error)) return socialNotReadyWrite(res);
       console.error("Error unfollowing user:", error);
       return res.status(500).json({ message: "Failed to unfollow" });
     }
@@ -2078,6 +2101,7 @@ export async function registerRoutes(
         outgoing: outgoingRows.map((r: any) => ({ user: r.users as SocialUser, createdAt: r.createdAt })),
       });
     } catch (error: any) {
+      if (isMissingRelationError(error)) return socialNotReadyRead(res).json({ incoming: [], outgoing: [] });
       console.error("Error fetching friend requests:", error);
       return res.status(500).json({ message: "Failed to fetch friend requests" });
     }
@@ -2105,6 +2129,7 @@ export async function registerRoutes(
 
       return res.json({ friends: Array.from(map.values()) });
     } catch (error: any) {
+      if (isMissingRelationError(error)) return socialNotReadyRead(res).json({ friends: [] });
       console.error("Error fetching friends:", error);
       return res.status(500).json({ message: "Failed to fetch friends" });
     }
