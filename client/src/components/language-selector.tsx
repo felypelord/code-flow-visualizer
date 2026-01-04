@@ -3,10 +3,11 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Language } from '@/lib/types';
 
-const progLanguages: { id: Language; label: string; icon: React.ReactElement }[] = [
+const progLanguages: { id: Language; label: string; abbr: string; icon: React.ReactElement }[] = [
   {
     id: 'javascript',
     label: 'JavaScript',
+    abbr: 'JS',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="3" fill="#F7DF1E"/><text x="6" y="17" fontSize="12" fontWeight="700" fill="#000">JS</text></svg>
     ),
@@ -14,6 +15,7 @@ const progLanguages: { id: Language; label: string; icon: React.ReactElement }[]
   {
     id: 'csharp',
     label: 'C#',
+    abbr: 'C#',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="3" fill="#239120"/><text x="6" y="17" fontSize="12" fontWeight="700" fill="#fff">C#</text></svg>
     ),
@@ -21,6 +23,7 @@ const progLanguages: { id: Language; label: string; icon: React.ReactElement }[]
   {
     id: 'java',
     label: 'Java',
+    abbr: 'JV',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="3" fill="#5382A1"/><text x="6" y="17" fontSize="12" fontWeight="700" fill="#fff">Jv</text></svg>
     ),
@@ -28,6 +31,7 @@ const progLanguages: { id: Language; label: string; icon: React.ReactElement }[]
   {
     id: 'c',
     label: 'C',
+    abbr: 'C',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="3" fill="#08457E"/><text x="8" y="17" fontSize="12" fontWeight="700" fill="#fff">C</text></svg>
     ),
@@ -47,7 +51,7 @@ export function LanguageSelector() {
         {progLanguages.map((p) => (
           <SelectItem key={p.id} value={p.id} className="flex items-center gap-2">
             <span className="w-5 text-sm">{p.icon}</span>
-            <span>{p.label}</span>
+            <span>{p.abbr}</span>
           </SelectItem>
         ))}
       </SelectContent>

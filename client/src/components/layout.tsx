@@ -49,7 +49,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <div className="fixed inset-0 pointer-events-none themed-bg -z-20" />
       {/* Navbar */}
       <header className="border-b border-white/10 bg-card/50 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-3 lg:px-4 h-16 flex items-center gap-3 min-w-0">
           <Link href="/">
             <div className="flex items-center gap-2 cursor-pointer group">
               <div className="p-2 bg-primary/10 rounded-md border border-primary/20 group-hover:bg-primary/20 transition-colors">
@@ -62,7 +62,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex flex-1 items-center justify-center gap-1 min-w-0">
             <NavLink href="/" active={location === "/"}>
               {t('nav.home', 'Home')}
             </NavLink>
@@ -71,7 +71,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <DropdownMenuTrigger asChild>
                 <button
                   className={cn(
-                    "cosmetic-tab flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5",
+                    "cosmetic-tab flex items-center gap-1 px-2 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors hover:text-primary hover:bg-white/5 whitespace-nowrap",
                     isLessonActive ? "text-primary bg-primary/10" : "text-muted-foreground"
                   )}
                   data-active={isLessonActive ? "true" : "false"}
@@ -103,7 +103,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <DropdownMenuTrigger asChild>
                 <button
                   className={cn(
-                    "cosmetic-tab flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5",
+                    "cosmetic-tab flex items-center gap-1 px-2 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors hover:text-primary hover:bg-white/5 whitespace-nowrap",
                     location.includes("/exercises") || location.includes("/sandbox") ? "text-primary bg-primary/10" : "text-muted-foreground"
                   )}
                   data-active={location.includes("/exercises") || location.includes("/sandbox") ? "true" : "false"}
@@ -142,8 +142,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <NavLink href="/tracks" active={location.includes("/tracks")}
-            >
+            <NavLink href="/tracks" active={location.includes("/tracks")}>
               <GraduationCap className="w-4 h-4" />
               {t('nav.learning', 'Learning')}
             </NavLink>
@@ -157,7 +156,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             <Link href="/pricing">
               <span className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold cursor-pointer",
+                "flex items-center gap-2 px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-bold cursor-pointer",
                 location.includes("/pricing")
                   ? "bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-400/40"
                   : "text-amber-200 hover:text-amber-300 hover:bg-amber-500/10 border border-transparent"
@@ -168,7 +167,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </span>
               </span>
             </Link>
-            <NavLink href="/library" active={location.includes("/library")}> 
+
+            <NavLink href="/library" active={location.includes("/library")}>
               <BookOpen className="w-4 h-4 text-amber-400" />
               <span className="ml-1">{t('nav.library', 'Library')}</span>
             </NavLink>
@@ -179,7 +179,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <DropdownMenuTrigger asChild>
                 <button
                   className={cn(
-                    "cosmetic-tab flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5",
+                    "cosmetic-tab flex items-center gap-1 px-2 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors hover:text-primary hover:bg-white/5 whitespace-nowrap",
                     location.includes("/profile") || location.includes("/history") || location.includes("/journal") || location.includes("/achievements") || location.includes("/store") || location.includes("/leaderboard") || location.includes("/daily-challenges") || location.includes("/challenges") || location.includes("/monetization") ? "text-primary bg-primary/10" : "text-muted-foreground"
                   )}
                   data-active={location.includes("/profile") || location.includes("/history") || location.includes("/journal") || location.includes("/achievements") || location.includes("/store") || location.includes("/leaderboard") || location.includes("/daily-challenges") || location.includes("/challenges") || location.includes("/monetization") ? "true" : "false"}
@@ -283,7 +283,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </DropdownMenu>
           </nav>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3 flex-shrink-0">
             <LanguageSelector />
             <div data-auth-trigger>
               <Auth />
@@ -514,7 +514,7 @@ function NavLink({ href, active, children }: { href: string; active: boolean; ch
     <Link href={href}>
       <span
         className={cn(
-          "cosmetic-tab flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5 cursor-pointer",
+          "cosmetic-tab flex items-center gap-2 px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors hover:text-primary hover:bg-white/5 cursor-pointer whitespace-nowrap",
           active ? "text-primary bg-primary/10" : "text-muted-foreground"
         )}
         data-active={active ? "true" : "false"}
