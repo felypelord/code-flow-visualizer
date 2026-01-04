@@ -514,7 +514,7 @@ function NavLink({ href, active, children }: { href: string; active: boolean; ch
     <Link href={href}>
       <span
         className={cn(
-          "cosmetic-tab flex items-center gap-2 px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors hover:text-primary hover:bg-white/5 cursor-pointer whitespace-nowrap",
+          "cosmetic-tab flex items-center gap-2 px-1.5 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors hover:text-primary hover:bg-white/5 cursor-pointer whitespace-nowrap",
           active ? "text-primary bg-primary/10" : "text-muted-foreground"
         )}
         data-active={active ? "true" : "false"}

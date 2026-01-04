@@ -443,11 +443,11 @@ export default function Auth() {
   return (
     <div>
       {user ? (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <button
             type="button"
             onClick={() => { window.location.href = '/profile'; }}
-            className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-amber-400/60 rounded-lg px-2 py-1 hover:bg-white/5 transition"
+            className="flex items-center gap-2 min-w-0 focus:outline-none focus:ring-2 focus:ring-amber-400/60 rounded-lg px-2 py-1 hover:bg-white/5 transition"
             title="Open profile"
           >
             <div className="avatar-frame-wrap w-8 h-8">
@@ -457,15 +457,17 @@ export default function Auth() {
                 {getAvatarEmoji(user.avatar)}
               </div>
             </div>
-            <div className="flex flex-col items-start text-left">
-              <span className="text-sm font-medium flex items-center gap-1.5">
-                {user.firstName || (user.email ? user.email.split('@')[0] : 'User')}
-                <span className="text-xs text-yellow-400 font-bold">Lv. {user.level || 1}</span>
+            <div className="flex flex-col items-start text-left min-w-0">
+              <span className="text-sm font-medium flex items-center gap-1.5 min-w-0">
+                <span className="truncate max-w-[110px] lg:max-w-none">
+                  {user.firstName || (user.email ? user.email.split('@')[0] : 'User')}
+                </span>
+                <span className="text-xs text-yellow-400 font-bold flex-shrink-0">Lv. {user.level || 1}</span>
               </span>
               <span className="text-xs text-slate-400">{user.isPro ? 'Pro' : 'Free'}</span>
             </div>
           </button>
-          <Button variant="outline" size="sm" onClick={logout} className="text-xs">
+          <Button variant="outline" size="sm" onClick={logout} className="text-xs px-2">
             {t('auth.logout', 'Logout')}
           </Button>
           <UILanguageSelector />
