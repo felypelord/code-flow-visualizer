@@ -14,14 +14,14 @@ export const ADSENSE_CONFIG = {
   publisherId: 'ca-pub-1873423099734846',
   
   // Ad slots for different placements
-  slots: {
-    rewardVideo: 'XXXXXXXXXX', // Video ad slot ID - Configure no AdSense dashboard
-    displayAd: 'XXXXXXXXXX',   // Display ad slot ID - Configure no AdSense dashboard
-    banner: 'XXXXXXXXXX',       // Banner ad slot ID - Configure no AdSense dashboard
-  },
+    slots: {
+      rewardVideo: '9876543210', // Atualize com seu slot real se necessário
+      displayAd: '1234567890',   // Atualize com seu slot real se necessário
+      banner: '0987654321',      // Atualize com seu slot real se necessário
+    },
   
-  // Testing mode (set to false in production after configuring slots)
-  testMode: true,
+    // Testing mode (set to false in production after configuring slots)
+    testMode: false,
 };
 
 // Initialize AdSense

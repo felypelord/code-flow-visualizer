@@ -1,0 +1,59 @@
+{
+  "inDir": "marketing-final",
+  "outDir": "marketing-bestof",
+  "concat": true,
+  "combined": {
+    "story": "combined\\bestof__story.mp4",
+    "youtube": "combined\\bestof__youtube.mp4"
+  },
+  "items": [
+    {
+      "key": "sandbox",
+      "label": "Sandbox",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-functions",
+      "label": "Learn - Functions",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-conditionals",
+      "label": "Learn - Conditionals",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-loops-arrays",
+      "label": "Learn - Loops & Arrays",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-async-await",
+      "label": "Learn - Async/Await",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "pro",
+      "label": "Pro",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "baseURL": "http://127.0.0.1:5000",
+  "outDir": "marketing-assets-bestof",
+  "timestamp": "2026-01-05T01:29:34.011Z",
+  "results": [
+    {
+      "page": "sandbox",
+      "path": "/sandbox",
+      "variant": "story",
+      "url": "http://127.0.0.1:5000/sandbox",
+      "screenshot": "screenshots\\sandbox__story.png",
+      "videoWebm": "videos\\sandbox__story.webm",
+      "videoMp4": null,
+      "ok": true,
+      "error": null
+    },
+    {
+      "page": "sandbox",
+      "path": "/sandbox",
+      "variant": "youtube",
+      "url": "http://127.0.0.1:5000/sandbox",
+      "screenshot": "screenshots\\sandbox__youtube.png",
+      "videoWebm": "videos\\sandbox__youtube.webm",
+      "videoMp4": null,
+      "ok": true,
+      "error": null
+    },
+    {
+      "page": "learn-functions",
+      "path": "/lesson/functions",
+      "variant": "story",
+      "url": "http://127.0.0.1:5000/lesson/functions",
+      "screenshot": "screenshots\\learn-functions__story.png",
+      "videoWebm": "videos\\learn-functions__story.webm",
+      "videoMp4": null,
+      "ok": true,
+      "error": null
+    },
+    {
+      "page": "learn-functions",
+      "path": "/lesson/functions",
+      "variant": "youtube",
+      "url": "http://127.0.0.1:5000/lesson/functions",
+      "screenshot": "screenshots\\learn-functions__youtube.png",
+      "videoWebm": "videos\\learn-functions__youtube.webm",
+      "videoMp4": null,
+      "ok": true,
+      "error": null
+    },
+    {
+      "page": "learn-conditionals",
+      "path": "/lesson/conditionals",
+      "variant": "story",
+      "url": "http://127.0.0.1:5000/lesson/conditionals",
+      "screenshot": "screenshots\\learn-conditionals__story.png",
+      "videoWebm": "videos\\learn-conditionals__story.webm",
+      "videoMp4": null,
+      "ok": true,
+      "error": null
+    },
+    {
+      "page": "learn-conditionals",
+      "path": "/lesson/conditionals",
+      "variant": "youtube",
+      "url": "http://127.0.0.1:5000/lesson/conditionals",
+      "screenshot": "screenshots\\learn-conditionals__youtube.png",
+      "videoWebm": "videos\\learn-conditionals__youtube.webm",
+      "videoMp4": null,
+      "ok": true,
+      "error": null
+    },
+    {
+      "page": "learn-loops-arrays",
+      "path": "/lesson/loops-arrays",
+      "variant": "story",
+      "url": "http://127.0.0.1:5000/lesson/loops-arrays",
+      "screenshot": "screenshots\\learn-loops-arrays__story.png",
+      "videoWebm": "videos\\learn-loops-arrays__story.webm",
+      "videoMp4": null,
+      "ok": true,
+      "error": null
+    },
+    {
+      "page": "learn-loops-arrays",
+      "path": "/lesson/loops-arrays",
+      "variant": "youtube",
+      "url": "http://127.0.0.1:5000/lesson/loops-arrays",
+      "screenshot": "screenshots\\learn-loops-arrays__youtube.png",
+      "videoWebm": "videos\\learn-loops-arrays__youtube.webm",
+      "videoMp4": null,
+      "ok": true,
+      "error": null
+    },
+    {
+      "page": "learn-async-await",
+      "path": "/lesson/async-await",
+      "variant": "story",
+      "url": "http://127.0.0.1:5000/lesson/async-await",
+      "screenshot": "screenshots\\learn-async-await__story.png",
+      "videoWebm": "videos\\learn-async-await__story.webm",
+      "videoMp4": null,
+      "ok": true,
+      "error": null
+    },
+    {
+      "page": "learn-async-await",
+      "path": "/lesson/async-await",
+      "variant": "youtube",
+      "url": "http://127.0.0.1:5000/lesson/async-await",
+      "screenshot": "screenshots\\learn-async-await__youtube.png",
+      "videoWebm": "videos\\learn-async-await__youtube.webm",
+      "videoMp4": null,
+      "ok": true,
+      "error": null
+    },
+    {
+      "page": "pro",
+      "path": "/pro",
+      "variant": "story",
+      "url": "http://127.0.0.1:5000/pro",
+      "screenshot": "screenshots\\pro__story.png",
+      "videoWebm": "videos\\pro__story.webm",
+      "videoMp4": null,
+      "ok": true,
+      "error": null
+    },
+    {
+      "page": "pro",
+      "path": "/pro",
+      "variant": "youtube",
+      "url": "http://127.0.0.1:5000/pro",
+      "screenshot": "screenshots\\pro__youtube.png",
+      "videoWebm": "videos\\pro__youtube.webm",
+      "videoMp4": null,
+      "ok": true,
+      "error": null
+    }
+  ]
+}

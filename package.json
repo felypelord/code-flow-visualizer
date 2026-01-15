@@ -21,7 +21,18 @@
     "db:apply:entitlements": "tsx script/apply-entitlements.ts",
     "pro:grant": "tsx script/seed-pro-entitlement.ts",
     "e2e": "playwright test",
-    "e2e:ui": "playwright test --ui"
+    "e2e:ui": "playwright test --ui",
+    "marketing:capture": "node script/marketing-capture.mjs",
+    "marketing:capture:video": "node script/marketing-capture.mjs --video",
+    "marketing:capture:video:mp4": "node script/marketing-capture.mjs --video --mp4",
+    "marketing:convert:mp4": "node script/convert-webm-to-mp4.mjs",
+    "marketing:capture:final": "node script/marketing-capture.mjs --config script/marketing-final.config.json --outDir marketing-assets-final --video",
+    "marketing:convert:final": "node script/convert-webm-to-mp4.mjs --inDir marketing-assets-final/videos",
+    "marketing:package:final": "node script/marketing-package.mjs --inDir marketing-assets-final --outDir marketing-final",
+    "marketing:bestof": "node script/marketing-bestof.mjs --inDir marketing-final --outDir marketing-bestof",
+    "marketing:capture:bestof": "node script/marketing-capture.mjs --config script/marketing-bestof-capture.config.json --outDir marketing-assets-bestof --video",
+    "marketing:convert:bestof": "node script/convert-webm-to-mp4.mjs --inDir marketing-assets-bestof/videos",
+    "marketing:video:bestof": "powershell -ExecutionPolicy Bypass -File script/marketing-make-video.ps1 -InDir marketing-assets-bestof -OutDir marketing-video"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

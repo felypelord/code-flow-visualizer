@@ -1,0 +1,94 @@
+{
+  "inDir": "marketing-assets-final",
+  "outDir": "marketing-final",
+  "items": [
+    {
+      "key": "sandbox",
+      "label": "Sandbox",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-functions",
+      "label": "Learn - Functions",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-conditionals",
+      "label": "Learn - Conditionals",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-loops-arrays",
+      "label": "Learn - Loops & Arrays",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-objects",
+      "label": "Learn - Objects",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-classes",
+      "label": "Learn - Classes",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-recursion",
+      "label": "Learn - Recursion",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-closures",
+      "label": "Learn - Closures",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-async-await",
+      "label": "Learn - Async Await",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "learn-debugging",
+      "label": "Learn - Debugging",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    },
+    {
+      "key": "pro",
+      "label": "Pro",
+      "storyMp4": true,
+      "youtubeMp4": true,
+      "storyPng": true,
+      "youtubePng": true
+    }
+  ]
+}
