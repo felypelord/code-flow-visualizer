@@ -49,9 +49,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <div className="fixed inset-0 pointer-events-none themed-bg -z-20" />
       {/* Navbar */}
       <header className="border-b border-white/10 bg-card/50 backdrop-blur-md sticky top-0 z-50">
-        <div className="w-full max-w-screen-2xl mx-auto px-2 sm:px-3 lg:px-6 h-16 flex items-center gap-3 min-w-0 flex-nowrap">
+        <div className="w-full max-w-screen-2xl mx-auto px-2 sm:px-3 lg:px-6 h-16 flex items-center justify-between min-w-0 flex-nowrap">
           <Link href="/">
-            <div className="flex items-center gap-2 cursor-pointer group">
+            <div className="flex items-center gap-2 cursor-pointer group" style={{ minWidth: 140, flexShrink: 0 }}>
               <div className="p-2 bg-primary/10 rounded-md border border-primary/20 group-hover:bg-primary/20 transition-colors">
                 <Terminal className="w-5 h-5 text-primary" />
               </div>
@@ -62,9 +62,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex flex-1 items-center justify-center gap-1 min-w-0 flex-nowrap">
+          <nav className="hidden md:flex flex-1 items-center justify-center gap-2 min-w-0 flex-nowrap" style={{maxWidth: 'calc(100vw - 320px)'}}>
             <NavLink href="/" active={location === "/"}>
-              {t('nav.home', 'Home')}
+              <span style={{ minWidth: 63, marginLeft: 11, flexShrink: 0, fontSize: '0.7rem', display: 'inline-block' }}>{t('nav.home', 'Home')}</span>
             </NavLink>
 
             <DropdownMenu>
@@ -179,7 +179,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <DropdownMenuTrigger asChild>
                 <button
                   className={cn(
-                    "cosmetic-tab flex items-center gap-1 px-2 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors hover:text-primary hover:bg-white/5 whitespace-nowrap",
+                    "cosmetic-tab flex items-center gap-1 px-1 lg:px-2 py-1 rounded-lg text-[0.7rem] lg:text-xs font-medium transition-colors hover:text-primary hover:bg-white/5 whitespace-nowrap",
                     location.includes("/profile") || location.includes("/history") || location.includes("/journal") || location.includes("/achievements") || location.includes("/store") || location.includes("/leaderboard") || location.includes("/daily-challenges") || location.includes("/challenges") || location.includes("/monetization") ? "text-primary bg-primary/10" : "text-muted-foreground"
                   )}
                   data-active={location.includes("/profile") || location.includes("/history") || location.includes("/journal") || location.includes("/achievements") || location.includes("/store") || location.includes("/leaderboard") || location.includes("/daily-challenges") || location.includes("/challenges") || location.includes("/monetization") ? "true" : "false"}
@@ -283,7 +283,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </DropdownMenu>
           </nav>
 
-          <div className="hidden md:flex items-center gap-3 flex-shrink-0">
+          <div className="hidden md:flex items-center gap-3 flex-shrink-0" style={{minWidth: 180, justifyContent: 'flex-end'}}>
             <LanguageSelector />
             <div data-auth-trigger>
               <Auth />
@@ -305,7 +305,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <div className="flex flex-col gap-2 mt-8 pb-8">
                   <Link href="/" onClick={() => setIsOpen(false)}>
                     <span className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors",
+                      "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                       location === "/" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                     )}>
                       {t('nav.home', 'Home')}
@@ -407,7 +407,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   </Link>
 
                   <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-2">
-                    {t('nav.gamification', 'Gamification')}
+                    <span style={{fontSize: '0.7em'}}>{t('nav.gamification', 'Gamification')}</span>
                   </div>
                   <Link href="/profile" onClick={() => setIsOpen(false)}>
                     <span

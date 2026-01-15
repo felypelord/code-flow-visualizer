@@ -352,10 +352,10 @@ output = output_buffer.getvalue().split('\\n')
     <div className="w-full max-w-6xl mx-auto p-6 space-y-6 bg-slate-900/60 rounded-3xl border border-slate-700 shadow-sm">
       <div className="flex flex-col gap-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-200 text-xs font-semibold w-fit">
-          <Sparkles className="w-4 h-4" /> Pro Debugger - Passo a passo + Snapshots
+          <Sparkles className="w-4 h-4" /> {t?.("debugger.badge", "Debugger")} - {t?.("debugger.step", "Step-by-step")} + {t?.("debugger.snapshots", "Snapshots")}
         </div>
-        <h1 className="text-3xl font-bold text-white">Visual Debugger Dourado</h1>
-        <p className="text-sm text-amber-100/90">Breakpoints condicionais, watch de variaveis, pilha de chamadas, output, export e profiler.</p>
+        <h1 className="text-3xl font-bold text-white">{t?.("debugger.title", "Debugger")}</h1>
+        <p className="text-sm text-amber-100/90">{t?.("debugger.desc", "Breakpoints, watch variables, call stack, output, export and profiler.")}</p>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

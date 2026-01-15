@@ -41,8 +41,14 @@ export default function MonetizationSection() {
     return `$${(cents / 100).toFixed(2)}`;
   };
 
+  const { t } = useLanguage();
   const handlePurchase = async (packageId: string) => {
     if (!user) {
+      toast({
+        title: t('auth.signIn', 'Sign in'),
+        description: t('cosmetics.toast.mustSignInToBuy', 'You must be signed in to buy.'),
+        variant: 'destructive',
+      });
       const authButton = document.querySelector('[data-auth-trigger]') as HTMLButtonElement;
       if (authButton) authButton.click();
       return;
@@ -53,6 +59,11 @@ export default function MonetizationSection() {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
+        toast({
+          title: t('auth.signIn', 'Sign in'),
+          description: t('cosmetics.toast.mustSignInToBuy', 'You must be signed in to buy.'),
+          variant: 'destructive',
+        });
         const authButton = document.querySelector('[data-auth-trigger]') as HTMLButtonElement;
         if (authButton) authButton.click();
         return;
