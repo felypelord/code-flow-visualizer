@@ -1,0 +1,46 @@
+
+> rest-express@1.0.0 dev:client
+> cd client && node ../node_modules/vite/bin/vite.js --config ../vite.config.ts
+
+
+  [32m[1mVITE[22m v7.1.12[39m  [2mready in [0m[1m1510[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5173[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[2m17:42:23[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/exercises-new.tsx[22m
+[2m17:42:23[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/exercises-new.tsx[22m
+[2m17:42:33[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m17:42:34[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/exercises-new.tsx[22m
+[2m17:42:34[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m17:54:59[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m17:55:10[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/layout.tsx[22m
+[2m17:55:11[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m17:55:11[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/layout.tsx[22m
+[2m17:55:20[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/profile.tsx, /src/index.css[22m
+[2m17:55:35[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/profile.tsx, /src/index.css[22m
+[2m17:59:15[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/exercises-new.tsx[22m
+[2m17:59:17[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/exercises-new.tsx[22m
+[2m18:02:57[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/exercises-new.tsx[22m
+[2m18:03:03[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/exercises-new.tsx[22m
+[2m18:12:35[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m18:12:44[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m18:13:27[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m18:13:34[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m18:19:54[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m18:20:03[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m18:28:08[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m18:28:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m18:28:26[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m18:53:47[22m [36m[1m[vite][22m[39m [32m../vite.config.ts changed, restarting server...[39m
+[2m18:53:48[22m [36m[1m[vite][22m[39m server restarted.
+[2m18:53:51[22m [36m[1m[vite][22m[39m [32m../vite.config.ts changed, restarting server...[39m
+[2m18:53:54[22m [36m[1m[vite][22m[39m server restarted.
+[2m20:48:47[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m20:48:47[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m20:48:58[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m20:49:11[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/profile.tsx, /src/index.css[22m
+[2m20:49:19[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/profile.tsx, /src/index.css[22m
+[2m20:49:31[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m20:49:33[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m20:54:45[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m
+[2m20:55:02[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/pricing.tsx, /src/index.css[22m

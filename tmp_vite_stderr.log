@@ -1,0 +1,640 @@
+[2m19:41:30[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/store[39m
+Error: connect ECONNREFUSED 127.0.0.1:5000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[2m19:45:48[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[31m               [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 70 |[31m               )}
+[31m[1m>[22m[31m[90m 71 |[31m           )}
+ [90m    |[31m            [31m[1m^[22m[31m
+ [90m 72 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 73 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 74 |[31m     [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+      at constructor (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:367:19)
+      at TypeScriptParserMixin.raise (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6630:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6650:16)
+      at TypeScriptParserMixin.expect (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6930:12)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11669:14)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10897:29)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9631:18)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10889:17)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10788:23)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4665:31)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4744:36)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4782:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4792:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:39
+      at TypeScriptParserMixin.tryParse (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6938:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:18)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12503:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11683:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+[2m19:45:51[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[31m               [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 70 |[31m               )}
+[31m[1m>[22m[31m[90m 71 |[31m           )}
+ [90m    |[31m            [31m[1m^[22m[31m
+ [90m 72 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 73 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 74 |[31m     [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+      at constructor (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:367:19)
+      at TypeScriptParserMixin.raise (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6630:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6650:16)
+      at TypeScriptParserMixin.expect (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6930:12)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11669:14)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10897:29)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9631:18)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10889:17)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10788:23)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4665:31)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4744:36)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4782:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4792:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:39
+      at TypeScriptParserMixin.tryParse (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6938:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:18)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12503:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11683:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+[2m19:47:42[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 70 |[39m               )}
+[31m[1m>[22m[39m[90m 71 |[39m           )}
+ [90m    |[39m            [31m[1m^[22m[39m
+ [90m 72 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 73 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 74 |[39m     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+[2m19:47:50[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 70 |[39m               )}
+[31m[1m>[22m[39m[90m 71 |[39m           )}
+ [90m    |[39m            [31m[1m^[22m[39m
+ [90m 72 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 73 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 74 |[39m     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+[2m19:47:59[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 70 |[39m               )}
+[31m[1m>[22m[39m[90m 71 |[39m           )}
+ [90m    |[39m            [31m[1m^[22m[39m
+ [90m 72 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 73 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 74 |[39m     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+[2m19:47:59[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 70 |[39m               )}
+[31m[1m>[22m[39m[90m 71 |[39m           )}
+ [90m    |[39m            [31m[1m^[22m[39m
+ [90m 72 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 73 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 74 |[39m     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+[2m19:47:59[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 70 |[39m               )}
+[31m[1m>[22m[39m[90m 71 |[39m           )}
+ [90m    |[39m            [31m[1m^[22m[39m
+ [90m 72 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 73 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 74 |[39m     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+[2m19:47:59[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[31m               [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 70 |[31m               )}
+[31m[1m>[22m[31m[90m 71 |[31m           )}
+ [90m    |[31m            [31m[1m^[22m[31m
+ [90m 72 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 73 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 74 |[31m     [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+      at constructor (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:367:19)
+      at TypeScriptParserMixin.raise (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6630:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6650:16)
+      at TypeScriptParserMixin.expect (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6930:12)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11669:14)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10897:29)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9631:18)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10889:17)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10788:23)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4665:31)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4744:36)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4782:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4792:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:39
+      at TypeScriptParserMixin.tryParse (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6938:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:18)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12503:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11683:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+[2m19:48:03[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 70 |[39m               )}
+[31m[1m>[22m[39m[90m 71 |[39m           )}
+ [90m    |[39m            [31m[1m^[22m[39m
+ [90m 72 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 73 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 74 |[39m     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+[2m19:48:03[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[31m               [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 70 |[31m               )}
+[31m[1m>[22m[31m[90m 71 |[31m           )}
+ [90m    |[31m            [31m[1m^[22m[31m
+ [90m 72 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 73 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 74 |[31m     [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+      at constructor (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:367:19)
+      at TypeScriptParserMixin.raise (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6630:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6650:16)
+      at TypeScriptParserMixin.expect (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6930:12)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11669:14)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10897:29)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9631:18)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10889:17)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10788:23)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4665:31)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4744:36)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4782:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4792:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:39
+      at TypeScriptParserMixin.tryParse (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6938:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:18)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12503:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11683:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+[2m19:48:11[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[31m               [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 70 |[31m               )}
+[31m[1m>[22m[31m[90m 71 |[31m           )}
+ [90m    |[31m            [31m[1m^[22m[31m
+ [90m 72 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 73 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 74 |[31m     [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+      at constructor (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:367:19)
+      at TypeScriptParserMixin.raise (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6630:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6650:16)
+      at TypeScriptParserMixin.expect (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6930:12)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11669:14)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10897:29)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9631:18)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10889:17)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10788:23)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4665:31)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4744:36)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4782:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4792:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:39
+      at TypeScriptParserMixin.tryParse (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6938:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:18)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12503:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11683:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+[2m19:48:18[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 70 |[39m               )}
+[31m[1m>[22m[39m[90m 71 |[39m           )}
+ [90m    |[39m            [31m[1m^[22m[39m
+ [90m 72 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 73 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 74 |[39m     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+[2m19:48:18[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[31m               [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 70 |[31m               )}
+[31m[1m>[22m[31m[90m 71 |[31m           )}
+ [90m    |[31m            [31m[1m^[22m[31m
+ [90m 72 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 73 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 74 |[31m     [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+      at constructor (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:367:19)
+      at TypeScriptParserMixin.raise (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6630:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6650:16)
+      at TypeScriptParserMixin.expect (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6930:12)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11669:14)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10897:29)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9631:18)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10889:17)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10788:23)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4665:31)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4744:36)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4782:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4792:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:39
+      at TypeScriptParserMixin.tryParse (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6938:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:18)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12503:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11683:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+[2m19:48:21[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[39m               [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 70 |[39m               )}
+[31m[1m>[22m[39m[90m 71 |[39m           )}
+ [90m    |[39m            [31m[1m^[22m[39m
+ [90m 72 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 73 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 74 |[39m     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m[0m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+[2m19:48:22[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[31m               [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 70 |[31m               )}
+[31m[1m>[22m[31m[90m 71 |[31m           )}
+ [90m    |[31m            [31m[1m^[22m[31m
+ [90m 72 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 73 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 74 |[31m     [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+      at constructor (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:367:19)
+      at TypeScriptParserMixin.raise (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6630:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6650:16)
+      at TypeScriptParserMixin.expect (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6930:12)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11669:14)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10897:29)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9631:18)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10889:17)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10788:23)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4665:31)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4744:36)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4782:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4792:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:39
+      at TypeScriptParserMixin.tryParse (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6938:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:18)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12503:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11683:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+[2m19:48:53[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[31m               [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 70 |[31m               )}
+[31m[1m>[22m[31m[90m 71 |[31m           )}
+ [90m    |[31m            [31m[1m^[22m[31m
+ [90m 72 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 73 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 74 |[31m     [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+      at constructor (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:367:19)
+      at TypeScriptParserMixin.raise (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6630:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6650:16)
+      at TypeScriptParserMixin.expect (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6930:12)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11669:14)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10897:29)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9631:18)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10889:17)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10788:23)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4665:31)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4744:36)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4782:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4792:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:39
+      at TypeScriptParserMixin.tryParse (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6938:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:18)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12503:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11683:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+[2m19:48:54[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\client\src\components\code-editor.tsx: Unexpected token, expected "," (71:11)
+
+[0m [90m 69 |[31m               [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 70 |[31m               )}
+[31m[1m>[22m[31m[90m 71 |[31m           )}
+ [90m    |[31m            [31m[1m^[22m[31m
+ [90m 72 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 73 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 74 |[31m     [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/Al-inglity/Downloads/site codeflow/Code-Flow-Visualizer/client/src/components/code-editor.tsx[39m:71:11
+      at constructor (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:367:19)
+      at TypeScriptParserMixin.raise (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6630:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6650:16)
+      at TypeScriptParserMixin.expect (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6930:12)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11669:14)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10897:29)
+      at TypeScriptParserMixin.parseConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9631:18)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10889:17)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9806:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10788:23)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10784:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4665:31)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4744:36)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4731:32)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4782:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4792:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11070:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11050:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9857:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10903:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10908:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10885:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10835:21)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:39
+      at TypeScriptParserMixin.tryParse (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:6938:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:9795:18)
+      at C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12436:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:10804:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:12503:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11683:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11335:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:4797:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\Al-inglity\Downloads\site codeflow\Code-Flow-Visualizer\node_modules\@babel\parser\lib\index.js:11085:23)
